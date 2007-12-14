@@ -1,10 +1,11 @@
-package jp.crestmuse.cmx.commands;
+package jp.crestmuse.cmx.commands.test;
 
 import java.io.*;
 import org.xml.sax.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import org.w3c.dom.*;
+import jp.crestmuse.cmx.commands.*;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
