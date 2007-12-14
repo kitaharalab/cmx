@@ -1,0 +1,464 @@
+package jp.crestmuse.cmx.misc;
+
+import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+  
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+
+public class PerformanceMatcher2 {
+
+  private static final int BASE_TEMPO = 120;
+
+  public static DeviationInstanceWrapper extractDeviation
+    (MusicXMLWrapper score, MIDIXMLWrapper pfm) 
+    throws ParserConfigurationException, SAXException, IOException,
+    TransformerException {
+    DeviationInstanceWrapper dev = 
+      DeviationInstanceWrapper.createDeviationInstanceFor(score);
+    DeviationDataSet dds = dev.createDeviationDataSet();
+    SCCXMLWrapper scoreSCC = score.makeDeadpanSCCXML(pfm.ticksPerBeat());
+    SCCXMLWrapper pfmSCC = pfm.toSCCXML();
+    SCCXMLWrapper sortedScore = scoreSCC.getSortedSCCXML(1);
+    SCCXMLWrapper sortedPfm = pfmSCC.getSortedSCCXML(100);
+    //sortedScore.write(new FileOutputStream(new File("scoreSCC.xml")));
+    //sortedPfm.write(new FileOutputStream(new File("pfmSCC.xml")));
+    int[] path = getPath(dtw(sortedScore, sortedPfm, 500));
+    setExtraNote(dds, path, sortedScore, sortedPfm, score);
+    setMissNote(dds, path, sortedScore, sortedPfm);
+    ArrayList<Double> beatToTempo = getTempoList(sortedScore, sortedPfm, path);
+    setTempoDev(dds, beatToTempo, score);
+    setDeviation(dds, sortedScore, sortedPfm, path, beatToTempo);
+    dds.addElementsToWrapper();
+    return dev;
+  }
+  
+  private static void setMissNote(DeviationDataSet dds, int[] path,
+      SCCXMLWrapper score, SCCXMLWrapper pfm) throws TransformerException{
+    for(int i=0; i<path.length; i++){
+      if(score.getPartList()[0].getNoteList()[i].notenum() != pfm.getPartList()[0].getNoteList()[path[i]].notenum() && Math.abs(score.getPartList()[0].getNoteList()[i].notenum()-pfm.getPartList()[0].getNoteList()[path[i]].notenum())%12!=0){
+        dds.addMissNote(score.getPartList()[0].getNoteList()[i].getMusicXMLWrapperNote());
+        path[i] = -1;
+//System.out.println(i);
+      }
+    }
+  }
+  
+  private static void setExtraNote(DeviationDataSet dds, int[] path, SCCXMLWrapper score, SCCXMLWrapper pfm, MusicXMLWrapper musicxml) throws TransformerException{
+    int partLength = Math.min(score.getPartList().length, pfm.getPartList().length);
+    for (int i = 0; i < partLength; i++) {
+      Note[] scoreNotes = score.getPartList()[i].getNoteList();
+      Note[] pfmNotes = pfm.getPartList()[i].getNoteList();
+      String id = musicxml.getPartList()[i].getAttribute("id");
+      double vol = pfm.getPartList()[i].volume();
+      
+      int[] reversePath = new int[pfmNotes.length];
+      for(int j=0; j<reversePath.length; j++) reversePath[j] = -1;
+      for(int j=0; j<path.length; j++) reversePath[path[j]] = j;
+      for(int j=0; j<reversePath.length; j++){
+        try {
+          int pfmIndex = j, scoreIndex = reversePath[j];
+          if(scoreNotes[scoreIndex].notenum() != pfmNotes[pfmIndex].notenum()){
+            MusicXMLWrapper.Note note = scoreNotes[scoreIndex].getMusicXMLWrapperNote();
+            dds.addExtraNote(id, note.measure().number(), note.beat(),
+                pfmNotes[pfmIndex].notenum(),
+                (pfmNotes[pfmIndex].offset() - pfmNotes[pfmIndex].onset()) / (double) pfm.getDivision(),
+                pfmNotes[pfmIndex].velocity() / vol, pfmNotes[pfmIndex].velocity() / vol);
+          }
+        } catch (ArrayIndexOutOfBoundsException e) {
+          MusicXMLWrapper.Note noteA;
+          MusicXMLWrapper.Note noteC;
+          int A = j-1, x;
+          try {
+            while(reversePath[A] == -1) A--;
+            x = pfmNotes[j].onset() - pfmNotes[A].onset();
+            noteA = scoreNotes[reversePath[A]].getMusicXMLWrapperNote();
+          } catch (IndexOutOfBoundsException e1) {
+            noteA = scoreNotes[0].getMusicXMLWrapperNote();
+            x = 0;
+          }
+          int C = j+1, y;
+          try {
+            while(reversePath[C] == -1) C++;
+            y = pfmNotes[C].onset() - pfmNotes[j].onset();
+            noteC = scoreNotes[reversePath[C]].getMusicXMLWrapperNote();
+          } catch (IndexOutOfBoundsException e1) {
+            noteC = scoreNotes[scoreNotes.length-1].getMusicXMLWrapperNote();
+            y = 0;
+          }
+          int measure = noteA.measure().number();
+          double beat = noteA.beat() + (noteC.beat() - noteA.beat()) * x / (x + y);
+          if(beat > noteA.measure().duration(1)){
+            measure++;
+            beat -= noteA.measure().duration(1);
+          }
+          dds.addExtraNote(id, measure, beat,
+              pfmNotes[j].notenum(),
+              (pfmNotes[j].offset() - pfmNotes[j].onset()) / (double) pfm.getDivision(),
+              pfmNotes[j].velocity() / vol, pfmNotes[j].velocity() / vol);
+        }
+      }
+      /*for (int j = 0; j < path.length; j++) {
+        if (scoreNotes[j].notenum() != pfmNotes[path[j]].notenum()) {
+          MusicXMLWrapper.Note note = scoreNotes[j].getMusicXMLWrapperNote();
+          dds.addExtraNote(id, note.measure().number(), note.beat(),
+              pfmNotes[path[j]].notenum(),
+              (pfmNotes[path[j]].offset() - pfmNotes[path[j]].onset()) / (double) pfm.getDivision(),
+              pfmNotes[path[j]].velocity() / vol, pfmNotes[path[j]].velocity() / vol);
+        }
+      }*/
+    }    
+  }
+
+  private static int[] getPath(DTWMatrix matrix) {
+    int I = matrix.nrows;
+    int J = matrix.ncols;
+    int[] path = new int[I];
+    int i = I - 1, j = J - 1;
+    do {
+      path[i] = j;
+      DTWMatrix.DTWMatrixElement e = matrix.get(i, j);
+      i = e.targetX;
+      j = e.targetY;
+    } while (i >= 0 || j >= 0);
+    /*try {
+      PrintWriter write = new PrintWriter(new FileOutputStream(new File("match.txt")));
+      for(i=0; i<path.length; i++) write.println(i+" "+path[i]);
+      write.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }*/
+//for(int a=0; a<path.length; a++)System.out.println(a+" "+path[a]);
+    return path;
+  }
+  
+  private static DTWMatrix
+  dtw(SCCXMLWrapper score, SCCXMLWrapper pfm, int r) throws TransformerException {
+    int I = score.getPartList()[0].getNoteList().length;
+    int J = pfm.getPartList()[0].getNoteList().length;
+    int scoreTicks = score.getPartList()[0].getNoteList()[I-1].offset();
+    int pfmTicks = pfm.getPartList()[0].getNoteList()[J-1].offset();
+    //r = Math.max(0, Math.max(J-I, r));
+    r = J;
+    DTWMatrix matrix = new DTWMatrix(I, J);
+    matrix.set(-1, -1, 0, -1, -1);
+    int colRisc=1;
+    for (int i = 0; i < I; i++) {
+      //System.err.print(".");
+      int rowRisc=1;
+      for (int j = Math.max(0, i-r) ; j <= Math.min(i+r, J-1); j++) {
+        Note e1 = score.getPartList()[0].getNoteList()[i];
+        Note e2 = pfm.getPartList()[0].getNoteList()[j];
+        double d = dist(e1, e2, scoreTicks, pfmTicks);
+        double c1 = matrix.getValue(i-1, j) + d + colRisc;
+        double c2 = matrix.getValue(i-1, j-1) + 2 * d;
+        double c3 = matrix.getValue(i, j-1) + d + rowRisc;
+        double c_min = Math.min(c2, Math.min(c1, c3));
+        if (c_min == c2){
+          matrix.set(i, j, c_min, i-1, j-1);
+          colRisc = 1;
+          rowRisc = 1;
+        }else if (c_min == c3){
+          matrix.set(i, j, c_min, i, j-1);
+          rowRisc += 1;
+        }else{
+          matrix.set(i, j, c_min, i-1, j);
+          colRisc += 1;
+        }
+      }
+    }
+    return matrix;
+  }
+  
+  private static double dist(Note e1, Note e2, int scoreTicks, int pfmTicks){
+    int notenum = Math.abs(e1.notenum() - e2.notenum());
+    double position = Math.abs((e1.onset() / (double)scoreTicks - e2.onset() / (double)pfmTicks));
+    if(notenum == 0) return position;
+    else if(Math.abs(e1.notenum()-e2.notenum()) % 12 == 0) return 10 + position;
+    return 100;
+  }
+
+  private static class DTWMatrix {
+    private HashMap<IntPair,DTWMatrixElement> values;
+    private int nrows, ncols;
+    private final DTWMatrixElement DEFAULT_MATRIX_ELEMENT = 
+      new DTWMatrixElement(Integer.MAX_VALUE / 2, -1, -1);
+    private DTWMatrix(int nrows, int ncols) {
+      this.nrows = nrows;
+      this.ncols = ncols;
+      values = new HashMap<IntPair,DTWMatrixElement>(Math.max(nrows,ncols));
+    }
+    private void set(int i, int j, double value, int targetX, int targetY) {
+      values.put(new IntPair(i, j), 
+                 new DTWMatrixElement(value, targetX, targetY));
+    }
+    private DTWMatrixElement get(int i, int j) {
+      if (i >= nrows || j >= ncols || i < -1 || j < -1)
+        throw new ArrayIndexOutOfBoundsException();
+      if (values.containsKey(new IntPair(i, j)))
+        return values.get(new IntPair(i, j));
+      else
+        return DEFAULT_MATRIX_ELEMENT;
+    }
+    private double getValue(int i, int j) {
+      return get(i, j).value;
+    }
+    private class IntPair {
+      private int i, j;
+      private IntPair(int i, int j) {
+        this.i = i;
+        this.j = j;
+      }
+      public boolean equals(Object o) {
+        IntPair another = (IntPair)o;
+        return (i == another.i) && (j == another.j);
+      }
+      public int hashCode() {
+        return i * nrows + j;
+      }
+    }
+    private class DTWMatrixElement {
+      private int targetX, targetY;
+      private double value;
+      private DTWMatrixElement(double value, int targetX, int targetY){
+        this.value = value;
+        this.targetX = targetX;
+        this.targetY = targetY;
+      }
+    }
+  }
+
+  private static double calcInitialSilence(SCCXMLWrapper score, 
+                                          SCCXMLWrapper pfm) 
+                                          throws TransformerException {
+    int div1 = score.getDivision();
+    int div2 = pfm.getDivision();
+    SCCXMLWrapper.Part[] scoreParts = score.getPartList();
+    SCCXMLWrapper.Part[] pfmParts = pfm.getPartList();
+    int nParts = Math.min(scoreParts.length, pfmParts.length);
+    for (int i = 0; i < nParts; i++) {
+      int t1 = scoreParts[i].getNoteList()[0].onset();
+      if (t1 == 0) {
+        int t2 = pfmParts[i].getNoteList()[0].onset();
+        double sil;
+        if (div1 == div2) 
+          sil = (double)((t2 - t1) * 60)/ (double)(div1 * BASE_TEMPO);
+        else
+          sil = (double)((t2*div2-t1*div1)*60) / (double)(div1*div2*BASE_TEMPO);
+        return sil;
+      }
+    }
+    return 0;
+  }
+
+  private static void setDeviation(DeviationDataSet dds,
+      SCCXMLWrapper score, SCCXMLWrapper pfm,
+      int[] path, ArrayList<Double> beatToTempo) throws TransformerException{
+
+    Note[] scoreNotes = score.getPartList()[0].getNoteList();
+    Note[] pfmNotes = pfm.getPartList()[0].getNoteList();
+
+    double initsil = calcInitialSilence(score, pfm);
+    dds.setInitialSilence(initsil);
+    int initticks = (int)(initsil * BASE_TEMPO * pfm.getDivision() / 60);
+
+    double timeStamp = 0;
+    ArrayList<Double> beatToTick = new ArrayList<Double>();
+    beatToTick.add(timeStamp);
+    for(int i=0; i<beatToTempo.size(); i++){
+      timeStamp += score.getDivision() * BASE_TEMPO / beatToTempo.get(i);
+      beatToTick.add(timeStamp);
+    }
+
+    for(int i=0; i<scoreNotes.length; i++){
+      if(path[i] == -1) continue;
+      Note s = scoreNotes[i];
+      Note p = pfmNotes[path[i]];
+      int onsetBeat = s.onset() / score.getDivision();
+      int offsetBeat = s.offset() / score.getDivision();
+
+      try {
+        double attack = (p.onset() - initticks - beatToTick.get(onsetBeat)) * beatToTempo.get(onsetBeat) / BASE_TEMPO - (s.onset() - score.getDivision() * onsetBeat);
+        double release = (p.offset() - initticks - beatToTick.get(offsetBeat)) * beatToTempo.get(offsetBeat) / BASE_TEMPO - (s.offset() - score.getDivision() * offsetBeat);
+        double dynamics = p.velocity() / (double)s.velocity();
+        attack /= (double)score.getDivision();
+        release /= (double)score.getDivision();
+        dds.addNoteDeviation(s.getMusicXMLWrapperNote(), attack, release, dynamics, dynamics);
+      } catch (IndexOutOfBoundsException e) {
+        onsetBeat = Math.min(onsetBeat, beatToTempo.size()-1);
+        offsetBeat = Math.min(offsetBeat, beatToTempo.size()-1);
+        double attack = (p.onset() - initticks - beatToTick.get(onsetBeat)) * beatToTempo.get(onsetBeat) / BASE_TEMPO - (s.onset() - score.getDivision() * onsetBeat);
+        double release = (p.offset() - initticks - beatToTick.get(offsetBeat)) * beatToTempo.get(offsetBeat) / BASE_TEMPO - (s.offset() - score.getDivision() * offsetBeat);
+        double dynamics = p.velocity() / (double)s.velocity();
+        attack /= (double)score.getDivision();
+        release /= (double)score.getDivision();
+        dds.addNoteDeviation(s.getMusicXMLWrapperNote(), attack, release, dynamics, dynamics);
+      }
+    }
+  }
+  
+  private static ArrayList<Double> getTempoList(SCCXMLWrapper score,
+      SCCXMLWrapper pfm, int[] path) throws TransformerException{
+    
+    ArrayList<Double> align = new ArrayList<Double>();
+    Note[] scoreNotes = score.getPartList()[0].getNoteList();
+    Note[] pfmNotes = pfm.getPartList()[0].getNoteList();
+    
+    int tick = 0;
+    for(int i=0; i<scoreNotes.length; i++){
+      if(path[i] == -1) continue;
+      if(scoreNotes[i].onset() == tick){
+        int j, count=0, total=0;
+        for(j=i;;j++){
+          try {
+            if(path[j]==-1) { continue; }
+          } catch (ArrayIndexOutOfBoundsException e1) {
+            break;
+          }
+          total += pfmNotes[path[j]].onset();
+          count++;
+          try {
+            if(scoreNotes[j+1].onset() != tick) break;
+          } catch (ArrayIndexOutOfBoundsException e) {
+            break;
+          }
+        }
+        align.add(total / (double)count / pfm.getDivision() * 60. / BASE_TEMPO);
+        i = j;
+        tick += score.getDivision();
+      }else if(scoreNotes[i].onset() > tick){
+        try {
+          int j=i-1;
+          while(path[j] == -1)j--;
+          double d = pfmNotes[path[j]].onset() + (pfmNotes[path[i]].onset() - pfmNotes[path[j]].onset()) * (tick - scoreNotes[j].onset()) / (double)(scoreNotes[i].onset() - scoreNotes[j].onset());
+          d = d / pfm.getDivision() * 60. / BASE_TEMPO;
+          align.add(d);
+        } catch (ArrayIndexOutOfBoundsException e) {
+          // 楽譜の最初が0で始まらなかったとき（突貫工事）
+          align.add(0.);
+        }
+        tick += score.getDivision();
+        i--;
+      }
+    }
+//for(double o:align)System.out.println(o);
+    ArrayList<Double> beatToTempo = new ArrayList<Double>();
+    boolean isFirstInfinity = false;
+    for(int i=0; i<align.size()-1; i++){
+      double d = align.get(i+1)-align.get(i);
+      beatToTempo.add(60 / d);
+      if(d < 0.01){
+        try{
+          System.err.println("infinite at "+i);
+          beatToTempo.set(i, beatToTempo.get(i-1));
+        }catch(ArrayIndexOutOfBoundsException e){
+          isFirstInfinity = true;
+        }
+      }
+    }
+    if(isFirstInfinity){
+      //テンポリストの先頭がinfinityだったときの対応（突貫工事）
+      System.err.println("first infinite");
+      int i=0;
+      while(beatToTempo.get(i).isInfinite()) i++;
+      for(int j=0; j<i; j++) beatToTempo.set(j, beatToTempo.get(i));
+    }
+
+    return beatToTempo;
+  }
+  
+  private static void setTempoDev(DeviationDataSet dds,
+      ArrayList<Double> beatToTempo, MusicXMLWrapper score){
+
+    // 元のMusicXMLから開始小節の番号とビートタイプを得る
+    Part[] parts = score.getPartList();
+    Measure[] measures = parts[0].getMeasureList();
+
+    int headMeasure = measures[0].number();
+ 
+    // 反映する
+    double total=0;
+    for(double d : beatToTempo) total += d;
+    double baseTempo = total / beatToTempo.size();
+    dds.addNonPartwiseControl(headMeasure, 1, "tempo", baseTempo);
+    Iterator<Double> it = beatToTempo.iterator();
+    try {
+      int index=0;
+      for (Measure measure : measures) {
+        int length = measure.duration(1);
+        for (int i = 1; i <= length; i++){
+          dds.addNonPartwiseControl(measure.number(), i, "tempo-deviation", 
+                                    it.next() / baseTempo);
+          index++;
+        }
+      }
+    } catch (NoSuchElementException e) { }
+  }
+  
+  /*private static 
+    TimeFreqRepresentation<SCCXMLWrapper.Note> 
+    getTimeFreqRepresentation(SCCXMLWrapper scc) 
+    throws TransformerException {
+    final int division = scc.getDivision();
+    final TimeFreqRepresentation<SCCXMLWrapper.Note> tfr 
+      = new TimeFreqRepresentation<SCCXMLWrapper.Note>(N_BANDS);
+    scc.processNotes(new SCCHandler() {
+        public void beginHeader(SCCXMLWrapper w) { }
+        public void endHeader(SCCXMLWrapper w) { }
+        public void beginPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+        public void endPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+        public void processHeaderElement(int timestamp, String name, 
+                                         String content, SCCXMLWrapper w) {}
+        public void processNote(SCCXMLWrapper.Note note, SCCXMLWrapper w) {
+          int onset = note.onset();
+          int offset = note.offset();
+          int notenum = note.notenum();
+          int length;
+          while ((length = tfr.length()) < offset)
+            tfr.addTime(length * division);
+          tfr.set(onset, notenum, note);
+          for (int n = onset; n < offset; n++)
+            tfr.set(n, notenum, (byte)127);
+        }
+      });
+    return tfr;
+  }*/
+
+/*
+  public static void main(String[] args) {
+    try {
+      int range = Integer.parseInt(args[3]);
+      MIDIXMLWrapper midixml = MIDIXMLWrapper.readSMF(args[1]);
+      SCCXMLWrapper scc1 = midixml.toSCCXML();
+      scc1 = sortSCC(scc1, range);
+      //TimeFreqRepresentation tfr1 = getTimeFreqRepresentation(scc1);
+      MusicXMLWrapper musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile(args[0]);
+      SCCXMLWrapper scc0 = musicxml.makeDeadpanSCCXML(scc1.getDivision());
+      scc0 = sortSCC(scc0, range);
+      //TimeFreqRepresentation tfr0 = getTimeFreqRepresentation(scc0);
+      //System.out.println(tfr0.length());
+      //System.out.println(tfr1.length());
+      DTWMatrix matrix = dtw(scc0, scc1, Integer.parseInt(args[2]));
+      int[] path = getPath(matrix);
+      for (int n : path)
+        System.out.print(n + " ");
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+*/
+
+}
+  

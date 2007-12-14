@@ -1,0 +1,95 @@
+package jp.crestmuse.cmx.gui.sound;
+
+import javax.sound.midi.*;
+import java.io.*;
+
+/**
+ * @author Mitsuyo Hashida @ CrestMuse Project, JST
+ * @version ver. 1.0 (Nov. 26, 2007)
+ */
+public class SMFPlayer {
+	Sequence sequence = null;
+
+	Sequencer sequencer = null;
+
+	long currnetTickPositon = 0;
+
+//	int byteLength = 0;
+
+//	int type = 0;
+
+	long microsecondLength = 0;
+
+	SMFPlayer() throws MidiUnavailableException {
+		sequencer = MidiSystem.getSequencer();
+		sequencer.open();
+		if (!(sequencer instanceof Synthesizer)) {
+			Synthesizer synthesizer = MidiSystem.getSynthesizer();
+			synthesizer.open();
+			Receiver receiverSyntheFromSeq = synthesizer.getReceiver();
+			Transmitter transmitterSeqToSynthe = sequencer.getTransmitter();
+			transmitterSeqToSynthe.setReceiver(receiverSyntheFromSeq);
+		}
+	}
+
+	/** read Standard Midi File */
+	void readSMF(File file) throws InvalidMidiDataException, IOException {
+
+		stop();
+		sequence = MidiSystem.getSequence(file);
+		sequencer.setSequence(sequence);
+
+//		MidiFileFormat midiFileFormat = MidiSystem.getMidiFileFormat(file);
+//		byteLength = midiFileFormat.getByteLength();
+//		type = midiFileFormat.getType();
+		microsecondLength = sequencer.getMicrosecondLength();
+		System.err.println("microsecondLength = " + microsecondLength);
+		// midiFileFormat.getMicrosecondLength() doesn't work, I don't know
+		// why...
+	}
+
+	void readSMF(InputStream instream) throws InvalidMidiDataException, IOException {
+
+		stop();
+		sequence = MidiSystem.getSequence(instream);
+		sequencer.setSequence(sequence);
+
+//		MidiFileFormat midiFileFormat = MidiSystem.getMidiFileFormat(instream);
+//		byteLength = midiFileFormat.getByteLength();
+//		type = midiFileFormat.getType();
+		microsecondLength = sequencer.getMicrosecondLength();
+		System.err.println("microsecondLength = " + microsecondLength);
+		// midiFileFormat.getMicrosecondLength() doesn't work, I don't know
+		// why...
+	}
+
+  
+
+	/** play SMF file */
+	void play() {
+		if (sequencer.getSequence() == null) {
+			System.err.println("(SMFPlayer) sequence in sequencer is empty!");
+			return;
+		}
+
+		sequencer.start();
+		System.err.println("(SMFPlayer) start playing....");
+		new BufferedReader(new InputStreamReader(System.in));
+	}
+
+	void back() {
+		sequencer.setTickPosition(0);
+	}
+
+	void stop() {
+		if (sequencer.isRunning())
+			sequencer.stop();
+	}
+
+	void close() {
+		this.stop();
+		if (sequencer.isOpen())
+			sequencer.close();
+	}
+
+}

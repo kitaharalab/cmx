@@ -1,0 +1,454 @@
+package jp.crestmuse.cmx.misc;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.xml.sax.SAXException;
+
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
+import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
+import jp.crestmuse.cmx.handlers.SCCHandler;
+
+public class DeviationExtractorator {
+
+  public static DeviationInstanceWrapper getDeviation(
+    MusicXMLWrapper score, MIDIXMLWrapper performance)
+  throws ParserConfigurationException, SAXException, IOException, TransformerException{
+
+    DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(score);
+    DeviationDataSet dds = dev.createDeviationDataSet();
+    
+    // 楽譜と演奏データをSCC形式に変換する
+    SCCXMLWrapper scoreSCC =
+      (SCCXMLWrapper)CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
+    score.makeDeadpanSCCXML(scoreSCC, performance.ticksPerBeat());
+    
+    SCCXMLWrapper performanceSCC =
+      (SCCXMLWrapper)CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
+    performance.toSCCXML(performanceSCC);
+    
+    int baseTempo = 120;
+    
+    scoreSCC = PerformanceMatcher2.sortSCC(scoreSCC, 50);
+    performanceSCC = PerformanceMatcher2.sortSCC(performanceSCC, 100);
+    
+    int[] path = PerformanceMatcher2.getPath(PerformanceMatcher2.dtw(scoreSCC, performanceSCC, 0));
+    //int[] path = PerformanceMatcher2.getPath(scoreSCC.getPartList()[0].getNoteList(), performanceSCC.getPartList()[0].getNoteList(), 50);
+    //for(int d:path) System.out.println(d);
+    ArrayList<Double> beatToTempo = PerformanceMatcher2.getTempoList(scoreSCC, performanceSCC, path);
+    
+    // テンポの揺らぎを反映する
+    PerformanceMatcher2.setTempoDev(dds, beatToTempo, baseTempo, score);
+    
+    // ノートの差を反映する
+    PerformanceMatcher2.setDeviation(dds, scoreSCC, performanceSCC, path, beatToTempo);
+    
+    dds.addElementsToWrapper();
+    return dev;
+
+  }
+
+  private static ArrayList<ArrayList<Byte>> getEasyNoteArray(
+      SCCXMLWrapper scc, final int baseTempo, final int division, final ArrayList<ArrayList<EasyNote>> easyNoteArray)
+  throws TransformerException{
+
+    final ArrayList<ArrayList<Byte>> byteArray = new ArrayList<ArrayList<Byte>>();
+    scc.processNotes(new SCCHandler(){
+      
+      public void beginHeader(SCCXMLWrapper w) {
+        currentTempo = baseTempo;
+        tempoList = new ArrayList<Integer>();
+      }
+      
+      public void processHeaderElement(
+          int timestamp, String name, String content, SCCXMLWrapper w) {
+        if(!(name.equals("TEMPO"))) return;
+        tempoList.add(timestamp);
+        tempoList.add(Integer.parseInt(content));
+      }
+
+      public void processNote(
+      	SCCXMLWrapper.Note note, SCCXMLWrapper w) {
+        
+        // テンポの更新
+        try {
+          if(note.onset() > tempoList.get(0)){
+            currentTempo = tempoList.get(1);
+            tempoList.remove(0);
+            tempoList.remove(0);
+          }
+        } catch (IndexOutOfBoundsException e1) {}
+        
+        // 音価をテンポにあわせる
+        double onset = note.onset() * baseTempo / (double)currentTempo;
+        double offset = note.offset() * baseTempo / (double)currentTempo;
+        
+        // 配列データに書き込む
+        int begin = (int)onset / (w.getDivision() / division);
+        int end = ((int)offset-1) / (w.getDivision() / division);
+        for(int i=begin; i<=end; i++){
+          while (true) {
+            try {
+              boolean isNotContain = true;
+              for(byte en : byteArray.get(i)){
+                if(en == note.notenum()){
+                  isNotContain = false;
+                  break;
+                }
+              }
+              if(isNotContain){
+                byteArray.get(i).add((byte)note.notenum());
+                // 実奏データのみEasyNoteの配列も用意しておく
+                if(easyNoteArray != null){
+                  EasyNote en = new EasyNote(onset, offset, note.notenum(), note.velocity());
+                  easyNoteArray.get(i).add(en);
+                }
+              }
+              break;
+            } catch (IndexOutOfBoundsException e) {
+              ArrayList<Byte> al = new ArrayList<Byte>();
+              byte bt = 0;
+              al.add(bt);
+              byteArray.add(al);
+              // 実奏データのみEasyNoteの配列も用意しておく
+              if(easyNoteArray != null){
+                EasyNote en = new EasyNote(0, 0, 0, 0);
+                ArrayList<EasyNote> enal = new ArrayList<EasyNote>();
+                enal.add(en);
+                easyNoteArray.add(enal);
+              }
+            }
+          }
+        }
+      }
+      
+      public void beginPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+      public void endHeader(SCCXMLWrapper w) {}
+      public void endPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+      
+      private int currentTempo;
+      private ArrayList<Integer> tempoList;
+    });
+      
+    return byteArray;
+  }
+  
+  private static HashMap<Integer, Integer> dtw(
+      ArrayList<ArrayList<Byte>> scoreList, ArrayList<ArrayList<Byte>> performanceList){
+    
+    int I = scoreList.size();
+    int J = performanceList.size();
+    int r = J; // 捜索精度の値．現在最高値．
+    SparseMatrix g = new SparseMatrix(I, J);
+    g.put(-1, -1, 0);
+    for(int i=0;i<I;i++){
+      for(int j=Math.max(0, i-r);j<=Math.min(i+r, J-1);j++){
+        int d = dist(scoreList.get(i), performanceList.get(j));
+        int c1 = g.get(i-1, j) + d;
+        int c2 = g.get(i - 1, j - 1) + 2 * d;
+        int c3 = g.get(i, j - 1) + d;
+        int c4 = Math.min(c2, Math.min(c1, c3));
+        g.put(i, j, c4);
+
+        if(c4 == c2) g.putTarget(i, j, i-1, j-1);
+        else if(c4 == c3) g.putTarget(i, j, i, j-1);
+        else g.putTarget(i, j, i-1, j);
+        
+      }
+    }
+
+    HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
+    int i = I-1, j = J-1;
+    while(true){
+      path.put(i, j);
+      int x = g.getTargetX(i, j);
+      int y = g.getTargetY(i, j);
+      i = x; j = y;
+      if((i + j) == -2) break;
+    }
+
+    return path;
+  }
+  
+  private static int dist(ArrayList<Byte> x1, ArrayList<Byte> x2){
+
+    int d = Math.max(x1.size(), x2.size());
+    for(int i=0;i<x1.size();i++){
+      for(int j=0;j<x2.size();j++){
+        if(x1.get(i) == x2.get(j)){
+          d--;
+          break;
+        }
+      }
+    }
+    return d;
+  }
+  
+  private static ArrayList<Double> getTempoDeviation(
+      MusicXMLWrapper score, DeviationDataSet dds, int beatLength, int scoreLength,
+      HashMap<Integer, Integer> path, double baseTempo){
+    
+    // テンポの割合を表すリスト
+    // 先頭は基準となるテンポ
+    ArrayList<Double> tempoList = new ArrayList<Double>();
+    tempoList.add(baseTempo);
+    for(int i=beatLength-1; i<scoreLength; i+=beatLength){
+      //tempoList.add((double)i / path.get(i));
+      //System.out.println(path.get(i));
+      //System.out.println((double)(beatLength-1) +" "+ (path.get(i)-path.get(i-(beatLength-1))));
+      if((path.get(i)-path.get(i-(beatLength-1))) == 0){
+        //tempoList.add(tempoList.get(tempoList.size()-1));
+        tempoList.add(1.);
+      }else{
+        tempoList.add((double)(beatLength-1) / (path.get(i)-path.get(i-(beatLength-1))));
+      }
+    }
+    
+    // 反映するときはテンポを整える
+    double total=0;
+    for(double d : tempoList) total += d;
+    total -= tempoList.get(0);
+    double avarage = total / (tempoList.size()-1);
+    double _baseTempo = tempoList.get(0) * avarage;
+    
+    // 元のMusicXMLから開始小節の番号とビートタイプを得る
+    Part[] parts = score.getPartList();
+    Measure[] measures = parts[0].getMeasureList();
+    int beats = 0;
+    int beatType = 0;
+    for(MusicData md : measures[0].getMusicDataList()){
+      if(md instanceof MusicXMLWrapper.Attributes){
+        MusicXMLWrapper.Attributes att = (MusicXMLWrapper.Attributes)md;
+        beats = att.beats();
+        beatType = att.beatType();
+        break;
+      }
+    }
+    int headMeasure = measures[0].number();
+    
+    // 反映する
+    int index = 1;
+    for(int i=0; i<measures.length; i++){
+      dds.addNonPartwiseControl(i+headMeasure, 1, "tempo", _baseTempo);
+      for(int j=1; j<=beats*4/beatType; j++){
+        try {
+          dds.addNonPartwiseControl(i+headMeasure, j, "tempo-deviation", tempoList.get(index++)/avarage);
+        } catch (IndexOutOfBoundsException e) {}
+      }
+    }
+    
+    /*tempoList.set(0, _baseTempo);
+    for(int i=1; i<tempoList.size(); i++){
+      tempoList.set(i, tempoList.get(i)/avarage);
+    }*/
+
+    // 返すテンポはベーステンポ(120)を基準とした割合
+    return tempoList;
+  }
+
+  private static class EasyNote{
+
+    public EasyNote(double on, double off, int num, int vel){
+      onset = on;
+      offset = off;
+      notenum = num;
+      velocity = vel;
+    }
+    public double onset;
+    public double offset;
+    public int notenum;
+    public int velocity;
+
+  }
+
+  private static class SparseMatrix{
+
+    private static final long serialVersionUID = 1L;
+    
+    public SparseMatrix(int I, int J){
+      //System.out.println(I+","+J);
+      values = new MatrixPoint[I+1][J+1];
+      for(int i=0; i<I+1; i++){
+        for(int j=0; j<J+1; j++){
+          values[i][j] = new MatrixPoint();
+          values[i][j].value = 300000000;
+        }
+      }
+    }
+
+    public void put(int i, int j, int value){
+      values[i+1][j+1].value = value;
+    }
+
+    public int get(int i, int j){
+      int d;
+      try {
+        d = values[i+1][j+1].value;
+      } catch (IndexOutOfBoundsException e) {
+        d = 300000000;
+      }
+      return d;
+    }
+    
+    public void putTarget(int i, int j, int x, int y){
+      values[i+1][j+1].targetX = x+1;
+      values[i+1][j+1].targetY = y+1;
+    }
+    
+    public int getTargetX(int i, int j){
+      return values[i+1][j+1].targetX-1;
+    }
+    
+    public int getTargetY(int i, int j){
+      return values[i+1][j+1].targetY-1;
+    }
+
+    private MatrixPoint[][] values;
+
+  }
+  
+  private static class MatrixPoint{
+    public int value;
+    public int targetX;
+    public int targetY;
+  }
+
+  private static class EasyDev{
+
+    public EasyDev(double t, double a, double r, double d){
+      tempo = t;
+      attack = a;
+      release = r;
+      dynamics = d;
+    }
+    
+    public double tempo;
+    public double attack;
+    public double release;
+    public double dynamics;
+
+  }
+
+  private static class ScoreSCCHandler implements SCCHandler{
+
+    public ScoreSCCHandler(
+        HashMap<Integer, Integer> path, ArrayList<ArrayList<EasyNote>> performanceList,
+        ArrayList<EasyDev> devArray, int division, ArrayList<Double> tempoList, int ticks){
+      
+      _path = path;
+      _performanceList = performanceList;
+      _devArray = devArray;
+      _division = division;
+      _tempoList = tempoList;
+      
+      double timeStamp = 0;
+      timeList = new ArrayList<Double>();
+      timeList.add(0.);
+      for(int i=1; i<tempoList.size(); i++){
+        timeStamp += ticks / tempoList.get(i);
+        timeList.add(timeStamp);
+      }
+    }
+
+    public void processNote(SCCXMLWrapper.Note note, SCCXMLWrapper w) {
+      EasyDev ed = new EasyDev(1, 0, 0, 1);
+      int scoreIndex = note.onset() / (w.getDivision() / _division);
+      int performanceIndex = _path.get(scoreIndex);
+      ed.tempo = _tempoList.get(note.onset() / w.getDivision() + 1);
+      
+      int count=0, target=0;
+      // スコアアレイに対応しているパフォーマンスアレイのインデックスを前後に調べていく
+      // countは検索回数、targetは初期位置からのインデックスのずれ
+      while(true){
+        for(EasyNote en : _performanceList.get(Math.min(Math.max(performanceIndex + target, 0), _performanceList.size()-1))){
+          if(en.notenum == note.notenum()){
+            ed.attack = (en.onset - (timeList.get(note.onset() / w.getDivision()) + (note.onset() % w.getDivision())/ed.tempo))/(double)w.getDivision()*ed.tempo;
+            ed.release = (en.offset - (timeList.get((note.offset()-1) / w.getDivision()) + (note.offset() % w.getDivision())/ed.tempo))/(double)w.getDivision()*ed.tempo;
+            /*ed.attack = (en.onset % w.getDivision()) / _tempoList.get(note.onset() / w.getDivision()) - (note.onset() % w.getDivision());
+            ed.release = (en.offset % w.getDivision()) / _tempoList.get((note.offset()-1) / w.getDivision()) - (note.offset() % w.getDivision());
+            ed.attack = (en.onset % w.getDivision()) - (note.onset() % w.getDivision());
+            ed.release = (en.offset % w.getDivision()) - (note.offset() % w.getDivision());
+            ed.attack /= w.getDivision();
+            ed.release /= w.getDivision();
+            ed.attack = 0.;
+            ed.release =0.;*/
+            ed.dynamics = (double)en.velocity / (double)note.velocity();
+            count = -1;
+            break;
+          }
+        }
+
+        if(count == -1) break;
+        count++;
+        // 検索回数の上限の設定
+        // 設定を超えるとミスノートとみなしテンポを-1にして検索を終える
+        if(count > 100){
+          ed.tempo = -1;
+          break;
+        }
+        if(target<0) target += count;
+        else target -= count;
+      }
+      _devArray.add(ed);
+    }
+
+    public void beginHeader(SCCXMLWrapper w) {}
+    public void beginPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+    public void endHeader(SCCXMLWrapper w) {}
+    public void endPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {}
+    public void processHeaderElement(int timestamp, String name, String content, SCCXMLWrapper w) {}
+
+    private HashMap<Integer, Integer> _path;
+    private ArrayList<ArrayList<EasyNote>> _performanceList;
+    private ArrayList<EasyDev> _devArray;
+    private int _division;
+    private ArrayList<Double> _tempoList;
+    private ArrayList<Double> timeList;
+
+  }
+
+  private static class ScoreHandler implements NoteHandlerPartwise{
+
+    public ScoreHandler(
+        ArrayList<EasyDev> devArray, DeviationDataSet dds, ArrayList<Double> tempoList){
+      
+      _devArray = devArray;
+      _dds = dds;
+      index = 0;
+    }
+
+    public void processMusicData(MusicData md, MusicXMLWrapper wrapper) {
+      if(md instanceof Note){
+        Note note = (Note)md;
+        if(note.rest()) return;
+        EasyDev ed = _devArray.get(index++);
+        _dds.addNoteDeviation(note, ed.attack, ed.release, ed.dynamics, ed.dynamics);
+      }
+    }
+
+    public void beginMeasure(Measure measure, MusicXMLWrapper wrapper) {}
+    public void beginPart(Part part, MusicXMLWrapper wrapper) {}
+    public void endMeasure(Measure measure, MusicXMLWrapper wrapper) {}
+    public void endPart(Part part, MusicXMLWrapper wrapper) {}
+
+    private ArrayList<EasyDev> _devArray;
+    private DeviationDataSet _dds;
+    private int index;
+
+  }
+
+}

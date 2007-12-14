@@ -1,0 +1,6 @@
+package jp.crestmuse.cmx.filewrappers;
+
+public interface NoteCompatible {
+
+
+}

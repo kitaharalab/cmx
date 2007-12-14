@@ -1,0 +1,42 @@
+package jp.crestmuse.cmx.filewrappers;
+
+import jp.crestmuse.cmx.misc.*;
+
+abstract class AbstractTreeView<E extends Ordered> {
+    AbstractTreeView() {
+	tree = new AsymmetricBinaryTree<E>();
+    }
+
+    AsymmetricBinaryTree<E> tree;
+
+    public final E getRoot() {
+	return tree.getRoot();
+    }
+
+    public final boolean hasNextL() {
+	return tree.hasNextL();
+    }
+
+    public final E nextL() {
+	return tree.nextL();
+    }
+
+    public final boolean hasNextR() {
+	return tree.hasNextR();
+    }
+
+    public final E nextR() {
+	return tree.nextR();
+    }
+
+  public final E previous() {
+    return tree.previous();
+  }
+
+  public final void newBranch(int ordinal, int subordinal) {
+    tree.newBranch(ordinal, subordinal);
+  }
+  public final void endBranch() {
+    tree.endBranch();
+  }
+}

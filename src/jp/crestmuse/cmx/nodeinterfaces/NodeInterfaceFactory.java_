@@ -1,0 +1,43 @@
+package jp.crestmuse.cmx.nodeinterfaces;
+
+import java.util.*;
+import org.w3c.dom.*;
+import jp.crestmuse.cmx.misc.*;
+
+public class NodeInterfaceFactory {
+  private static final String PACKAGE_BASE = 
+				"jp.crestmuse.cmx.nodeinterfaces.";
+  private static final Hashtable CLASS_TABLE;
+
+  static {
+    try {
+      CLASS_TABLE = new Hashtable();
+      CLASS_TABLE.put("note", 
+                      Class.forName(PACKAGE_BASE + "NoteImpl"));
+      CLASS_TABLE.put("note-deviation", 
+                      Class.forName(PACKAGE_BASE + "NoteDeviationImpl"));
+    } catch (ClassNotFoundException e) {
+      throw new ProgramBugException(e.getMessage());
+    }
+  }
+
+  public static NodeInterface getNodeInterface(Node node) {
+    try {
+      Object o = ((Class)CLASS_TABLE.get(node.getNodeName())).newInstance();
+      if (o instanceof AbstractNodeInterfaceImpl)
+        ((AbstractNodeInterfaceImpl)o).setNode(node);
+      else
+        throw new UnsupportedNodeException(node.toString());
+      if (o instanceof NodeInterface)
+        return (NodeInterface)o;
+      else
+        throw new UnsupportedNodeException(node.toString());
+    } catch (InstantiationException e) {
+      throw new ProgramBugException(e.getMessage());
+    } catch (IllegalAccessException e) {
+      throw new ProgramBugException(e.getMessage());
+    } catch (NullPointerException e) {
+      throw new UnsupportedNodeException(node.toString());
+    }
+  }
+}

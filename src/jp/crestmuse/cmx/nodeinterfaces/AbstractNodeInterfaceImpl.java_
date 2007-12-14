@@ -1,0 +1,15 @@
+package jp.crestmuse.cmx.nodeinterfaces;
+
+import org.w3c.dom.*;
+
+abstract class AbstractNodeInterfaceImpl {
+  private Node node;
+
+  void setNode(Node node) {
+    this.node = node;
+  }
+
+  Node node() {
+    return node;
+  }
+}
