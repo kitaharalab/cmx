@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.commands.test;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.amusaj.*;
 
 public class WAVXMLTest {
   public static void main(String[] args) {

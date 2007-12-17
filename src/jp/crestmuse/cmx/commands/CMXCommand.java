@@ -93,6 +93,9 @@ public abstract class CMXCommand implements CMXInitializer {
   private boolean mkdir = false;
   private boolean gzipped = false;
 
+  private static String configfilename = null;
+  private static ConfigXMLWrapper config = null;
+
     /***********************************************************************
      * Set the output filename. <br>
      * 出力ファイル名を代入します.
@@ -249,8 +252,8 @@ public abstract class CMXCommand implements CMXInitializer {
       ext = value;
     } else if (option.equals("-S")) {
       setFileList(value);
-//    } else if (option.equals("-ini")) {
-//      inifilename = value;
+    } else if (option.equals("-conf")) {
+      configfilename = value;
     } else if (option.equals("-err")) {
       try {
         System.setErr(new PrintStream(new FileOutputStream(value)));
@@ -504,6 +507,22 @@ public abstract class CMXCommand implements CMXInitializer {
 
   String[] getFileList() {
     return filenames.toArray();
+  }
+
+  public static ConfigXMLWrapper getConfigXMLWrapper() {
+    try {
+      if (config == null)
+        config = (ConfigXMLWrapper)CMXFileWrapper.readfile(configfilename);
+      return config;
+    } catch (IOException e) {
+      throw new ConfigXMLException(e.toString());
+    } catch (ParserConfigurationException e) {
+      throw new ConfigXMLException(e.toString());
+    } catch (TransformerException e) {
+      throw new ConfigXMLException(e.toString());
+    } catch (SAXException e) {
+      throw new ConfigXMLException(e.toString());
+    }
   }
 
 /****** Methods (show help and error messages) ***********************/

@@ -1,21 +1,25 @@
 package jp.crestmuse.cmx.filewrappers.amusaj;
+import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
+import org.w3c.dom.*;
+import java.nio.*;
+import java.util.*;
 
 public class Peaks extends NodeInterface implements PeaksCompatible {
   private int nFrames;
   private int timeunit;
   private int bytesize;
-  private Queue<PeakSet> queue;
-  private DoubleArrayFactroy factory;
+  private java.util.Queue<PeakSet> queue;
+  private DoubleArrayFactory factory;
   
-  Peaks(Node node, DoubleArrayFactory factory) {
+  Peaks(Node node) {
     super(node);
-    this.factory = factory;
+    factory = DoubleArrayFactory.getFactory();
     nFrames = getAttributeInt("frames");
     timeunit = getAttributeInt("timeunit");
     ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
-    queue = new LinkedList<DoubleArray>();
+    queue = new LinkedList<PeakSet>();
     bytesize = 0;
     for (int n = 0; n < nFrames; n++) {
       int nPeaks = buff.getInt();
@@ -28,12 +32,16 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
     }
   }
 
-  public Queue<PeakSet> getQueue() {
+  protected String getSupportedNodeName() {
+    return "peaks";
+  }
+
+  public java.util.Queue<PeakSet> getQueue() {
     return queue;
   }
 
   public int frames() {
-    nFrames;
+    return nFrames;
   }
 
   public int timeunit() {
@@ -44,8 +52,8 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
     throw new UnsupportedOperationException();
   }
 
-  public static void addPeaksToWrapper(Queue<PeakSet> queue, int bytesize, 
-                                       int nFrames, 
+  public static void addPeaksToWrapper(java.util.Queue<PeakSet> queue, 
+                                       int bytesize, int nFrames, 
                                        int timeunit, String nodename, 
                                        CMXFileWrapper wrapper) {
     ByteBuffer buff = ByteBuffer.allocate(bytesize);

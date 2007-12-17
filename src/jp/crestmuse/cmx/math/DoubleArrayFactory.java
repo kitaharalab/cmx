@@ -2,14 +2,24 @@ package jp.crestmuse.cmx.math;
 import java.lang.reflect.*;
 
 public abstract class DoubleArrayFactory {
+  private static DoubleArrayFactory factory = null;
 
-  public static final DoubleArrayFactory getFactory() 
-    throws ClassNotFoundException, InstantiationException,
-    IllegalAccessException {
-    String className = System.getProperty("doubleArrayFactory");
-    if (className == null)
-      className = "jp.crestmuse.cmx.math.DefaultDoubleArrayFactory";
-    return (DoubleArrayFactory)Class.forName(className).newInstance();
+  public static synchronized final DoubleArrayFactory getFactory() {
+    if (factory == null) {
+      try {
+        String className = System.getProperty("doubleArrayFactory");
+        if (className == null)
+          className = "jp.crestmuse.cmx.math.DefaultDoubleArrayFactory";
+        factory = (DoubleArrayFactory)Class.forName(className).newInstance();
+      } catch (ClassNotFoundException e) {
+        throw new DoubleArrayFactoryException(e.toString());
+      } catch (InstantiationException e) {
+        throw new DoubleArrayFactoryException(e.toString());
+      } catch (IllegalAccessException e) {
+        throw new DoubleArrayFactoryException(e.toString());
+        }
+    }
+    return factory;
   }
 
   public abstract DoubleArray createArray(int length);

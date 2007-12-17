@@ -138,7 +138,7 @@ public abstract class CMXFileWrapper {
 //  private static XPathFactory xpathFactory;
 //  private static XPath xpath;
 
-  private static DoubleArrayFactory doubleArrayFactory = null;
+//  private static DoubleArrayFactory doubleArrayFactory = null;
 
   private static final String PACKAGE_BASE = "jp.crestmuse.cmx.filewrappers";
   private static final Map<String,Class> CLASS_TABLE;
@@ -231,10 +231,11 @@ public abstract class CMXFileWrapper {
 //      xpath = newXPath();
    }
 
-  protected void setDoubleArrayFactory(DoubleArrayFactory factory) {
-    doubleArrayFactory = factory;
-  }
+//  protected void setDoubleArrayFactory(DoubleArrayFactory factory) {
+//    doubleArrayFactory = factory;
+//  }
 
+/*
   protected DoubleArrayFactory getDoubleArrayFactory() {
     if (doubleArrayFactory == null) {
       try {
@@ -249,6 +250,7 @@ public abstract class CMXFileWrapper {
     }
     return doubleArrayFactory;
   }
+*/
 
   private static CMXFileWrapper createInstance(String toptagname)
 			throws InvalidFileTypeException, 

@@ -1,4 +1,5 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.misc;
+import jp.crestmuse.cmx.math.*;
 
 public class PeakSet {
   private int nPeaks;
@@ -7,16 +8,26 @@ public class PeakSet {
   private DoubleArray phase;
   private DoubleArray iid;
   private DoubleArray ipd;
-  private DoubleArrayFactory factory;
+  private static final DoubleArrayFactory factory = 
+    DoubleArrayFactory.getFactory();
 
-  public PeakSet(int nPeaks, DoubleArrayFactory factory) {
+  public PeakSet(int nPeaks) {
     this.nPeaks = nPeaks;
-    this.factory = factory;
     freq = factory.createArray(nPeaks);
     power = factory.createArray(nPeaks);
     phase = factory.createArray(nPeaks);
     iid = factory.createArray(nPeaks);
     ipd = factory.createArray(nPeaks);
+  }
+
+  public PeakSet(DoubleArray freq, DoubleArray power, DoubleArray phase, 
+                 DoubleArray iid, DoubleArray ipd) {
+    nPeaks = freq.length();
+    this.freq = freq;
+    this.power = power;
+    this.phase = phase;
+    this.iid = iid;
+    this.ipd = ipd;
   }
 
   public void setPeak(int i, double freq, double power, double phase, 

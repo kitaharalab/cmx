@@ -8,17 +8,17 @@ public class MutablePeaks {
   private int timeunit;
   private int bytesize;
   private BlockingQueue<PeakSet> queue;
-  private DoubleArrayFactory factory;
+  private static final DoubleArrayFactory factory = 
+    DoubleArrayFactory.getFactory();
 
-  MutablePeaks(int nFrames, int timeunit, DoubleArrayFactory factory) {
-    this.factory = factory;
+  MutablePeaks(int nFrames, int timeunit) {
     this.nFrames = nFrames;
     this.timeunit = timeunit;
     bytesize = 0;
-    queue = LinkedBlockingQueue<PeakSet>();
+    queue = new LinkedBlockingQueue<PeakSet>();
   }
 
-  public Queue<PeakSet> getQueue() {
+  public java.util.Queue<PeakSet> getQueue() {
     return queue;
   }
 
@@ -30,7 +30,7 @@ public class MutablePeaks {
     return timeunit;
   }
 
-  public void addPeakSet(PeakSet peakset) {
+  public void addPeakSet(PeakSet peakset) throws InterruptedException {
     queue.put(peakset);
   }
 }

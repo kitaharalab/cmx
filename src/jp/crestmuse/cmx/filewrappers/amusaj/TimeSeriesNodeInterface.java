@@ -3,18 +3,18 @@ import java.util.*;
 import java.nio.*;
 import org.w3c.dom.*;
 import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.filewrappers.*;
 
 public abstract class TimeSeriesNodeInterface extends NodeInterface {
   private int dim;
   private int nFrames;
   private int timeunit;
   private Queue<DoubleArray> queue;
-  private DoubleArrayFactory factory;
+  private static final DoubleArrayFactory factory = 
+    DoubleArrayFactory.getFactory();
 
-  protected TimeSeriesNodeInterface(Node node, 
-                                    DoubleArrayFactory factory) {
+  protected TimeSeriesNodeInterface(Node node) {
     super(node);
-    this.factory = factory;
     dim = getAttributeInt("dim");
     nFrames = getAttributeInt("frames");
     timeunit = getAttributeInt("timeunit");
@@ -57,7 +57,7 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
       for (int i = 0; i < dim; i++)
         buff.putFloat((float)array.get(i));
     }
-    String s = Base64.encode(buff.array()));
+    String s = Base64.encode(buff.array());
     wrapper.addChild(nodename);
     wrapper.setAttribute("dim", dim);
     wrapper.setAttribute("frames", nFrames);

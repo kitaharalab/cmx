@@ -3,7 +3,8 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import org.w3c.dom.*;
 
-public class IGRAMXMLWrapper extends AmusaXMLWrapper<IGRAMData> {
+public class IGRAMXMLWrapper extends 
+                             AmusaXMLWrapper<IGRAMXMLWrapper.IGRAMData> {
   public static final String TOP_TAG = "igram";
   public static final String DATA_TAG = "igram-data";
 //  private Header header = null;
@@ -45,7 +46,7 @@ public class IGRAMXMLWrapper extends AmusaXMLWrapper<IGRAMData> {
   public class IGRAMData extends TimeSeriesNodeInterface {
     String inst;
     private IGRAMData(Node node) {
-      super(node, getDoubleArrayFactory());
+      super(node);
       inst = getAttribute("inst");
     }
     protected String getSupportedNodeName() {
