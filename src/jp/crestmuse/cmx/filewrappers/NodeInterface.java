@@ -174,7 +174,7 @@ public abstract class NodeInterface {
    *of the specified node. <br>
    *指定されたノードに対する, 指定されたタグ名の子ノードを返します. 
    *********************************************************************/
-  static Node getChildByTagName(String tagname, Node node) {
+  protected static Node getChildByTagName(String tagname, Node node) {
     if (node == null)
       return null;
     NodeList children = node.getChildNodes();
@@ -186,11 +186,11 @@ public abstract class NodeInterface {
     return null;
   }
 
-  static boolean hasChild(String tagname, Node node) {
+  protected static boolean hasChild(String tagname, Node node) {
     return (getChildByTagName(tagname, node) != null);
   }
 
-  static String getText(Node node) {
+  protected static String getText(Node node) {
     if (node == null)
       return null;
     NodeList children = node.getChildNodes();
@@ -203,25 +203,25 @@ public abstract class NodeInterface {
     return s.trim();
   }
 
-  static final int getTextInt(Node node) {
+  protected static final int getTextInt(Node node) {
     if (node == null) 
       return -1;
     else
       return Integer.parseInt(getText(node));
   }
 
-  static final double getTextDouble(Node node) {
+  protected static final double getTextDouble(Node node) {
     if (node == null) 
       return Double.NaN;
     else
       return Double.parseDouble(getText(node));
   }
 
-  static final boolean hasAttribute(Node node, String attrkey) {
+  protected static final boolean hasAttribute(Node node, String attrkey) {
     return ((Element)node).hasAttribute(attrkey);
   }
 
-  static final String getAttribute(Node node, String attrkey) {
+  protected static final String getAttribute(Node node, String attrkey) {
     if (node != null) {
       NamedNodeMap map = node.getAttributes();
       return map.getNamedItem(attrkey).getNodeValue();
@@ -230,11 +230,11 @@ public abstract class NodeInterface {
     }
   }
 
-  static final int getAttributeInt(Node node, String attrkey) {
+  protected static final int getAttributeInt(Node node, String attrkey) {
     return Integer.parseInt(getAttribute(node, attrkey));
   }
 
-  static final double getAttributeDouble(Node node, String attrkey) {
+  protected static final double getAttributeDouble(Node node, String attrkey) {
     return Double.parseDouble(getAttribute(node, attrkey));
   }
     

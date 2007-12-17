@@ -1,12 +1,13 @@
-package jp.crestmuse.cmx.filewrappers;
+package jp.crestmuse.cmx.filewrappers.amusaj;
+import jp.crestmuse.cmx.filewrappers.*;
 import org.w3c.dom.*;
 import java.util.*;
 
-public class GenericHeader extends NodeInterface {
+public class Header extends NodeInterface {
   NodeList nodelist;
   int size;
   Map<String,String> map;
-  public GenericHeader(Node node) {
+  Header(Node node) {
     super(node);
     nodelist = getChildNodes();
     size = nodelist.getLength();

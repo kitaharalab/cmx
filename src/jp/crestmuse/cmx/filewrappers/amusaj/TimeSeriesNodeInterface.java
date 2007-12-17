@@ -2,7 +2,6 @@ package jp.crestmuse.cmx.filewrappers.amusaj;
 import java.util.*;
 import java.nio.*;
 import org.w3c.dom.*;
-import org.apache.commons.codec.binary.*;
 import jp.crestmuse.cmx.math.*;
 
 public abstract class TimeSeriesNodeInterface extends NodeInterface {
@@ -10,8 +9,7 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
   private int nFrames;
   private int timeunit;
   private Queue<DoubleArray> queue;
-  private static final Base64 base64 = new Base64();
-  private static DoubleArrayFactory factory;
+  private DoubleArrayFactory factory;
 
   protected TimeSeriesNodeInterface(Node node, 
                                     DoubleArrayFactory factory) {
@@ -20,8 +18,9 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
     dim = getAttributeInt("dim");
     nFrames = getAttributeInt("frames");
     timeunit = getAttributeInt("timeunit");
-    ByteBuffer buff = 
-      ByteBuffer.wrap(base64.decodeBase64(getText().getBytes()));
+    ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
+//    ByteBuffer buff = 
+//      ByteBuffer.wrap(Base64.decodeBase64(getText().getBytes()));
     queue = new LinkedList<DoubleArray>();
     for (int n = 0; n < nFrames; n++) {
       DoubleArray array = factory.createArray(dim);
@@ -58,7 +57,7 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
       for (int i = 0; i < dim; i++)
         buff.putFloat((float)array.get(i));
     }
-    String s = new String(base64.encodeBase64Chunked(buff.array()));
+    String s = Base64.encode(buff.array()));
     wrapper.addChild(nodename);
     wrapper.setAttribute("dim", dim);
     wrapper.setAttribute("frames", nFrames);

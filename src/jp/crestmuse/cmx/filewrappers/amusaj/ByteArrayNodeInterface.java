@@ -3,7 +3,6 @@ import jp.crestmuse.cmx.filewrappers.*;
 import java.util.*;
 import java.nio.*;
 import org.w3c.dom.*;
-import org.apache.commons.codec.binary.*;
 
 public abstract class ByteArrayNodeInterface extends NodeInterface {
   private int bytesize;
@@ -13,7 +12,8 @@ public abstract class ByteArrayNodeInterface extends NodeInterface {
   protected ByteArrayNodeInterface(Node node) {
     super(node);
     bytesize = getAttributeInt("bytesize");
-    buff = ByteBuffer.wrap(base64.decodeBase64(getText().getBytes()));
+    buff = ByteBuffer.wrap(Base64.decode(getText()));
+//    buff = ByteBuffer.wrap(base64.decodeBase64(getText().getBytes()));
   }
 
   protected final int lengthInByte() {
@@ -74,7 +74,7 @@ public abstract class ByteArrayNodeInterface extends NodeInterface {
 
   public static void addByteArrayToWrapper(byte[] data, String nodename, 
                                            CMXFileWrapper wrapper) {
-    String s = new String(base64.encodeBase64Chunked(data));
+    String s = Base64.encode(data);
     wrapper.addChild(nodename);
     wrapper.setAttribute("bytesize", data.length);
     wrapper.addText(s);

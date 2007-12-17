@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.sound;
 
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.amusaj.*;
 import java.io.*;
 import java.nio.*;
 import java.net.*;

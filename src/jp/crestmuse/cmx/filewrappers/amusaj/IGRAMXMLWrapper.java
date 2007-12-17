@@ -3,17 +3,21 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import org.w3c.dom.*;
 
-public class IGRAMXMLWrapper extends CMXFileWrapper {
+public class IGRAMXMLWrapper extends AmusaXMLWrapper<IGRAMData> {
   public static final String TOP_TAG = "igram";
-  private GenericHeader header = null;
-  private IGRAMData[] data = null;
+  public static final String DATA_TAG = "igram-data";
+//  private Header header = null;
+//  private IGRAMData[] data = null;
 
-  public GenericHeader getHeader() {
+/*
+  public Header getHeader() {
     if (header == null)
-      header = new GenericHeader(selectSingleNode("/igram/header"));
+      header = new Header(selectSingleNode("/igram/header"));
     return header;
   }
+*/
 
+/*
   public IGRAMData[] getIGRAMDataList() {
     if (data == null) {
       NodeList nl = selectNodeList("/igram/igram-data");
@@ -24,9 +28,14 @@ public class IGRAMXMLWrapper extends CMXFileWrapper {
     }
     return data;
   }
+*/
+
+  protected IGRAMData createDataNodeInterface(Node node) {
+    return new IGRAMData(node);
+  }
 
   public IGRAMData getIGRAMData(String inst) {
-    IGRAMData[] data = getIGRAMDataList();
+    IGRAMData[] data = getDataList();
     for (IGRAMData d : data)
       if (d.inst().equals(inst))
         return d;

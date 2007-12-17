@@ -179,21 +179,17 @@ public abstract class CMXFileWrapper {
                            "DeviationInstanceXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/deviation.dtd");
       addClassTable("riff-wave", 
-                    PACKAGE_BASE + "." + "WAVXMLWrapper");
+                    PACKAGE_BASE + ".amusaj.WAVXMLWrapper");
       addDocumentTypeTable("riff-wave", 
                            "-//CrestMuse//DTD CrestMuseXML 0.22 " + 
                            "WAVXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
       addClassTable("igram", 
-                    PACKAGE_BASE + "." + "IGRAMXMLWrapper");
+                    PACKAGE_BASE + ".amusaj.IGRAMXMLWrapper");
       addDocumentTypeTable("igram", 
                            "-//CrestMuse//DTD CrestMuseXML 0.22 " + 
                            "IGRAMXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
-//      CLASS_TABLE.put("score-partwise", 
-//                      Class.forName(PACKAGE_BASE + ".MusicXMLWrapper"));
-//      CLASS_TABLE.put("deviation", 
-//                  Class.forName(PACKAGE_BASE + ".DeviationInstanceWrapper"));
     } catch (ClassNotFoundException e) {
       throw new ProgramBugException(e.getMessage());
     }

@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.sound;
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.amusaj.*;
 
 public class WAVPlayTest implements WAVPlaySynchronized {
 
