@@ -21,6 +21,14 @@ public class IGRAMXMLWrapper extends
     TimeSeriesNodeInterface.addTimeSeriesToWrapper(ts, DATA_TAG, this);
   }
 
+  public TimeSeriesCompatible getIGRAMData(String inst) {
+    List<TimeSeriesCompatible> data = getDataList();
+    for (TimeSeriesCompatible d : data)
+      if (d.getAttribute("inst").equals(inst))
+        return d;
+    return null;
+  }
+
 /*
   public IGRAMData getIGRAMData(String inst) {
     List<TimeSeriesCompatible> data = getDataList();

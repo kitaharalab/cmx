@@ -39,7 +39,7 @@ public class MutablePeaks implements PeaksCompatible {
 
   public void addPeakSet(PeakSet peakset) throws InterruptedException {
     queue.put(peakset);
-    bytesize += 4 + 4 * peakset.nPeaks();
+    bytesize += 4 + 5 * 4 * peakset.nPeaks();
   }
 
   public String getAttribute(String key) {

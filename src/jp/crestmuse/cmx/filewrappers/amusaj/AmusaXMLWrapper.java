@@ -17,7 +17,7 @@ public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
   String toptag() {
     if (toptag == null) {
       try {
-        toptag = (String)getClass().getField("TAP_TAG").get(this);
+        toptag = (String)getClass().getField("TOP_TAG").get(this);
       } catch (NoSuchFieldException e) {
         throw new AmusaXMLException(e.toString());
       } catch (IllegalAccessException e) {

@@ -1,9 +1,18 @@
 package jp.crestmuse.cmx.math;
 import java.lang.reflect.*;
 
-public abstract class DoubleArrayFactory {
+public abstract class DoubleArrayFactory extends MathFactory {
   private static DoubleArrayFactory factory = null;
 
+  public static synchronized DoubleArrayFactory getFactory() {
+    if (factory == null) {
+      factory = (DoubleArrayFactory)getFactory("doubleArrayFactory", 
+                                               "DefaultDoubleArrayFactory");
+    }
+    return factory;
+  }
+        
+/*
   public static synchronized final DoubleArrayFactory getFactory() {
     if (factory == null) {
       try {
@@ -21,7 +30,9 @@ public abstract class DoubleArrayFactory {
     }
     return factory;
   }
+*/
 
   public abstract DoubleArray createArray(int length);
   public abstract DoubleArray createArray(double[] array);
+  public abstract DoubleArray createArray(int length, double value);
 }

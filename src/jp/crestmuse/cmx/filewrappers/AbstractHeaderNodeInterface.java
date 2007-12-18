@@ -1,21 +1,16 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
-import jp.crestmuse.cmx.filewrappers.*;
+package jp.crestmuse.cmx.filewrappers;
 import org.w3c.dom.*;
 import java.util.*;
 
-public class Header extends NodeInterface {
+public abstract class AbstractHeaderNodeInterface extends NodeInterface {
   NodeList nodelist;
   int size;
   Map<String,String> map;
-  Header(Node node) {
+  protected AbstractHeaderNodeInterface(Node node) {
     super(node);
     nodelist = getChildNodes();
     size = nodelist.getLength();
     map = new HashMap<String,String>();
-  }
-
-  protected String getSupportedNodeName() {
-    return "header";
   }
 
   public String getHeaderElement(String name) {
@@ -63,15 +58,5 @@ public class Header extends NodeInterface {
       return false;
     }
   }
-
-/*
-public static void addHeaderElementToWrapper(String name, String content, 
-                                               CMXFileWrapper wrapper) {
-    wrapper.addChild("meta");
-    wrapper.setAttribute("name", name);
-    wrapper.setAttribute("content", content);
-    wrapper.returnToParent();
-  }
-*/
 
 }

@@ -63,4 +63,53 @@ public class PeakSet {
     return ipd.get(i);
   }
 
+  public DoubleArray freq() {
+    return freq;
+  }
+
+  public DoubleArray power() {
+    return power;
+  }
+
+  public DoubleArray phase() {
+    return phase;
+  }
+
+  public DoubleArray iid() {
+    return iid;
+  }
+
+  public DoubleArray ipd() {
+    return ipd;
+  }
+  
+  public void filter(Filter filt) {
+    if (filt != null & (filt.usesLCF || filt.usesHCF)) {
+      for (int i = 0; i < nPeaks; i++) {
+        double f = freq.get(i);
+        if (filt.usesLCF) {
+          if (f < filt.LCFbtm) {
+            power.set(i, 0.0);
+          } else if (f < filt.LCFtop) {
+            double a = (f - filt.LCFbtm) / (filt.LCFtop - filt.LCFbtm);
+            power.set(i, a * power.get(i));
+          }
+        }
+        if (filt.usesHCF) {
+          if (f > filt.HCFbtm) {
+            power.set(i, 0.0);
+          } else if (f > filt.HCFtop) {
+            double a = (f - filt.HCFbtm) / (filt.HCFtop - filt.HCFbtm);
+            power.set(i, a * power.get(i));
+          }
+        }
+      }
+    }
+  }
+
+  public class Filter {
+    public boolean usesLCF, usesHCF;
+    public double LCFbtm, LCFtop, HCFbtm, HCFtop;
+  }
+
 }
