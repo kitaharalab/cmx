@@ -22,4 +22,8 @@ class DefaultDoubleArray implements DoubleArray {
   public void set(int index, double value) {
     values[index] = value;
   }
+
+  public double[] toArray() {
+    return values;
+  }
 }

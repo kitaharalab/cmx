@@ -2,47 +2,37 @@ package jp.crestmuse.cmx.filewrappers.amusaj;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import org.w3c.dom.*;
+import java.util.*;
 
 public class IGRAMXMLWrapper extends 
-                             AmusaXMLWrapper<IGRAMXMLWrapper.IGRAMData> {
+                             AmusaXMLWrapper<TimeSeriesCompatible> {
   public static final String TOP_TAG = "igram";
   public static final String DATA_TAG = "igram-data";
-//  private Header header = null;
-//  private IGRAMData[] data = null;
+
+  protected TimeSeriesCompatible createDataNodeInterface(Node node) {
+    return new TimeSeriesNodeInterface(node) {
+        protected String getSupportedNodeName() {
+          return "igram-data";
+        }
+      };
+  }
+
+  public void addDataElement(TimeSeriesCompatible ts) {
+    TimeSeriesNodeInterface.addTimeSeriesToWrapper(ts, DATA_TAG, this);
+  }
 
 /*
-  public Header getHeader() {
-    if (header == null)
-      header = new Header(selectSingleNode("/igram/header"));
-    return header;
-  }
-*/
-
-/*
-  public IGRAMData[] getIGRAMDataList() {
-    if (data == null) {
-      NodeList nl = selectNodeList("/igram/igram-data");
-      int size = nl.getLength();
-      data = new IGRAMData[size];
-      for (int i = 0; i < size ; i++) 
-        data[i] = new IGRAMData(nl.item(i));
-    }
-    return data;
-  }
-*/
-
-  protected IGRAMData createDataNodeInterface(Node node) {
-    return new IGRAMData(node);
-  }
-
   public IGRAMData getIGRAMData(String inst) {
-    IGRAMData[] data = getDataList();
-    for (IGRAMData d : data)
-      if (d.inst().equals(inst))
+    List<TimeSeriesCompatible> data = getDataList();
+    for (TimeSeriesComopatible d : data)
+      if (((IGRAMData)d).inst().equals(inst))
         return d;
     return null;
   }
+*/
 
+
+/*
   public class IGRAMData extends TimeSeriesNodeInterface {
     String inst;
     private IGRAMData(Node node) {
@@ -56,7 +46,7 @@ public class IGRAMXMLWrapper extends
       return inst;
     }
   }
-
+*/
   
                                 
 

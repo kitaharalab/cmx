@@ -49,12 +49,29 @@ public class Header extends NodeInterface {
       return Double.parseDouble(content);
   }
 
-  public static void addHeaderElementToWrapper(String name, String content, 
+  public boolean containsHeaderKey(String name) {
+    if (map.containsKey(name)) {
+      return true;
+    } else {
+      for (int i = 0; i < size; i++) {
+        if (getAttribute(nodelist.item(i), "name").equals(name)) {
+          String content = getAttribute(nodelist.item(i), "content");
+          map.put(name, content);
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+/*
+public static void addHeaderElementToWrapper(String name, String content, 
                                                CMXFileWrapper wrapper) {
     wrapper.addChild("meta");
     wrapper.setAttribute("name", name);
     wrapper.setAttribute("content", content);
     wrapper.returnToParent();
   }
+*/
 
 }

@@ -159,6 +159,11 @@ public abstract class CMXFileWrapper {
       CLASS_TABLE = new HashMap<String,Class>();
       DTD_PUBLIC_ID_TABLE = new HashMap<String,String>();
       DTD_SYSTEM_ID_TABLE = new HashMap<String,String>();
+      addClassTable("config", 
+                    PACKAGE_BASE + "." + "ConfigXMLWrapper");
+      addDocumentTypeTable("config", 
+                           "-//CrestMuse//DTD CrestMuseXML 0.40 ConfigXML//EN",
+                           "http://www.crestmuse.jp/cmx/dtds/config.dtd");
       addClassTable("score-partwise", 
                     PACKAGE_BASE + "." + "MusicXMLWrapper");
       addDocumentTypeTable("score-partwise", 
@@ -170,24 +175,30 @@ public abstract class CMXFileWrapper {
                            "http://www.musicxml.org/dtds/midixml.dtd");
       addClassTable("scc", PACKAGE_BASE + "." + "SCCXMLWrapper");
       addDocumentTypeTable("scc", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.20 SCCXML//EN",
+                           "-//CrestMuse//DTD CrestMuseXML 0.30 SCCXML//EN",
                            "http://www.crestmuse.jp/cmx/dtds/sccxml.dtd");
       addClassTable("deviation",
                     PACKAGE_BASE+"."+"DeviationInstanceWrapper");
       addDocumentTypeTable("deviation", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.20 " + 
+                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
                            "DeviationInstanceXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/deviation.dtd");
       addClassTable("riff-wave", 
                     PACKAGE_BASE + ".amusaj.WAVXMLWrapper");
       addDocumentTypeTable("riff-wave", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.22 " + 
+                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
                            "WAVXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
+      addClassTable("spd", 
+                    PACKAGE_BASE + ".amusaj.SPDXMLWrapper");
+      addDocumentTypeTable("spd", 
+                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
+                           "SPDXML//EN", 
+                           "http://www.crestmuse.jp/cmx/dtds/spdxml.dtd");
       addClassTable("igram", 
                     PACKAGE_BASE + ".amusaj.IGRAMXMLWrapper");
       addDocumentTypeTable("igram", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.22 " + 
+                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "IGRAMXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
     } catch (ClassNotFoundException e) {

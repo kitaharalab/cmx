@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.misc;
+package jp.crestmuse.cmx.filewrappers.amusaj;
 import jp.crestmuse.cmx.math.*;
 
 public class PeakSet {

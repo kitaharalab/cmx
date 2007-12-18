@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.filewrappers.amusaj;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.math.*;
 import java.io.*;
 import java.nio.*;
 import org.w3c.dom.*;
@@ -13,6 +14,9 @@ public class WAVXMLWrapper extends CMXFileWrapper {
 
   private FmtChunk fmt;
   private DataChunk[] datalist;
+
+  private static final DoubleArrayFactory factory = 
+    DoubleArrayFactory.getFactory();
 
   public FmtChunk getFmtChunk() {
     if (fmt == null)
@@ -287,6 +291,20 @@ public class WAVXMLWrapper extends CMXFileWrapper {
     }
     private int bytesize() {
       return lengthInByte();
+    }
+    public DoubleArray[] getDoubleArrayWaveform() {
+      short[] wav = getWaveform();
+      FmtChunk fmt = getFmtChunk();
+      int ch = fmt.channels();
+      int length = (int)(wav.length / ch);
+      DoubleArray[] data = new DoubleArray[ch];
+      for (int i = 0; i < ch; i++)
+        data[i] = factory.createArray(length);
+      for (int t = 0; t < length; t++)
+        for (int i = 0; i < ch; i++)
+          data[i].set(t, (double)(wav[t*ch+i] - getZeroValue()) / 
+                      (double)(Math.pow(2, fmt.bitsPerSample())));
+      return data;
     }
   }
     

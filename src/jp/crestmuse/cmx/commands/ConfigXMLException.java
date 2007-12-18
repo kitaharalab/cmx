@@ -1,11 +1,11 @@
 package jp.crestmuse.cmx.commands;
 
 public class ConfigXMLException extends RuntimeException {
-  ConfigXMLException() {
+  public ConfigXMLException() {
     super();
   }
 
-  ConfigXMLException(String s) {
+  public ConfigXMLException(String s) {
     super(s);
   }
 }

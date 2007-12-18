@@ -3,18 +3,18 @@ import jp.crestmuse.cmx.filewrappers.*;
 import java.util.*;
 import org.w3c.dom.*;
 
-public abstract class AmusaXMLWrapper<D extends NodeInterface>
-  extends CMXFileWrapper {
+public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
+  extends CMXFileWrapper implements AmusaDataSetCompatible<D> {
   
   private Header header = null;
-  private D[] datalist = null;
+  private List<D> datalist = null;
 
   private String toptag = null;
   private String datatag = null;
 
   private static final String HEADER_TAG = "head";
 
-  private String toptag() {
+  String toptag() {
     if (toptag == null) {
       try {
         toptag = (String)getClass().getField("TAP_TAG").get(this);
@@ -27,7 +27,7 @@ public abstract class AmusaXMLWrapper<D extends NodeInterface>
     return toptag;
   }
 
-  private String datatag() {
+  String datatag() {
     if (datatag == null) {
       try {
         datatag = (String)getClass().getField("DATA_TAG").get(this);
@@ -42,23 +42,57 @@ public abstract class AmusaXMLWrapper<D extends NodeInterface>
 
   protected abstract D createDataNodeInterface(Node node);
 
-  public Header getHeader() {
+  protected abstract void addDataElement(D d);
+
+  private Header getHeader() {
     if (header == null)
       header = new Header(selectSingleNode("/" + toptag() + "/" + HEADER_TAG));
     return header;
   }
 
-  public D[] getDataList() {
+  public String getHeader(String key) {
+    return getHeader().getHeaderElement(key);
+  }
+
+  public int getHeaderInt(String key) {
+    return getHeader().getHeaderElementInt(key);
+  }
+
+  public double getHeaderDouble(String key) {
+    return getHeader().getHeaderElementDouble(key);
+  }
+
+  public boolean containsHeaderKey(String key) {
+    return getHeader().containsHeaderKey(key);
+  }
+
+  public void setHeader(String key, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setHeader(String key, int value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setHeader(String key, double value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void add(D d) {
+    throw new UnsupportedOperationException();
+  }
+
+  public List<D> getDataList() {
     if (datalist == null) {
       NodeList nl = selectNodeList("/" + toptag() + "/" + datatag());
       int size = nl.getLength();
-      NodeInterface[] ni = new NodeInterface[size];
+      datalist = new ArrayList<D>();
       for (int i = 0; i < size; i++)
-        ni[i] = createDataNodeInterface(nl.item(i));
-      datalist = (D[])ni;
+        datalist.add(createDataNodeInterface(nl.item(i)));
     }
     return datalist;
   }
+
 }
                           
     

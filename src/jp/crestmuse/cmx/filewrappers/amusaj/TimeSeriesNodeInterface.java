@@ -5,7 +5,9 @@ import org.w3c.dom.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.filewrappers.*;
 
-public abstract class TimeSeriesNodeInterface extends NodeInterface {
+public abstract class TimeSeriesNodeInterface extends NodeInterface 
+implements TimeSeriesCompatible {
+
   private int dim;
   private int nFrames;
   private int timeunit;
@@ -46,6 +48,53 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
     return timeunit;
   }
 
+  public void add(DoubleArray array) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setAttribute(String key, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setAttribute(String key, int value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setAttribute(String key, double value) {
+    throw new UnsupportedOperationException();
+  }
+
+  public Iterator<Map.Entry<String,String>> getAttributeIterator() {
+    return new AttrIterator(node().getAttributes());
+  }
+
+  public static void addTimeSeriesToWrapper(TimeSeriesCompatible ts, 
+                                            String nodename, 
+                                            CMXFileWrapper wrapper) {
+    int dim = ts.dim();
+    int nFrames = ts.frames();
+    java.util.Queue<DoubleArray> queue = ts.getQueue();
+    ByteBuffer buff = ByteBuffer.allocate(dim * nFrames * 4);
+    for (int n =  0; n < nFrames; n++) {
+      DoubleArray array = queue.poll();
+      for (int i = 0; i < dim; i++)
+        buff.putFloat((float)array.get(i));
+    }
+    String s = Base64.encode(buff.array());
+    wrapper.addChild(nodename);
+    Iterator<Map.Entry<String,String>> it = ts.getAttributeIterator();
+    while (it.hasNext()) {
+      Map.Entry<String,String> e = it.next();
+      wrapper.setAttribute(e.getKey(), e.getValue());
+    }
+    wrapper.setAttribute("dim", dim);
+    wrapper.setAttribute("frames", nFrames);
+    wrapper.setAttribute("timeunit", ts.timeunit());
+    wrapper.addText(s);
+    wrapper.returnToParent();
+  }
+
+/*
   public static void addTimeSeriesToWrapper(Queue<DoubleArray> queue, 
                                             int dim, int nFrames, 
                                             int timeunit, 
@@ -64,5 +113,9 @@ public abstract class TimeSeriesNodeInterface extends NodeInterface {
     wrapper.setAttribute("timeunit", timeunit);
     wrapper.addText(s);
   }
+*/
+
+
+  
 
 }
