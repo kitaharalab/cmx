@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.sp;
+package jp.crestmuse.cmx.amusaj.sp;
 
 public abstract class STFTFactory extends SPFactory {
 

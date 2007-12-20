@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 
 public class AmusaXMLException extends RuntimeException {
   public AmusaXMLException() {

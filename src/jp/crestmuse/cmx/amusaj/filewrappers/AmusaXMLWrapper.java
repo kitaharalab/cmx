@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.filewrappers.*;
 import java.util.*;
 import org.w3c.dom.*;

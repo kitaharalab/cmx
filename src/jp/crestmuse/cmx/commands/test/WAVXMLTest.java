@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.commands.test;
+import jp.crestmuse.cmx.amusaj.filewrappers.WAVXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.amusaj.*;
 

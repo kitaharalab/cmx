@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 
 public class Base64 {
   private static final org.apache.commons.codec.binary.Base64 base64 = 

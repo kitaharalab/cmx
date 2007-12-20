@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 import java.util.*;
 
 public class AmusaDataSet<D extends AmusaDataCompatible> 

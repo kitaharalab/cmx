@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;

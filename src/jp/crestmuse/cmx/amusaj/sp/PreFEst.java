@@ -1,4 +1,5 @@
-package jp.crestmuse.cmx.sp;
+package jp.crestmuse.cmx.amusaj.sp;
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
 import jp.crestmuse.cmx.filewrappers.amusaj.*;
 import jp.crestmuse.cmx.math.*;
 

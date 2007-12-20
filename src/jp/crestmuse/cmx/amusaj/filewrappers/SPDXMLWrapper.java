@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.filewrappers.amusaj;
+package jp.crestmuse.cmx.amusaj.filewrappers;
 import org.w3c.dom.*;
 
 public class SPDXMLWrapper extends AmusaXMLWrapper<PeaksCompatible> {
