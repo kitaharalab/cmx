@@ -13,9 +13,9 @@ public class FPDXMLWrapper extends AmusaXMLWrapper<TimeSeriesCompatible> {
       };
   }
 
-  public AmusaDataSet<TimeSeriesCompatible> createDataSet() {
-    return new AmusaDataSet<TimeSeriesCompatible>(this);
-  }
+//  public AmusaDataSet<TimeSeriesCompatible> createDataSet() {
+//    return new AmusaDataSet<TimeSeriesCompatible>(this);
+//  }
 
   public void addDataElement(TimeSeriesCompatible ts) {
     TimeSeriesNodeInterface.addTimeSeriesToWrapper(ts, DATA_TAG, this);

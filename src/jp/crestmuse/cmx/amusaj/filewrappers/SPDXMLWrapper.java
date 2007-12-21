@@ -9,9 +9,9 @@ public class SPDXMLWrapper extends AmusaXMLWrapper<PeaksCompatible> {
     return new Peaks(node);
   }
 
-  public AmusaDataSet<PeaksCompatible> createDataSet() {
-    return new AmusaDataSet<PeaksCompatible>(this);
-  }
+//  public AmusaDataSet<PeaksCompatible> createDataSet() {
+//    return new AmusaDataSet<PeaksCompatible>(this);
+//  }
 
   public void addDataElement(PeaksCompatible peaks) {
     Peaks.addPeaksToWrapper(peaks, DATA_TAG, this);

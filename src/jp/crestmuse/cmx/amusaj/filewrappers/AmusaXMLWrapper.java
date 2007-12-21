@@ -44,6 +44,10 @@ public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
 
   protected abstract void addDataElement(D d);
 
+  public AmusaDataSet<D> createDataSet() {
+    return new AmusaDataSet<D>(this);
+  }
+
   private Header getHeader() {
     if (header == null)
       header = new Header(selectSingleNode("/" + toptag() + "/" + HEADER_TAG));

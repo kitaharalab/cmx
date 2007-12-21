@@ -1,13 +1,15 @@
 package jp.crestmuse.cmx.misc;
 import java.util.*;
-import java.concurrent.*;
+import java.util.concurrent.*;
 
 public class QueueWrapper<E> {
   private java.util.Queue<E> queue;
   private ArrayList<E> list;
+  private int size;
 
-  public QueueWrapper(java.util.Queue<E> q) {
+  public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
+    this.size = size;
     list = new ArrayList<E>();
   }
 
@@ -27,7 +29,7 @@ public class QueueWrapper<E> {
       } else {
         E e;
         if (queue instanceof BlockingQueue)
-          e = ((BlockingQueue)queue).take();
+          e = ((BlockingQueue<E>)queue).take();
         else
           e = queue.poll();
         list.add(e);
@@ -47,5 +49,24 @@ public class QueueWrapper<E> {
     public boolean isAvailable(int index) {
       return index < next;
     }
+
+    public Iterator<E> iterator() {
+      return new Iterator() {
+          public boolean hasNext() {
+            return next < size;
+          }
+          public E next() {
+            try {
+              return take();
+            } catch (InterruptedException e) {
+              throw new RuntimeException();
+            }
+          }
+          public void remove() {
+            throw new UnsupportedOperationException();
+          }
+        };
+    }
+
   }
 }

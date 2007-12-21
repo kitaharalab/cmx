@@ -1,7 +1,10 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
-public interface AmusaDataCompatible {
+public interface AmusaDataCompatible<D> {
+  QueueReader<D> getQueueReader();
+  int frames();
   String getAttribute(String key);
   int getAttributeInt(String key);
   double getAttributeDouble(String key);

@@ -141,6 +141,8 @@ public abstract class CMXFileWrapper {
 //  private static DoubleArrayFactory doubleArrayFactory = null;
 
   private static final String PACKAGE_BASE = "jp.crestmuse.cmx.filewrappers";
+  private static final String AMUSA_PACKAGE_BASE = 
+    "jp.crestmuse.cmx.amusaj.filewrappers";
   private static final Map<String,Class> CLASS_TABLE;
   private static final Map<String,String> DTD_PUBLIC_ID_TABLE;
   private static final Map<String,String> DTD_SYSTEM_ID_TABLE;
@@ -184,19 +186,25 @@ public abstract class CMXFileWrapper {
                            "DeviationInstanceXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/deviation.dtd");
       addClassTable("riff-wave", 
-                    PACKAGE_BASE + ".amusaj.WAVXMLWrapper");
+                    AMUSA_PACKAGE_BASE + "." + "WAVXMLWrapper");
       addDocumentTypeTable("riff-wave", 
                            "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
                            "WAVXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
       addClassTable("spd", 
-                    PACKAGE_BASE + ".amusaj.SPDXMLWrapper");
+                    AMUSA_PACKAGE_BASE + "." + "SPDXMLWrapper");
       addDocumentTypeTable("spd", 
                            "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "SPDXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/spdxml.dtd");
+      addClassTable("fpd", 
+                    AMUSA_PACKAGE_BASE + "." + "FPDXMLWrapper");
+      addDocumentTypeTable("fpd", 
+                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
+                           "FPDXML//EN", 
+                           "http://www.crestmuse.jp/cmx/dtds/fpdxml/dtd");
       addClassTable("igram", 
-                    PACKAGE_BASE + ".amusaj.IGRAMXMLWrapper");
+                    AMUSA_PACKAGE_BASE + "." + "IGRAMXMLWrapper");
       addDocumentTypeTable("igram", 
                            "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "IGRAMXML//EN", 

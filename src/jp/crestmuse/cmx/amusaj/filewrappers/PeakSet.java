@@ -84,7 +84,7 @@ public class PeakSet {
   }
   
   public void filter(Filter filt) {
-    if (filt != null & (filt.usesLCF || filt.usesHCF)) {
+    if (filt != null && (filt.usesLCF || filt.usesHCF)) {
       for (int i = 0; i < nPeaks; i++) {
         double f = freq.get(i);
         if (filt.usesLCF) {

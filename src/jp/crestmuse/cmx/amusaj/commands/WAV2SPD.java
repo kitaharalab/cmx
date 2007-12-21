@@ -1,10 +1,11 @@
-package jp.crestmuse.cmx.commands.amusaj;
+package jp.crestmuse.cmx.amusaj.commands;
 
 import jp.crestmuse.cmx.commands.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
 import java.io.*;
@@ -14,44 +15,51 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
-public class WAV2SPD extends CMXCommand {
-    private static int winsize = 0;
-    private static String wintype = null;
-    private static double[] window;
-    private static double shift = Double.NaN;
-    private static double powerthrs = 0;
-    private static double rpowerthrs = 0;
-    private static boolean paramSet = false;
-    private static int ch = 0;
-    private static PeakExtractor peakext;
-  private static final STFTFactory factory = STFTFactory.getFactory();
-  private static STFT stft;
+public class WAV2SPD extends AbstractWAVAnalyzer {
+//    private static int winsize = 0;
+//    private static String wintype = null;
+//    private static double[] window;
+//    private static double shift = Double.NaN;
+//    private static double powerthrs = 0;
+//    private static double rpowerthrs = 0;
+//    private static boolean paramSet = false;
+//    private static int ch = 0;
+//    private static PeakExtractor peakext;
+//  private Map<String,Object> params = new HashMap<String,Object>();
+//  private static final STFTFactory factory = STFTFactory.getFactory();
+//  private static STFT stft;
 
+//    protected boolean setOptionsLocal(String option, String value) {
+//	return setOptionsStatic(option, value);
+//    }
+
+/*
     protected boolean setOptionsLocal(String option, String value) {
-	return setOptionsStatic(option, value);
-    }
-
-    public static boolean setOptionsStatic(String option, String value) {
 	if (option.equals("-winsize")) {
-	    winsize = Integer.parseInt(value);
+//	    winsize = Integer.parseInt(value);
+          params.put("WINDOW_SIZE", Integer.valueOf(value));
 	    return true;
 	} else if (option.equals("-wintype")) {
-	    wintype = value.toLowerCase();
+//	    wintype = value.toLowerCase();
+          params.put("WINDOW_TYPE", Integer.valueOf(value));
 	    return true;
 	} else if (option.equals("-shift")) {
-	    shift = Double.parseDouble(value);
+//	    shift = Double.parseDouble(value);
+          params.put("SHIFT", Double.valueOf(value));
 	    return true;
 	} else if (option.equals("-ch")) {
 	    if (value.equals("mix"))
-		ch = -1;
+              params.put("TARGET_CHANNEL", -1);
 	    else
-		ch = Integer.parseInt(value);
+              params.put("TARGET_CHANNEL", Integer.valueOf(value));
 	    return true;
 	} else {
 	    return false;
 	}
     }
+*/
 
+/*
   private static void setParams() {
     ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
     if (winsize == 0)
@@ -76,7 +84,9 @@ public class WAV2SPD extends CMXCommand {
     stft = factory.createSTFT();
     paramSet = true;
   }
+*/
 
+/*
   static PeakExtractor getPeakExtractor(WAVXMLWrapper wav) {
     int fs = (int)wav.getFmtChunk().sampleRate();
 	double[][][] fftresults = executeSTFT(wav);
@@ -85,12 +95,95 @@ public class WAV2SPD extends CMXCommand {
 			fs, winsize);
 	return peakext;
     }
+*/
 
+/*
   protected CMXFileWrapper readInputData(String filename) throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
     return WAVXMLWrapper.readWAV(filename);
   }
+*/
 
+/*
+  protected void run() throws IOException,ParserConfigurationException,
+    TransformerException,SAXException{
+    WAVXMLWrapper wav = (WAVXMLWrapper)indata();
+//    int fs = wav.getFmtChunk().sampleRate();
+//    params.put("SAMPLE_RATE", fs);
+    STFT stft = new STFT();
+    stft.setParams(params);
+    stft.setInputData(wav);
+    int nFrames = stft.getAvailableFrames();
+    int timeunit = stft.getTimeUnit();
+    SPExecutor ex = new SPExecutor(params, nFrames, timeunit);
+    ex.addSPModule(stft);
+//    MutableTimeSeries ts = new MutableTimeSeries(nFrames, timeunit);
+//    QueueReader<DoubleArray> q = ts.getQueueReader();
+    PeakExtractor peakext = new PeakExtractor();
+    ex.addSPModule(peakext);
+    ex.connect(stft, 0, peakext, 0);
+    if (stft.getOutputChannels() > 1) {
+      ex.connect(stft, 1, peakext, 1);
+      ex.connect(stft, 2, peakext, 2);
+    }
+    try {
+      ex.start();
+    } catch (InterruptedException e) {}
+    PeaksCompatible peaks = (PeaksCompatible)ex.getResult(1).get(0);
+//    peakext.setParams(params);
+//    MutablePeaks peaks = new MutablePeaks(nFrames, timeunit);
+//    List<TimeSeriesCompatible> l1 = new ArrayList<TimeSeriesCompatible>();
+//    l1.add(ts);
+//    List<PeaksCompatible> l2 = new ArrayList<PeaksCompatible>();
+//    l2.add(peaks);
+//    List<QueueReader<DoubleArray>> l3 = new ArrayList<QueueReader<DoubleArray>>();
+//    l3.add(q);
+//    try {
+//      for (int t = 0; t < nFrames; t++) {
+//        stft.execute(null, l1);
+//        peakext.execute(l3, l2);
+//      }
+//    } catch (InterruptedException e) {}
+    
+    SPDXMLWrapper spd = 
+      (SPDXMLWrapper)CMXFileWrapper.createDocument(SPDXMLWrapper.TOP_TAG);
+    AmusaDataSet<PeaksCompatible> dataset = spd.createDataSet();
+    dataset.add(peaks);
+    dataset.setHeaders(params);
+    dataset.addElementsToWrapper();
+    setOutputData(spd);
+  }
+*/
+
+  protected void analyzeWaveform(WAVXMLWrapper wav, STFT stft, 
+                            SPExecutor exec)
+    throws IOException,
+    ParserConfigurationException,SAXException,TransformerException {
+    exec.addSPModule(stft);
+    PeakExtractor peakext = new PeakExtractor();
+    exec.addSPModule(peakext);
+    int ch = stft.getOutputChannels();
+    for (int i = 0; i < ch; i++)
+      exec.connect(stft, i, peakext, i);
+    try {
+      exec.start();
+      prepareOutputData(SPDXMLWrapper.TOP_TAG);
+      PeaksCompatible peaks = (PeaksCompatible)exec.getResult(1).get(0);
+//      SPDXMLWrapper spd = 
+//        (SPDXMLWrapper)CMXFileWrapper.createDocument(SPDXMLWrapper.TOP_TAG);
+//      AmusaDataSet<PeaksCompatible> dataset = spd.createDataSet();
+      addOutputData(peaks);
+//      dataset.add(peaks);
+//      dataset.setHeaders(params);
+//      dataset.addElementsToWrapper();
+//      setOutputData(spd);
+    } catch (InterruptedException e) {
+      showErrorMessage(e);
+    }
+  }
+
+
+/*
   protected void run() throws IOException,ParserConfigurationException,
     TransformerException,SAXException{
     WAVXMLWrapper wav = (WAVXMLWrapper)indata();
@@ -118,7 +211,9 @@ public class WAV2SPD extends CMXCommand {
     dataset.addElementsToWrapper();
     setOutputData(spd);
   }
+*/
 
+/*
     public static double[][][] executeSTFT(WAVXMLWrapper wavxml) {
 	if (!paramSet)
 	    setParams();
@@ -150,6 +245,7 @@ public class WAV2SPD extends CMXCommand {
 	}
 	return fftresults;
     }
+*/
 
 /*
     public static class Parameters {

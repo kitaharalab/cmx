@@ -2,12 +2,14 @@ package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
+import jp.crestmuse.cmx.misc.*;
 
 public class MutablePeaks implements PeaksCompatible {
   private int nFrames;
   private int timeunit;
   private int bytesize;
   private BlockingQueue<PeakSet> queue;
+  private QueueWrapper<PeakSet> qwrap;
   private Map<String,String> attr;
 
   private static final DoubleArrayFactory factory = 
@@ -18,11 +20,12 @@ public class MutablePeaks implements PeaksCompatible {
     this.timeunit = timeunit;
     bytesize = 0;
     queue = new LinkedBlockingQueue<PeakSet>();
+    qwrap = new QueueWrapper(queue, nFrames);
     attr = new HashMap<String,String>();
   }
 
-  public java.util.Queue<PeakSet> getQueue() {
-    return queue;
+  public QueueReader<PeakSet> getQueueReader() {
+    return qwrap.createReader();
   }
 
   public int frames() {

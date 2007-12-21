@@ -4,6 +4,7 @@ import java.nio.*;
 import org.w3c.dom.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.misc.*;
 
 public abstract class TimeSeriesNodeInterface extends NodeInterface 
 implements TimeSeriesCompatible {
@@ -11,7 +12,8 @@ implements TimeSeriesCompatible {
   private int dim;
   private int nFrames;
   private int timeunit;
-  private Queue<DoubleArray> queue;
+  private java.util.Queue<DoubleArray> queue;
+  private QueueWrapper<DoubleArray> qwrap;
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
@@ -24,6 +26,7 @@ implements TimeSeriesCompatible {
 //    ByteBuffer buff = 
 //      ByteBuffer.wrap(Base64.decodeBase64(getText().getBytes()));
     queue = new LinkedList<DoubleArray>();
+    qwrap = new QueueWrapper(queue, nFrames);
     for (int n = 0; n < nFrames; n++) {
       DoubleArray array = factory.createArray(dim);
       for (int i = 0; i < dim; i++)
@@ -32,8 +35,8 @@ implements TimeSeriesCompatible {
     }
   }
 
-  public Queue<DoubleArray> getQueue() {
-    return queue;
+  public QueueReader<DoubleArray> getQueueReader() {
+    return qwrap.createReader();
   }
 
   public int dim() {
@@ -73,13 +76,15 @@ implements TimeSeriesCompatible {
                                             CMXFileWrapper wrapper) {
     int dim = ts.dim();
     int nFrames = ts.frames();
-    java.util.Queue<DoubleArray> queue = ts.getQueue();
+    QueueReader<DoubleArray> queue = ts.getQueueReader();
     ByteBuffer buff = ByteBuffer.allocate(dim * nFrames * 4);
-    for (int n =  0; n < nFrames; n++) {
-      DoubleArray array = queue.poll();
-      for (int i = 0; i < dim; i++)
-        buff.putFloat((float)array.get(i));
-    }
+    try {
+      for (int n =  0; n < nFrames; n++) {
+        DoubleArray array = queue.take();
+        for (int i = 0; i < dim; i++)
+          buff.putFloat((float)array.get(i));
+      }
+    } catch (InterruptedException e) {}
     String s = Base64.encode(buff.array());
     wrapper.addChild(nodename);
     Iterator<Map.Entry<String,String>> it = ts.getAttributeIterator();

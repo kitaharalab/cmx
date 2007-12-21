@@ -11,6 +11,7 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
   private int timeunit;
   private int bytesize;
   private java.util.Queue<PeakSet> queue;
+  private QueueWrapper qwrap;
   private DoubleArrayFactory factory;
   
   Peaks(Node node) {
@@ -30,14 +31,15 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
                         buff.getFloat(), buff.getFloat());
       queue.add(peakset);
     }
+    qwrap = new QueueWrapper(queue, nFrames);
   }
 
   protected String getSupportedNodeName() {
     return "peaks";
   }
 
-  public java.util.Queue<PeakSet> getQueue() {
-    return queue;
+  public QueueReader<PeakSet> getQueueReader() {
+    return qwrap.createReader();
   }
 
   public int frames() {
@@ -76,20 +78,22 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
                                        String nodename, 
                                        CMXFileWrapper wrapper) {
     ByteBuffer buff = ByteBuffer.allocate(peaks.bytesize());
-    java.util.Queue<PeakSet> queue = peaks.getQueue();
+    QueueReader<PeakSet> queue = peaks.getQueueReader();
     int nFrames = peaks.frames();
-    for (int n = 0; n < nFrames; n++) {
-      PeakSet peakset = queue.poll();
-      int nPeaks = peakset.nPeaks();
-      buff.putInt(nPeaks);
-      for (int i = 0; i < nPeaks; i++) {
-        buff.putFloat((float)peakset.freq(i));
-        buff.putFloat((float)peakset.power(i));
-        buff.putFloat((float)peakset.phase(i));
-        buff.putFloat((float)peakset.iid(i));
-        buff.putFloat((float)peakset.ipd(i));
+    try {
+      for (int n = 0; n < nFrames; n++) {
+        PeakSet peakset = queue.take();
+        int nPeaks = peakset.nPeaks();
+        buff.putInt(nPeaks);
+        for (int i = 0; i < nPeaks; i++) {
+          buff.putFloat((float)peakset.freq(i));
+          buff.putFloat((float)peakset.power(i));
+          buff.putFloat((float)peakset.phase(i));
+          buff.putFloat((float)peakset.iid(i));
+          buff.putFloat((float)peakset.ipd(i));
+        }
       }
-    }
+    } catch (InterruptedException e) {}
     wrapper.addChild(nodename);
     Iterator<Map.Entry<String,String>> it = peaks.getAttributeIterator();
     while (it.hasNext()) {

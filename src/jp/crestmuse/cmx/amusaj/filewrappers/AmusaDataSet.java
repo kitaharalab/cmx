@@ -72,6 +72,17 @@ public class AmusaDataSet<D extends AmusaDataCompatible>
     header.put(key, String.valueOf(value));
   }
 
+  public void setHeaders(Map<String,Object> map) {
+    Set<Map.Entry<String,Object>> entrySet = map.entrySet();
+    for (Map.Entry<String,Object> e : entrySet)
+      header.put(e.getKey(), e.getValue().toString());
+  }
+       
+  public void setHeaders(Map<String,Object> map, String... keys) {
+    for (String key : keys) 
+      header.put(key, map.get(key).toString());
+  }       
+
 /********************************************************************
  *Adds data. <br>
  *データを追加します. 
