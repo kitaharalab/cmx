@@ -40,8 +40,8 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     int ch = stft.getOutputChannels();
     for (int i = 0; i < ch; i++)
       exec.connect(stft, i, peakext, i);
-    F0PredominanceCalculatorModule f0calc = 
-      new F0PredominanceCalculatorModule();
+    F0PDFCalculatorModule f0calc = 
+      new F0PDFCalculatorModule();
     exec.addSPModule(f0calc);
     exec.connect(peakext, 0, f0calc, 0);
     try {
