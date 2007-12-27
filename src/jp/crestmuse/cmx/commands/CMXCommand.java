@@ -182,7 +182,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *プログラムのバージョンを返します. 
    ******************************************************************/
   protected String getVersion() {
-    return "0.21.000";
+    return "0.32.000";
   }
 
 /****** Methods (Read the command line) ******************************/
@@ -254,6 +254,8 @@ public abstract class CMXCommand implements CMXInitializer {
       setFileList(value);
     } else if (option.equals("-conf")) {
       configfilename = value;
+    } else if (option.equals("-catalog")) {
+      CMXFileWrapper.catalogFileName = value;
     } else if (option.equals("-err")) {
       try {
         System.setErr(new PrintStream(new FileOutputStream(value)));

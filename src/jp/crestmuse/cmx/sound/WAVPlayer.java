@@ -93,23 +93,30 @@ public class WAVPlayer implements LineSupportingMusicPlayer {
     return lengthInSec;
   }
 
-  public void run() {
+  public synchronized void run() {
    while (true) {
      try {
        if (isNowPlaying()) {
+         int sleepTime = (BUFFER_SIZE / sampleRate / 2) * 1000;
+         System.out.println(sleepTime);
          byte[] buff;
          int index = (int)(startposition * framesize / 1000000);
 //         int index = (int)(startposition * samplesPerSec / 1000000);
 //         int index = (int)(startposition * framesize * framerate / 1000000);
          do {
-           buff = toByteArray(waveform, index, BUFFER_SIZE);
+             System.out.println(line.available());
+           buff = toByteArray(waveform, index, BUFFER_SIZE * framesize);
            if (buff != null) {
-             index += BUFFER_SIZE;
+             index += BUFFER_SIZE * framesize;
              line.write(buff, 0, buff.length);
-             Thread.currentThread().sleep(SLEEP_TIME);
+             Thread.currentThread().sleep(sleepTime);
            }
+             System.out.println(line.available());
          } while (buff != null && isNowPlaying());
-         line.drain();
+//           line.drain();
+         while (line.isActive()) {
+           Thread.currentThread().sleep(SLEEP_TIME);
+         }
          line.stop();
          line.flush();
          nowPlaying = false;
@@ -117,6 +124,8 @@ public class WAVPlayer implements LineSupportingMusicPlayer {
        }
        Thread.currentThread().sleep(SLEEP_TIME);
      } catch (InterruptedException e) {
+       e.printStackTrace();
+     } catch (Exception e) {
        e.printStackTrace();
      }
    }

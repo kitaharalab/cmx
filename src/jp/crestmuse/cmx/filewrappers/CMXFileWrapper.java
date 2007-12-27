@@ -11,6 +11,7 @@ import org.w3c.dom.traversal.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import org.apache.xpath.*;
+import org.apache.xerces.util.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.xml.processors.*;
 import jp.crestmuse.cmx.math.*;
@@ -140,6 +141,8 @@ public abstract class CMXFileWrapper {
 
 //  private static DoubleArrayFactory doubleArrayFactory = null;
 
+  public static String catalogFileName = null;
+
   private static final String PACKAGE_BASE = "jp.crestmuse.cmx.filewrappers";
   private static final String AMUSA_PACKAGE_BASE = 
     "jp.crestmuse.cmx.amusaj.filewrappers";
@@ -240,8 +243,14 @@ public abstract class CMXFileWrapper {
       builderFactory.setIgnoringElementContentWhitespace(true);
       //      builderFactory.setValidating(true);
     }
-    if (builder == null)
+    if (builder == null) {
       builder = builderFactory.newDocumentBuilder();
+      if (catalogFileName != null) {
+        XMLCatalogResolver resolver = new XMLCatalogResolver(
+          new String[]{catalogFileName});
+        builder.setEntityResolver(resolver);
+      }
+    }
     if (domImpl == null)
       domImpl = builder.getDOMImplementation();
 //    if (xpathFactory == null)
