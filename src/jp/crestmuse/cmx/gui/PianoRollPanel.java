@@ -2,24 +2,24 @@ package jp.crestmuse.cmx.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.*;
-import java.io.*;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
 
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import org.xml.sax.SAXException;
+
 import jp.crestmuse.cmx.gui.GraphicExpressionDataSet.NoteExpressionRectangle;
+import jp.crestmuse.cmx.misc.*;
 
 /**
  * ピアノロールを描画するパネルオブジェクトです．
  * @author Mitsuyo Hashida
  * @since 2007.2
  */
-public class PianoRollPanel extends JPanel implements MouseListener,
+public class PianoRollPanel extends JScrollPane implements MouseListener,
 		MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 
@@ -33,23 +33,14 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	private PianoRoll pianoroll;
 
 	/** ベロシティを描画するパネル */
-	private VelocityPanel velocityPanel;
-
-  private PianoRollCompatible filewrapper = null;
-  private ArrayList<SimpleNoteList> partlist = null;
+	// private VelocityPanel velocityPanel;
+	private PianoRollCompatible filewrapper = null;
+	private ArrayList<SimpleNoteList> partlist = null;
 
 	/** MusicXMLオブジェクト */
-//	private MusicXMLWrapper xml;
-
+	// private MusicXMLWrapper xml;
 	/** DeviationInstanceXMLオブジェクト */
-//	private DeviationInstanceWrapper dev;
-
-	/** パネルサイズ（横幅 [pixel]） */
-	private int frameHeight = 480;
-
-	/** パネルサイズ（縦幅 [pixel]） */
-	private int frameWidth = 780;
-
+	// private DeviationInstanceWrapper dev;
 	/** TODO（実装中）押されている鍵盤のノート番号リスト（ソート済） */
 	private TreeSet<Integer> noteNumberOfPushedKey;
 
@@ -62,17 +53,17 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	/** TODO（実装中）マウスの選択範囲 */
 	private Rectangle selectedMouseBox;
 
-	private JScrollPane scrollPane;
+	private Point currentMousePoint;
 
-	// private double timeRate;
+	private boolean isControlMask;
 
 	public static int getPitch(int notenumber) {
 		return keyboard.getPitch(notenumber);
 	}
 
-//	public static void main(String[] args) {
-//		CMXMusicDataFrame.main(args);
-//	}
+	// public static void main(String[] args) {
+	// CMXMusicDataFrame.main(args);
+	// }
 
 	/**
 	 * 発音時刻や音長に対する横軸の長さを求めます．
@@ -83,41 +74,33 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 		return (int) (val * beatPixel);
 	}
 
-	/** コンストラクタ */
-	public PianoRollPanel() {
-		super(new BorderLayout(), true); // 上位クラス(JPanel)のコンストラクタ
+	/**
+	 * コンストラクタ
+	 * @param height
+	 * @param width
+	 */
+	public PianoRollPanel(int width, int height) {
+		super(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		setMinimumSize(new Dimension(width, height));
+		setOpaque(true);
+		setAutoscrolls(true);
+		
+		currentMousePoint = new Point();
+		selectedMouseBox = new Rectangle();
 
-		// 以下３つは実装中なので無視してもよい
-		gxpr = new GraphicExpressionDataSet();
-		selectedNoteList = new ArrayList<NoteCompatible>();
-		// playingScheduler = new PianoRollScheduler();
-		noteNumberOfPushedKey = new TreeSet<Integer>();
-
-		/* パネルのサイズ指定 */
-		setPreferredSize(new Dimension(frameWidth, frameHeight));
-		/* パネルに各オブジェクトを追加する */
-		add(createContentPane());
-	}
-
-	public Container createContentPane() {
-		JPanel contentPane = new JPanel(new BorderLayout());
-		contentPane.setOpaque(true);
-
+		gxpr = new GraphicExpressionDataSet();		// 実装中
+		selectedNoteList = new ArrayList<NoteCompatible>();		// 実装中
+		// playingScheduler = new PianoRollScheduler();		// 実装中
+		noteNumberOfPushedKey = new TreeSet<Integer>();		// 実装中
+		
 		/* 各描画用オブジェクトを生成 */
 		pianoroll = new PianoRoll();
 		keyboard = new KeyBoard();
-		// pianoroll.setPreferredSize(new Dimension(frameWidth,
-		// keyboard.keyRegister));
-
-		scrollPane = new JScrollPane(pianoroll,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setRowHeaderView(keyboard); // 行ヘッダ
-		contentPane.add(scrollPane, BorderLayout.CENTER);
-
-		velocityPanel = new VelocityPanel();
-		contentPane.add(velocityPanel, BorderLayout.PAGE_END);
-		return contentPane;
+		setViewportView(pianoroll);
+		setRowHeaderView(keyboard);
+		pianoroll.addMouseListener(this);
+		pianoroll.addMouseMotionListener(this);
 	}
 
 	/**
@@ -145,16 +128,16 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * (non-Javadoc)
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
-	public void mouseClicked(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
-	}
+	public void mouseClicked(MouseEvent e) {}
 
 	/*
 	 * (non-Javadoc)
 	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
 	 */
 	public void mouseDragged(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		currentMousePoint = e.getPoint();
+		setMouseBoxEnd(e.getPoint());
+		repaint();
 	}
 
 	/*
@@ -162,7 +145,12 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 */
 	public void mouseEntered(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		if (e.getSource().equals(pianoroll)) {
+			pianoroll.setVisibleMouseAxis(true);
+			currentMousePoint = e.getPoint();
+			System.out.println("currentMousePoint ON");
+			repaint();
+		}
 	}
 
 	/*
@@ -170,7 +158,11 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 	 */
 	public void mouseExited(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		if (e.getSource().equals(pianoroll)) {
+			pianoroll.setVisibleMouseAxis(false);
+			System.out.println("currentMousePoint OFF");
+			repaint();
+		}
 	}
 
 	/*
@@ -178,7 +170,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		currentMousePoint = e.getPoint();
+		repaint();
 	}
 
 	/*
@@ -186,7 +179,12 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 	 */
 	public void mousePressed(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		isControlMask = ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK)
+				? true
+				: false;
+		System.out.println("control mask:" + isControlMask);
+		memoryMouseAxis(e.getPoint());
+		repaint();
 	}
 
 	/*
@@ -194,15 +192,19 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {
-		throw new UnsupportedOperationException(); // TODO 実装
+		if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != MouseEvent.CTRL_DOWN_MASK)
+			isControlMask = false;
+		System.out.println("control mask:" + isControlMask);
+		pianoroll.isMouseSelectBoxDraw = false;
+		repaint();
 	}
 
 	void closeMusicData() {
-          filewrapper = null;
-          partlist = null;
-//		if (xml != null) {
-//			xml = null;
-//		}
+		filewrapper = null;
+		partlist = null;
+		// if (xml != null) {
+		// xml = null;
+		// }
 		noteNumberOfPushedKey.clear();
 	}
 
@@ -222,7 +224,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			return;
 		selectedNoteList.clear();
 
-		HashMap<NoteExpressionRectangle, NoteCompatible> map = gxpr.getAxisToNoteMap();
+		HashMap<NoteExpressionRectangle, NoteCompatible> map = gxpr
+				.getAxisToNoteMap();
 		int selX = selectedMouseBox.x - pianoroll.axisX;
 		int selW = selX + selectedMouseBox.width;
 		int selY = selectedMouseBox.y;
@@ -284,45 +287,40 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 	 * @param dev
 	 */
 
-  void setMusicData(PianoRollCompatible filewrapper, int ticksPerBeat) 
-    throws TransformerException, IOException, SAXException, ParserConfigurationException {
-    this.filewrapper = filewrapper;
-    partlist = filewrapper.getPartwiseNoteList(ticksPerBeat);
-    gxpr.setNotePositions(partlist, ticksPerBeat);
-//    this.filewrapper = filewrapper;
-//    gxpr.setNotePositions(filewrapper, ticksPerBeat);
-    keyboard.setKeyRegister();
-    frameWidth = gxpr.getMusicLength();
-    scrollPane.setHorizontalScrollBarPolicy
-      (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-    System.out.println("pianoroll preferred size: "
-                       + pianoroll.getPreferredSize());
-    repaint();
-  }
-
-/*
-	void setMusicData(MusicXMLWrapper xml, DeviationInstanceWrapper dev) {
-		this.xml = xml;
-		this.dev = dev;
-		gxpr.setNotePositions(xml, dev);
+	void setMusicData(PianoRollCompatible filewrapper, int ticksPerBeat)
+			throws TransformerException, IOException, SAXException,
+			ParserConfigurationException {
+		this.filewrapper = filewrapper;
+		partlist = filewrapper.getPartwiseNoteList(ticksPerBeat);
+		gxpr.setNotePositions(partlist, ticksPerBeat);
+		setPreferredSize(new Dimension(gxpr.getMusicLength(),240));
+		revalidate();
+		// this.filewrapper = filewrapper;
+		// gxpr.setNotePositions(filewrapper, ticksPerBeat);
 		keyboard.setKeyRegister();
-		frameWidth = gxpr.getMusicLength();
-		// pianoroll.setPreferredSize(new Dimension(frameWidth, frameHeight));
-		scrollPane
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		System.out.println("pianoroll preferred size: "
 				+ pianoroll.getPreferredSize());
 		repaint();
 	}
-*/
+
+	/*
+	 * void setMusicData(MusicXMLWrapper xml, DeviationInstanceWrapper dev) {
+	 * this.xml = xml; this.dev = dev; gxpr.setNotePositions(xml, dev);
+	 * keyboard.setKeyRegister(); frameWidth = gxpr.getMusicLength(); //
+	 * pianoroll.setPreferredSize(new Dimension(frameWidth, frameHeight));
+	 * scrollPane
+	 * .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	 * System.out.println("pianoroll preferred size: " +
+	 * pianoroll.getPreferredSize()); repaint(); }
+	 */
 
 	/**
 	 * @param voice
 	 * @return
 	 */
-	private final Color setPartColor(int voice) {
-          int partSize = partlist.size();
-//		int partSize = xml.getPartList().length;
+	protected final Color setPartColor(int voice) {
+		int partSize = partlist.size();
+		// int partSize = xml.getPartList().length;
 		return new Color((int) (255. * (voice / partSize)),
 				(int) (255. * (voice / 2 / partSize)),
 				(int) (255. * ((partSize - voice) / partSize)));
@@ -356,9 +354,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 		private ArrayList<Integer> whiteMidiKey;
 
 		KeyBoard() throws NullPointerException {
-			super();
+			super(true);
 			setBackground(Color.WHITE);
-			setDoubleBuffered(true);
 			setPreferredSize(new Dimension(keyWidth, keyRegister));
 			createWhiteMidiKey();
 			setKeyRegister();
@@ -375,10 +372,9 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			final Graphics2D g2 = (Graphics2D) g;
 			super.paintComponent(g2);
 			final RenderingHints qualityHints = new RenderingHints(
-					RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
+					RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			qualityHints.put(RenderingHints.KEY_RENDERING,
-								RenderingHints.VALUE_RENDER_QUALITY);
+												RenderingHints.VALUE_RENDER_QUALITY);
 			g2.setRenderingHints(qualityHints);
 
 			/* キーボード表示 */
@@ -402,12 +398,11 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 				if (whiteMidiKey.contains(getPitch(i) % 12)) {
 					// 白鍵
 					g.setColor(Color.lightGray);
-					g.drawLine(0, curHeight, 1000, curHeight);
+					g.drawLine(0, curHeight, 5000, curHeight);
 				} else {
 					// 黒鍵
-					g.setColor(Color.getHSBColor((float) 0.5, (float) 0.,
-													(float) 0.9));
-					g.fillRect(0, curHeight, 1000, keyHeight);
+					g.setColor(Color.getHSBColor((float) 0.5, (float) 0., (float) 0.9));
+					g.fillRect(0, curHeight, 5000, keyHeight);
 				}
 				curHeight += keyHeight;
 			}
@@ -469,8 +464,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			// 今なっている音を色づけ
 			g.setColor(Color.yellow);
 			for (int key : noteNumberOfPushedKey) {
-				g.fillRect(getX(), getPitch(key) * keyHeight, keyWidth,
-							keyHeight);
+				g.fillRect(getX(), getPitch(key) * keyHeight, keyWidth, keyHeight);
 			}
 		}
 
@@ -483,49 +477,22 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			return -1;
 		}
 
-          private void setKeyRegister() {
-            if (filewrapper == null) {
-              topNoteNumber = 84;
-              bottomNoteNumber = 22;
-              // keyRegister =
-              // topNoteNumber -
-              // bottomNoteNumber + 12;
-            } else {
-              topNoteNumber = 0;
-              bottomNoteNumber = 1000;
-              for (SimpleNoteList notelist : partlist) {
-                if (notelist.topNoteNum() > topNoteNumber)
-                  topNoteNumber = notelist.topNoteNum();
-                if (notelist.bottomNoteNum() < bottomNoteNumber)
-                  bottomNoteNumber = notelist.bottomNoteNum();
-              }
-//              try {
-//                xml.processNotePartwise(new CMXNoteHandler() {
-//                    
-//                    @Override
-//                    public void processMusicData(MusicData md,
-//                                                 MusicXMLWrapper wrapper) {
-//                      super.processMusicData(md, wrapper);
-//                      if (!(md instanceof Note))
-//                        return;
-//                      MusicXMLWrapper.Note note = (Note) md;
-//                      if (note.rest())
-//                        return;
-//                      if (note.notenum() > topNoteNumber)
-//                        topNoteNumber = note.notenum();
-//                      if (note.notenum() < bottomNoteNumber)
-//                        bottomNoteNumber = note.notenum();
-//                    }
-//                    
-//                  });
-//              } catch (TransformerException e) {
-//                e.printStackTrace();
-//              }
-//              
-//				// TODO else 実装？
-            }
-            keyRegister = topNoteNumber - bottomNoteNumber + 12;
-          }
+		private void setKeyRegister() {
+			if (filewrapper == null) {
+				topNoteNumber = 84;
+				bottomNoteNumber = 22;
+			} else {
+				topNoteNumber = 0;
+				bottomNoteNumber = 1000;
+				for (SimpleNoteList notelist : partlist) {
+					if (notelist.topNoteNum() > topNoteNumber)
+						topNoteNumber = notelist.topNoteNum();
+					if (notelist.bottomNoteNum() < bottomNoteNumber)
+						bottomNoteNumber = notelist.bottomNoteNum();
+				}
+			}
+			keyRegister = topNoteNumber - bottomNoteNumber + 12;
+		}
 	}
 
 	/**
@@ -539,11 +506,15 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 		private boolean isMouseSelectBoxDraw;
 		private Point mouseStartPoint;
 		private Point mouseEndPoint;
+		private boolean mouseVisible;
 
 		PianoRoll() throws NullPointerException {
-			super();
+			super(true);
 			setBackground(Color.WHITE);
-			setDoubleBuffered(true);
+		}
+
+		void setVisibleMouseAxis(boolean b) {
+			mouseVisible = b;
 		}
 
 		/*
@@ -556,10 +527,9 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			final Graphics2D g2 = (Graphics2D) g;
 			super.paintComponent(g2);
 			final RenderingHints qualityHints = new RenderingHints(
-					RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
+					RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			qualityHints.put(RenderingHints.KEY_RENDERING,
-								RenderingHints.VALUE_RENDER_QUALITY);
+												RenderingHints.VALUE_RENDER_QUALITY);
 			g2.setRenderingHints(qualityHints);
 
 			/* 背景の塗り絵 */
@@ -569,38 +539,20 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 			g2.translate(axisX, 0);
 
 			/* 楽譜が読み込まれてないなら以下の描画は不要 */
-			if (filewrapper != null) {
-                          for (SimpleNoteList notelist : partlist)
-                            for (NoteCompatible note : notelist)
-                              drawNotes(g2, note, 0, notelist.serial());
-//                          try {
-//                            xml.processNotePartwise(new CMXNoteHandler() {
-//                                
-//                                @Override
-//                                public void processMusicData(MusicData md,
-//                                                             MusicXMLWrapper wrapper) {
-//                                  super.processMusicData(md, wrapper);
-//                                  if (md instanceof Note) {
-//                                    Note n = (Note) md;
-//                                    if (isFirstNoteOfMeasure)
-//                                      drawMeasureLine(
-//                                        g2,
-//                                        getWidthOfNote(currentOnset));
-//                                    if (n.rest())
-//                                      return;
-//                                    drawNotes(g2, n, currentOnset, partId);
-//                                    super.endNote(n);
-//                                  }
-//                                }
-//                                
-//                              });
-//                          } catch (TransformerException e) {
-//                            e.printStackTrace();
-//                          }
+			if (filewrapper != null && partlist != null) {
+				for (SimpleNoteList notelist : partlist)
+					for (NoteCompatible note : notelist)
+						drawNotes(g2, note, notelist.serial());
 			}
 			/* 選択範囲の矩形を描く． */
 			if (isMouseSelectBoxDraw)
-                          drawSelectedMouseBox(g2);
+				drawSelectedMouseBox(g2);
+			/* マウス座標を表示 */
+			if (mouseVisible) {
+				g2.setColor(Color.gray);
+				g2.drawString("[" + currentMousePoint.x + ", " + currentMousePoint.y
+						+ "]", currentMousePoint.x - axisX, currentMousePoint.y);
+			}
 		}
 
 		/**
@@ -611,139 +563,63 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 		 * @param partId
 		 * @return
 		 */
-          private void drawNotes(final Graphics2D g, NoteCompatible note, double onset,
-                                   int partId) {
-            int y = getPitch(note.notenum()) * KeyBoard.keyHeight;
-            /* 色づけ */
-            Color c = setPartColor(partId);
-            if (selectedNoteList.contains(note))
-              c = Color.red;
-            g.setColor(c);
-            
-            NoteExpressionRectangle rect = gxpr.getNoteToAxisMap(note);
-            Rectangle r;
-            /* 演奏上の音符 */
-            if (rect.getIOIRectangle() != null) {
-              r = rect.getIOIRectangle();
-              r.y = y;
-              g.draw3DRect(r.x, r.y, r.width, r.height, true);
-            }
-            if (rect.getPerformanceRectangle() != null) {
-              r = rect.getPerformanceRectangle();
-              r.y = y;
-              g.fill3DRect(r.x, r.y, r.width, r.height, true);
-            }
-            /* 楽譜上の音符 */
-            g.setColor(c.brighter());
-            r = rect.getScoreRectangle();
-            r.y = y;
-            g.fill3DRect(r.x, r.y, r.width, r.height, true);
-//            return onset + note.duration();
-          }
+		private void drawNotes(final Graphics2D g, NoteCompatible note, int partId) {
+			int y = getPitch(note.notenum()) * KeyBoard.keyHeight;
+			/* 色づけ */
+			Color c = setPartColor(partId);
+			if (selectedNoteList.contains(note))
+				c = Color.red;
+			g.setColor(c);
 
-		/**
-		 * @param g2
-		 */
-          private void drawSelectedMouseBox(Graphics2D g2) {
+			NoteExpressionRectangle rect = gxpr.getNoteToAxisMap(note);
+			Rectangle r;
+			/* 演奏上の音符 */
+			if (rect.getIOIRectangle() != null) {
+				r = rect.getIOIRectangle();
+				r.y = y;
+				g.draw3DRect(r.x, r.y, r.width, r.height, true);
+			}
+			if (rect.getPerformanceRectangle() != null) {
+				r = rect.getPerformanceRectangle();
+				r.y = y;
+				g.fill3DRect(r.x, r.y, r.width, r.height, true);
+			}
+			/* 楽譜上の音符 */
+			g.setColor(c.brighter());
+			r = rect.getScoreRectangle();
+			r.y = y;
+			g.fill3DRect(r.x, r.y, r.width, r.height, true);
+			// return onset + note.duration();
+		}
 
-            int sx = (mouseStartPoint.x < mouseEndPoint.x)
-              ? mouseStartPoint.x
-              : mouseEndPoint.x;
-            int sy = (mouseStartPoint.y < mouseEndPoint.y)
-              ? mouseStartPoint.y
-              : mouseEndPoint.y;
-            int w = (mouseStartPoint.x < mouseEndPoint.x) ? mouseEndPoint.x
-              - sx : mouseStartPoint.x - sx;
-            int h = (mouseStartPoint.y < mouseEndPoint.y) ? mouseEndPoint.y
-              - sy : mouseStartPoint.y - sy;
-            selectedMouseBox = new Rectangle(sx, sy, w, h);
-            g2.setColor(Color.black);
-			g2.drawRect(sx - axisX, sy, w, h);
-          }
+		/** マウスの選択矩形を表示します。 */
+		private void drawSelectedMouseBox(Graphics2D g2) {
+			int sx = (mouseStartPoint.x < mouseEndPoint.x)
+					? mouseStartPoint.x
+					: mouseEndPoint.x;
+			int sy = (mouseStartPoint.y < mouseEndPoint.y)
+					? mouseStartPoint.y
+					: mouseEndPoint.y;
+			int w = (mouseStartPoint.x < mouseEndPoint.x)
+					? mouseEndPoint.x - sx
+					: mouseStartPoint.x - sx;
+			int h = (mouseStartPoint.y < mouseEndPoint.y)
+					? mouseEndPoint.y - sy
+					: mouseStartPoint.y - sy;
+			selectedMouseBox = new Rectangle(sx, sy, w, h);
+			g2.setColor(Color.black);
+			if (isControlMask)
+				g2.drawLine(mouseStartPoint.x - axisX, mouseStartPoint.y,
+										mouseEndPoint.x - axisX, mouseEndPoint.y);
+			else
+				g2.drawRect(sx - axisX, sy, w, h);
+		}
 
 		/**
 		 * 小節線を描画します。Draw a measure bar.
 		 */
-		private void drawMeasureLine(final Graphics2D g, int onset) {
-			g.setColor(Color.black);
-			g.drawLine(onset, 0, onset, frameHeight);
-		}
+		// private void drawMeasureLine(final Graphics2D g, int onset) {
+		// g.setColor(Color.black);
+		// }
 	}
-
-  class VelocityPanel extends JPanel {
-    private static final int PANEL_HEIGHT = 130;
-    
-    private static final long serialVersionUID = 1L;
-    
-    VelocityPanel() {
-      setBackground(Color.white);
-      setPreferredSize(new Dimension(frameWidth, PANEL_HEIGHT));
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
-    @Override
-    public void paintComponent(final Graphics g) {
-      final Graphics2D g2 = (Graphics2D) g;
-      super.paintComponent(g2);
-/*      
-      // 軸線
-      g2.drawString("Vel.", getKeyboard().keyWidth - 25, 15);
-      g2.drawLine(getKeyboard().keyWidth, 0, getKeyboard().keyWidth,
-                  PANEL_HEIGHT);
-      if (dev == null)
-        return;
-      int vel = dev.getBaseDynamics();
-      // default_velocity
-      g2.drawLine(getKeyboard().keyWidth - 10, PANEL_HEIGHT - vel,
-                  getKeyboard().keyWidth, PANEL_HEIGHT - vel);
-      g2.drawString(String.valueOf(vel), getKeyboard().keyWidth - 25,
-                    PANEL_HEIGHT - vel - 1);
-      // 座標移動
-      g2.translate(getKeyboard().keyWidth + pianoroll.axisX, 0);
-      drawVelocity(g2);
-*/
-    }
-
-    private void drawVelocity(final Graphics2D g) {
-      // ***TO DO***
-/*
-      if (xml == null)
-        return;
-      try {
-        xml.processNotePartwise(new CMXNoteHandler() {
-            
-            @Override
-            public void processMusicData(MusicData md,
-                                         MusicXMLWrapper wrapper) {
-              super.processMusicData(md, wrapper);
-              
-              if (!(md instanceof Note))
-                return;
-              Note n = (Note) md;
-              if (n.rest())
-                return;
-              final int onset = getWidthOfNote(currentOnset);
-              int velocity = dev.getBaseDynamics();
-              NoteDeviation d = dev.getNoteDeviation(n);
-              if (d != null)
-                velocity *= d.dynamics();
-                    g.setColor(setPartColor(partId));
-                    g.fill3DRect(onset, PANEL_HEIGHT - velocity, 7,
-                                 velocity, true);
-                    g.drawString(String.valueOf(velocity), onset - 10,
-                                 PANEL_HEIGHT - velocity);
-                    
-                    super.endNote(n);
-            }
-            
-          });
-      } catch (TransformerException e) {
-        e.printStackTrace();
-      }
-*/      
-    }
-  }
 }

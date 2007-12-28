@@ -1,12 +1,12 @@
 package jp.crestmuse.cmx.gui;
 
 import java.awt.Rectangle;
-import java.util.*;
-
-import javax.xml.transform.TransformerException;
+import java.util.HashMap;
+import java.util.List;
 
 import jp.crestmuse.cmx.gui.PianoRollPanel.KeyBoard;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.NoteCompatible;
+import jp.crestmuse.cmx.misc.SimpleNoteList;
 
 class GraphicExpressionDataSet {
   /** ピアノロール上で座標から音符を取得するマップ． */
