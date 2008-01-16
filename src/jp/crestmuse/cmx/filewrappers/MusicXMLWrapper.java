@@ -793,6 +793,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         return new Backup(node, this);
       else if (nodename.equals("forward"))
         return new Forward(node, this);
+      else if (nodename.equals("direction"))
+             return new Direction(node, this);
       else
         return new MusicData(node, this);
     }
@@ -857,12 +859,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private Measure measure;
     private int divisions;
     private int onset;
+    private int measureTick;
 //    private double onset;
 //    private int onsetInt;
     private MusicData(Node node, Measure measure) {
       super(node);
       this.measure = measure;
       divisions = lastDivisions;
+      measureTick = measure().cumulativeTicks(INTERNAL_TICKS_PER_BEAT);
     }
     /**********************************************************************
      *<p>Returns "note|backup|forward|direction|attributes|harmony|figured-bass|print|sound|barline|grouping|link|bookmark".</p>
@@ -913,12 +917,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return onset(ticksPerBeat) + duration(ticksPerBeat);
     }
     public int ordinal() {
-      return measure().number();
+      return measureTick;
+//    public int ordinal() {
+//      return measure().number();
     }
     // kari
     public int subordinal() {
-      return onset(INTERNAL_TICKS_PER_BEAT) 
-         - measure().cumulativeTicks(INTERNAL_TICKS_PER_BEAT);
+      return onset(INTERNAL_TICKS_PER_BEAT) - measureTick;
+//         - measure().cumulativeTicks(INTERNAL_TICKS_PER_BEAT);
 //      return (int)(1000.0 * onset());
     }
   }

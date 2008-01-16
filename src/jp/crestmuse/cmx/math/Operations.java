@@ -144,5 +144,17 @@ public class Operations {
     return z.subarrayX(0, k);
   }
 
+  public static DoubleArray cloneArray(DoubleArray x) {
+    try {
+      return (DoubleArray)x.clone();
+    } catch (CloneNotSupportedException e) {
+      int length = x.length();
+      DoubleArray z = factory.createArray(length);
+      for (int i = 0; i < length; i++)
+        z.set(i, x.get(i));
+      return z;
+    }
+  }
+
 
 }

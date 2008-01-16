@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-class DefaultDoubleArray implements DoubleArray {
+class DefaultDoubleArray implements DoubleArray,Cloneable {
   private double[] values;
   private int from, thru;
 
@@ -34,6 +34,10 @@ class DefaultDoubleArray implements DoubleArray {
 
   public void set(int index, double value) {
     values[index + from] = value;
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    return super.clone();
   }
 
   public double[] toArray() {

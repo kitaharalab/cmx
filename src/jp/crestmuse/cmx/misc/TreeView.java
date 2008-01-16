@@ -123,6 +123,7 @@ public class TreeView<E extends Ordered> {
                                        BranchHolder b) {
     int ordinal = e.ordinal();
     int subordinal = e.subordinal();
+    System.out.println(e);
     if (b.head.compare(ordinal, subordinal) < 0) {
       b.replaceBranchHeadTo(e, label);
     } else {
@@ -166,7 +167,10 @@ public class TreeView<E extends Ordered> {
                                            String label, 
                                            BranchHolder b) {
     if (b.head.compare(ordinal, subordinal) < 0)
-      throw new IllegalStateException();
+      throw new IllegalStateException(ordinal + " " + subordinal);
+//      b.replaceBranchHeadToNull(ordinal, subordinal, label);
+    else {
+//      throw new IllegalStateException();
     int cmp = b.getFirstNodeAtSameTime().compare(ordinal, subordinal);
     if (cmp < 0) {
       b.getFirstNodeAtPreviousTime();
@@ -179,6 +183,7 @@ public class TreeView<E extends Ordered> {
       b.appendNullToLeftLeaf(ordinal, subordinal, label);
     } else {
       b.insertNullToChildR(ordinal, subordinal, label);
+    }
     }
   }
 
@@ -486,10 +491,14 @@ public class TreeView<E extends Ordered> {
       Node newnode = trunk.current.appendToLeftLeaf(e, label);
       Node pastparent = head.parent;
       newnode.setChildR(head, pastparent.labelL);
-      pastparent.setChildL(head.childL, head.labelL);
+      if (head.childL != null)        // kari
+        pastparent.setChildL(head.childL, head.labelL);
       head.childL = null;
       head = timewisetop = current = newnode;
     }
+//    private void replaceBranchHeadToNull(int ordinal, int subordinal, 
+//                                         String label) {
+      
   }
 
   private class NullNode extends Node {
@@ -598,6 +607,17 @@ public class TreeView<E extends Ordered> {
     int compareToChild(int ordinal, int subordinal) {
       if (childR == null)
         return -1;
+        else 
+          if (ordinal == childR.ordinal())
+            return subordinal - childR.subordinal();
+          else
+            return ordinal - childR.ordinal();
+    }
+
+/*
+    int compareToChild(int ordinal, int subordinal) {
+      if (childR == null)
+        return -1;
       else if (childR.entry == null)
         return 1;
       else 
@@ -606,7 +626,8 @@ public class TreeView<E extends Ordered> {
         else
           return ordinal - childR.ordinal();
     }
-    
+*/
+  
     Node get(int ordinal, int subordinal) {
       if (compare(ordinal, subordinal) < 0)
         return parent.get(ordinal, subordinal);
