@@ -123,7 +123,7 @@ public class TreeView<E extends Ordered> {
                                        BranchHolder b) {
     int ordinal = e.ordinal();
     int subordinal = e.subordinal();
-    System.out.println(e);
+//    System.out.println(e);
     if (b.head.compare(ordinal, subordinal) < 0) {
       b.replaceBranchHeadTo(e, label);
     } else {
