@@ -145,7 +145,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       for (Measure measure : measurelist) {
         handler.beginMeasure(measure, this);
 	MusicData[] mdlist = measure.getMusicDataList();
-	int noteindex = 0;
+//	int noteindex = 0;
 	for (MusicData md : mdlist) {
 //          if (md instanceof Note)
 //            ((Note)md).xpath = measure.getXPathExpression() + 
@@ -155,6 +155,21 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         handler.endMeasure(measure, this);
       }
       handler.endPart(part, this);
+    }
+  }
+
+  public void processNotes(CommonNoteHandler h) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      h.beginPart(part.id(), this);
+      Measure[] measurelist = part.getMeasureList();
+      for (Measure measure : measurelist) {
+        MusicData[] mdlist = measure.getMusicDataList();
+        for (MusicData md : mdlist) 
+          if (md instanceof Note)
+            h.processNote((Note)md, this);
+      }
+      h.endPart(part.id(), this);
     }
   }
 
@@ -217,7 +232,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
    *********************************************************************/
   public TreeView<Note> getTimewiseNoteView() throws TransformerException {
     if (timewiseNoteView == null)
-      createNoteView();
+      createTimewiseNoteView();
     return timewiseNoteView;
   }
 
@@ -350,13 +365,31 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   @Override
   protected void analyze() throws TransformerException {
     // レイジーにすべきか?
-    createNoteView();
+    createTimewiseNoteView();
+//    createNoteView();
   }
+
+  private void createTimewiseNoteView() throws TransformerException {
+    timewiseNoteView = new TreeView<Note>("all");
+    processNotePartwise(new NoteHandlerPartwise() {
+      public void beginPart(Part part, MusicXMLWrapper wrapper) {}
+      public void endPart(Part part, MusicXMLWrapper wrapper) {}
+      public void beginMeasure(Measure measure, MusicXMLWrapper wrapper) {}
+      public void endMeasure(Measure measure, MusicXMLWrapper wrapper) {}
+      public void processMusicData(MusicData md, MusicXMLWrapper wrapper) {
+        if (md instanceof Note) {
+          Note note = (Note)md;
+          timewiseNoteView.add(note, "");
+        }
+      }
+    });
+  }
+
 
   // not tested yet
   private void createNoteView() throws TransformerException {
     partwiseNoteView = new ArrayList<TreeView<Note>>();
-    timewiseNoteView = new TreeView<Note>("all");
+//    timewiseNoteView = new TreeView<Note>("all");
     slurredNoteView = new SlurredNoteViewList();
     processNotePartwise(new NoteHandlerPartwise() {
         private TreeView<Note> noteview;
@@ -384,7 +417,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
           if (md instanceof Note) {
             Note note = (Note)md;
             noteview.add(note, (byte)note.voice(), "");
-            timewiseNoteView.add(note, "");
+//            timewiseNoteView.add(note, "");
             // slur
             Notations notations = note.getFirstNotations();
             if (notations != null) {
@@ -1221,6 +1254,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       } else {
         throw new InvalidElementException("This is a rest note");
       }
+    }
+
+    public int velocity() {
+      throw new UnsupportedOperationException();
     }
 
     public String toString() {

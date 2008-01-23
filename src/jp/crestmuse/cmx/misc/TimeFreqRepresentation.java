@@ -5,48 +5,50 @@ import jp.crestmuse.cmx.handlers.*;
 import java.util.*;
 import javax.xml.transform.*;
 import javax.xml.parsers.*;
+import org.xml.sax.*;
+import java.io.*;
 
 public class TimeFreqRepresentation {
   private List<TimeFreqElement> tflist;
   private int nbands;
 //  private int current = 0;
 
-  TimeFreqRepresentation(int nbands) {
+  private TimeFreqRepresentation(int nbands) {
     this.nbands = nbands;
     tflist = new ArrayList<TimeFreqElement>();
   }
 
-  void add(double time, byte[] values, NoteCompatible[] data) {
+  private void add(double time, byte[] values, NoteCompatible[] data) {
     if (data.length != nbands)
       throw new IllegalStateException();
     tflist.add(new TimeFreqElement(time, values, data));
   }
 
-  void addTime(double time) {
+  private void addTime(double time) {
     add(time, new byte[nbands], new NoteCompatible[nbands]);
   }
 
-  TimeFreqElement get(int timeindex) {
+  public TimeFreqElement get(int timeindex) {
     return tflist.get(timeindex);
   }
 
-  void set(int timeindex, int freqindex, byte value) {
+  private void set(int timeindex, int freqindex, byte value) {
     tflist.get(timeindex).values[freqindex] = value;
   }
 
-  void set(int timeindex, int freqindex, boolean value) {
+  private void set(int timeindex, int freqindex, boolean value) {
     set(timeindex, freqindex, value ? 127 : 0);
   }
 
-  void set(int timeindex, int freqindex, double value) {
+  private void set(int timeindex, int freqindex, double value) {
     set(timeindex, freqindex, (byte)(value * 127.0));
   }
 
-  void set(int timeindex, int freqindex, NoteCompatible data) {
+  private void set(int timeindex, int freqindex, NoteCompatible data) {
     tflist.get(timeindex).data[freqindex] = data;
   }
 
-  void changeTime(int timeindex, double newtime) {
+  private void changeTime(int timeindex, double newtime) {
     tflist.get(timeindex).t = newtime;
   }
 
@@ -58,7 +60,7 @@ public class TimeFreqRepresentation {
 //    return tflist.get(current++);
 //  }
 
-  int length() {
+  public int length() {
     return tflist.size();
   }
 
@@ -88,7 +90,7 @@ public class TimeFreqRepresentation {
       System.out.println(e);
   }
 
-  class TimeFreqElement {
+  public class TimeFreqElement {
     private byte[] values;
     private NoteCompatible[] data;
     private double t;
@@ -96,6 +98,9 @@ public class TimeFreqRepresentation {
       this.values = values;
       this.data = data;
       this.t = t;
+    }
+    public byte[] values() {
+      return values;
     }
     int dist(TimeFreqElement another) {
       if (values.length != another.values.length)
@@ -113,7 +118,7 @@ public class TimeFreqRepresentation {
         dist += values[i] > 0 ? values[i] : -values[i];
       return dist;
     }
-    double time() {
+    public double time() {
       return t;
     }
     NoteCompatible[] data() {
@@ -125,18 +130,46 @@ public class TimeFreqRepresentation {
         s += " " + values[i];
       return s;
     }
+    /*
     public String toString2() {
       String s = "";
       for (int i = 0; i < values.length; i++)
         s += values[i] > 0 ? "o" : ".";
       return s;
     }
+    */
   }
     
 
   private static final int N_BANDS = 128;
 
 
+  public static TimeFreqRepresentation 
+  getTimeFreqRepresentation(PianoRollCompatible filewrapper,
+                            final int ticksPerBeat) 
+    throws TransformerException, IOException, ParserConfigurationException, 
+    SAXException {
+    final TimeFreqRepresentation tfr = new TimeFreqRepresentation(N_BANDS);
+    filewrapper.processNotes(new CommonNoteHandler() {
+        public void beginPart(String id, PianoRollCompatible filewrapper){}
+        public void endPart(String id, PianoRollCompatible filewrapper){}
+        public void processNote(NoteCompatible note, PianoRollCompatible w) {
+          int onset = note.onset(ticksPerBeat);
+          int offset = note.offset(ticksPerBeat);
+          int notenum = note.notenum();
+          int length;
+          while ((length = tfr.length()) <= offset)
+            tfr.addTime(length * ticksPerBeat);
+          tfr.set(onset, notenum, note);
+          for (int n = onset; n < offset; n++)
+            tfr.set(n, notenum, (byte)note.velocity());
+        }
+      });
+    return tfr;
+  }
+
+
+/*
   public static 
     TimeFreqRepresentation getTimeFreqRepresentation(SCCXMLWrapper scc) 
     throws TransformerException {
@@ -165,6 +198,6 @@ public class TimeFreqRepresentation {
       });
     return tfr;
   }
-
+*/
 
 }

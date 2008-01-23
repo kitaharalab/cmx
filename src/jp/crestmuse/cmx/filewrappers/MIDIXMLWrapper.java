@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.filewrappers;
-import jp.crestmuse.cmx.handlers.MIDIHandler;
+import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
 import static jp.crestmuse.cmx.misc.MIDIConst.*;
 import java.util.*;
@@ -356,6 +356,11 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
       }
       h.endTrack(track, this);
     }
+  }
+
+  public void processNotes(CommonNoteHandler h) throws TransformerException, 
+                 IOException, ParserConfigurationException, SAXException {
+    toSCCXML().processNotes(h);
   }
 
   public ArrayList<SimpleNoteList> getPartwiseNoteList(int tickePerBeat) 

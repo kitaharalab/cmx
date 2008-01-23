@@ -3,6 +3,13 @@ import jp.crestmuse.cmx.filewrappers.*;
 import java.util.*;
 import org.w3c.dom.*;
 
+/********************************************************************
+ *音楽情景分析API「AMUSA-J」におけるファイルラッパの基底クラスです. 
+ *AMUSA-Jでは, トップレベルタグ(タグ名は任意)の中に, 1つのheadタグと, 
+ *1つ以上のデータタグ(タグ名は任意)が並ぶという構造を前提とします. 
+ *各サブクラスにおいて, トップレベルタグ名はTOP_TAG, データタグ名は
+ *DATA_TAGで定義しなければなりません. 
+ *******************************************************************/
 public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
   extends CMXFileWrapper implements AmusaDataSetCompatible<D> {
   

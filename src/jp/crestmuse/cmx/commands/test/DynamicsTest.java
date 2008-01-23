@@ -30,7 +30,7 @@ public class DynamicsTest extends CMXCommand {
     DeviationInstanceWrapper dev = (DeviationInstanceWrapper)indata();
     SCCXMLWrapper scc = dev.toSCCXML(480);
     TimeFreqRepresentation tfr = 
-      TimeFreqRepresentation.getTimeFreqRepresentation(scc);
+      TimeFreqRepresentation.getTimeFreqRepresentation(scc, 480);
     tfr.println();
   }
 

@@ -4,6 +4,9 @@ import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+/********************************************************************
+ *オブジェクト生成後に値を自由に変更できる時系列オブジェクトです. 
+ *********************************************************************/
 public class MutableTimeSeries implements TimeSeriesCompatible {
   private int dim = -1;
   private int nFrames;

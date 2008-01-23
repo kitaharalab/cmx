@@ -213,7 +213,7 @@ public abstract class CMXFileWrapper {
                            "IGRAMXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
     } catch (ClassNotFoundException e) {
-      throw new ProgramBugException(e.getMessage());
+      throw new ExternalLibraryException(e.toString());
     }
   }
 

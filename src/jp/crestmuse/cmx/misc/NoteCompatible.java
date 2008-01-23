@@ -5,4 +5,5 @@ public interface NoteCompatible {
   int offset(int ticksPerBeat);
   int duration(int ticksPerBeat);
   int notenum();
+  int velocity();
 }

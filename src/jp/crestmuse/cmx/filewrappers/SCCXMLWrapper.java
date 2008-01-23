@@ -214,6 +214,18 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 
+  public void processNotes(CommonNoteHandler h) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      String id = String.valueOf(part.serial());
+      h.beginPart(id, this);
+      Note[] notelist = part.getNoteOnlyList();
+      for (Note note : notelist) 
+        h.processNote(note, this);
+      h.endPart(id, this);
+    }
+  }
+
 
   public void processNotes(SCCHandler h) throws TransformerException {
     HeaderElement[] headlist = getHeaderElementList();

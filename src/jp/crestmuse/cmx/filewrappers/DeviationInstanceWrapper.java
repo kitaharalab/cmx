@@ -52,6 +52,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private int baseDynamics = 100;
 
+  private boolean alreadyAnalyzed = false;
+
   public void setBaseDynamics(int baseDynamics) {
     this.baseDynamics = baseDynamics;
   }
@@ -280,6 +282,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     addLinks("//note-deviation", getTargetMusicXML());
     addLinks("//chord-deviation", getTargetMusicXML());
     addLinks("//miss-note", getTargetMusicXML());
+    alreadyAnalyzed = true;
   }
   
   private void analyzeControls() {
@@ -574,7 +577,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     throws TransformerException, IOException, 
     ParserConfigurationException, SAXException {
     MusicXMLWrapper musicxml = getTargetMusicXML();
-    analyze();
+    if (!alreadyAnalyzed) analyze();
     double initSil = getInitialSilence();
     initticks = (int)Math.round(initSil * ticksPerBeat * 2);
     dest.setDivision(ticksPerBeat);

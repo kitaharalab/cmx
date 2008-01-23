@@ -223,6 +223,9 @@ public class DeviationDataSet {
   }
 
   public void addElementsToWrapper() {
+    wrapper.setAttributeNS("http://www.w3.org/2000/xmlns/", 
+                           "xmlns:xlink", 
+                           "http://www.w3.org/1999/xlink");
     wrapper.setAttribute("init-silence", initSil);
     wrapper.addChild("non-partwise");
     addControlViewToWrapper(nonPartwise);
