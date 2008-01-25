@@ -295,24 +295,12 @@ public class PianoRollPanel extends JScrollPane implements MouseListener,
 		gxpr.setNotePositions(partlist, ticksPerBeat);
 		setPreferredSize(new Dimension(gxpr.getMusicLength(),240));
 		revalidate();
-		// this.filewrapper = filewrapper;
-		// gxpr.setNotePositions(filewrapper, ticksPerBeat);
 		keyboard.setKeyRegister();
 		System.out.println("pianoroll preferred size: "
 				+ pianoroll.getPreferredSize());
 		repaint();
 	}
 
-	/*
-	 * void setMusicData(MusicXMLWrapper xml, DeviationInstanceWrapper dev) {
-	 * this.xml = xml; this.dev = dev; gxpr.setNotePositions(xml, dev);
-	 * keyboard.setKeyRegister(); frameWidth = gxpr.getMusicLength(); //
-	 * pianoroll.setPreferredSize(new Dimension(frameWidth, frameHeight));
-	 * scrollPane
-	 * .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	 * System.out.println("pianoroll preferred size: " +
-	 * pianoroll.getPreferredSize()); repaint(); }
-	 */
 
 	/**
 	 * @param voice

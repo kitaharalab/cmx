@@ -17,9 +17,8 @@ public class CMXMusicDataViewer extends CMXCommandForGUI {
 		if (option.equals("-division")) {
 			ticksPerBeat = Integer.parseInt(value);
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	@Override

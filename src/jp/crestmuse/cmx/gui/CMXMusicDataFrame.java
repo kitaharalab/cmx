@@ -71,22 +71,14 @@ public class CMXMusicDataFrame extends JFrame implements ActionListener,
 		velocityPanel = new VelocityPanel(frameWidth);
 
 		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, pianoroll,
-						velocityPanel);
+				velocityPanel);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(frameHeight);
 		splitPane.setPreferredSize(new Dimension(frameWidth, frameHeight
 				+ VelocityPanel.PANEL_HEIGHT));
 
-		// add(pianoroll, BorderLayout.CENTER);
-		// add(velocityPanel, BorderLayout.PAGE_END);
 		add(splitPane, BorderLayout.CENTER);
 	}
-
-	// public CMXMusicDataFrame(CMXCommandForGUI editor) {
-	// super(WINDOW_TITLE);
-	// this.editor = editor;
-	// init();
-	// }
 
 	/*
 	 * (non-Javadoc)
@@ -128,7 +120,7 @@ public class CMXMusicDataFrame extends JFrame implements ActionListener,
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == widthbar) {
 			widthText.setText(String.valueOf(widthbar.getValue()));
-			Dimension size = new Dimension(frameWidth + widthbar.getValue()*5,
+			Dimension size = new Dimension(frameWidth + widthbar.getValue() * 5,
 					frameHeight);
 			pianoroll.getPianoroll().setPreferredSize(size);
 			pianoroll.revalidate();
@@ -144,6 +136,7 @@ public class CMXMusicDataFrame extends JFrame implements ActionListener,
 			if (filewrapper != null) {
 				try {
 					pianoroll.setMusicData(filewrapper, ticksPerBeat);
+					velocityPanel.setMusicData(filewrapper,ticksPerBeat,pianoroll);
 				} catch (Exception e) {
 					showErrorMessage(e);
 				}
@@ -267,7 +260,6 @@ public class CMXMusicDataFrame extends JFrame implements ActionListener,
 	 * MusicXMLまたはDeviationInstanceXML形式のファイルを読み込みます。
 	 * MusicXML形式が読み込まれた場合，新しい空のDeviationInstanceXMLドキュメントを生成します。
 	 */
-
 	private void readXMLFile(String filename) {
 		try {
 			if (filename.endsWith(".mid")) {
@@ -284,7 +276,7 @@ public class CMXMusicDataFrame extends JFrame implements ActionListener,
 					throw new InvalidFileTypeException();
 				}
 			}
-			
+
 		} catch (Exception e) {
 			showErrorMessage(e);
 		}
