@@ -1,0 +1,23 @@
+CrestMuseXML Java Class Library
+
+--------------
+ REQUIREMENTS
+--------------
+Xerces, Xalan, Jakarta Commons Codec が必要です．
+http://xerces.apache.org/xerces2-j/
+http://xml.apache.org/xalan-j/
+http://commons.apache.org/codec/
+からダウンロードしてください．
+
+---------
+ LICENSE
+---------
+本ライブラリは，いわゆる「修正BSDライセンス」を採用しております．
+詳しくは「LICENSE」ファイルをご覧ください．
+
+---------
+ AUTHORS
+---------
+本ライブラリは，CrestMuseXML Development Projectによって
+開発されています．本プロジェクトのメンバーは，「AUTHORS」ファイルを
+ご覧ください．
