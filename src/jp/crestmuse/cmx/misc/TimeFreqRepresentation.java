@@ -161,8 +161,14 @@ public class TimeFreqRepresentation {
           while ((length = tfr.length()) <= offset)
             tfr.addTime(length * ticksPerBeat);
           tfr.set(onset, notenum, note);
+          byte vel;
+          try {
+            vel = (byte)note.velocity();
+          } catch (UnsupportedOperationException e) {
+            vel = (byte)127;
+          }
           for (int n = onset; n < offset; n++)
-            tfr.set(n, notenum, (byte)note.velocity());
+            tfr.set(n, notenum, vel);
         }
       });
     return tfr;
