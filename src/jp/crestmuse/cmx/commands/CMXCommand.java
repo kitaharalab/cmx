@@ -141,7 +141,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *runメソッドをオーバーライドする際に, runメソッド内で読み込んだデータに
    *アクセスする際に用いることを想定しています.</p>
    ******************************************************************/
-  protected final CMXFileWrapper indata() {
+  public final CMXFileWrapper indata() {
     return indata;
   }
 
@@ -151,7 +151,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *runメソッドをオーバーライドする際に, ファイルに書き込むべきデータを
    *CMXFileWrapperオブジェクトに追加する際に用いることを想定しています.
    ******************************************************************/
-  protected final CMXFileWrapper outdata() {
+  public final CMXFileWrapper outdata() {
     return outdata;
   }
 
@@ -161,7 +161,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *指定された名前のトップタグを持つ空ドキュメントを生成し, 
    *<tt>outdata</tt>インスタンスに代入します. 
    ******************************************************************/
-  protected final void newOutputData(String toptagname) 
+  public final void newOutputData(String toptagname) 
 	throws InvalidFileTypeException, ParserConfigurationException, 
 		SAXException {
     outdata = CMXFileWrapper.createDocument(toptagname);
@@ -171,7 +171,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *Assigns the specified CMXFileWrapper object to the output object.
    *指定されたCMXFileWrapperオブジェクトを出力オブジェクトに指定します．
    ******************************************************************/
-  protected final void setOutputData(CMXFileWrapper outdata) {
+  public final void setOutputData(CMXFileWrapper outdata) {
     this.outdata = outdata;
   }
 
