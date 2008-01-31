@@ -275,6 +275,15 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 //    return new NoteDeviation(node);
 //  }
 
+  public Control searchNonPartwiseControl(int measure, double beat) {
+    return getTimewiseControlView().search(measure, beat);
+  }
+
+  public Control searchNonPartwiseControl(int measure, double beat, 
+                                          String type) {
+    return getTimewiseControlView().search(measure, beat, type);
+  }
+
   @Override
   protected void analyze() throws IOException,TransformerException,
     ParserConfigurationException,SAXException  {
@@ -782,7 +791,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return tree.getRoot();
     }
     public final Control getControlAt(int measure, double meter) {
-      return tree.get(measure, (int)(1920.0 * meter));
+      return tree.get(measure, 
+          (int)((double)MusicXMLWrapper.INTERNAL_TICKS_PER_BEAT * meter));
     }
     public final boolean hasMoreControlsAtSameTime() {
       return tree.hasNextL();
@@ -797,21 +807,35 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return tree.nextR();
     }
 */
-    public final Control lookAhead(final String type) {
+    private Control lookAhead(final String type) {
       return lookAhead(new NodeSearchFilter<Control>() {
                               public boolean accept(Control c) {
-                                return c.type().equals(type);
+                                return c != null && c.type().equals(type);
                               }
                             });
     }
-    public final Control lookAhead(final String... types) {
+    private Control lookAhead(final String... types) {
       return lookAhead(new NodeSearchFilter<Control>() {
                               public boolean accept(Control c) {
                                 for (String type : types)
-                                  if (c.type().equals(type)) return true;
+                                  if (c != null && c.type().equals(type))
+                                    return true;
                                 return false;
                               }
                             });
+    }
+    private Control search(int measure, double beat) {
+      return search(measure, 
+                    (int)(MusicXMLWrapper.INTERNAL_TICKS_PER_BEAT * beat));
+    }
+    private Control search(int measure, double beat, final String type) {
+      return search(measure, 
+        (int)(MusicXMLWrapper.INTERNAL_TICKS_PER_BEAT * beat), 
+        new NodeSearchFilter<Control>() {
+          public boolean accept(Control c) {
+            return c != null && c.type().equals(type);
+          }
+        });
     }
   }
 

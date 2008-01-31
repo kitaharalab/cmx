@@ -312,11 +312,21 @@ public class TreeView<E extends Ordered> {
 //    return first().childR != null;
   }
 
+  /** obsolete */
   public E get(int ordinal, int subordinal) {
-    Node node = currentBranch.get(ordinal, subordinal);
+    return search(ordinal, subordinal);
+  }
+
+  public E search(int ordinal, int subordinal) {
+    Node node = currentBranch.search(ordinal, subordinal);
     return node == null ? null : node.entry;
   }
 
+  public E search(int ordinal, int subordinal, NodeSearchFilter<E> filter) {
+    Node node = currentBranch.search(ordinal, subordinal, filter);
+    return node == null ? null : node.entry;
+  }
+  
 /*
   public E get(int ordinal, int subordinal) {
     current = first().get(ordinal, subordinal);
@@ -431,6 +441,9 @@ public class TreeView<E extends Ordered> {
     private boolean hasNodesAtNextTime() {
       return timewisetop().childR != null;
     }
+    private boolean hasNodesAtPreviousTime() {
+      return timewisetop().parent != null;
+    }
     private Node timewisetop() {
       if (timewisetop == null)
         timewisetop = timewisetop(current);
@@ -463,11 +476,13 @@ public class TreeView<E extends Ordered> {
       timewisetop = current = 
         timewisetop().insertNullToChildR(ordinal, subordinal, label);
     }
+/*
     private Node get(int ordinal, int subordinal) {
       current = timewisetop().get(ordinal, subordinal);
       timewisetop = null;
       return current;
     }
+*/
     private Node lookAhead(NodeSearchFilter<E> filter) {
       if (current.childL != null) {
         Node n2 = current.childL.searchL(filter);
@@ -480,6 +495,36 @@ public class TreeView<E extends Ordered> {
         if (n2 != null) return n2;
       }
       return null;
+    }
+    private Node search(int ordinal, int subordinal, 
+                        NodeSearchFilter<E> filter) {
+      Node node = search(ordinal, subordinal);
+      while (hasNodesAtPreviousTime()) {
+        node = node.searchL(filter);
+        if (node != null)
+          return node;
+        else
+          node = getFirstNodeAtPreviousTime();
+      }
+      return null;
+    }
+    private Node search(int ordinal, int subordinal) {
+      Node node = timewisetop();
+      while (true) {
+        if (node.compare(ordinal, subordinal) < 0) {
+          if (hasNodesAtPreviousTime())
+            node = getFirstNodeAtPreviousTime();
+          else
+            return null;
+        } else if (node.compareToChild(ordinal, subordinal) >= 0) {
+          if (hasNodesAtNextTime())
+            node = getFirstNodeAtNextTime();
+          else
+            return null;
+        } else {
+          return node;
+        }
+      }
     }
     private void jumpTo(E e) {
       Node node = map.get(e);
@@ -612,7 +657,9 @@ public class TreeView<E extends Ordered> {
             return subordinal - childR.subordinal();
           else
             return ordinal - childR.ordinal();
-    }
+    }    
+
+
 
 /*
     int compareToChild(int ordinal, int subordinal) {
@@ -628,6 +675,7 @@ public class TreeView<E extends Ordered> {
     }
 */
   
+/*
     Node get(int ordinal, int subordinal) {
       if (compare(ordinal, subordinal) < 0)
         return parent.get(ordinal, subordinal);
@@ -636,6 +684,7 @@ public class TreeView<E extends Ordered> {
       else
         return childR;
     }
+*/
 	    
     Node searchL(NodeSearchFilter<E> filter) {
       if (filter.accept(entry)) 
@@ -645,7 +694,7 @@ public class TreeView<E extends Ordered> {
       else
         return null;
     }
-    
+
     int ordinal() {
       return entry.ordinal();
     }
