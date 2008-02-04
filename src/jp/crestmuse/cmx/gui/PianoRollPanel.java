@@ -293,7 +293,8 @@ public class PianoRollPanel extends JScrollPane implements MouseListener,
 		this.filewrapper = filewrapper;
 		partlist = filewrapper.getPartwiseNoteList(ticksPerBeat);
 		gxpr.setNotePositions(partlist, ticksPerBeat);
-		setPreferredSize(new Dimension(gxpr.getMusicLength(),240));
+		pianoroll.setPreferredSize(new Dimension(gxpr.getMusicLength(),240));
+//		setPreferredSize(new Dimension(gxpr.getMusicLength(),240));
 		revalidate();
 		keyboard.setKeyRegister();
 		System.out.println("pianoroll preferred size: "
