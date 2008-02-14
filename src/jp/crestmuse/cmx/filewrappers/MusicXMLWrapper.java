@@ -1563,8 +1563,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private Attributes(Node node, Measure measure) {
       super(node, measure);
       divisions = lastDivisions;
-      if (hasChild("divisions"))
-        lastDivisions = divisions = getTextInt(getChildByTagName("divisions"));
+      Node divisionNode;
+      if ((divisionNode = getChildByTagName("divisions")) != null)
+        lastDivisions = divisions = getTextInt(divisionNode);
        Node key = getChildByTagName("key");
        if (key != null) {
          fifths = getTextInt(getChildByTagName("fifths", key));
@@ -1690,7 +1691,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return "barline";
     }
     public boolean repeat() {
-      return hasChild("repeat");
+      return getChildByTagName("repeat") != null;
     }
     public String repeatDirection() {
       return getAttribute(getChildByTagName("repeat"), "direction");

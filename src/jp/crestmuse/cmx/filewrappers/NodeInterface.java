@@ -26,8 +26,12 @@ import org.w3c.dom.*;
  *@version 0.20.000
  *********************************************************************/
 public abstract class NodeInterface {
-  private Node node;
+  private Element node;
+//  private Node node;
   private String nodename;
+//  private NamedNodeMap attrmap = null;
+//  private NodeList children = null;
+//  private int nChildren;
 
   /**********************************************************************
    *<p>Constructs an node interface for the specified node. 
@@ -44,9 +48,9 @@ public abstract class NodeInterface {
   protected NodeInterface(Node node) {
     nodename = node.getNodeName();
     if (nodename.equals(getSupportedNodeName())) {
-      this.node = node;
+      this.node = (Element)node;
     } else if (getSupportedNodeName().indexOf(nodename) >= 0) {
-      this.node = node;
+      this.node = (Element)node;
     } else {
 //      StringTokenizer t = new StringTokenizer(getSupportedNodeName(), "|");
 //      while (t.hasMoreTokens()) {
@@ -68,7 +72,7 @@ public abstract class NodeInterface {
    *議論のあるところで, 今後変更される場合があります.
    *(試験的にprotectedに変更しています)
    *********************************************************************/
-   protected Node node() {     // kari
+   protected final Node node() {     // kari
     return node;
   }
 
@@ -95,9 +99,9 @@ public abstract class NodeInterface {
    *<p>このオブジェクトがラップしているノードが指定された名前の子を持つかどうか
    *調べます.</p>
    *********************************************************************/
-  public final boolean hasChild(String tagname) {
-    return hasChild(tagname, node);
-  }
+//  public final boolean hasChild(String tagname) {
+//    return hasChild(tagname, node);
+//  }
 
   /**********************************************************************
    *<p>Returns the text that a child with the specified tag name has.</p>
@@ -126,23 +130,33 @@ public abstract class NodeInterface {
   }
 
   public final String getText() {
-    return getText(node());
+    return getText(node);
   }
 
   public boolean hasAttribute(String key) {
-    return hasAttribute(node(), key);
+    return hasAttribute(node, key);
+  }
+
+  public String getAttributeNS(String key, String namespace) {
+    return node.getAttributeNS(namespace, key);
+//    if (node == null) return null;
+//    if (attrmap == null) attrmap = node.getAttributes();
+//    return attrmap.getNamedItemNS(namespace, key).getNodeValue();
   }
 
   public String getAttribute(String key) {
-    return getAttribute(node(), key);
+    return node.getAttribute(key);
+//    if (node == null) return null;
+//    if (attrmap == null) attrmap = node.getAttributes();
+//    return attrmap.getNamedItem(key).getNodeValue();
   }
 
   public int getAttributeInt(String key) {
-    return getAttributeInt(node(), key);
+    return Integer.parseInt(getAttribute(key));
   }
 
   public double getAttributeDouble(String key) {
-    return getAttributeDouble(node(), key);
+    return Double.parseDouble(getAttribute(key));
   }
 
   /**********************************************************************
@@ -150,15 +164,15 @@ public abstract class NodeInterface {
    *<p>すべての子ノードを返します.</p>
    *********************************************************************/
   protected final NodeList getChildNodes() {
-    return node().getChildNodes();
+    return node.getChildNodes();
   }
 
   protected final Node getFirstChild() {
-    return node().getFirstChild();
+    return node.getFirstChild();
   }
 
   protected final Node getLastChild() {
-    return node().getLastChild();
+    return node.getLastChild();
   }
 
   /**********************************************************************
@@ -166,24 +180,52 @@ public abstract class NodeInterface {
    *<p>指定されたタグ名の子ノードを返します.</p>
    *********************************************************************/
   protected final Node getChildByTagName(String tagname) {
-    return getChildByTagName(tagname, node);
+    NodeList nl = node.getElementsByTagName(tagname);
+    if (nl.getLength() >= 1)
+      return nl.item(0);
+    else
+      return null;
+//    if (node == null) return null;
+//    if (children == null) {
+//      children = node.getChildNodes();
+//      nChildren = children.getLength();
+//    }
+//    for (int i = 0; i < nChildren; i++) {
+//      Node n = children.item(i);
+//      if (n.getNodeName().equals(tagname))
+//        return n;
+//    }
+//    return null;
   }
 
+  protected final Node getChildByTagNameNS(String tagname, String ns) {
+    NodeList nl = node.getElementsByTagNameNS(ns, tagname);
+    if (nl.getLength() >= 1)
+      return nl.item(0);
+    else
+      return null;
+  }
+  
   /**********************************************************************
    *Returns the child node with the specified tag name 
    *of the specified node. <br>
    *指定されたノードに対する, 指定されたタグ名の子ノードを返します. 
    *********************************************************************/
-  protected static Node getChildByTagName(String tagname, Node node) {
+  static Node getChildByTagName(String tagname, Node node) {
     if (node == null)
       return null;
-    NodeList children = node.getChildNodes();
-    for (int i = 0; i < children.getLength(); i++) {
-      Node n = children.item(i);
-      if (n.getNodeName().equals(tagname))
-        return n;
-    }
-    return null;
+    NodeList nl = ((Element)node).getElementsByTagName(tagname);
+    if (nl.getLength() >= 1)
+      return nl.item(0);
+    else
+      return null;
+//    NodeList children = node.getChildNodes();
+//    for (int i = 0; i < children.getLength(); i++) {
+//      Node n = children.item(i);
+//      if (n.getNodeName().equals(tagname))
+//        return n;
+//    }
+//    return null;
   }
 
   protected static boolean hasChild(String tagname, Node node) {
@@ -238,7 +280,6 @@ public abstract class NodeInterface {
     return Double.parseDouble(getAttribute(node, attrkey));
   }
     
-
 //  NodeList selectNodeList(String xpath) throws TransformerException {
 //    return XPathAPI.selectNodeList(node, xpath);
 //  }

@@ -3,14 +3,16 @@ package jp.crestmuse.cmx.filewrappers;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
+import javax.xml.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
-//import javax.xml.xpath.*;
+import javax.xml.xpath.*;
+import javax.xml.namespace.*;
 import org.w3c.dom.*;
 import org.w3c.dom.traversal.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
-import org.apache.xpath.*;
+//import org.apache.xpath.*;
 import org.apache.xerces.util.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.xml.processors.*;
@@ -136,8 +138,8 @@ public abstract class CMXFileWrapper {
   private static DocumentBuilderFactory builderFactory;
   private static DocumentBuilder builder;
   private static DOMImplementation domImpl;
-//  private static XPathFactory xpathFactory;
-//  private static XPath xpath;
+  private static XPathFactory xpathFactory;
+  private static XPath xpath;
 
 //  private static DoubleArrayFactory doubleArrayFactory = null;
 
@@ -212,6 +214,8 @@ public abstract class CMXFileWrapper {
                            "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "IGRAMXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
+      addClassTable("Mpeg7", 
+                    AMUSA_PACKAGE_BASE + "." + "MPEG7Wrapper");
     } catch (ClassNotFoundException e) {
       throw new ExternalLibraryException(e.toString());
     }
@@ -253,10 +257,10 @@ public abstract class CMXFileWrapper {
     }
     if (domImpl == null)
       domImpl = builder.getDOMImplementation();
-//    if (xpathFactory == null)
-//      xpathFactory = newInstance();
-//    if (xpath == null)
-//      xpath = newXPath();
+      if (xpathFactory == null)
+        xpathFactory = XPathFactory.newInstance();
+      if (xpath == null)
+        xpath = xpathFactory.newXPath();
    }
 
 //  protected void setDoubleArrayFactory(DoubleArrayFactory factory) {
@@ -318,7 +322,13 @@ public abstract class CMXFileWrapper {
 			throws InvalidFileTypeException, 
 			ParserConfigurationException, SAXException {
     initXMLProcessors();
-    DocumentType dt = domImpl.createDocumentType(toptagname, DTD_PUBLIC_ID_TABLE.get(toptagname), DTD_SYSTEM_ID_TABLE.get(toptagname));
+    DocumentType dt;
+    if (DTD_PUBLIC_ID_TABLE.containsKey(toptagname))
+      dt = domImpl.createDocumentType(toptagname, 
+                                      DTD_PUBLIC_ID_TABLE.get(toptagname), 
+                                      DTD_SYSTEM_ID_TABLE.get(toptagname));
+    else 
+      dt = null;
     Document doc = domImpl.createDocument(null, toptagname, dt);
     CMXFileWrapper f = createInstance(toptagname);
     f.doc = doc;
@@ -489,14 +499,47 @@ public abstract class CMXFileWrapper {
    *指定されたXPath表現に基づいてノードをセレクトし, 
    *<tt>org.w3c.dom.NodeList</tt>オブジェクトとして返します.</p>
    *********************************************************************/
-  protected final NodeList selectNodeList(Node node, String xpath) {
+  protected final NodeList selectNodeList(Node node, String expr) {
     try {
       checkFinalized();
-      return XPathAPI.selectNodeList(node, xpath);
-    } catch (TransformerException e) {
-      return null;
+      return (NodeList)xpath.evaluate(expr, node, XPathConstants.NODESET);
+//      return XPathAPI.selectNodeList(node, expr);
+    } catch (XPathExpressionException e) {
+      throw new XMLException(e);
     }
   }
+
+  protected final void resetXPath() {
+    xpath.reset();
+  }
+
+  protected final void setNamespaceContext() {
+    xpath.setNamespaceContext(new NamespaceContext() {
+        public String getNamespaceURI(String prefix) {
+          Element e = doc.getDocumentElement();
+          if (prefix == null) throw new NullPointerException("Null prefix");
+          else if ("xml".equals(prefix)) return XMLConstants.XML_NS_URI;
+          else if ("xmlns".equals(prefix)) 
+            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+          else if ("".equals(prefix) && e.hasAttribute("xmlns"))
+            return e.getAttribute("xmlns");
+          else if (e.hasAttribute("xmlns:"+prefix)) 
+            return e.getAttribute("xmlns:"+prefix);
+          else
+            return XMLConstants.NULL_NS_URI;
+        }
+        // This method isn't necessary for XPath processing.
+        public String getPrefix(String uri) {
+          throw new UnsupportedOperationException();
+        }
+        // This method isn't necessary for XPath processing either.
+        public Iterator getPrefixes(String uri) {
+          throw new UnsupportedOperationException();
+        }
+      });
+  }
+  
+  
 
   /**********************************************************************
    *<p>Selects a single node based on the specified XPath expression. 
@@ -516,12 +559,13 @@ public abstract class CMXFileWrapper {
    *指定されたXPath表現に基づいてノードを1つセレクトします. 
    *マッチした最初のノードが返されます.</p>
    *********************************************************************/
-  protected final Node selectSingleNode(Node node, String xpath) {
+  protected final Node selectSingleNode(Node node, String expr) {
     try {
       checkFinalized();
-      return XPathAPI.selectSingleNode(node, xpath);
-    } catch (TransformerException e) {
-      return null;
+      return (Node)xpath.evaluate(expr, node, XPathConstants.NODE);
+//      return XPathAPI.selectSingleNode(node, xpath);
+    } catch (XPathExpressionException e) {
+      throw new XMLException(e);
     }
   }
 
