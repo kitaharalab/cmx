@@ -72,9 +72,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
    *この表情付けインスタンスがターゲットとしているMusicXMLドキュメントを
    *読み込んで返します. 
    *********************************************************************/
-  public MusicXMLWrapper getTargetMusicXML() 
-    throws IOException, ParserConfigurationException, SAXException, 
-    TransformerException {
+  public MusicXMLWrapper getTargetMusicXML() throws IOException {
     if (targetMusicXML == null) {
       try {
         targetMusicXML = 
@@ -204,8 +202,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
 
   public static DeviationInstanceWrapper 
-  createDeviationInstanceFor(MusicXMLWrapper musicxml) 
-    throws ParserConfigurationException,SAXException {
+  createDeviationInstanceFor(MusicXMLWrapper musicxml) {
     try {
       DeviationInstanceWrapper dev = 
         (DeviationInstanceWrapper)createDocument(TOP_TAG);
@@ -285,12 +282,15 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   }
 
   @Override
-  protected void analyze() throws IOException,TransformerException,
-    ParserConfigurationException,SAXException  {
-    getTargetMusicXML().analyze();
-    addLinks("//note-deviation", getTargetMusicXML());
-    addLinks("//chord-deviation", getTargetMusicXML());
-    addLinks("//miss-note", getTargetMusicXML());
+  protected void analyze() throws IOException {
+    try {
+      getTargetMusicXML().analyze();
+      addLinks("//note-deviation", getTargetMusicXML());
+      addLinks("//chord-deviation", getTargetMusicXML());
+      addLinks("//miss-note", getTargetMusicXML());
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+     }
     alreadyAnalyzed = true;
   }
   
@@ -351,8 +351,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private void controlToSCCHeader(Control c, SCCXMLWrapper dest, 
                                   int ticksPerBeat)
-    throws IOException, ParserConfigurationException, 
-    SAXException, TransformerException {
+    throws IOException {
     if (c != null) {
       if (c.type().equals("tempo")) {
         currentTempo = c.value();
@@ -413,8 +412,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private void nonPartwiseControlsToSCCHeader(SCCXMLWrapper dest, 
                                               int ticksPerBeat) 
-    throws IOException, ParserConfigurationException, 
-    SAXException, TransformerException {
+    throws IOException {
     TimewiseControlView tctrlview = getTimewiseControlView();
     dest.beginHeader();
     if (initticks > 0)
@@ -433,8 +431,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processPartwiseForSCC(String partid, int ticksPerBeat, 
                                      Map<String,NoteListForSCC> 
                                      partwiseNoteList) 
-    throws IOException, ParserConfigurationException,
-    SAXException, TransformerException {
+    throws IOException {
     TreeView<Control> ctrlview = getPartwiseControlView(partid);
     NoteListForSCC notelist = partwiseNoteList.get(partid);
     processControlForSCCNoteList(ctrlview.getRoot(), ticksPerBeat, notelist);
@@ -450,8 +447,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processExtraNotesForSCC(String partid, int ticksPerBeat,
                                        Map<String,NoteListForSCC>
                                        partwiseNoteList)
-    throws IOException, ParserConfigurationException, 
-    SAXException, TransformerException {
+    throws IOException {
     TreeView<ExtraNote> enview = getExtraNoteView(partid);
     NoteListForSCC notelist = partwiseNoteList.get(partid);
     processExtraNoteForSCCNoteList(enview.getRoot(), ticksPerBeat, notelist);
@@ -467,8 +463,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processExtraNoteForSCCNoteList(ExtraNote en, 
                                               int ticksPerBeat, 
                                               NoteListForSCC notelist)
-    throws IOException, ParserConfigurationException,
-    SAXException, TransformerException {
+    throws IOException {
     if (en != null) {
       int onset = en.timestamp(ticksPerBeat);
       int offset = onset + (int)(en.duration() * ticksPerBeat);
@@ -484,8 +479,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processControlForSCCNoteList(Control c, 
                                             int ticksPerBeat, 
                                             NoteListForSCC notelist) 
-    throws IOException, ParserConfigurationException, 
-    SAXException, TransformerException {
+    throws IOException {
     if (c != null) {
       if (c.type().equals("pedal")) {
         String action = c.getChildAttribute("action");
@@ -510,8 +504,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processNotewiseForSCC
   (final int ticksPerBeat, 
    final Map<String,NoteListForSCC> partwiseNoteList) 
-    throws IOException, ParserConfigurationException, 
-    TransformerException, SAXException  {
+    throws IOException {
     getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise() {
         private int currentPart = 0;
         private NoteListForSCC notelist;
@@ -583,8 +576,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   }
 
   public void toSCCXML(SCCXMLWrapper dest, final int ticksPerBeat)
-    throws TransformerException, IOException, 
-    ParserConfigurationException, SAXException {
+    throws IOException {
     MusicXMLWrapper musicxml = getTargetMusicXML();
     if (!alreadyAnalyzed) analyze();
     double initSil = getInitialSilence();
@@ -878,8 +870,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         + ", type: " + type() + 
         (child.hasChildNodes() ? ", value: " + value() : "") + ")";
     }
-    public final int timestamp(int ticksPerBeat) throws IOException, 
-      ParserConfigurationException, SAXException, TransformerException {
+    public final int timestamp(int ticksPerBeat) throws IOException {
       return initticks 
       + getTargetMusicXML().getCumulativeTicks(measure, ticksPerBeat)
       + (int)Math.round(ticksPerBeat * (beat - 1));
@@ -991,8 +982,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     public final int subordinal() {
       return (int)(1920.0 * beat);
     }
-    public final int timestamp(int ticksPerBeat) throws IOException, 
-      ParserConfigurationException, SAXException, TransformerException {
+    public final int timestamp(int ticksPerBeat) throws IOException { 
       if (measure < 0)
         return (int)Math.round(ticksPerBeat * (beat - 1));
       else

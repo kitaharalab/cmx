@@ -518,12 +518,12 @@ public abstract class CMXCommand implements CMXInitializer {
       return config;
     } catch (IOException e) {
       throw new ConfigXMLException(e.toString());
-    } catch (ParserConfigurationException e) {
-      throw new ConfigXMLException(e.toString());
-    } catch (TransformerException e) {
-      throw new ConfigXMLException(e.toString());
-    } catch (SAXException e) {
-      throw new ConfigXMLException(e.toString());
+//    } catch (ParserConfigurationException e) {
+//      throw new ConfigXMLException(e.toString());
+//    } catch (TransformerException e) {
+//      throw new ConfigXMLException(e.toString());
+//    } catch (SAXException e) {
+//      throw new ConfigXMLException(e.toString());
     }
   }
 

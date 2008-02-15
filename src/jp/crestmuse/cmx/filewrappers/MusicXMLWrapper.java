@@ -136,8 +136,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
    *}
    *</pre>
    *********************************************************************/
-  public void processNotePartwise(NoteHandlerPartwise handler) 
-    throws TransformerException {
+  public void processNotePartwise(NoteHandlerPartwise handler) {
     Part[] partlist = getPartList();					
     for (Part part : partlist) {
       handler.beginPart(part, this);
@@ -158,7 +157,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
   }
 
-  public void processNotes(CommonNoteHandler h) throws TransformerException {
+  public void processNotes(CommonNoteHandler h) {
     Part[] partlist = getPartList();
     for (Part part : partlist) {
       h.beginPart(part.id(), this);
@@ -194,9 +193,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     return partlist;
   }
 
-  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat)
-    throws TransformerException, IOException,
-    ParserConfigurationException, SAXException {
+  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException {
     SCCXMLWrapper dest = 
       (SCCXMLWrapper)CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
     makeDeadpanSCCXML(dest, ticksPerBeat);
@@ -204,9 +201,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   }
     
   public void makeDeadpanSCCXML(final SCCXMLWrapper dest, 
-                                final int ticksPerBeat)
-    throws TransformerException, IOException, 
-    ParserConfigurationException, SAXException {
+                                final int ticksPerBeat) 
+                                throws IOException {
     DeviationInstanceWrapper dev = 
       DeviationInstanceWrapper.createDeviationInstanceFor(this);
     dev.finalizeDocument();
@@ -363,13 +359,13 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
    *各種処理の準備として, 内部で各種ノートビューを作成します.
    **********************************************************************/
   @Override
-  protected void analyze() throws TransformerException {
+  protected void analyze() {
     // レイジーにすべきか?
     createTimewiseNoteView();
 //    createNoteView();
   }
 
-  private void createTimewiseNoteView() throws TransformerException {
+  private void createTimewiseNoteView() {
     timewiseNoteView = new TreeView<Note>("all");
     processNotePartwise(new NoteHandlerPartwise() {
       public void beginPart(Part part, MusicXMLWrapper wrapper) {}
@@ -387,7 +383,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
 
 
   // not tested yet
-  private void createNoteView() throws TransformerException {
+  private void createNoteView() {
     partwiseNoteView = new ArrayList<TreeView<Note>>();
 //    timewiseNoteView = new TreeView<Note>("all");
     slurredNoteView = new SlurredNoteViewList();

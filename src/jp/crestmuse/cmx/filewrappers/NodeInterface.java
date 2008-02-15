@@ -245,17 +245,18 @@ public abstract class NodeInterface {
     return s.trim();
   }
 
-  protected static final int getTextInt(Node node) {
-    if (node == null) 
-      return -1;
-    else
+  protected static final int getTextInt(Node node) throws NullPointerException{
+//    if (node == null) 
+//      return -1;
+//    else
       return Integer.parseInt(getText(node));
   }
 
-  protected static final double getTextDouble(Node node) {
-    if (node == null) 
-      return Double.NaN;
-    else
+  protected static final double getTextDouble(Node node) 
+  throws NullPointerException {
+//    if (node == null) 
+//      return Double.NaN;
+//    else
       return Double.parseDouble(getText(node));
   }
 

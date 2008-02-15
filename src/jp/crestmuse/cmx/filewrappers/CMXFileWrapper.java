@@ -285,8 +285,7 @@ public abstract class CMXFileWrapper {
 */
 
   private static CMXFileWrapper createInstance(String toptagname)
-			throws InvalidFileTypeException, 
-			ParserConfigurationException, SAXException {
+			throws InvalidFileTypeException { 
     try {
       initXMLProcessors();
       CMXFileWrapper f = 
@@ -298,6 +297,10 @@ public abstract class CMXFileWrapper {
       throw new ProgramBugException(e.getMessage());
     } catch (NullPointerException e) {
       throw new InvalidFileTypeException();
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
     }
   }
 
@@ -319,9 +322,15 @@ public abstract class CMXFileWrapper {
    *@exception org.xml.sax.SAXException ...
    *********************************************************************/
   public static CMXFileWrapper createDocument(String toptagname) 
-			throws InvalidFileTypeException, 
-			ParserConfigurationException, SAXException {
-    initXMLProcessors();
+    throws InvalidFileTypeException {
+  //			ParserConfigurationException, SAXException {
+    try {
+      initXMLProcessors();
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    }
     DocumentType dt;
     if (DTD_PUBLIC_ID_TABLE.containsKey(toptagname))
       dt = domImpl.createDocumentType(toptagname, 
@@ -342,8 +351,7 @@ public abstract class CMXFileWrapper {
    *information</p>
    *<p>さらなる要素の追加をできなくし, 情報の取り出しのための準備をします. </p>
    *********************************************************************/
-  public final void finalizeDocument() throws ParserConfigurationException,
-    SAXException, TransformerException, IOException {
+  public final void finalizeDocument() throws IOException {
     finalized = true;
     analyze();
   }
@@ -362,8 +370,7 @@ public abstract class CMXFileWrapper {
    *@exception org.xml.sax.SAXException ...
    *********************************************************************/
   public static CMXFileWrapper readfile(String filename) 
-    throws IOException, ParserConfigurationException, SAXException,
-    TransformerException {
+    throws IOException {
     return readfile(filename, null);
   }
 
@@ -377,14 +384,13 @@ public abstract class CMXFileWrapper {
    *@exception org.xml.sax.SAXException ...
    *********************************************************************/
   public static CMXFileWrapper readfile(String filename, CMXInitializer init) 
-    throws IOException, ParserConfigurationException, SAXException,
-    TransformerException {
+    throws IOException {
     return readfile(new File(filename), init);
   }
 
   public static CMXFileWrapper readfile(File file, CMXInitializer init) 
-    throws IOException, ParserConfigurationException, SAXException,
-    TransformerException {
+    throws IOException {
+    try {
     initXMLProcessors();
     Document doc;
     String filename = file.getName();
@@ -396,17 +402,42 @@ public abstract class CMXFileWrapper {
     } else {
       doc = builder.parse(file);
     }
+    return wrap(doc, file.getPath(), init);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    }
+//    String toptagname = doc.getDocumentElement().getTagName();
+//    CMXFileWrapper f = createInstance(toptagname);
+//    f.filename = file.getPath();
+//    f.doc = doc;
+//    f.currentNode = doc.getDocumentElement();
+//    f.removeBlankTextNodes();
+//    //    f.init();
+//    f.finalized = true;
+//    if (init != null) init.init(f);
+//    f.analyze();
+//    return f;
+  }
+
+  private static CMXFileWrapper wrap(Document doc, String filename, 
+                                     CMXInitializer init) 
+                                     throws IOException {
     String toptagname = doc.getDocumentElement().getTagName();
     CMXFileWrapper f = createInstance(toptagname);
-    f.filename = file.getPath();
+    f.filename = filename;
     f.doc = doc;
     f.currentNode = doc.getDocumentElement();
     f.removeBlankTextNodes();
-    //    f.init();
     f.finalized = true;
     if (init != null) init.init(f);
     f.analyze();
     return f;
+  }
+
+  public static CMXFileWrapper wrap(Document doc) throws IOException {
+    return wrap(doc, null, null);
   }
 
     protected void init() {
@@ -414,11 +445,16 @@ public abstract class CMXFileWrapper {
     }
 
   /**********************************************************************
+   *obsolete?
    *<p>Returns the current file name.</p>
    *<p>現在のファイル名を返します, </p>
    *********************************************************************/
   public final String getFileName() {
     return filename;
+  }
+
+  public final String getURI() {
+    return doc.getDocumentURI();
   }
 
   /**********************************************************************
@@ -884,9 +920,12 @@ public abstract class CMXFileWrapper {
    *readfile()メソッドの後, run()メソッドの前に呼び出されます. 
    *デフォルトの実装では何もしません.
    *********************************************************************/
-  protected void analyze() throws TransformerException,IOException,
-    ParserConfigurationException,SAXException {
+  protected void analyze() throws IOException {
     // do nothing
   }
+//  protected void analyze() throws TransformerException,IOException,
+//    ParserConfigurationException,SAXException {
+//    // do nothing
+//  }
 
 }

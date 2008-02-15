@@ -1,13 +1,13 @@
 package jp.crestmuse.cmx.math;
 
-public abstract class DoubleMatrixFactory {
-  public static final DoubleMatrixFactory getFactory() 
-    throws ClassNotFoundException, InstantiationException,
-    IllegalAccessException {
-    String className = System.getProperty("doubleMatrixFactory");
-    if (className == null)
-      className = "jp.crestmuse.cmx.math.DefaultDoubleMatrixFactory";
-    return (DoubleMatrixFactory)Class.forName(className).newInstance();
+public abstract class DoubleMatrixFactory extends MathFactory {
+  private static DoubleMatrixFactory factory = null;
+  public static synchronized DoubleMatrixFactory getFactory() {
+    if (factory == null) {
+      factory = (DoubleMatrixFactory)getFactory("doubleMatrixFactory", 
+                                               "DefaultDoubleMatrixFactory");
+    }
+    return factory;
   }
 
   public abstract DoubleMatrix createMatrix(int nrows, int ncols);

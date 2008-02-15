@@ -144,39 +144,5 @@ public class Operations {
     return z.subarrayX(0, k);
   }
 
-  public static DoubleArray cloneArray(DoubleArray x) {
-    try {
-      return (DoubleArray)x.clone();
-    } catch (CloneNotSupportedException e) {
-      int length = x.length();
-      DoubleArray z = factory.createArray(length);
-      for (int i = 0; i < length; i++)
-        z.set(i, x.get(i));
-      return z;
-    }
-  }
 
-  public static String toString(DoubleArray x, String sep, 
-                                String left, String right) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(left);
-    int length = x.length();
-    if (length >= 1) {
-      sb.append(String.valueOf(x.get(0)));
-      for (int i = 1; i < length; i++) {
-        sb.append(sep);
-        sb.append(String.valueOf(x.get(i)));
-      }
-    }
-    sb.append(right);
-    return sb.toString();
-  }
-
-  public static String toString1(DoubleArray x) {
-    return toString(x, ", ", "{", "}");
-  }
-         
-  public static String toString2(DoubleArray x) {
-    return toString(x, " ", "", "");
-  }
 }
