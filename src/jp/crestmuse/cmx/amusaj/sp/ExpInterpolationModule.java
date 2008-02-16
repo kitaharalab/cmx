@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
+import static jp.crestmuse.cmx.math.Utils.*;
 
 class ExpInterpolationModule extends AbstractInterpolationModule {
 
