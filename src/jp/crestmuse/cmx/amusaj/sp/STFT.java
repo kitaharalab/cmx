@@ -8,6 +8,10 @@ import static jp.crestmuse.cmx.math.Operations.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
 import java.util.*;
 
+/*********************************************************************
+ *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 
+ *短時間フーリエ変換を行います. 
+ *********************************************************************/
 public class STFT implements 
                   ProducerConsumerCompatible<Object,
                                              TimeSeriesCompatible> {
@@ -150,6 +154,16 @@ public class STFT implements
     return 1000 * shift_ / fs;
   }
 
+  /*********************************************************************
+   *あらかじめsetInputDataメソッドでセットしたwaveformに対してSTFTを実行します. 
+   *destはTimeSeriesCompatibleを要素とするListで, セットされたwaveformが
+   *モノラルの場合は要素数=1でdest.get(0)がSTFT結果を表し, セットされたwaveformが
+   *ステレオの場合は要素数=3で, dest.get(0)が左右混合信号に対するSTFT結果, 
+   *dest.get(1)が左信号に対するSTFT結果, dest.get(2)が右信号に対するSTFT結果を
+   *表します. 
+   *@param src 常にnullを指定します(何を指定しても無視されます)
+   *@param dest STFT実行結果格納用リスト
+   *********************************************************************/
   public void execute(List<QueueReader<Object>> src, 
                       List<TimeSeriesCompatible> dest) 
     throws InterruptedException {
