@@ -1,7 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-public class RectWindowModule 
-  implements ProducerConsuerCompatible<Object,TimeSeriesCompatible> {
+public class RectWindowModule {
 
   private Map<String,Object> params = null;
   private int winsize = 0;
