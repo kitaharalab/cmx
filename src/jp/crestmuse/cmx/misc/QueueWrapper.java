@@ -6,14 +6,18 @@ public class QueueWrapper<E> {
   private java.util.Queue<E> queue;
   private ArrayList<E> list;
   private int size;
+  private byte nReaders = (byte)0;
+  private byte[] alreadyRead;
 
   public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
     this.size = size;
     list = new ArrayList<E>();
+    alreadyRead = new byte[size];
   }
 
   public QueueReader createReader() {
+    nReaders++;
     return new QueueReaderImpl();
   }
 
@@ -24,20 +28,24 @@ public class QueueWrapper<E> {
     }
 
     public E take() throws InterruptedException {
+      E e;
       if (next < list.size()) {
-        return list.get(next++);
+        e = list.get(next);
       } else {
-        E e;
         if (queue instanceof BlockingQueue)
           e = ((BlockingQueue<E>)queue).take();
         else
           e = queue.poll();
         list.add(e);
-        next++;
-        return e;
       }
+      alreadyRead[next]++;
+      if (alreadyRead[next] >= nReaders)
+        list.set(next, null);
+      next++;
+      return e;
     }
 
+/*
     public E get(int index) {
       if (index < next) {
         return list.get(index);
@@ -45,10 +53,11 @@ public class QueueWrapper<E> {
         throw new IndexOutOfBoundsException();
       }
     }
+*/
 
-    public boolean isAvailable(int index) {
-      return index < next;
-    }
+//    public boolean isAvailable(int index) {
+//      return index < next;
+//    }
 
     public Iterator<E> iterator() {
       return new Iterator() {

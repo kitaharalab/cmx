@@ -155,20 +155,28 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
   }
 */
 
-  protected void analyzeWaveform(WAVXMLWrapper wav, STFT stft, 
+  protected void analyzeWaveform(AudioDataCompatible wav, 
+                                 WindowSlider winslider, 
                             SPExecutor exec)
     throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
+    exec.addSPModule(winslider);
+    STFT stft = new STFT();
+    stft.setStereo(winslider.isStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
-    int ch = stft.getOutputChannels();
-    for (int i = 0; i < ch; i++)
+    int ch = winslider.getOutputChannels();
+    for (int i = 0; i < ch; i++) {
+      exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
+    }
     try {
       exec.start();
       prepareOutputData(SPDXMLWrapper.TOP_TAG);
-      PeaksCompatible peaks = (PeaksCompatible)exec.getResult(1).get(0);
+      TimeSeriesCompatible<PeakSet> peaks = 
+        (TimeSeriesCompatible<PeakSet>)exec.getResult(peakext).get(0);
+//      PeaksCompatible peaks = (PeaksCompatible)exec.getResult(1).get(0);
 //      SPDXMLWrapper spd = 
 //        (SPDXMLWrapper)CMXFileWrapper.createDocument(SPDXMLWrapper.TOP_TAG);
 //      AmusaDataSet<PeaksCompatible> dataset = spd.createDataSet();

@@ -7,28 +7,34 @@ import java.util.concurrent.*;
 /********************************************************************
  *オブジェクト生成後に値を自由に変更できる時系列オブジェクトです. 
  *********************************************************************/
-public class MutableTimeSeries implements TimeSeriesCompatible {
+public class MutableTimeSeries extends MutableData<DoubleArray> {
   private int dim = -1;
-  private int nFrames;
-  private int timeunit;
-  private BlockingQueue<DoubleArray> queue;
-  private QueueWrapper<DoubleArray> qwrap;
-  private Map<String,String> attr;
+//  private int nFrames;
+//  private int timeunit;
+//  private BlockingQueue<DoubleArray> queue;
+//  private QueueWrapper<DoubleArray> qwrap;
+//  private Map<String,String> attr;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
   public MutableTimeSeries(int nFrames, int timeunit) {
-    this.nFrames = nFrames;
-    this.timeunit = timeunit;
-    queue = new LinkedBlockingQueue<DoubleArray>();
-    qwrap = new QueueWrapper(queue, nFrames);
-    attr = new HashMap<String,String>();
+    super(nFrames, timeunit);
+//    this.nFrames = nFrames;
+//    this.timeunit = timeunit;
+//    queue = new LinkedBlockingQueue<DoubleArray>();
+//    qwrap = new QueueWrapper(queue, nFrames);
+//    attr = new HashMap<String,String>();
   }
 
+/*
   public QueueReader<DoubleArray> getQueueReader() {
     return qwrap.createReader();
   }
+
+//  public void finalizeQueueReader() {
+//    qwrap.finalizeReader();
+//  }
 
   public int frames() {
     return nFrames;
@@ -37,9 +43,14 @@ public class MutableTimeSeries implements TimeSeriesCompatible {
   public int timeunit() {
     return timeunit;
   }
+*/
 
   public int dim() {
     return dim;
+  }
+
+  public int bytesize() {
+    return 4 * dim;
   }
 
   public void add(DoubleArray array) throws InterruptedException {
@@ -53,6 +64,7 @@ public class MutableTimeSeries implements TimeSeriesCompatible {
     }
   }
 
+/*
   public String getAttribute(String key) {
     return attr.get(key);
   }
@@ -80,4 +92,5 @@ public class MutableTimeSeries implements TimeSeriesCompatible {
   public Iterator<Map.Entry<String,String>> getAttributeIterator() {
     return attr.entrySet().iterator();
   }
+*/
 }

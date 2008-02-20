@@ -58,7 +58,7 @@ protected boolean setOptionsLocal(String option, String value) {
     }
   }
 
-  protected final CMXFileWrapper readInputData(String filename) 
+  protected final FileWrapperCompatible readInputData(String filename) 
     throws IOException, ParserConfigurationException, SAXException, 
     TransformerException {
     if (isSMF) 

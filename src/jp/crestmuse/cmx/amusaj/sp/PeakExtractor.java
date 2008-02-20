@@ -4,13 +4,13 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
+import static jp.crestmuse.cmx.math.Utils.*;
 import jp.crestmuse.cmx.misc.*;
 import static java.lang.Math.*;
 import java.util.*;
 
 public class PeakExtractor 
-  implements ProducerConsumerCompatible<DoubleArray,
-                                        PeaksCompatible> {
+  implements ProducerConsumerCompatible<ComplexArray,PeakSet> {
 
     private static double powerthrs = 0;
     private static double rpowerthrs = 0;
@@ -94,15 +94,16 @@ public class PeakExtractor
     return 1;
   }
 
-  public PeaksCompatible createOutputInstance(int nFrames, int timeunit) {
+  public TimeSeriesCompatible<PeakSet> 
+  createOutputInstance(int nFrames, int timeunit) {
     return new MutablePeaks(nFrames, timeunit);
   }
 
-  public void execute(List<QueueReader<DoubleArray>> src, 
-                      List<PeaksCompatible> dest) 
+  public void execute(List<QueueReader<ComplexArray>> src, 
+                      List<TimeSeriesCompatible<PeakSet>> dest) 
     throws InterruptedException{
-    DoubleArray fftresult = src.get(0).take();
-    DoubleArray fftresultL, fftresultR;
+    ComplexArray fftresult = src.get(0).take();
+    ComplexArray fftresultL, fftresultR;
     boolean isStereo;
     if (src.size() > 1 && src.get(1) != null) {
       fftresultL = src.get(1).take();
@@ -115,10 +116,10 @@ public class PeakExtractor
     }
     double maxpower = Double.NEGATIVE_INFINITY;
     int length = fftresult.length();
-    if (size != length / 2)
-      reset(length / 2);
+    if (size != length)
+      reset(length);
     for (int i = 0; i < size; i++) {
-      double pp = hypot(fftresult.get(2*i), fftresult.get(2*i+1));
+      double pp = hypot(fftresult.getReal(i), fftresult.getImag(i));
       power0[i] = pp;
       if (pp > maxpower)
         maxpower = pp;
@@ -134,12 +135,12 @@ public class PeakExtractor
               && power0[i] > powerthrs2) {
             freq.set(k, (double)(i * fs) / (double)winsize);
             power.set(k, power0[i]);
-            phase.set(k, atan2(fftresult.get(2*i+1), fftresult.get(2*i)));
+            phase.set(k, atan2(fftresult.getImag(i), fftresult.getReal(i)));
             if (isStereo) {
-              iid.set(k, hypot(fftresultR.get(2*i), fftresultR.get(2*i+1))
-                      / hypot(fftresultL.get(2*i), fftresultL.get(2*i+1)));
-              ipd.set(k, atan2(fftresultR.get(2*i+1), fftresultR.get(2*i))
-                      - atan2(fftresultL.get(2*i+1), fftresultL.get(2*i)));
+              iid.set(k, hypot(fftresultR.getReal(i), fftresultR.getImag(i))
+                      / hypot(fftresultL.getReal(i), fftresultL.getImag(i)));
+              ipd.set(k, atan2(fftresultR.getImag(i), fftresultR.getReal(i))
+                      - atan2(fftresultL.getImag(i), fftresultL.getReal(i)));
             } else {
               iid.set(k, 1.0);
               ipd.set(k, 0.0);
@@ -158,7 +159,9 @@ public class PeakExtractor
         i++;
       }
     }
-    dest.get(0).addPeakSet
+//    System.err.println(toString1(subarray(power, 0, k)));
+//    System.out.println(toString2(subarray(freq, 0, k)));
+    dest.get(0).add
       (new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
                    subarray(phase, 0, k), subarray(iid, 0, k), 
                    subarray(ipd, 0, k)));

@@ -19,7 +19,7 @@ public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
   private String toptag = null;
   private String datatag = null;
 
-  private static final String HEADER_TAG = "head";
+  private static final String HEADER_TAG = "header";
 
   String toptag() {
     if (toptag == null) {

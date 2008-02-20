@@ -4,47 +4,61 @@ import java.util.*;
 import java.util.concurrent.*;
 import jp.crestmuse.cmx.misc.*;
 
-public class MutablePeaks implements PeaksCompatible {
-  private int nFrames;
-  private int timeunit;
+public class MutablePeaks extends MutableData<PeakSet> {
+//  private int nFrames;
+//  private int timeunit;
   private int bytesize;
-  private BlockingQueue<PeakSet> queue;
-  private QueueWrapper<PeakSet> qwrap;
-  private Map<String,String> attr;
+//  private BlockingQueue<PeakSet> queue;
+//  private QueueWrapper<PeakSet> qwrap;
+//  private Map<String,String> attr;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
   public MutablePeaks(int nFrames, int timeunit) {
-    this.nFrames = nFrames;
-    this.timeunit = timeunit;
+    super(nFrames, timeunit);
+//    this.nFrames = nFrames;
+//    this.timeunit = timeunit;
     bytesize = 0;
-    queue = new LinkedBlockingQueue<PeakSet>();
-    qwrap = new QueueWrapper(queue, nFrames);
-    attr = new HashMap<String,String>();
+//    queue = new LinkedBlockingQueue<PeakSet>();
+//    qwrap = new QueueWrapper(queue, nFrames);
+//    attr = new HashMap<String,String>();
   }
 
+/*
   public QueueReader<PeakSet> getQueueReader() {
     return qwrap.createReader();
   }
 
+//  public void finalizeQueueReader() {
+//    qwrap.finalizeReader();
+//  }
+  
   public int frames() {
     return nFrames;
   }
+*/
 
   public int bytesize() {
     return bytesize;
   }
 
+/*
   public int timeunit() {
     return timeunit;
   }
+*/
 
-  public void addPeakSet(PeakSet peakset) throws InterruptedException {
+  public int dim() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void add(PeakSet peakset) throws InterruptedException {
     queue.put(peakset);
     bytesize += 4 + 5 * 4 * peakset.nPeaks();
   }
 
+/*
   public String getAttribute(String key) {
     return attr.get(key);
   }
@@ -72,5 +86,6 @@ public class MutablePeaks implements PeaksCompatible {
   public Iterator<Map.Entry<String,String>> getAttributeIterator() {
     return attr.entrySet().iterator();
   }
+*/
 }
   

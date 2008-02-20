@@ -7,7 +7,7 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 
 public abstract class TimeSeriesNodeInterface extends NodeInterface 
-implements TimeSeriesCompatible {
+implements TimeSeriesCompatible<DoubleArray> {
 
   private int dim;
   private int nFrames;
@@ -38,6 +38,10 @@ implements TimeSeriesCompatible {
   public QueueReader<DoubleArray> getQueueReader() {
     return qwrap.createReader();
   }
+  
+//  public void finalizeQueueReader() {
+//    qwrap.finalizeReader();
+//  }
 
   public int dim() {
     return dim;
@@ -49,6 +53,10 @@ implements TimeSeriesCompatible {
 
   public int timeunit() {
     return timeunit;
+  }
+
+  public int bytesize() {
+    return 4 * dim;
   }
 
   public void add(DoubleArray array) {

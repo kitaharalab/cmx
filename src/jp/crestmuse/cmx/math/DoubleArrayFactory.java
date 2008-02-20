@@ -35,4 +35,7 @@ public abstract class DoubleArrayFactory extends MathFactory {
   public abstract DoubleArray createArray(int length);
   public abstract DoubleArray createArray(double[] array);
   public abstract DoubleArray createArray(int length, double value);
+//  public abstract DoubleArray createFinalArray(double[] array);
+//  public abstract DoubleArray createFinalArray(double[] array, 
+//                                               int from, int thru);
 }

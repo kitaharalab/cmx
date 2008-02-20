@@ -7,7 +7,7 @@ import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
 public class F0PDFCalculatorModule 
-  implements ProducerConsumerCompatible<PeakSet,TimeSeriesCompatible> {
+  implements ProducerConsumerCompatible<PeakSet,DoubleArray> {
 
   private F0PDFCalculatorFactory factory = 
     F0PDFCalculatorFactory.getFactory();
@@ -50,7 +50,7 @@ public class F0PDFCalculatorModule
   }
 
   public void execute(List<QueueReader<PeakSet>> src, 
-                      List<TimeSeriesCompatible> dest) 
+                      List<TimeSeriesCompatible<DoubleArray>> dest) 
     throws InterruptedException {
     if (!paramSet) setParams();
     PeakSet peaks = src.get(0).take();

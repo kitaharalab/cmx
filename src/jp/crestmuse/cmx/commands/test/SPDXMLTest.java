@@ -6,7 +6,7 @@ import jp.crestmuse.cmx.misc.*;
 public class SPDXMLTest extends CMXCommand {
   protected void run() {
     SPDXMLWrapper spd = (SPDXMLWrapper)indata();
-    PeaksCompatible peaks = spd.getDataList().get(0);
+    TimeSeriesCompatible<PeakSet> peaks = spd.getDataList().get(0);
     QueueReader<PeakSet> queue = peaks.getQueueReader();
     int t = 0;
     for (PeakSet peakset : queue) {

@@ -34,21 +34,33 @@ public abstract class AbstractWAVAnalyzer extends CMXCommand {
     }
   }
 
-  protected CMXFileWrapper readInputData(String filename) throws IOException,
-    ParserConfigurationException,SAXException,TransformerException {
-    return WAVXMLWrapper.readWAV(filename);
+  protected FileWrapperCompatible 
+  readInputData(String filename) throws IOException{
+    return WAVWrapper.readfile(filename);
+//    return WAVXMLWrapper.readWAV(filename);
   }
 
   protected void run() throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
-    WAVXMLWrapper wav = (WAVXMLWrapper)indata();
-    STFT stft = new STFT();
-    stft.setParams(params);
-    stft.setInputData(wav);
-    int nFrames = stft.getAvailableFrames();
-    int timeunit = stft.getTimeUnit();
+    WAVWrapper wav = (WAVWrapper)indata();
+//    WAVXMLWrapper wav = (WAVXMLWrapper)indata();  
+    WindowSlider winslider = new WindowSlider();
+    winslider.setParams(params);
+//    AudioDataCompatible audiodata = wav.getDataChunkList()[0].getAudioData();
+//    winslider.setInputData(audiodata);           // originally wav
+    winslider.setInputData(wav);
+//    STFT stft = new STFT();
+//    stft.setParams(params);
+//    stft.setInputData(wav);
+//    stft.setInputData(wav.getDataChunkList()[0].getAudioData());
+    int nFrames = winslider.getAvailableFrames();
+    int timeunit = winslider.getTimeUnit();
+//    int nFrames = stft.getAvailableFrames();
+//    int timeunit = stft.getTimeUnit();
     SPExecutor ex = new SPExecutor(params, nFrames, timeunit);
-    analyzeWaveform(wav, stft, ex);
+//    analyzeWaveform(audiodata, winslider, ex);
+    analyzeWaveform(wav, winslider, ex);
+//    analyzeWaveform(wav, stft, ex);
     if (dataset != null) {
       dataset.setHeaders(params);
       dataset.addElementsToWrapper();
@@ -66,7 +78,8 @@ public abstract class AbstractWAVAnalyzer extends CMXCommand {
     dataset.add(data);
   }
 
-  protected abstract void analyzeWaveform(WAVXMLWrapper wav, STFT stft, 
+  protected abstract void analyzeWaveform(AudioDataCompatible wav, 
+                                          WindowSlider winslider, 
                                           SPExecutor exec) 
     throws IOException,ParserConfigurationException,
     TransformerException,SAXException;

@@ -261,7 +261,8 @@ public class WAVXMLWrapper extends CMXFileWrapper {
     }
   }
 
-  public class AudioData extends ByteArrayNodeInterface {
+  public class AudioData extends ByteArrayNodeInterface 
+  implements AudioDataCompatible {
     private AudioData(Node node) {
       super(node);
       setByteOrder(ByteOrder.LITTLE_ENDIAN);
@@ -271,6 +272,12 @@ public class WAVXMLWrapper extends CMXFileWrapper {
     }
     public byte[] getByteArray() {
       return super.getByteArray();
+    }
+    public int channels() {
+      return getFmtChunk().channels();
+    }
+    public int sampleRate() {
+      return getFmtChunk().sampleRate();
     }
     public short[] getWaveform() {
       FmtChunk fmt = getFmtChunk();

@@ -8,7 +8,7 @@ abstract class SPFactory {
       String className = System.getProperty(property);
       if (className == null) {
         try {
-          c = Class.forName("jp.crestmuse.cmx.sp." + defaultClass);
+          c = Class.forName("jp.crestmuse.cmx.amusaj.sp." + defaultClass);
         } catch (ClassNotFoundException e) {
           c = Class.forName(defaultClass);
         }

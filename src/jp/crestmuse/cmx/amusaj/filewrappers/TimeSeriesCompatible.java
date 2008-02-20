@@ -8,14 +8,16 @@ import jp.crestmuse.cmx.misc.*;
  *一定のサンプリングレートでデータが並んでいるものです. 
  *時系列データへのアクセスはFirst-in First-outとします. 
  *********************************************************************/
-public interface TimeSeriesCompatible 
-  extends AmusaDataCompatible<DoubleArray> {
-//  public QueueReader<DoubleArray> getQueueReader();
+public interface TimeSeriesCompatible<D> 
+  extends AmusaDataCompatible<D> {
+
+  public QueueReader<D> getQueueReader();
   /*******************************************************************
    *多次元ベクトルの次元数を返します. 
    *******************************************************************/
   public int dim();
-//  public int frames();
+  public int frames();
+  public int bytesize();
   /*******************************************************************
    *時間分解能をミリ秒単位で返します. 
    *******************************************************************/
@@ -23,5 +25,5 @@ public interface TimeSeriesCompatible
   /*******************************************************************
    *新たな多次元ベクトルを末尾に追加します. 
    *******************************************************************/
-  public void add(DoubleArray array) throws InterruptedException;
+  public void add(D d) throws InterruptedException;
 }

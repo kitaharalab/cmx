@@ -133,7 +133,7 @@ import jp.crestmuse.cmx.math.*;
  *@author Tetsuro Kitahara (t.kitahara@ksc.kwansei.ac.jp)
  *@version 0.21
  *********************************************************************/
-public abstract class CMXFileWrapper {
+public abstract class CMXFileWrapper implements FileWrapperCompatible {
 
   private static DocumentBuilderFactory builderFactory;
   private static DocumentBuilder builder;
@@ -207,7 +207,7 @@ public abstract class CMXFileWrapper {
       addDocumentTypeTable("fpd", 
                            "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "FPDXML//EN", 
-                           "http://www.crestmuse.jp/cmx/dtds/fpdxml/dtd");
+                           "http://www.crestmuse.jp/cmx/dtds/fpdxml.dtd");
       addClassTable("igram", 
                     AMUSA_PACKAGE_BASE + "." + "IGRAMXMLWrapper");
       addDocumentTypeTable("igram", 

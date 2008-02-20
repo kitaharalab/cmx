@@ -13,31 +13,32 @@ import java.util.*;
  *短時間フーリエ変換を行います. 
  *********************************************************************/
 public class STFT implements 
-                  ProducerConsumerCompatible<Object,
-                                             TimeSeriesCompatible> {
+                  ProducerConsumerCompatible<DoubleArray,ComplexArray> {
   private Map<String,Object> params = null;
-  private int winsize = 0;
+  private int winsize = -1;
   private String wintype = null;
   private double[] window;
-  private double shift = Double.NaN;
-  private int shift_;
-  private double powerthrs = 0;
-  private double rpowerthrs = 0;
+//  private double shift = Double.NaN;
+//  private int shift_;
+//  private double powerthrs = 0;
+//  private double rpowerthrs = 0;
   private boolean paramSet = false;
-  private int chTarget = 0;
-//  private PeakExtractor peakext;
+//  private int chTarget = 0;
+////  private PeakExtractor peakext;
   private static final FFTFactory factory = FFTFactory.getFactory();
-  private FFT fft;
+  private FFT fft = factory.createFFT();
   private static final DoubleArrayFactory dfactory = 
     DoubleArrayFactory.getFactory();
 
-  private double[] buff;
-  private DoubleArray wavM = null, wavL = null, wavR = null;
-  private boolean isStereo;
-  private int channels;
-  private int fs;
+//  private WindowSlider winslider;
 
-  private int t = 0;
+//  private double[] buff;
+//  private DoubleArray wavM = null, wavL = null, wavR = null;
+  private boolean isStereo;
+//  private int channels;
+//  private int fs;
+
+//  private int t = 0;
 
 /*
   public boolean setOptionsLocal(String option, String value) {
@@ -62,56 +63,93 @@ public class STFT implements
   }
 */
 
+  public void changeWindow(String wintype, int winsize) {
+    this.winsize = winsize;
+    if (params != null) params.put("WINDOW_SIZE", winsize);
+//    buff = new double[winsize];
+    this.wintype = wintype;
+    if (params != null) params.put("WINDOW_TYPE", wintype);
+    if (wintype.startsWith("ham"))
+      window = hamming(winsize);
+    else if (wintype.startsWith("han"))
+      window = hanning(winsize);
+    else if (wintype.startsWith("gaus"))
+      window = gaussian(winsize);
+    else if (wintype.startsWith("rect"))
+      window = null;
+    else
+      throw new IllegalStateException("Unsupported window type");
+  }
+       
+
   public void setParams(Map<String, Object> params) {
     this.params = params;
+//    if (winslider == null) 
+//      winslider = new WindowSlider();
+//    winslider.setParams(params);
     paramSet = false;
   }
   
   private void setParams() {
     ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
-    if (params != null && params.containsKey("WINDOW_SIZE")) {
-      winsize = (Integer)params.get("WINDOW_SIZE");
-    } else {
-      winsize = config.getParamInt("param", "fft", "WINDOW_SIZE");
-      params.put("WINDOW_SIZE", winsize);
-    }
-    buff = new double[winsize];
+//    int winsize;
+//    if (params != null && params.containsKey("WINDOW_SIZE")) {
+//      winsize = (Integer)params.get("WINDOW_SIZE");
+//    } else {
+//      winsize = config.getParamInt("param", "fft", "WINDOW_SIZE");
+//      params.put("WINDOW_SIZE", winsize);
+//    }
+//    buff = new double[winsize];
     if (params != null && params.containsKey("WINDOW_TYPE")) {
       wintype = ((String)params.get("WINDOW_TYPE")).toLowerCase();
     } else {
       wintype = config.getParam("param", "fft", "WINDOW_TYPE").toLowerCase();
       params.put("WINDOW_TYPE", wintype);
     }
-    if (wintype.startsWith("ham"))
-      window = hamming(winsize);
-    else if (wintype.startsWith("hum"))
-      window = hanning(winsize);
-    else if (wintype.startsWith("gaus"))
-      window = gaussian(winsize);
-    else
-      throw new ConfigXMLException
-        ("WINDOW_TYPE is not found or wrong.");
-    if (params != null && params.containsKey("SHIFT")) {
-      shift = (Double)params.get("SHIFT");
-    } else {
-      shift = config.getParamDouble("param", "fft", "SHIFT");
-      params.put("SHIFT", shift);
-    }
-    if (params != null && params.containsKey("TARGET_CHANNEL")) {
-      chTarget = (Integer)params.get("TARGET_CHANNEL");
-    } else {
-      chTarget = 0;
-      params.put("TARGET_CHANNEL", 0);
-    }
+//    changeWindow(wintype, winsize);
+//    if (wintype.startsWith("ham"))
+//      window = hamming(winsize);
+//    else if (wintype.startsWith("hum"))
+//      window = hanning(winsize);
+//    else if (wintype.startsWith("gaus"))
+//      window = gaussian(winsize);
+//    else
+//      throw new ConfigXMLException
+//        ("WINDOW_TYPE is not found or wrong.");
+//    if (params != null && params.containsKey("SHIFT")) {
+//      shift = (Double)params.get("SHIFT");
+//    } else {
+//      shift = config.getParamDouble("param", "fft", "SHIFT");
+//      params.put("SHIFT", shift);
+//    }
+//    if (params != null && params.containsKey("TARGET_CHANNEL")) {
+//      chTarget = (Integer)params.get("TARGET_CHANNEL");
+//    } else {
+//      chTarget = 0;
+//      params.put("TARGET_CHANNEL", 0);
+//    }
 //    powerthrs = config.getParamDouble("param", "fft", "POWER_THRESHOLD");
 //    rpowerthrs = config.getParamDouble("param", "fft", 
 //				       "RELATIVE_POWER_THRESHOLD");
 //    peakext = new PeakExtractor();
-    fft = factory.createFFT();
+//    fft = factory.createFFT();
     paramSet = true;
+//  }
   }
 
+/*
+  public void setInputData(AudioDataCompatible audiodata) {
+    if (winslider == null) 
+      winslider = new WindowSlider();
+    winslider.setParams(params);
+    winslider.setInputData(audiodata);
+    isStereo = winslider.isStereo();
+    if (fft == null)
+      fft = factory.createFFT();
+  }
+*/
 
+/*
   public void setInputData(WAVXMLWrapper wavxml) {
     if (!paramSet) setParams();
     channels = wavxml.getFmtChunk().channels();
@@ -143,15 +181,37 @@ public class STFT implements
     }
     t = 0;
   }
+*/
 
+/*
+  public int getAvailableFrames() {
+    return winslider.getAvailableFrames();
+  }
+*/
+
+  /*
   public int getAvailableFrames() {
     return 
       Math.max(0, 
                1 + (int)Math.floor((double)(wavM.length() - winsize) / shift));
   }
+  */
+
+/*
 
   public int getTimeUnit() {
+    return winslider.getTimeUnit();
+  }
+*/
+
+/*
+  public int getTimeUnit() {
     return 1000 * shift_ / fs;
+  }
+*/
+
+  public void setStereo(boolean b) {
+    isStereo = b;
   }
 
   /*********************************************************************
@@ -164,36 +224,51 @@ public class STFT implements
    *@param src 常にnullを指定します(何を指定しても無視されます)
    *@param dest STFT実行結果格納用リスト
    *********************************************************************/
-  public void execute(List<QueueReader<Object>> src, 
-                      List<TimeSeriesCompatible> dest) 
+  public void execute(List<QueueReader<DoubleArray>> src, 
+                      List<TimeSeriesCompatible<ComplexArray>> dest) 
     throws InterruptedException {
     if (!paramSet) setParams();
-    stft1ch(wavM, dest.get(0), t);
+//    double[] buff = winslider.getNextWindowedSignalMixed();
+    DoubleArray signal = src.get(0).take();
+    if (winsize < 0 || winsize != signal.length())
+      changeWindow(wintype, signal.length());
+    dest.get(0).add(fft.executeR2C(signal, window));
+//    dest.get(0).add(dfactory.createArray(fft.executeR2C(buff)));
+//    stft1ch(wavM, dest.get(0), t);
     if (isStereo) {
-      stft1ch(wavL, dest.get(1), t);
-      stft1ch(wavR, dest.get(2), t);
+//      buff = winslider.getNextWindowedSignalLeft();
+//      dest.get(1).add(dfactory.createArray(fft.executeR2C(buff)));
+      dest.get(1).add(fft.executeR2C(src.get(1).take(), window));
+//      buff = winslider.getNextWindowedSignalRight();
+//      dest.get(2).add(dfactory.createArray(fft.executeR2C(buff)));
+      dest.get(2).add(fft.executeR2C(src.get(2).take(), window));
+//      stft1ch(wavL, dest.get(1), t);
+//      stft1ch(wavR, dest.get(2), t);
     }
-    t += shift_;
+//    t += shift_;
   }
 
   public int getInputChannels() {
-    return 0;
+    return isStereo ? 3 : 1;
   }
 
   public int getOutputChannels() {
     return isStereo ? 3 : 1;
   }
 
-  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-    return new MutableTimeSeries(nFrames, timeunit);
+  public TimeSeriesCompatible<ComplexArray> 
+      createOutputInstance(int nFrames, int timeunit) {
+    return new MutableComplexTimeSeries(nFrames, timeunit);
   }
 
+/*
   private void stft1ch(DoubleArray wav, TimeSeriesCompatible dest, 
                        int index) throws InterruptedException {
     for (int i = 0; i < buff.length; i++)
       buff[i] = wav.get(index + i) * window[i];
     dest.add(dfactory.createArray(fft.executeR2C(buff)));
   }
+*/
 }
     
     

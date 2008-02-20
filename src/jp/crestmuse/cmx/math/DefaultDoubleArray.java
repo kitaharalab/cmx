@@ -50,6 +50,14 @@ class DefaultDoubleArray implements DoubleArray,Cloneable {
     }
   }
 
+/*
+  public DoubleArray subarray(int from, int thru) {
+    double[] newarray = new double[thru - from];
+    System.arraycopy(values, from, newarray, 0, thru - from);
+    return new DefaultDoubleArray(newarray);
+  }
+*/
+
   public DoubleArray subarrayX(int from, int thru) {
     DefaultDoubleArray newarray = new DefaultDoubleArray(values);
     newarray.from = this.from + from;

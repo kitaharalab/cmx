@@ -6,15 +6,24 @@ public class Operations {
     DoubleArrayFactory.getFactory();
   private static final BooleanArrayFactory bfactory = 
     BooleanArrayFactory.getFactory();
+  private static final ComplexArrayFactory cfactory = 
+    ComplexArrayFactory.getFactory();
 
   private Operations() { }
-
 
   public static DoubleArray subarray(DoubleArray x, int from, int thru) {
     int length = thru - from;
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(from + i));
+    return z;
+  }
+
+  public static ComplexArray subarray(ComplexArray x, int from, int thru) {
+    int length = thru - from;
+    ComplexArray z = cfactory.createArray(length);
+    for (int i = 0; i < length; i++)
+      z.set(i, x.getReal(from + i), x.getImag(from + i));
     return z;
   }
 
@@ -133,7 +142,10 @@ public class Operations {
 //    if (x.length() != mask.length())
 //      throw new AmusaDimensionException();
     int length = x.length();
-    DoubleArray z = factory.createArray(length);
+    int nFalses = 0;
+    for (int i = 0; i < length; i++)
+      if (!mask.get(i)) nFalses++;
+    DoubleArray z = factory.createArray(nFalses);
     int k = 0;
     for (int i = 0; i < length; i++) {
       if (!mask.get(i)) {
@@ -141,7 +153,7 @@ public class Operations {
         k++;
       }
     }
-    return z.subarrayX(0, k);
+    return z;
   }
 
 

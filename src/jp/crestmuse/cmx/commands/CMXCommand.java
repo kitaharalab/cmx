@@ -61,13 +61,15 @@ public abstract class CMXCommand implements CMXInitializer {
    *The object that wraps an input file. <br>
    *入力ファイルを表すオブジェクトです. 
    ******************************************************************/
-  private CMXFileWrapper indata;
+  private FileWrapperCompatible indata;
+//  private CMXFileWrapper indata;
 
   /******************************************************************
    *The object that wraps an output file. <br>
    *出力ファイルを表すオブジェクトです. 
    ******************************************************************/
-  private CMXFileWrapper outdata;
+  private FileWrapperCompatible outdata;
+//  private CMXFileWrapper outdata;
 
   /******************************************************************
    *The <tt>INIWrapper</tt> object that wraps an ini file, 
@@ -141,9 +143,12 @@ public abstract class CMXCommand implements CMXInitializer {
    *runメソッドをオーバーライドする際に, runメソッド内で読み込んだデータに
    *アクセスする際に用いることを想定しています.</p>
    ******************************************************************/
-  public final CMXFileWrapper indata() {
+  public final FileWrapperCompatible indata() {
     return indata;
   }
+//  public final CMXFileWrapper indata() {
+//    return indata;
+//  }
 
   /******************************************************************
    *<p>Returns the output document.</p>
@@ -151,9 +156,12 @@ public abstract class CMXCommand implements CMXInitializer {
    *runメソッドをオーバーライドする際に, ファイルに書き込むべきデータを
    *CMXFileWrapperオブジェクトに追加する際に用いることを想定しています.
    ******************************************************************/
-  public final CMXFileWrapper outdata() {
+  public final FileWrapperCompatible outdata() {
     return outdata;
   }
+//  public final CMXFileWrapper outdata() {
+//    return outdata;
+//  }
 
   /******************************************************************
    *Creates an empty document with the specified top-tag name 
@@ -171,7 +179,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *Assigns the specified CMXFileWrapper object to the output object.
    *指定されたCMXFileWrapperオブジェクトを出力オブジェクトに指定します．
    ******************************************************************/
-  public final void setOutputData(CMXFileWrapper outdata) {
+  public final void setOutputData(FileWrapperCompatible outdata) {
     this.outdata = outdata;
   }
 
@@ -319,7 +327,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *をMIDI XMLドキュメントとして読み込む場合)にオーバーライドしてください.
    *(通常, ユーザがこのメソッドを呼び出す必要はありません.)
    ******************************************************************/
-  protected CMXFileWrapper readInputData(String filename) 
+  protected FileWrapperCompatible readInputData(String filename) 
 	throws IOException, ParserConfigurationException, SAXException,
         TransformerException  {
     return CMXFileWrapper.readfile(filename, this);

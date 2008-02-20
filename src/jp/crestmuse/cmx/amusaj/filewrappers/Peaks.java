@@ -6,7 +6,8 @@ import org.w3c.dom.*;
 import java.nio.*;
 import java.util.*;
 
-public class Peaks extends NodeInterface implements PeaksCompatible {
+public class Peaks extends NodeInterface 
+  implements TimeSeriesCompatible<PeakSet>  {
   private int nFrames;
   private int timeunit;
   private int bytesize;
@@ -42,6 +43,10 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
     return qwrap.createReader();
   }
 
+//  public void finalizeQueueReader() {
+//    qwrap.finalizeReader();
+//  }
+
   public int frames() {
     return nFrames;
   }
@@ -54,7 +59,11 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
     return timeunit;
   }
 
-  public void addPeakSet(PeakSet peakset) {
+  public int dim() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void add(PeakSet peakset) {
     throw new UnsupportedOperationException();
   }
 
@@ -74,7 +83,7 @@ public class Peaks extends NodeInterface implements PeaksCompatible {
     return new AttrIterator(node().getAttributes());
   }
 
-  public static void addPeaksToWrapper(PeaksCompatible peaks, 
+  public static void addPeaksToWrapper(TimeSeriesCompatible<PeakSet> peaks, 
                                        String nodename, 
                                        CMXFileWrapper wrapper) {
     ByteBuffer buff = ByteBuffer.allocate(peaks.bytesize());

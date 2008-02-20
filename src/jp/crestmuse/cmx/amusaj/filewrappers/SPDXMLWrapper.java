@@ -1,11 +1,12 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import org.w3c.dom.*;
 
-public class SPDXMLWrapper extends AmusaXMLWrapper<PeaksCompatible> {
+public class SPDXMLWrapper 
+  extends AmusaXMLWrapper<TimeSeriesCompatible<PeakSet>> {
   public static final String TOP_TAG = "spd";
   public static final String DATA_TAG = "peaks";
 
-  protected PeaksCompatible createDataNodeInterface(Node node) {
+  protected TimeSeriesCompatible<PeakSet> createDataNodeInterface(Node node) {
     return new Peaks(node);
   }
 
@@ -13,7 +14,7 @@ public class SPDXMLWrapper extends AmusaXMLWrapper<PeaksCompatible> {
 //    return new AmusaDataSet<PeaksCompatible>(this);
 //  }
 
-  public void addDataElement(PeaksCompatible peaks) {
+  public void addDataElement(TimeSeriesCompatible<PeakSet> peaks) {
     Peaks.addPeaksToWrapper(peaks, DATA_TAG, this);
   }
 }

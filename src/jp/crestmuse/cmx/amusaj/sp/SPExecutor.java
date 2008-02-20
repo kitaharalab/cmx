@@ -45,13 +45,18 @@ public class SPExecutor {
         m.module.execute(m.src, m.dest);
   }
 
-  public List<AmusaDataCompatible> getResult(int index) {
-    return list.get(index).dest;
+  public List<TimeSeriesCompatible> 
+  getResult(ProducerConsumerCompatible module) {
+    return map.get(module).dest;
   }
+
+//  public List<AmusaDataCompatible> getResult(int index) {
+//    return list.get(index).dest;
+//  }
 
   private class SPModule {
     ProducerConsumerCompatible module;
     List<QueueReader> src = new ArrayList<QueueReader>();
-    List<AmusaDataCompatible> dest = new ArrayList<AmusaDataCompatible>();
+    List<TimeSeriesCompatible> dest = new ArrayList<TimeSeriesCompatible>();
   }
 }

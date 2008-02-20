@@ -371,7 +371,8 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 */
 
   
-  private abstract class MyTimeSeries implements TimeSeriesCompatible {
+  private abstract class MyTimeSeries 
+    implements TimeSeriesCompatible<DoubleArray> {
     int dim;
     int nFrames;
     private int timeunit;
@@ -390,6 +391,9 @@ public class MPEG7Wrapper extends CMXFileWrapper {
     public QueueReader<DoubleArray> getQueueReader() {
       return qwrap.createReader();
     }
+//    public void finalizeQueueReader() {
+//      qwrap.finalizeReader();
+//    }
     public int dim() {
       return dim;
     }
@@ -398,6 +402,9 @@ public class MPEG7Wrapper extends CMXFileWrapper {
     }
     public int timeunit() {
       return timeunit;
+    }
+    public int bytesize() {
+      return 4 * dim();
     }
     public void add(DoubleArray array) {
       throw new UnsupportedOperationException();
