@@ -30,6 +30,9 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   private Map<NumberedNote,Byte> nEqualNotes = 
     new HashMap<NumberedNote,Byte>();
 
+    // added 2008.02.21
+  private Map<MutableNote,Note> notemap2 = new HashMap<NumberedNote,Note>();
+
   private int currentPart = 0;
 
   public int getDivision() {
