@@ -156,6 +156,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
   private Node currentNode = null;
   private Node parentNode = null;
   private String filename = null;
+    private Node prevCurrentNode = null;
+    private Node prevParentNode = null;
 
   private boolean finalized = false;
 
@@ -861,6 +863,23 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 //    if (readonly)
 //      throw new IllegalStateException("Read only.");
 //  }
+
+    public final void changeCurrentNode(String xpath) {
+	prevCurrentNode = currentNode;
+	prevParentNode = parentNode;
+	currentNode = singleSelectNode(xpath);
+	parentNode = null;
+    }
+
+    public final void returnToPrevCurrentNode() {
+	currentNode = prevCurrentNode;
+	parentNode = prevParentNode;
+    }
+
+    public final void addChildOf(String xpath, String name) {
+	changeCurrentNode(xpath);
+	addChild(name);
+    }
 
   protected final boolean isFinalized() {
     return finalized;
