@@ -874,6 +874,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     public final void returnToPrevCurrentNode() {
 	currentNode = prevCurrentNode;
 	parentNode = prevParentNode;
+	prevCurrentNode = null;
+	prevParentNode = null;
     }
 
     public final void addChildOf(String xpath, String name) {
