@@ -13,6 +13,13 @@ public abstract class AbstractHeaderNodeInterface extends NodeInterface {
     map = new HashMap<String,String>();
   }
 
+  public String[] getHeaderNameList() {
+    String[] namelist = new String[size];
+    for (int i = 0; i < size; i++)
+      namelist[i] = getAttribute(nodelist.item(i), "name");
+    return namelist;
+  }    
+
   public String getHeaderElement(String name) {
     if (map.containsKey(name)) {
       return map.get(name);

@@ -36,6 +36,12 @@ public class SPExecutor {
                       ProducerConsumerCompatible input, int ch2) {
     SPModule spm1 = map.get(output);
     SPModule spm2 = map.get(input);
+    System.err.println(spm1);
+    System.err.println(spm1.dest);
+    System.err.println(spm1.dest.get(ch1));
+    System.err.println(spm1.dest.get(ch1).getQueueReader());
+    System.err.println(spm2);
+    System.err.println(spm2.src);
     spm2.src.set(ch2, spm1.dest.get(ch1).getQueueReader());
   }
 

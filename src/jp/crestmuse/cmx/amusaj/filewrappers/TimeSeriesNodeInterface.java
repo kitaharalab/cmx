@@ -21,7 +21,8 @@ implements TimeSeriesCompatible<DoubleArray> {
     super(node);
     dim = getAttributeInt("dim");
     nFrames = getAttributeInt("frames");
-    timeunit = getAttributeInt("timeunit");
+    if (hasAttribute("timeunit"))
+      timeunit = getAttributeInt("timeunit");
     ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
 //    ByteBuffer buff = 
 //      ByteBuffer.wrap(Base64.decodeBase64(getText().getBytes()));

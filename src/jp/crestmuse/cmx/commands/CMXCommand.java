@@ -524,6 +524,8 @@ public abstract class CMXCommand implements CMXInitializer {
       if (config == null)
         config = (ConfigXMLWrapper)CMXFileWrapper.readfile(configfilename);
       return config;
+    } catch (NullPointerException e) {
+      throw new ConfigXMLException("ConfigXML file is not specfied.");
     } catch (IOException e) {
       throw new ConfigXMLException(e.toString());
 //    } catch (ParserConfigurationException e) {

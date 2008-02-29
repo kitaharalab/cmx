@@ -2,6 +2,8 @@ package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import java.io.*;
+import java.nio.*;
+import javax.sound.sampled.*;
 
 /*********************************************************************
  *The <tt>WAVWrapper</tt> class wraps a WAV file.
@@ -50,6 +52,14 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
 
   public int channels() {
     return data.getWaveform().length;
+  }
+
+  public byte[] getByteArrayWaveform() {
+    return data.bytearray;
+  }
+
+  public AudioFormat getAudioFormat() {
+    return fmt.getAudioFormat();
   }
 
 /*
@@ -244,6 +254,12 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
       blocksize = channels * (bitsPerSample / 8);
     }
 
+    private AudioFormat getAudioFormat() {
+      return new AudioFormat((float)samplesPerSec, bitsPerSample, 
+                             channels, 
+                             bitsPerSample == 8 ? false : true, false);
+    }
+
     private void read(DataInputStream datain) throws IOException {
       size = readUnsignedInt(datain);
       format = readUnsignedShort(datain);
@@ -277,6 +293,7 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     private long size;
     private DoubleArray[] data = null;
     private short[] dataInShort = null;
+    private byte[] bytearray = null;
 
     private void setWaveform(DoubleArray[] waveform) {
       data = waveform;
@@ -301,29 +318,48 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
         throw new InvalidFileTypeException("unsupported waveform type");
       size = readUnsignedInt(datain);
       int length = (int)(size / fmt.blocksize);
-//      prog.setTotalLength(length / 66536);
-//      data = new AmusaDoubleArray[fmt.channels];
+      bytearray = new byte[(int)size];
+      datain.read(bytearray);
+      ByteBuffer buff = ByteBuffer.wrap(bytearray);
       dataInShort = new short[length * fmt.channels];
-//      for (int i = 0; i < fmt.channels; i++)
-//        data[i] = AmusaDoubleArray.createArray(length);
-      for (int t = 0; t < length; t++) {
-//        if (t % 65536 == 0) prog.next();
-//        if (t % 65536 == 0) System.err.print(".");
-        for (int i = 0; i < fmt.channels; i++) {
-          int sample;
-          if (fmt.bitsPerSample == 8) {
-            sample = 256 * (datain.readUnsignedByte() - 128);
-//            data[i].set(t, (double)(datain.readUnsignedByte()-128) / 128.0);
-          } else if (fmt.bitsPerSample == 16) {
-            sample = readSignedShort(datain);
-//            data[i].set(t, (double)readSignedShort(datain) / 32768.0);
-          } else {
-            throw new InvalidFileTypeException("unsupported waveform type");
+      if (fmt.bitsPerSample == 8)
+        for (int t = 0; t < length; t++) 
+          for (int i = 0; i < fmt.channels; i++) {
+            byte b = buff.get();
+            if (b >= 0)
+              dataInShort[t * fmt.channels + i] = (short)(b - 128);
+            else
+              dataInShort[t * fmt.channels + i] = (short)(b + 128);
+//            dataInShort[t * fmt.channels + i] = (short)(buff.get() - 128);
           }
-          dataInShort[t * fmt.channels + i] = (short)sample;
-//          data[i].set(t, (double)sample / 32768.0);
-        }
-      }
+      else if (fmt.bitsPerSample == 16)
+        for (int t = 0; t < length; t++)
+          for (int i = 0; i < fmt.channels; i++)
+            dataInShort[t * fmt.channels + i] = buff.getShort();
+//    
+////      prog.setTotalLength(length / 66536);
+////      data = new AmusaDoubleArray[fmt.channels];
+//      dataInShort = new short[length * fmt.channels];
+////      for (int i = 0; i < fmt.channels; i++)
+////        data[i] = AmusaDoubleArray.createArray(length);
+//      for (int t = 0; t < length; t++) {
+////        if (t % 65536 == 0) prog.next();
+////        if (t % 65536 == 0) System.err.print(".");
+//        for (int i = 0; i < fmt.channels; i++) {
+//          int sample;
+//          if (fmt.bitsPerSample == 8) {
+//            sample = 256 * (datain.readUnsignedByte() - 128);
+////            data[i].set(t, (double)(datain.readUnsignedByte()-128) / 128.0);
+//          } else if (fmt.bitsPerSample == 16) {
+//            sample = readSignedShort(datain);
+////            data[i].set(t, (double)readSignedShort(datain) / 32768.0);
+//          } else {
+//            throw new InvalidFileTypeException("unsupported waveform type");
+//          }
+//          dataInShort[t * fmt.channels + i] = (short)sample;
+////          data[i].set(t, (double)sample / 32768.0);
+//        }
+//      }
     }
 
     private short[] getShortArray() {

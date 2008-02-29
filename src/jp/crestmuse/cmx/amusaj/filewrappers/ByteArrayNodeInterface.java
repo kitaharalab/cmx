@@ -6,13 +6,16 @@ import org.w3c.dom.*;
 
 public abstract class ByteArrayNodeInterface extends NodeInterface {
   private int bytesize;
+  private byte[] bytearray;
   private ByteBuffer buff;
   private static final Base64 base64 = new Base64();
 
   protected ByteArrayNodeInterface(Node node) {
     super(node);
     bytesize = getAttributeInt("bytesize");
-    buff = ByteBuffer.wrap(Base64.decode(getText()));
+    bytearray = Base64.decode(getText());
+    buff = ByteBuffer.wrap(bytearray);
+//    buff = ByteBuffer.wrap(Base64.decode(getText()));
 //    buff = ByteBuffer.wrap(base64.decodeBase64(getText().getBytes()));
   }
 
@@ -29,17 +32,19 @@ public abstract class ByteArrayNodeInterface extends NodeInterface {
   }
 
   protected byte[] getByteArray() {
-    byte[] array = new byte[lengthInByte()];
-    buff.get(array);
-//    for (int i = 0; i < array.length; i++)
-//      array[i] = buff.get();
-    return array;
+    return bytearray;
+//    byte[] array = new byte[lengthInByte()];
+//    buff.get(array);
+////    for (int i = 0; i < array.length; i++)
+////      array[i] = buff.get();
+//    return array;
   }
 
   protected short[] getUnsignedByteArray() {
     short[] array = new short[lengthInByte()];
     for (int i = 0; i < array.length; i++) {
-      byte b = buff.get();
+      byte b = bytearray[i];
+//      byte b = buff.get();
       array[i] = b < 0 ? (short)(b + 128) : b;
     }
     return array;

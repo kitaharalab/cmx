@@ -141,7 +141,7 @@ public class WindowSlider
   public int getAvailableFrames() {
     return 
       Math.max(0, 
-               1 + (int)Math.floor((double)(wavM.length() - winsize) / shift));
+               1 + (int)Math.floor((double)(wavM.length() - winsize) / shift_));
   }
 
   public int getTimeUnit() {

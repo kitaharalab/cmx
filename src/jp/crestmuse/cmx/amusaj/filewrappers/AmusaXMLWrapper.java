@@ -61,6 +61,10 @@ public abstract class AmusaXMLWrapper<D extends AmusaDataCompatible>
     return header;
   }
 
+  public String[] getHeaderNameList() {
+    return getHeader().getHeaderNameList();
+  }
+
   public String getHeader(String key) {
     return getHeader().getHeaderElement(key);
   }

@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.sound;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.WAVXMLWrapper;
+import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import java.io.*;
 import java.nio.*;
 import java.net.*;
@@ -31,18 +31,30 @@ public class WAVPlayer implements LineSupportingMusicPlayer {
 
   public WAVPlayer(WAVXMLWrapper wav) throws LineUnavailableException {
     nowPlaying = false;
-    init(wav);
+    init(wav.getDataChunkList()[0].getAudioData());
   }
 
+  public WAVPlayer(AudioDataCompatible wav) throws LineUnavailableException {
+    nowPlaying = false;
+    init(wav);
+  }
+  
   public void changeWaveform(WAVXMLWrapper wav) 
+    throws LineUnavailableException {
+    init(wav.getDataChunkList()[0].getAudioData());
+  }
+
+  public void changeWaveform(AudioDataCompatible wav)
     throws LineUnavailableException {
     init(wav);
   }
 
-  private void init(WAVXMLWrapper wav) throws LineUnavailableException {
+  private void init(AudioDataCompatible wav) throws LineUnavailableException {
     if (isNowPlaying()) stop();
-    waveform = wav.getDataChunkList()[0].getAudioData().getByteArray();
-    AudioFormat fmt = wav.getFmtChunk().getAudioFormat();
+    waveform = wav.getByteArrayWaveform();
+//    waveform = wav.getDataChunkList()[0].getAudioData().getByteArray();
+    AudioFormat fmt = wav.getAudioFormat();
+//    AudioFormat fmt = wav.getFmtChunk().getAudioFormat();
     System.out.println(fmt);
     if (!fmt.equals(this.fmt)) {
       this.fmt = fmt;

@@ -210,6 +210,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
                            "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
                            "FPDXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/fpdxml.dtd");
+      addClassTable("tbd",
+                    AMUSA_PACKAGE_BASE + "." + "TBDXMLWrapper");
+      addDocumentTypeTable("tbd",
+                           "-//CrestMuse//DTD CrestMuseXML 0.40 " +
+                    "TBDXML//EN", 
+                    "http://www.crestmuse.jp/cmx/dtds/tbdxml.dtd");
       addClassTable("igram", 
                     AMUSA_PACKAGE_BASE + "." + "IGRAMXMLWrapper");
       addDocumentTypeTable("igram", 
@@ -361,6 +367,17 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 //  public final void read(InputStream in) throws IOException, SAXException {
 //    doc = builder.parse(in);
 //  }
+
+  public static CMXFileWrapper read(InputStream in) throws IOException {
+    try {
+      initXMLProcessors();
+      return wrap(builder.parse(in), null, null);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
 
   /**********************************************************************
    *<p>Reads the specified file. After that, the analyze method is 
@@ -867,7 +884,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     public final void changeCurrentNode(String xpath) {
 	prevCurrentNode = currentNode;
 	prevParentNode = parentNode;
-	currentNode = singleSelectNode(xpath);
+	currentNode = selectSingleNode(xpath);
 	parentNode = null;
     }
 

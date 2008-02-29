@@ -270,7 +270,7 @@ public class WAVXMLWrapper extends CMXFileWrapper {
     protected String getSupportedNodeName() {
       return "audio-data";
     }
-    public byte[] getByteArray() {
+    public byte[] getByteArrayWaveform() {
       return super.getByteArray();
     }
     public int channels() {
@@ -278,6 +278,9 @@ public class WAVXMLWrapper extends CMXFileWrapper {
     }
     public int sampleRate() {
       return getFmtChunk().sampleRate();
+    }
+    public AudioFormat getAudioFormat() {
+      return getFmtChunk().getAudioFormat();
     }
     public short[] getWaveform() {
       FmtChunk fmt = getFmtChunk();
