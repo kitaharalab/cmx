@@ -16,4 +16,3 @@ public interface ProducerConsumerCompatible<D, E> {
   public TimeSeriesCompatible<E> 
     createOutputInstance(int nFrames, int timeunit);
 }
-
