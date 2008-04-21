@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.math.*;
 
-public class MutableComplexTimeSeries extends MutableData<ComplexArray> {
+public class MutableComplexTimeSeries extends MutableTimeSeries<ComplexArray> {
   private int dim = -1;
 
   private static final ComplexArrayFactory factory = 

@@ -10,7 +10,7 @@ public interface PianoRollCompatible {
   void processNotes(CommonNoteHandler h) 
     throws TransformerException, IOException, ParserConfigurationException, 
     SAXException;
-  ArrayList<SimpleNoteList> getPartwiseNoteList(int ticksPerBeat)
+  List<SimpleNoteList> getPartwiseNoteList(int ticksPerBeat)
     throws TransformerException, IOException, ParserConfigurationException,
     SAXException;
   InputStream getMIDIInputStream() throws IOException, TransformerException,

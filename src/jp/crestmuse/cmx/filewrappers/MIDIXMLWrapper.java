@@ -363,7 +363,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     toSCCXML().processNotes(h);
   }
 
-  public ArrayList<SimpleNoteList> getPartwiseNoteList(int tickePerBeat) 
+  public List<SimpleNoteList> getPartwiseNoteList(int tickePerBeat) 
   throws IOException, TransformerException, ParserConfigurationException,
   SAXException   {
     return toSCCXML().getPartwiseNoteList(ticksPerBeat);

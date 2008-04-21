@@ -22,7 +22,7 @@ class VelocityPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<SimpleNoteList> partlist;
+	private java.util.List<SimpleNoteList> partlist;
 
 	/**
 	 * @param frameWidth

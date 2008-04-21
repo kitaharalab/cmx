@@ -165,8 +165,11 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       for (Measure measure : measurelist) {
         MusicData[] mdlist = measure.getMusicDataList();
         for (MusicData md : mdlist) 
-          if (md instanceof Note)
-            h.processNote((Note)md, this);
+          if (md instanceof Note) {
+            Note note = (Note)md;
+            if (!note.rest())
+              h.processNote(note, this);
+          }
       }
       h.endPart(part.id(), this);
     }
@@ -306,9 +309,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
   }
 
-  public ArrayList<SimpleNoteList> getPartwiseNoteList
+  public List<SimpleNoteList> getPartwiseNoteList
   (final int ticksPerBeat) throws TransformerException {
-    final ArrayList<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
+    final List<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
     processNotePartwise(new NoteHandlerPartwise() {
         private int serial = 0;
         private SimpleNoteList nl;
@@ -1253,6 +1256,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
 
     public int velocity() {
+      throw new UnsupportedOperationException();
+    }
+
+    public int onsetInMSec() {
+      throw new UnsupportedOperationException();
+    }
+
+    public int offsetInMSec() {
       throw new UnsupportedOperationException();
     }
 

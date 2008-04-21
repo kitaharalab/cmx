@@ -135,7 +135,7 @@ public class WindowSlider
 
   public TimeSeriesCompatible createOutputInstance(int nFrames, 
                                                    int timeunit) {
-    return new MutableTimeSeries(nFrames, timeunit);
+    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
   }
 
   public int getAvailableFrames() {

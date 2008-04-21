@@ -35,7 +35,7 @@ public class PianoRollPanel extends JScrollPane implements MouseListener,
 	/** ベロシティを描画するパネル */
 	// private VelocityPanel velocityPanel;
 	private PianoRollCompatible filewrapper = null;
-	private ArrayList<SimpleNoteList> partlist = null;
+	private java.util.List<SimpleNoteList> partlist = null;
 
 	/** MusicXMLオブジェクト */
 	// private MusicXMLWrapper xml;

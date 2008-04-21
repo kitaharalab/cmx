@@ -20,6 +20,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   
   private int division = 0;
   private Part[] partlist = null;
+  private HeaderElement[] headlist = null;
   
   private boolean headerStarted = false;
   private boolean partStarted = false;
@@ -35,10 +36,72 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 
   private int currentPart = 0;
 
+  protected void analyze() {
+    try {
+      final HeaderElement[] headers = getHeaderElementList();
+      final int div = getDivision();
+      processNotes(new SCCHandlerAdapter() {
+          private double currentInSec;
+          private int lastTempoChangeInTick;
+          private double lastTempoChangeInSec;
+          private double currentTempo;
+          private int nextTempoChangeInTick;
+          private double nextTempoChangeInSec;
+          private double nextTempo;
+          private int nextHeader;
+          public void beginPart(Part part, SCCXMLWrapper w) {
+            currentInSec = 0.0;
+            lastTempoChangeInTick = 0;
+            lastTempoChangeInSec = 0.0;
+            currentTempo = 120;   // kari
+            nextTempoChangeInTick = -1;
+            nextHeader = 0;
+            searchNextTempo();
+          }
+          public void processNote(Note note, SCCXMLWrapper w) {
+            if (nextTempoChangeInTick >= 0 
+                && nextTempoChangeInTick < note.onset()) {
+              lastTempoChangeInTick = nextTempoChangeInTick;
+              lastTempoChangeInSec = nextTempoChangeInSec;
+              currentTempo = nextTempo;
+              searchNextTempo();
+            }
+            note.onsetInMSec = (int)(1000 * calcSec(note.onset()));
+            if (nextTempoChangeInTick >= 0
+                && nextTempoChangeInTick < note.offset()) {
+              lastTempoChangeInTick = nextTempoChangeInTick;
+              lastTempoChangeInSec = nextTempoChangeInSec;
+              currentTempo = nextTempo;
+              searchNextTempo();
+            }
+            note.offsetInMSec = (int)(1000 * calcSec(note.offset()));
+          }
+          private void searchNextTempo() {
+            int i;
+            for (i = nextHeader; i < headers.length; i++) {
+              if (headers[i].name().equals("TEMPO")) {
+                nextTempoChangeInTick = headers[i].time();
+                nextTempoChangeInSec = calcSec(nextTempoChangeInTick);
+                nextTempo = Double.parseDouble(headers[i].content());
+                break;
+              }
+            }
+            nextHeader = i + 1;
+          }
+          private double calcSec(int tick) {
+            return (tick - lastTempoChangeInTick) * 60 / (div * currentTempo)
+              + lastTempoChangeInSec;
+        }
+        });
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    }
+  }
+
   public int getDivision() {
     if (division == 0)
       division = NodeInterface.getAttributeInt
-        (getDocument().getDocumentElement(),  "division");
+        (getDocument().getDocumentElement(), "division");
     return division;
   }
 
@@ -204,17 +267,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
 
   public HeaderElement[] getHeaderElementList() {
-    Node headnode = selectSingleNode("/scc/header");
-    if (headnode == null) {
-      return null;
-    } else {
-      NodeList metalist = selectNodeList(headnode, "meta");
-      int size = metalist.getLength();
-      HeaderElement[] headlist = new HeaderElement[size];
-      for (int i = 0; i < size; i++) 
-        headlist[i] = new HeaderElement(metalist.item(i));
-      return headlist;
+    if (headlist == null) {
+      Node headnode = selectSingleNode("/scc/header");
+      if (headnode == null) {
+        return null;
+      } else {
+        NodeList metalist = selectNodeList(headnode, "meta");
+        int size = metalist.getLength();
+        headlist = new HeaderElement[size];
+        for (int i = 0; i < size; i++) 
+          headlist[i] = new HeaderElement(metalist.item(i));
+      }
     }
+    return headlist;
   }
 
   public void processNotes(CommonNoteHandler h) throws TransformerException {
@@ -330,9 +395,9 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 //    }
 
 
-  public ArrayList<SimpleNoteList> getPartwiseNoteList
+  public List<SimpleNoteList> getPartwiseNoteList
   (final int ticksPerBeat) throws TransformerException {
-    final ArrayList<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
+    final List<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
     processNotes(new SCCHandler() {
         private SimpleNoteList nl;
         public void beginHeader(SCCXMLWrapper w) {}
@@ -673,6 +738,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   public class Note extends NodeInterface implements NoteCompatible {
     private Part part;
     private int onset, offset, notenum, velocity, offVelocity;
+    private int onsetInMSec, offsetInMSec;
 
     private Note(Node node, Part part) {
       super(node);
@@ -737,6 +803,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 
     public final Part part() {
       return part;
+    }
+
+    public final int onsetInMSec() {
+      return onsetInMSec;
+    }
+
+    public final int offsetInMSec() {
+      return offsetInMSec;
     }
 
     public MusicXMLWrapper.Note getMusicXMLWrapperNote() {

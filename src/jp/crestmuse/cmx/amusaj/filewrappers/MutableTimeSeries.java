@@ -4,37 +4,24 @@ import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-/********************************************************************
- *オブジェクト生成後に値を自由に変更できる時系列オブジェクトです. 
- *********************************************************************/
-public class MutableTimeSeries extends MutableData<DoubleArray> {
-  private int dim = -1;
-//  private int nFrames;
-//  private int timeunit;
-//  private BlockingQueue<DoubleArray> queue;
-//  private QueueWrapper<DoubleArray> qwrap;
-//  private Map<String,String> attr;
+public abstract class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
+  private int nFrames;
+  private int timeunit;
+  BlockingQueue<D> queue;
+  private QueueWrapper<D> qwrap;
+  private Map<String,String> attr;
 
-  private static final DoubleArrayFactory factory = 
-    DoubleArrayFactory.getFactory();
-
-  public MutableTimeSeries(int nFrames, int timeunit) {
-    super(nFrames, timeunit);
-//    this.nFrames = nFrames;
-//    this.timeunit = timeunit;
-//    queue = new LinkedBlockingQueue<DoubleArray>();
-//    qwrap = new QueueWrapper(queue, nFrames);
-//    attr = new HashMap<String,String>();
+  MutableTimeSeries(int nFrames, int timeunit) {
+    this.nFrames = nFrames;
+    this.timeunit = timeunit;
+    queue = new LinkedBlockingQueue<D>();
+    qwrap = new QueueWrapper<D>(queue, nFrames);
+    attr = new HashMap<String,String>();
   }
 
-/*
-  public QueueReader<DoubleArray> getQueueReader() {
+  public QueueReader<D> getQueueReader() {
     return qwrap.createReader();
   }
-
-//  public void finalizeQueueReader() {
-//    qwrap.finalizeReader();
-//  }
 
   public int frames() {
     return nFrames;
@@ -43,28 +30,7 @@ public class MutableTimeSeries extends MutableData<DoubleArray> {
   public int timeunit() {
     return timeunit;
   }
-*/
 
-  public int dim() {
-    return dim;
-  }
-
-  public int bytesize() {
-    return 4 * dim;
-  }
-
-  public void add(DoubleArray array) throws InterruptedException {
-    if (dim == -1) {
-      dim = array.length();
-      queue.put(array);
-    } else if (dim == array.length()) {
-      queue.put(array);
-    } else {
-      throw new IllegalStateException("unmatch dimension");
-    }
-  }
-
-/*
   public String getAttribute(String key) {
     return attr.get(key);
   }
@@ -92,5 +58,4 @@ public class MutableTimeSeries extends MutableData<DoubleArray> {
   public Iterator<Map.Entry<String,String>> getAttributeIterator() {
     return attr.entrySet().iterator();
   }
-*/
 }

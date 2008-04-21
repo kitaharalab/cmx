@@ -66,7 +66,7 @@ public class F0PDFCalculatorModule
   }
 
   public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-    return new MutableTimeSeries(nFrames, timeunit);
+    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
   }
 
 }

@@ -24,7 +24,7 @@ public class FeatureExtractionModule
   }
 
   public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-    return new MutableTimeSeries(nFrames, timeunit);
+    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
   }
 
   public void execute(List<QueueReader<DoubleArray>> src, 

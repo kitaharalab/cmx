@@ -53,7 +53,9 @@ import jp.crestmuse.cmx.misc.*;
  *@version 0.21
  ********************************************************************/
 
-public abstract class CMXCommand implements CMXInitializer {
+public abstract class CMXCommand<F1 extends FileWrapperCompatible,
+                                 F2 extends FileWrapperCompatible> 
+  implements CMXInitializer {
 
 /******* Fields *****************************************************/
 
@@ -61,27 +63,18 @@ public abstract class CMXCommand implements CMXInitializer {
    *The object that wraps an input file. <br>
    *入力ファイルを表すオブジェクトです. 
    ******************************************************************/
-  private FileWrapperCompatible indata;
+  private F1 indata;
 //  private CMXFileWrapper indata;
 
   /******************************************************************
    *The object that wraps an output file. <br>
    *出力ファイルを表すオブジェクトです. 
    ******************************************************************/
-  private FileWrapperCompatible outdata;
+  private F2 outdata;
 //  private CMXFileWrapper outdata;
 
-  /******************************************************************
-   *The <tt>INIWrapper</tt> object that wraps an ini file, 
-   *which contains some setting values needed for running commands. 
-   *<br>
-   *iniファイルを表す<tt>INIWrapper</tt>オブジェクトです. 
-   *コマンドの実行に必要な設定の値を含みます. 
-   *****************************************************************/
-//  public static INIWrapper ini; 
-//  private String inifilename = "amusaj.ini";  
-
   private jp.crestmuse.cmx.misc.Queue<String> filenames;
+  /** @deprecated */
   private String filename;
 
   private String outfilename = null;
@@ -99,14 +92,16 @@ public abstract class CMXCommand implements CMXInitializer {
   private static ConfigXMLWrapper config = null;
 
     /***********************************************************************
+     * @deprecated
      * Set the output filename. <br>
      * 出力ファイル名を代入します.
      **********************************************************************/
-    protected void setOutfilename(String outfilename) {
+    private void setOutfilename(String outfilename) {
 	this.outfilename = outfilename;
     }
 
-    protected void setOutFileName(String outfilename) {
+  /** @deprecated */
+    private void setOutFileName(String outfilename) {
       this.outfilename = outfilename;
     }
 
@@ -119,13 +114,7 @@ public abstract class CMXCommand implements CMXInitializer {
         return outfilename;
     }
 
-    /***********************************************************************
-     * Set the input document. <br>
-     * 入力ドキュメントを代入します.
-     **********************************************************************/
-//    protected void replaceFilenameToOutoFileName() {
-//	this.filename=outfilename;
-//    }
+
     
 /****** Constructor *************************************************/
 
@@ -138,12 +127,13 @@ public abstract class CMXCommand implements CMXInitializer {
 /******* Methods (accessor) *****************************************/
 
   /******************************************************************
+   * @deprecated
    *<p>Returns the input document.</p>
    *<p>入力ドキュメントを返します. 
    *runメソッドをオーバーライドする際に, runメソッド内で読み込んだデータに
    *アクセスする際に用いることを想定しています.</p>
    ******************************************************************/
-  public final FileWrapperCompatible indata() {
+  public final F1 indata() {
     return indata;
   }
 //  public final CMXFileWrapper indata() {
@@ -151,12 +141,13 @@ public abstract class CMXCommand implements CMXInitializer {
 //  }
 
   /******************************************************************
+   * @deprecated
    *<p>Returns the output document.</p>
    *<p>出力ドキュメントを返します. 
    *runメソッドをオーバーライドする際に, ファイルに書き込むべきデータを
    *CMXFileWrapperオブジェクトに追加する際に用いることを想定しています.
    ******************************************************************/
-  public final FileWrapperCompatible outdata() {
+  public final F2 outdata() {
     return outdata;
   }
 //  public final CMXFileWrapper outdata() {
@@ -164,6 +155,7 @@ public abstract class CMXCommand implements CMXInitializer {
 //  }
 
   /******************************************************************
+   * @deprecated
    *Creates an empty document with the specified top-tag name 
    *and assigns it to the <tt>outdata</tt> instance.
    *指定された名前のトップタグを持つ空ドキュメントを生成し, 
@@ -172,14 +164,15 @@ public abstract class CMXCommand implements CMXInitializer {
   public final void newOutputData(String toptagname) 
 	throws InvalidFileTypeException, ParserConfigurationException, 
 		SAXException {
-    outdata = CMXFileWrapper.createDocument(toptagname);
+    outdata = (F2)CMXFileWrapper.createDocument(toptagname);
   }
 
   /******************************************************************
+   * @deprecated
    *Assigns the specified CMXFileWrapper object to the output object.
    *指定されたCMXFileWrapperオブジェクトを出力オブジェクトに指定します．
    ******************************************************************/
-  public final void setOutputData(FileWrapperCompatible outdata) {
+  public final void setOutputData(F2 outdata) {
     this.outdata = outdata;
   }
 
@@ -314,6 +307,14 @@ public abstract class CMXCommand implements CMXInitializer {
        return dirDest;
    }
 
+  protected boolean loopEnabled() {
+    return true;
+  }
+
+  protected int requiredFiles() {
+    return 1;
+  }
+
 
 /****** Methods (read and write) *************************************/
 
@@ -417,12 +418,21 @@ public abstract class CMXCommand implements CMXInitializer {
     InvalidOptionException {
 //    ini = new INIWrapper(Misc.getFullPath(inifilename, "ini"));
 //    ini.readfile();
+    int nFiles = requiredFiles();
+    if (loopEnabled() && filenames.size() % nFiles != 0)
+      throw new InvalidNumberOfFilesException();
+    if (!loopEnabled() && filenames.size() != nFiles)
+      throw new InvalidNumberOfFilesException();
     preproc();
+    F1[] files = (F1[])new FileWrapperCompatible[nFiles];
     try {
-      while (true) {
-        filename = filenames.dequeue();
-        System.err.println("[" + filename + "]");
-	indata = readInputData(filename);
+      do {
+        for (int i = 0; i < nFiles; i++) {
+          String filename = filenames.dequeue();
+          System.err.println("[" + filename + "]");
+          files[i] = (F1)readInputData(filename);
+        }
+        this.filename = files[0].getFileName();  // kari
 	outdata = null;
         String destdir = getDestDir();
         if (mkdir && (destdir != null)) {
@@ -430,8 +440,22 @@ public abstract class CMXCommand implements CMXInitializer {
           if (!dirobj.exists())
             dirobj.mkdirs();
         }
-//	indata.analyze();
-        run();
+////	indata.analyze();
+        outdata = run(files);
+//        if (nFiles == 1) {
+//          try {
+//            outdata = run(files[0]);
+//          } catch (NotOverridenException e) {
+//            try {
+//              outdata = run(files);
+//            } catch (NotOverridenException e2) {
+//              indata = files[0];
+//              run();
+//            }
+//          }
+//        } else {
+//          outdata = run(files);
+//        }
 	if (outdata != null) {
           String outfilename;
           if (isStdOut) {
@@ -456,8 +480,8 @@ public abstract class CMXCommand implements CMXInitializer {
             else
               outdata.writefile(f);
           }
-        }
-      }
+        } 
+      } while (loopEnabled());
     } catch (EmptyQueueException e) {
       postproc();
     }
@@ -474,12 +498,38 @@ public abstract class CMXCommand implements CMXInitializer {
     //  }
 
   /*******************************************************************
+   * @deprecated
    *<p>Please to override this method to define the main processing.</p>
    *<p>このメソッドをオーバーライドして, コマンドのメイン処理を記述してください.</p>
    *******************************************************************/
-  protected abstract void run() 
-	throws IOException, ParserConfigurationException, SAXException, 
-		TransformerException, InvalidFileTypeException; 
+  protected void run() 
+    throws IOException, ParserConfigurationException, SAXException, 
+    TransformerException, InvalidFileTypeException {
+    throw new NotOverridenException();
+  }
+//  protected abstract void run() 
+//	throws IOException, ParserConfigurationException, SAXException, 
+//		TransformerException, InvalidFileTypeException; 
+
+  protected F2 run(F1 f) 
+    throws IOException, ParserConfigurationException, SAXException, 
+    TransformerException, InvalidFileTypeException {
+    if (f != null) 
+      indata = f;
+    run();
+    return outdata;
+  }
+
+  protected F2 run(F1[] f) 
+    throws IOException, ParserConfigurationException, SAXException, 
+    TransformerException, InvalidFileTypeException {
+    if (f.length == 0) 
+      return run((F1)null);
+    else if (f.length == 1) 
+      return run(f[0]);
+    else
+      throw new NotOverridenException();
+  }
 
   /*******************************************************************
    *<p>Please override this method if your command require pre-processing. 
@@ -506,6 +556,7 @@ public abstract class CMXCommand implements CMXInitializer {
   }
 
   /*******************************************************************
+   * @deprecated
    *<p>Returns the name of the currently processing file.</p>
    *<p>現在処理中のファイル名を返します.
    *runメソッド内で現在処理中のファイル名が必要になったとき(たとえば拡張子だけが
@@ -515,6 +566,7 @@ public abstract class CMXCommand implements CMXInitializer {
     return filename;
   }
 
+  /** @deprecated */
   String[] getFileList() {
     return filenames.toArray();
   }
@@ -544,7 +596,7 @@ public abstract class CMXCommand implements CMXInitializer {
    *コマンドラインをチェックし, 必要であればヘルプメッセージを表示します.
    *******************************************************************/
   private void showHelpIfNeeded(String[] args) {
-    if (args.length < getLeastNumOfArgs() || 
+    if (args.length < requiredFiles() || 
         (args.length >= 1 && (args[0].equals("-h") || 
         args[0].equals("-help")))) {
       System.err.println(helpMessage);
@@ -553,9 +605,10 @@ public abstract class CMXCommand implements CMXInitializer {
     }
   }
 
-  int getLeastNumOfArgs() {
-    return 1;
-  }
+//  /** @deprecated */
+//  int getLeastNumOfArgs() {
+//    return 1;
+//  }
 
   /*******************************************************************
    *OBSOLETE!
@@ -653,6 +706,16 @@ public abstract class CMXCommand implements CMXInitializer {
   protected static String removeDirName(String filename) {
     int idx = filename.lastIndexOf(File.separator);
     return filename.substring(idx+1);
+  }
+
+
+  private class NotOverridenException extends RuntimeException {
+    private NotOverridenException() {
+      super();
+    }
+    private NotOverridenException(String s) {
+      super(s);
+    }
   }
 
 /**********************************************************************/

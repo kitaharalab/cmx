@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import jp.crestmuse.cmx.misc.*;
 
-public class MutablePeaks extends MutableData<PeakSet> {
+public class MutablePeaks extends MutableTimeSeries<PeakSet> {
 //  private int nFrames;
 //  private int timeunit;
   private int bytesize;

@@ -3,6 +3,21 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
+/************************************************************************
+ *<p>Producer-Consumerパターンに基づいて設計されたデータ処理モジュールを登録し, 
+ *モジュール同士を接続し, モジュールネットワークを実行し, 実行結果を取得するという
+ *一連の処理を行うためのクラスです. </p>
+ *
+ *<p>Amusa (API for Musical Scene Analysis)では, 音響信号などの時系列データの
+ *処理をProducer-Consumerパターンに基づいたデータ処理モジュールのネットワークとして
+ *構成します. 各モジュールは時系列データから要素を1つ受け取って何らかの処理を行い, 
+ *処理結果を別の時系列データ構造に投げます. そのモジュールの後段に接続されている
+ *モジュールがそれを受け取ってさらなる処理を行います. 時系列データのデータ構造は
+ *First-in-first-out (FIFO)を前提とします. データ処理モジュールは
+ *ProducerConsumerCompatibleインターフェースを, 時系列データは
+ *TimeSeriesCompatibleインターフェースを実装している必要があります. 
+ *詳しくはそれぞれのインターフェースのドキュメントをご覧ください. </p>
+ ************************************************************************/
 public class SPExecutor {
   private List<SPModule> list;
   private Map<ProducerConsumerCompatible,SPModule> map;
@@ -18,6 +33,9 @@ public class SPExecutor {
     this.timeunit = timeunit;
   }
 
+  /*********************************************************************
+   *データ処理モジュールオブジェクトを登録します. 
+   *********************************************************************/
   public void addSPModule(ProducerConsumerCompatible module) {
     module.setParams(params);
     SPModule spm = new SPModule();
@@ -32,6 +50,12 @@ public class SPExecutor {
     map.put(module, spm);
   }
 
+  /*********************************************************************
+   *指定されたデータ処理モジュールAの指定されたチャンネルch1の出力を, 
+   *指定されたデータ処理モジュールBの指定されたチャンネルch2の入力に接続します. 
+   *チャンネルの概念については, ProducerConsumerCompatibleインターフェースの
+   *ドキュメントをご覧ください. 
+   *********************************************************************/
   public void connect(ProducerConsumerCompatible output, int ch1, 
                       ProducerConsumerCompatible input, int ch2) {
     SPModule spm1 = map.get(output);
@@ -45,12 +69,18 @@ public class SPExecutor {
     spm2.src.set(ch2, spm1.dest.get(ch1).getQueueReader());
   }
 
+  /*********************************************************************
+   *登録されたデータ処理モジュールの実行を開始します. 
+   ********************************************************************/
   public void start() throws InterruptedException {
     for (int t = 0; t < nFrames; t++)
       for (SPModule m : list)
         m.module.execute(m.src, m.dest);
   }
 
+  /*********************************************************************
+   *指定されたデータ処理モジュールの全チャンネルの出力を返します. 
+   *********************************************************************/
   public List<TimeSeriesCompatible> 
   getResult(ProducerConsumerCompatible module) {
     return map.get(module).dest;

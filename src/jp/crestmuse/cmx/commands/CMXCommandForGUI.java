@@ -8,6 +8,8 @@ import org.xml.sax.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 
+/** @deprecated
+ *OBSOLETE!!! */
 public abstract class CMXCommandForGUI extends CMXCommand {
   int getLeastNumOfArgs() {
     return 0;

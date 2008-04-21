@@ -21,6 +21,10 @@ public class Queue<E> {
     }
   }
 
+  public int size() {
+    return list.size();
+  }
+
   public String[] toArray() {
     return list.toArray(new String[0]);
   }
