@@ -707,16 +707,17 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
     int idx = filename.lastIndexOf(File.separator);
     return filename.substring(idx+1);
   }
+}
 
+/**********************************************************************/
 
-  private class NotOverridenException extends RuntimeException {
-    private NotOverridenException() {
+  class NotOverridenException extends RuntimeException {
+    NotOverridenException() {
       super();
     }
-    private NotOverridenException(String s) {
+    NotOverridenException(String s) {
       super(s);
     }
   }
 
 /**********************************************************************/
-}
