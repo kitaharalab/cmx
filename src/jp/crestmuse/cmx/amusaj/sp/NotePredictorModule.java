@@ -1,10 +1,8 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.BayesNet;
@@ -12,13 +10,17 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.EventSeriesCompatible;
+import jp.crestmuse.cmx.amusaj.filewrappers.MutableMIDINoteArraySeries;
+import jp.crestmuse.cmx.amusaj.filewrappers.MIDINoteArray;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.MIDIEvent;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.Track;
 import jp.crestmuse.cmx.misc.QueueReader;
 
-public class NotePredictorModule implements ProducerConsumerCompatible{
+public class NotePredictorModule implements ProducerConsumerCompatible<MIDINoteArray, MIDINoteArray>{
 	
-	public NotePredictorModule(String fileName){
+	public NotePredictorModule(String fileName, MutableMIDINoteArraySeries input){
 		try {
 			preChord = "";
 			DataSource source = new DataSource(fileName);
@@ -27,110 +29,114 @@ public class NotePredictorModule implements ProducerConsumerCompatible{
 			bayes = new BayesNet();
 			bayes.buildClassifier(inst);
 			eval = new Evaluation(inst);
+			queuereader = input.getQueueReader();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	private String predictNextChord(boolean[] melody){
-		Instance instance = new Instance(inst.numAttributes());
-		try {
-			instance.setValue(inst.attribute(0), preChord);
-		} catch (IllegalArgumentException e1) {
-			instance.setMissing(inst.attribute(0));
-		}
-		for(int i=1; i<inst.numAttributes()-1; i+=1){
-			instance.setValue(inst.attribute(i), melody[i-1] ? "t" : "f");
-		}
-		instance.setMissing(inst.classAttribute());
-		instance.setDataset(inst);
-		
-		try {
-			eval.evaluateModelOnceAndRecordPrediction(bayes, instance);
-			int index = (int)Double.parseDouble(eval.predictions().firstElement().toString().split(" ")[2]);
-			preChord = inst.attribute(0).value(index);
-			return preChord;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
+
+	public TimeSeriesCompatible<MIDINoteArray> createOutputInstance(int nFrames, int timeunit) {
+		return new MutableMIDINoteArraySeries(nFrames, timeunit);
 	}
 
-	public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-		return new NoteArraySeriesCompatible();
-	}
-
-	public void execute(List src, List dest) throws InterruptedException {
-		for(Object o : src){
-			NoteArray na1 = (NoteArray)o;
-			NoteArray na2 = new NoteArray();
-			na2.noteArray = na1.noteArray;
-			na2.chord = predictNextChord(na1.noteArray);
-			dest.add(na2);
-		}
+	public void execute(List<QueueReader<MIDINoteArray>> src, List<TimeSeriesCompatible<MIDINoteArray>> dest) throws InterruptedException {
+		MIDINoteArray na1 = queuereader.take();
+	  MIDINoteArray na2 = new MIDINoteArray();
+	  na2.delta = na1.delta;
+	  na2.noteArray = na1.noteArray.clone();
+  	na2.chord = predictNextChord(na1.noteArray);
+  	dest.get(0).add(na2);
+  	//System.out.println(na1+"    "+na2);
 	}
 
 	public int getInputChannels() { return 1;	}
 	public int getOutputChannels() { return 1; }
-	public void setParams(Map params) {}
+	public void setParams(Map<String, Object> params) {}
+  
+  private String predictNextChord(boolean[] melody){
+    Instance instance = new Instance(inst.numAttributes());
+    try {
+      instance.setValue(inst.attribute(0), preChord);
+    } catch (IllegalArgumentException e1) {
+      instance.setMissing(inst.attribute(0));
+    }
+    for(int i=1; i<inst.numAttributes()-1; i+=1){
+      instance.setValue(inst.attribute(i), melody[i-1] ? "t" : "f");
+    }
+    instance.setMissing(inst.classAttribute());
+    instance.setDataset(inst);
+    
+    try {
+      eval.evaluateModelOnceAndRecordPrediction(bayes, instance);
+      int index = (int)Double.parseDouble(eval.predictions().firstElement().toString().split(" ")[2]);
+      preChord = inst.attribute(0).value(index);
+      return preChord;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
 	
 	private String preChord;
 	private Instances inst;
 	private BayesNet bayes;
 	private Evaluation eval;
+	private QueueReader<MIDINoteArray> queuereader;
 	
-	class NoteArraySeriesCompatible implements EventSeriesCompatible<NoteArray>, QueueReader<NoteArray>{
-		
-		NoteArraySeriesCompatible(){
-			this._noteArraySeries = new LinkedList<NoteArray>();
-		}
-
-		public void add(NoteArray d) throws InterruptedException {
-			this._noteArraySeries.add(d);
-		}
-
-		public int dim() { return NoteArray.DIM; }
-
-		public int frames() { return this._noteArraySeries.size(); }
-
-		public int bytesize() { return NoteArray.DIM; }
-
-		public QueueReader<NoteArray> getQueueReader() {
-			return this;
-		}
-
-		public NoteArray take() throws InterruptedException {
-			return this._noteArraySeries.poll();
-		}
-
-		public Iterator<NoteArray> iterator() {
-			return this._noteArraySeries.iterator();
-		}
-		
-		public int timeunit() { return 0; }
-
-		public String getAttribute(String key) { return null;	}
-
-		public double getAttributeDouble(String key) { return 0; }
-
-		public int getAttributeInt(String key) { return 0; }
-
-		public Iterator<Entry<String, String>> getAttributeIterator() { return null; }
-
-		public void setAttribute(String key, String value) {}
-
-		public void setAttribute(String key, int value) {}
-
-		public void setAttribute(String key, double value) {}
-		
-		private LinkedList<NoteArray> _noteArraySeries;
-		
+	public static void main(String[] args){
+	  MutableMIDINoteArraySeries input = SMF2MIDINoteArraySeries(args[0]);
+	  NotePredictorModule npm = new NotePredictorModule(args[1], input);
+	  SPExecutor sp = new SPExecutor(null, input.frames(), 0);
+	  sp.addSPModule(npm);
+	  try {
+      sp.start();
+      for(TimeSeriesCompatible<MIDINoteArray> tsc : sp.getResult(npm)){
+        for(MIDINoteArray m : tsc.getQueueReader()){
+          System.out.println(m);
+        }
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 	}
 	
-	class NoteArray{
-		static final int DIM = 128;
-		boolean[] noteArray = new boolean[DIM];
-		String chord = "";
+	public static MutableMIDINoteArraySeries SMF2MIDINoteArraySeries(String fileName){
+	  try {
+      MIDIXMLWrapper midi = MIDIXMLWrapper.readSMF(fileName);
+      LinkedList<MIDINoteArray> inputlist = new LinkedList<MIDINoteArray>();
+      boolean[] prev = new boolean[128];
+      int delta = 0;
+      for(Track track : midi.getTrackList()){
+        for(MIDIEvent event : track.getMIDIEventList()){
+          delta += event.deltaTime();
+          if(event.messageType().equals("NoteOn")){
+            boolean[] now = prev.clone();
+            now[event.value(0)] = true;
+            MIDINoteArray n = new MIDINoteArray();
+            n.noteArray = now;
+            n.delta = delta;
+            inputlist.add(n);
+            prev = now;
+            delta = 0;
+          }else if(event.messageType().equals("NoteOff")){
+            boolean[] now = prev.clone();
+            now[event.value(0)] = false;
+            MIDINoteArray n = new MIDINoteArray();
+            n.noteArray = now;
+            n.delta = delta;
+            inputlist.add(n);
+            prev = now;
+            delta = 0;
+          }
+        }
+      }
+      MutableMIDINoteArraySeries input = new MutableMIDINoteArraySeries(inputlist.size(), 0);
+      for(MIDINoteArray m : inputlist) input.add(m);
+      return input;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
 	}
-
+	
 }
