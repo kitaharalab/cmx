@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 
+
 public class MutableMIDINoteArraySeries extends MutableEventSeries<MIDINoteArray>{
   
   public MutableMIDINoteArraySeries(int nFrames, int timeunit){
