@@ -1,6 +1,4 @@
 package jp.crestmuse.cmx.misc;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.handlers.*;
 import java.util.*;
 import javax.xml.transform.*;
@@ -121,7 +119,7 @@ public class TimeFreqRepresentation {
     public double time() {
       return t;
     }
-    NoteCompatible[] data() {
+    public NoteCompatible[] data() {
       return data;
     }
     public String toString() {

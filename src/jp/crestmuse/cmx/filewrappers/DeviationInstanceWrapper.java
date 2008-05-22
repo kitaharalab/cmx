@@ -4,10 +4,14 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
+
 import org.xml.sax.*;
 import org.w3c.dom.*;
 import jp.crestmuse.cmx.xml.processors.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.TimeFreqRepresentation.TimeFreqElement;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.handlers.*;
 
 /**********************************************************************
@@ -602,6 +606,76 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       (SCCXMLWrapper)CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
     toSCCXML(dest, ticksPerBeat);
     return dest;
+  }
+  
+  public CSVWrapper toCSV(int devisionPerBeat, int devisionPerWindow){
+    CSVWrapper result = new CSVWrapper();
+    result.addRow();
+    result.addValue(0, "tempo");
+    result.addValue(0, "dynamics");
+    result.addValue(0, "dynamicsSD");
+    result.addValue(0, "attackSD");
+    result.addValue(0, "releaseSD");
+    try {
+      int ticksPerBeat = 480;
+      SCCXMLWrapper scc = toSCCXML(ticksPerBeat);
+      TimeFreqRepresentation tfr =
+        TimeFreqRepresentation.getTimeFreqRepresentation(scc, devisionPerBeat);
+      double[] tempos = new double[tfr.length()];
+      HeaderElement[] headers = scc.getHeaderElementList();
+      for(int i=0; i<headers.length; i++){
+        if(headers[i].name().equals("TEMPO")){
+          int from = headers[i].time() * devisionPerBeat / ticksPerBeat;
+          int to;
+          if(i < headers.length-1){
+            to = headers[i+1].time() * devisionPerBeat / ticksPerBeat;
+          }else{
+            to = tempos.length-1;
+          }
+          for(int j=from; j<=to; j++)
+            tempos[j] = Double.parseDouble(headers[i].content());
+        }
+      }
+      for(int i=0; i<tfr.length(); i++){
+        result.addRow();
+        result.addValue(i+1, tempos[i]+"");
+        double dynamics = 0.;
+        int noteCount = 0;
+        double dynamicsSD = 0.;
+        double attackSD = 0.;
+        double releaseSD = 0.;
+        for(int j=i; j<i+devisionPerWindow; j++){
+          if(j >= tfr.length()) break;
+          for(byte b : tfr.get(j).values()) if(b > 0) dynamics += Math.exp(b);
+          for(NoteCompatible n : tfr.get(j).data())
+            if(n != null){
+              NoteDeviation nd =
+                getNoteDeviation(((Note)n).getMusicXMLWrapperNote());
+              if(nd != null){
+                noteCount++;
+                dynamicsSD += nd.dynamics() * nd.dynamics();
+                attackSD += nd.attack() * nd.attack();
+                releaseSD += nd.release() * nd.release();
+              }
+            }
+        }
+        if(dynamics > 0)
+          dynamics = Math.log(dynamics);
+        result.addValue(i+1, dynamics+"");
+        if(noteCount > 0){
+          dynamicsSD = Math.sqrt(dynamicsSD / noteCount);
+          attackSD = Math.sqrt(attackSD / noteCount);
+          releaseSD = Math.sqrt(releaseSD / noteCount);
+        }else
+          dynamicsSD = attackSD = releaseSD = Double.NaN;
+        result.addValue(i+1, dynamicsSD+"");
+        result.addValue(i+1, attackSD+"");
+        result.addValue(i+1, releaseSD+"");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return result;
   }
 
   private class NoteListForSCC {
