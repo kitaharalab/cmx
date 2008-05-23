@@ -608,27 +608,27 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return dest;
   }
   
-  public CSVWrapper toCSV(int devisionPerBeat, int devisionPerWindow){
+  public CSVWrapper toCSV(int divisionPerMeasure, int windowPerMeasure){
     CSVWrapper result = new CSVWrapper();
     result.addRow();
     result.addValue(0, "tempo");
-    result.addValue(0, "dynamics");
-    result.addValue(0, "dynamicsSD");
+    result.addValue(0, "velocity");
+    result.addValue(0, "velocitySD");
     result.addValue(0, "attackSD");
     result.addValue(0, "releaseSD");
     try {
       int ticksPerBeat = 480;
       SCCXMLWrapper scc = toSCCXML(ticksPerBeat);
       TimeFreqRepresentation tfr =
-        TimeFreqRepresentation.getTimeFreqRepresentation(scc, devisionPerBeat);
+        TimeFreqRepresentation.getTimeFreqRepresentation(scc, ticksPerBeat, divisionPerMeasure, getTargetMusicXML());
       double[] tempos = new double[tfr.length()];
       HeaderElement[] headers = scc.getHeaderElementList();
       for(int i=0; i<headers.length; i++){
         if(headers[i].name().equals("TEMPO")){
-          int from = headers[i].time() * devisionPerBeat / ticksPerBeat;
+          int from = headers[i].time() * divisionPerMeasure / 4 / ticksPerBeat;
           int to;
           if(i < headers.length-1){
-            to = headers[i+1].time() * devisionPerBeat / ticksPerBeat;
+            to = headers[i+1].time() * divisionPerMeasure / 4 / ticksPerBeat;
           }else{
             to = tempos.length-1;
           }
@@ -639,36 +639,47 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       for(int i=0; i<tfr.length(); i++){
         result.addRow();
         result.addValue(i+1, tempos[i]+"");
-        double dynamics = 0.;
-        int noteCount = 0;
-        double dynamicsSD = 0.;
-        double attackSD = 0.;
-        double releaseSD = 0.;
-        for(int j=i; j<i+devisionPerWindow; j++){
+        double velocity = 0.;
+        LinkedList<NoteDeviation> notedeviations = new LinkedList<NoteDeviation>();
+        double dynamicsAve = 0.;
+        double attackAve = 0.;
+        double releaseAve = 0.;
+        for(int j=i; j<i+divisionPerMeasure/windowPerMeasure; j++){
           if(j >= tfr.length()) break;
-          for(byte b : tfr.get(j).values()) if(b > 0) dynamics += Math.exp(b);
+          for(byte b : tfr.get(j).values()) if(b > 0) velocity += Math.exp(b);
           for(NoteCompatible n : tfr.get(j).data())
             if(n != null){
               NoteDeviation nd =
                 getNoteDeviation(((Note)n).getMusicXMLWrapperNote());
               if(nd != null){
-                noteCount++;
-                dynamicsSD += nd.dynamics() * nd.dynamics();
-                attackSD += nd.attack() * nd.attack();
-                releaseSD += nd.release() * nd.release();
+                notedeviations.add(nd);
+                dynamicsAve += nd.dynamics();
+                attackAve += nd.attack();
+                releaseAve += nd.release();
               }
             }
         }
-        if(dynamics > 0)
-          dynamics = Math.log(dynamics);
-        result.addValue(i+1, dynamics+"");
-        if(noteCount > 0){
-          dynamicsSD = Math.sqrt(dynamicsSD / noteCount);
-          attackSD = Math.sqrt(attackSD / noteCount);
-          releaseSD = Math.sqrt(releaseSD / noteCount);
+        dynamicsAve /= notedeviations.size();
+        attackAve /= notedeviations.size();
+        releaseAve /= notedeviations.size();
+        if(velocity > 0)
+          velocity = Math.log(velocity);
+        result.addValue(i+1, velocity+"");
+        double velocitySD = 0.;
+        double attackSD = 0.;
+        double releaseSD = 0.;
+        if(notedeviations.size() > 0){
+          for(NoteDeviation nd : notedeviations){
+            velocitySD += Math.pow((nd.dynamics() - dynamicsAve) * baseDynamics, 2);
+            attackSD += Math.pow(nd.attack() - attackAve, 2);
+            releaseSD += Math.pow(nd.release() - releaseAve, 2);
+          }
+          velocitySD /= notedeviations.size();
+          attackSD /= notedeviations.size();
+          releaseSD /= notedeviations.size();
         }else
-          dynamicsSD = attackSD = releaseSD = Double.NaN;
-        result.addValue(i+1, dynamicsSD+"");
+          velocitySD = attackSD = releaseSD = Double.NaN;
+        result.addValue(i+1, velocitySD+"");
         result.addValue(i+1, attackSD+"");
         result.addValue(i+1, releaseSD+"");
       }

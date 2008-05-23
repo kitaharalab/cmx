@@ -15,15 +15,15 @@ import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 public class Dev2CSVTest extends
     CMXCommand<DeviationInstanceWrapper, CSVWrapper> {
   
-  private int devisionPerBeat = 1;
-  private int devisionPerWindow = 1;
+  private int devisionPerMeasure = 4;
+  private int windowPerMeasure = 4;
   
   protected boolean setOptionsLocal(String option, String value) {
-    if(option.equals("-dpb")){
-      devisionPerBeat = Integer.parseInt(value);
+    if(option.equals("-dpm")){
+      devisionPerMeasure = Integer.parseInt(value);
       return true;
-    }else if(option.equals("-dpw")){
-      devisionPerWindow = Integer.parseInt(value);
+    }else if(option.equals("-wpm")){
+      windowPerMeasure = Integer.parseInt(value);
       return true;
     }
     return false;
@@ -32,7 +32,7 @@ public class Dev2CSVTest extends
   protected CSVWrapper run(DeviationInstanceWrapper f) throws IOException,
       ParserConfigurationException, SAXException, TransformerException,
       InvalidFileTypeException {
-    return f.toCSV(devisionPerBeat, devisionPerWindow);
+    return f.toCSV(devisionPerMeasure, windowPerMeasure);
   }
 
   public static void main(String[] args) {
