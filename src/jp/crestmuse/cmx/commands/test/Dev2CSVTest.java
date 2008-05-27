@@ -25,6 +25,9 @@ public class Dev2CSVTest extends
     }else if(option.equals("-wpm")){
       windowPerMeasure = Integer.parseInt(value);
       return true;
+    }else if(option.equals("-targetdir")){
+      DeviationInstanceWrapper.changeDefaultMusicXMLDirName(value);
+      return true;
     }
     return false;
   }
@@ -42,7 +45,6 @@ public class Dev2CSVTest extends
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
 }

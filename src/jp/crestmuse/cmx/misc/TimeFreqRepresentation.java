@@ -173,6 +173,14 @@ public class TimeFreqRepresentation {
         int offsetIndex = note.offset(ticksPerBeat) * divisionPerMeasure / 4
             / ticksPerBeat;
         int notenum = note.notenum();
+        ///// onsetがoffsetより長いなぞのパターン ///////
+        ///// とりあえず入れ替えておく            ///////
+        if(onsetIndex > offsetIndex){
+          onsetIndex += offsetIndex;
+          offsetIndex = onsetIndex - offsetIndex;
+          onsetIndex = onsetIndex - offsetIndex;
+        }
+        //////////////////////////////////////////////
         int length;
         while ((length = tfr.length()) <= offsetIndex)
           tfr.addTime(length * ticksPerBeat * 4 / divisionPerMeasure);
@@ -183,7 +191,7 @@ public class TimeFreqRepresentation {
         } catch (UnsupportedOperationException e) {
           vel = (byte) 127;
         }
-        for (int n = onsetIndex; n < offsetIndex; n++)
+        for (int n = onsetIndex; n <= offsetIndex; n++)
           tfr.set(n, notenum, vel);
       }
     });

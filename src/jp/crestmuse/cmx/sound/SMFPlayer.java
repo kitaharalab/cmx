@@ -63,9 +63,17 @@ public class SMFPlayer implements MusicPlayer {
     if (sequencer.isRunning())
       sequencer.stop();
   }
+  
+  public long getMicrosecondLength(){
+    return sequencer.getMicrosecondLength();
+  }
 
   public long getMicrosecondPosition() {
     return sequencer.getMicrosecondPosition();
+  }
+  
+  public void setMicrosecondPosition(long microseconds){
+    sequencer.setMicrosecondPosition(microseconds);
   }
 
   public void run() {
