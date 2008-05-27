@@ -122,7 +122,8 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		if(cmd.equals("Back")) pushBackButton();
 		if(cmd.equals("Play")) pushPlayButton();
 		if(cmd.equals("Stop")) pushStopButton();
-		if(deviationcheckbox.isSelected()) System.out.println("Checked Deviation On");
+		if(ev.getSource().equals(deviationcheckbox))
+		  midioperator.exchangeCurrentSequencer();
 	}
 	
 	//メインフレームのチェンジリスナ
@@ -217,7 +218,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		  try {
         musicPlayer = new SMFPlayer();
         devPlayer = new SMFPlayer();
-        currentPlayer = musicPlayer;
+        currentPlayer = devPlayer;
       } catch (MidiUnavailableException e) {
         e.printStackTrace();
       }
@@ -272,7 +273,14 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		}
 		
 		public void exchangeCurrentSequencer(){
-			//TODO DeviationCheckBoxのオンオフから使用。ここでシーケンサをチェンジ
+		  stopPlayingFile();
+      playing = false;
+			if(currentPlayer.equals(musicPlayer)){
+			  currentPlayer = devPlayer;
+			}else currentPlayer = musicPlayer;
+			backPlayingFile();
+      musicslider.updateMusicSliderPosition();
+      updateCompornents();
 		}
 		
 		public void sequencerClose(){
@@ -380,7 +388,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		public FileNameLabel(){
 			super();
 			super.setSize(new Dimension(default_mainframe_width, default_mainframe_height/10 ));
-			this.setText("- Choose SMF or DeviationXML -");
+			this.setText("- Choose DeviationXML -");
 			super.setBorder(LineBorder.createBlackLineBorder());
 			
 
@@ -397,7 +405,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		
 		public DeviationCheckBox(){
 			super();
-			this.setText("Deviation On");
+			this.setText("Deviation Off");
 			this.setEnabled(filechoosed);
 		}
 		
@@ -452,7 +460,8 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 				
 				if(ret == JFileChooser.APPROVE_OPTION){
 					//staticなFileオブジェクトmusicfileに取得したobjを代入
-					musicfile = obj;
+					DeviationInstanceWrapper.changeDefaultMusicXMLDirName(obj.getParent());
+				  musicfile = obj;
 					filechoosed = true;
 					midioperator.setMusicFile(musicfile);
 					updateCompornents();
