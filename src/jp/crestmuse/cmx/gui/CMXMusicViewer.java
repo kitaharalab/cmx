@@ -47,6 +47,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 	private boolean playing = false;	//true = 再生中
 	private boolean deviation = false; //true = Deviation On
 	private boolean filechoosed = false; //true = ファイル取得済み
+	private boolean isMIDI = false;
 	
 	//CompornentInstances
 	MenuBar menubar = new MenuBar();
@@ -227,18 +228,25 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		public void setMusicFile(File file){
 			//TODO　ここでDevとmidをそれぞれシーケンサにセット
 			try{
-				/*　とりあえずMidi再生版
-				Sequence s = MidiSystem.getSequence(file);
-				current_sequencer = MidiSystem.getSequencer();
+			  try{
+				//　とりあえずMidi再生版
+				musicPlayer.readSMF(file);
+				currentPlayer = musicPlayer;
+				isMIDI = true;
+				/*current_sequencer = MidiSystem.getSequencer();
 				current_sequencer.open();
 				current_sequencer.setSequence(s);
 				*/
+			  }catch(Exception ex){
 				dev = (DeviationInstanceWrapper)CMXFileWrapper.readfile(file.getPath());
 				musicScc = dev.getTargetMusicXML().makeDeadpanSCCXML(ticksPerBeat);
 				devScc = dev.toSCCXML(ticksPerBeat);
 				
 				musicPlayer.readSMF(musicScc.getMIDIInputStream()); //ルズリではgetMIDInputだったがメソッドなし
 				devPlayer.readSMF(devScc.getMIDIInputStream());
+				deviationcheckbox.setSelected(true);
+				isMIDI = false;
+			  }
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -342,12 +350,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 				this.setMaximum((int)(midioperator.currentPlayer.getMicrosecondLength()/1000000));
 			}
 			
-			if(playing){
-				this.setEnabled(!playing);
-			}
-			else{
-				this.setEnabled(!playing);
-			}
+			this.setEnabled(!playing);
 		}
 		
 		public void updateMusicSliderPosition(){
@@ -405,14 +408,14 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		
 		public DeviationCheckBox(){
 			super();
-			this.setText("Deviation Off");
+			this.setText("Deviation On");
 			this.setEnabled(filechoosed);
 		}
 		
 		public void updateCheckBox(){
 			//TODO あとでファイルを判別してDeviationが有効にできるかどうかを判定する
 			//deviation = true;
-			this.setEnabled(filechoosed);
+			this.setEnabled(filechoosed && !isMIDI);
 		}
 	}
 	
@@ -464,6 +467,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 				  musicfile = obj;
 					filechoosed = true;
 					midioperator.setMusicFile(musicfile);
+					pushBackButton();
 					updateCompornents();
 				}
 			}
@@ -476,9 +480,9 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 		}
 		
 		public void updateMenuBar(){
-			if(playing){
+			//if(playing){
 				item0[0].setEnabled(!playing);
-			}
+			//}
 		}
 
 
