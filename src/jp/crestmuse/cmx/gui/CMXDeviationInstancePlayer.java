@@ -23,7 +23,7 @@ import jp.crestmuse.cmx.sound.*;
  * @since 2008.5.27
  */
 
-public class CMXMusicViewer extends JFrame implements ActionListener, ChangeListener{
+public class CMXDeviationInstancePlayer extends JFrame implements ActionListener, ChangeListener{
 
 	/**
 	 * @param args
@@ -34,7 +34,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 	private final static int default_mainframe_height = 200
 	;
 	//private final int default_layout_align = 10;
-	private final static String default_mainframe_title = "CMXMusicViewer";
+	private final static String default_mainframe_title = "CMXDeviationInstancePlayer";
 	
 	//Deviation File field
 	//TODO 要確認
@@ -68,7 +68,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 	
 	
 	//Constructor
-	public CMXMusicViewer(){
+	public CMXDeviationInstancePlayer(){
 		
 		this.addWindowListener(new MyWindowListener());
 		this.setSize(default_mainframe_width, default_mainframe_height);
@@ -512,7 +512,7 @@ public class CMXMusicViewer extends JFrame implements ActionListener, ChangeList
 	
 	public static void main(String[] args) {
 
-		new CMXMusicViewer();
+		new CMXDeviationInstancePlayer();
 		
 	}
 
