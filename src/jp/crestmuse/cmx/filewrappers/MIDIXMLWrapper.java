@@ -393,21 +393,17 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     toSCCXML(dest);
     return dest;
   }
+  
+  public void toSCCXML(final SCCXMLWrapper dest) throws TransformerException, IOException, ParserConfigurationException, SAXException{
+    toSCCXML(dest, null);
+  }
 
-
-
-    /**
-     * scc変換用メソッド
-     * 
-     * @author totani
-     * @since 2007.08.08
-     * */
-  public void toSCCXML(final SCCXMLWrapper dest) 
+  public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords) 
     throws TransformerException, IOException, 
     ParserConfigurationException, SAXException {
     dest.setDivision(ticksPerBeat);
     final Map<Byte, ArrayList<MutableMusicEvent>> channelToNotes = 
-        new HashMap<Byte, ArrayList<MutableMusicEvent>>();;
+        new HashMap<Byte, ArrayList<MutableMusicEvent>>();
     final ArrayList<Integer> headerList = new ArrayList<Integer>();
     processMIDIEvent(new MIDIHandler(){
         private int totalTime;
@@ -511,6 +507,12 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
         }
       }
       dest.endPart();
+    }
+    if(chords != null){
+      dest.beginChordprog();
+      for(SCCXMLWrapper.EasyChord c : chords)
+        dest.addChordElement(c.onset, c.offset, c.chord);
+      dest.endChordprog();
     }
     dest.finalizeDocument();
   }

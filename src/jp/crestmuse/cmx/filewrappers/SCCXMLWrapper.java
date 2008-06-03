@@ -1,14 +1,13 @@
 package jp.crestmuse.cmx.filewrappers;
 import java.util.*;
 import java.io.*;
+
 import org.w3c.dom.*;
 import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.misc.MIDIConst;
-import jp.crestmuse.cmx.misc.MIDIEventList;
 
 public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible {
 	/** newOutputData()に指定するトップタグ名．スペルミス防止．
@@ -24,6 +23,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   
   private boolean headerStarted = false;
   private boolean partStarted = false;
+  private boolean chordprogStarted = false;
 
   private Map<NumberedNote,MusicXMLWrapper.Note> notemap = 
     new HashMap<NumberedNote,MusicXMLWrapper.Note>();
@@ -240,6 +240,25 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       notemap.put(note2, note);
       nEqualNotes.put(note2, (byte)1);
     }
+  }
+  
+  public void beginChordprog() {
+    checkElementAddition(!chordprogStarted);
+    addChild("chord-prog");
+    chordprogStarted = true;
+  }
+  
+  public void addChordElement(int onset, int offset, String chord) {
+    checkElementAddition(chordprogStarted);
+    addChild("chord");
+    addText(onset + " " + offset + " " + chord);
+    returnToParent();
+}
+  
+  public void endChordprog() {
+    checkElementAddition(chordprogStarted);
+    returnToParent();
+    chordprogStarted = false;
   }
 
   public class HeaderElement extends NodeInterface {
@@ -875,6 +894,12 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
       
   }
+  
+  public class EasyChord{
+    int onset;
+    int offset;
+    String chord;
+  }
     
       
 /*
@@ -902,4 +927,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 */
+  public static void main(String[] args){
+    try {
+      DeviationInstanceWrapper dev =
+        (DeviationInstanceWrapper)CMXFileWrapper.readfile("deviation.xml");
+      SCCXMLWrapper scc = dev.toSCCXML(480);
+      //scc.write(System.out);
+      scc.beginHeader();
+      scc.addHeaderElement(10, "hoge", "foo");
+      scc.endHeader();
+      scc.write(System.out);
+    } catch (Exception e) {
+      // TODO 自動生成された catch ブロック
+      e.printStackTrace();
+    }
+  }
 }
