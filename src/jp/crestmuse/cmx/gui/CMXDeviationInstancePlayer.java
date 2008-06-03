@@ -3,6 +3,7 @@ package jp.crestmuse.cmx.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.URI;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
@@ -37,34 +38,33 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 	private final static String default_mainframe_title = "CMXDeviationInstancePlayer";
 	
 	//Deviation File field
-	//TODO 要確認
-	public static File musicfile;
-	public DeviationInstanceWrapper dev; //DeviationInstanceって書いてたけどいいの？
-	int ticksPerBeat = 480; // 曲から取得しなくて良いのか？
+	private static File musicfile;
+	private DeviationInstanceWrapper dev;
+	private int ticksPerBeat = 480;
 	
 	
 	//Status
 	private boolean playing = false;	//true = 再生中
-	private boolean deviation = false; //true = Deviation On
+	//private boolean deviation = false; //true = Deviation On
 	private boolean filechoosed = false; //true = ファイル取得済み
 	private boolean isMIDI = false;
 	
 	//CompornentInstances
-	MenuBar menubar = new MenuBar();
-	Container cont = getContentPane();
+	private MenuBar menubar = new MenuBar();
+	private Container cont = getContentPane();
 	
-	MusicSlider musicslider = new MusicSlider();
-	CurrentTimeLabel currenttimelabel = new CurrentTimeLabel();
+	private MusicSlider musicslider = new MusicSlider();
+	private CurrentTimeLabel currenttimelabel = new CurrentTimeLabel();
 	
-	PlayerButton back_button = new PlayerButton("Back");
-	PlayerButton play_button = new PlayerButton("Play");
-	PlayerButton stop_button = new PlayerButton("Stop");
+	private PlayerButton back_button = new PlayerButton("Back");
+	private PlayerButton play_button = new PlayerButton("Play");
+	private PlayerButton stop_button = new PlayerButton("Stop");
 	
-	FileNameLabel filenamelabel = new FileNameLabel();	
-	DeviationCheckBox deviationcheckbox = new DeviationCheckBox();
+	private FileNameLabel filenamelabel = new FileNameLabel();	
+	private DeviationCheckBox deviationcheckbox = new DeviationCheckBox();
 	
-	MyMidiOperator midioperator = new MyMidiOperator();
-	PlayingThread thread = new PlayingThread();
+	private MyMidiOperator midioperator = new MyMidiOperator();
+	private PlayingThread thread = new PlayingThread();
 	
 	
 	//Constructor
@@ -106,7 +106,8 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		
 		//InformationPanel part
 		panel2.setLayout(new FlowLayout());
-		panel2.add(filenamelabel);
+		//TODO 暫定的にfilenamelabelを非表示
+		//panel2.add(filenamelabel);
 		panel2.add(deviationcheckbox);
 		deviationcheckbox.addActionListener(this);
 
@@ -118,11 +119,9 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 	//メインフレームのアクションリスナ
 	public void actionPerformed(ActionEvent ev) {
 		
-		String cmd = ev.getActionCommand();
-		
-		if(cmd.equals("Back")) pushBackButton();
-		if(cmd.equals("Play")) pushPlayButton();
-		if(cmd.equals("Stop")) pushStopButton();
+		if(ev.getSource().equals(back_button)) pushBackButton();
+		if(ev.getSource().equals(play_button)) pushPlayButton();
+		if(ev.getSource().equals(stop_button)) pushStopButton();
 		if(ev.getSource().equals(deviationcheckbox))
 		  midioperator.exchangeCurrentSequencer();
 	}
@@ -136,7 +135,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		updateCompornents();
 	}
 	
-	void pushBackButton(){
+	public void pushBackButton(){
 		try{
 			midioperator.backPlayingFile();
 			musicslider.updateMusicSliderPosition();
@@ -147,7 +146,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		}
 	}
 	
-	void pushPlayButton(){
+	public void pushPlayButton(){
 		try{
 			midioperator.startPlayingFile();
 			playing = true;
@@ -169,7 +168,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		}
 	}
 	
-	void updateButtons(){
+	public void updateButtons(){
 		
 		if(!filechoosed){
 			back_button.setEnabled(filechoosed);
@@ -189,13 +188,21 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		
 	}
 	
-	void updateCompornents(){
+	public void updateTitleBar(){
+		if(filechoosed){
+			//TODO XMLを読んでタイトルを取得するように変更する
+			this.setTitle(default_mainframe_title + " : " + musicfile.getName());
+		}
+	}
+	
+	public void updateCompornents(){
 		updateButtons();
 		musicslider.updateMusicSlider();
 		currenttimelabel.updateTimeLabel();
 		filenamelabel.updateFileNameField();
 		deviationcheckbox.updateCheckBox();
 		menubar.updateMenuBar();
+		this.updateTitleBar();
 	}
 	
 	
@@ -217,12 +224,12 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		
 		public MyMidiOperator(){
 		  try {
-        musicPlayer = new SMFPlayer();
-        devPlayer = new SMFPlayer();
-        currentPlayer = devPlayer;
-      } catch (MidiUnavailableException e) {
-        e.printStackTrace();
-      }
+			  musicPlayer = new SMFPlayer();
+			  devPlayer = new SMFPlayer();
+			  currentPlayer = devPlayer;
+		  } catch (MidiUnavailableException e) {
+			  e.printStackTrace();
+		  }
 		}
 		
 		public void setMusicFile(File file){
@@ -282,13 +289,15 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		
 		public void exchangeCurrentSequencer(){
 		  stopPlayingFile();
-      playing = false;
-			if(currentPlayer.equals(musicPlayer)){
+		  playing = false;
+		
+		  if(currentPlayer.equals(musicPlayer)){
 			  currentPlayer = devPlayer;
-			}else currentPlayer = musicPlayer;
-			backPlayingFile();
-      musicslider.updateMusicSliderPosition();
-      updateCompornents();
+		  }else currentPlayer = musicPlayer;
+		  	  backPlayingFile();
+     
+		  musicslider.updateMusicSliderPosition();
+		  updateCompornents();
 		}
 		
 		public void sequencerClose(){
@@ -299,6 +308,9 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 			if(musicPlayer != null){
 				musicPlayer.close();
 			}	
+			if(currentPlayer != null){
+				currentPlayer.close();
+			}
 		}
 		
 	}
@@ -310,7 +322,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 			while(true){
 				try{
 					if(playing){
-						PlayingThread.sleep(200);
+						PlayingThread.sleep(400);
 						musicslider.updateMusicSliderPosition();
 						
 						if(!midioperator.currentPlayer.isNowPlaying()){
@@ -413,21 +425,21 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		}
 		
 		public void updateCheckBox(){
-			//TODO あとでファイルを判別してDeviationが有効にできるかどうかを判定する
-			//deviation = true;
 			this.setEnabled(filechoosed && !isMIDI);
 		}
 	}
+	
 	
 	//Inner Class: MenuBar
 	class MenuBar extends JMenuBar implements ActionListener{
 		
 		
-		private String[] strMenu = {"File"};
+		private String[] strMenu = {"File", "Help"};
 		private JMenu[] menu = new JMenu[strMenu.length];
 		private String[] strMenuItem0 = {"Open", "Exit"};
+		private String[] strMenuItem1 = {"Help", "about this"};
 		private JMenuItem[] item0 = new JMenuItem[strMenuItem0.length];
-		
+		private JMenuItem[] item1 = new JMenuItem[strMenuItem1.length];
 		
 		
 		public MenuBar(){
@@ -442,14 +454,23 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 				item0[i] = new JMenuItem(strMenuItem0[i]);
 				menu[0].add(item0[i]);
 			}
+			for(int i=0; i<strMenuItem1.length; i++){
+				item1[i] = new JMenuItem(strMenuItem1[i]);
+				menu[1].add(item1[i]);
+			}
 			
 			//メニューをメニューバーに登録
 			this.add(menu[0]);
+			this.add(menu[1]);
 			
 			//アイテムをアクションリスナに登録
 			for(int i=0; i<strMenuItem0.length; i++){
 				item0[i].addActionListener(this);
 			}
+			for(int i=0; i<strMenuItem1.length; i++){
+				item1[i].addActionListener(this);
+			}
+			
 		}
 			
 
@@ -480,12 +501,16 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		}
 		
 		public void updateMenuBar(){
-			//if(playing){
-				item0[0].setEnabled(!playing);
-			//}
+			item0[0].setEnabled(!playing);
 		}
 
-
+		public void menuHelpHelp(){
+			new HelpFrame();
+		}
+		
+		public void menuHelpAbout(){
+			new AboutFrame();
+		}
 		//メニューアイテムのアクションリスナ
 		/*@Override
 		public void actionPerformed(ActionEvent e) {
@@ -495,7 +520,10 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		
 		public void actionPerformed(ActionEvent e) {
 		  if(e.getSource() == item0[0]) menuFileOpen();
-      if(e.getSource() == item0[1]) menuFileExit();
+		  if(e.getSource() == item0[1]) menuFileExit();
+		  
+		  if(e.getSource() == item1[0]) menuHelpHelp();
+		  if(e.getSource() == item1[1]) menuHelpAbout();
 		}
 	}
 	
@@ -508,7 +536,161 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 		}
 	}
 	
+	//Inner Class: AboutFrame
+	class AboutFrame extends JFrame implements ActionListener{
+		
+		private final String about_frame_title = "About";
+		private final int default_aboutframe_width = 300;
+		private final int default_aboutframe_height = 200;
+		
+		private Container cont = getContentPane();
+		private JTabbedPane tabbedpane = new JTabbedPane();
+		
+		private JPanel panelCMXDI = new JPanel();
+		private JButton buttonCMXDI = new JButton();
+		private JPanel panelXalan = new JPanel();
+		private JButton buttonXalan = new JButton();
+		private JPanel panelXerces = new JPanel();
+		private JButton buttonXerces = new JButton();
+		
+		
+		private Desktop desktop = Desktop.getDesktop();
+		
+		public AboutFrame(){
+			this.setTitle(about_frame_title);
+			this.setSize(default_aboutframe_width, default_aboutframe_height);
+			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+			this.setContentPane(cont);
+			cont.add(tabbedpane);
+			
+			panelCMXDIInit();
+			panelXalanInit();
+			panelXercesInit();
+			buttonCMXDI.addActionListener(this);
+			buttonXalan.addActionListener(this);
+			buttonXerces.addActionListener(this);			
+			
+			tabbedpane.add("About this", panelCMXDI);
+			tabbedpane.add("Xalan", panelXalan);
+			tabbedpane.add("Xerces", panelXerces);
+			
+			
+			this.setVisible(true);			
+		}
+		
+		public void actionPerformed(ActionEvent ev){
+			
+			if(ev.getSource().equals(buttonCMXDI)) jumptoURL("http://www.crestmuse.jp/cmx/");
+			if(ev.getSource().equals(buttonXalan)) jumptoURL("http://xalan.apache.org/");
+			if(ev.getSource().equals(buttonXerces)) jumptoURL("http://xerces.apache.org/");
+		}
+		
+		
+		public void panelCMXDIInit(){
+			
+			String text = "CMXDeviationInstancePlayer\n" +
+					"Version: 0.1.0\n" +
+					"\n" +
+					"(c)Copyright CrestMuseXML Development Project\n" +
+					"2006, 2008. All right reserved.";
+			
+			panelCMXDI.setLayout(new FlowLayout(FlowLayout.LEFT));
+			JTextArea textarea = new JTextArea(text);
+			textarea.setEditable(false);
+			textarea.setBackground(panelCMXDI.getBackground());
+			
+			buttonCMXDI.setText("http://www.crestmuse.jp/cmx/");
+			
+			panelCMXDI.add(textarea);
+			panelCMXDI.add(buttonCMXDI);
+		}
+		
+		
+		public void panelXalanInit(){
+			
+			String text = "Xalan Java\n" +
+					"Version: *.*.*\n" +
+					"\n" +
+					"This is under\n" +
+					"  the Apache Software License, Version 2.0.";
+			panelXalan.setLayout(new FlowLayout(FlowLayout.LEFT));
+			JTextArea textarea = new JTextArea(text);
+			textarea.setEditable(false);
+			textarea.setBackground(panelXalan.getBackground());
+			
+			buttonXalan.setText("http://xalan.apache.org/");
+			
+			panelXalan.add(textarea);
+			panelXalan.add(buttonXalan);
+		}
+		
+		public void panelXercesInit(){
+			
+			String text = "Xerces\n" +
+					"Version: *.*.*\n" +
+					"\n" +
+					"This is under\n" +
+					"  the Apache Software License, Version 2.0.";
+			panelXerces.setLayout(new FlowLayout(FlowLayout.LEFT));
+			JTextArea textarea = new JTextArea(text);
+			textarea.setEditable(false);
+			textarea.setBackground(panelXerces.getBackground());
+			
+			buttonXerces.setText("http://xerces.apache.org/");
+			
+			panelXerces.add(textarea);
+			panelXerces.add(buttonXerces);
+		}
+		
+		public void jumptoURL(String urlstring){
+			
+			try{
+				desktop.browse(new URI(urlstring));
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
 	
+	//Inner Class: HelpFrame
+	class HelpFrame extends JFrame{
+		
+		private final String help_frame_title = "Help";
+		private final int default_helpframe_width = 600;
+		private final int default_helpframe_height = 300;
+		
+		private Container cont = getContentPane();
+		
+		private String helptext = "Before playing, you must choose SMF or DeviationXML from \"File\" menu.\n" +
+				"\n" +
+				"Play: Start playing music.\n" +
+				"Back: Return music to first position.\n" +
+				"Stop: Stop playing music.\n" +
+				"Deviation on checkbox: Enable/Disable deviation.\n" +
+				"\n" +
+				"File -> Open : Open filechoose dialog. You can choose SMF or DeviationXML.\n" +
+				"File -> Exit : Exit this application.\n" +
+				"\n" +
+				"Help -> Help : Show this document.\n" +
+				"Help -> about this : Show this player's information and using library license.";
+		
+		public HelpFrame(){
+			this.setTitle(help_frame_title);
+			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			this.setSize(default_helpframe_width, default_helpframe_height);
+			this.setContentPane(cont);
+			
+			JTextArea textarea = new JTextArea(helptext);
+			textarea.setEditable(false);
+			textarea.setBackground(this.getBackground());
+			
+			cont.add(textarea);
+			
+			this.setVisible(true);
+		}
+	}
 	
 	public static void main(String[] args) {
 
