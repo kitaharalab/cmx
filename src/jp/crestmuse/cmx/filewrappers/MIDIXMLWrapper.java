@@ -511,7 +511,11 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     if(chords != null){
       dest.beginChordprog();
       for(SCCXMLWrapper.EasyChord c : chords)
-        dest.addChordElement(c.onset, c.offset, c.chord);
+    	  //String[] chords の要素がnullの時は追加しない処理を追加
+    	  if(c != null){
+    		  dest.addChordElement(c.onset, c.offset, c.chord);
+    	  }
+   
       dest.endChordprog();
     }
     dest.finalizeDocument();
