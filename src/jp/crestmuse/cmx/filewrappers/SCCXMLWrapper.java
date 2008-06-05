@@ -3,6 +3,7 @@ import java.util.*;
 import java.io.*;
 
 import org.w3c.dom.*;
+
 import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
@@ -20,6 +21,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   private int division = 0;
   private Part[] partlist = null;
   private HeaderElement[] headlist = null;
+  private ChordprogElement[] chordproglist = null;
   
   private boolean headerStarted = false;
   private boolean partStarted = false;
@@ -259,6 +261,39 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     checkElementAddition(chordprogStarted);
     returnToParent();
     chordprogStarted = false;
+  }
+  
+  public class ChordprogElement extends NodeInterface{
+    private int onset;
+    private int offset;
+    private String chord;
+    private ChordprogElement(Node node) {
+      super(node);
+      String[] data = getText(node()).split("\\s");
+      onset = Integer.parseInt(data[0]);
+      offset = Integer.parseInt(data[1]);
+      chord = data[2];
+    }
+    protected String getSupportedNodeName() {
+      return "chord";
+    }
+    public int onset(){ return onset; }
+    public int offset(){ return offset; }
+    public String chord(){ return chord; }
+  }
+  
+  public ChordprogElement[] getChordprogElementList() {
+    if(chordproglist == null){
+      Node chordprognode = selectSingleNode("/scc/chord-prog");
+      if(chordprognode == null) return null;
+      else{
+        NodeList chordlist = selectNodeList(chordprognode, "chord");
+        int size = chordlist.getLength();
+        chordproglist = new ChordprogElement[size];
+        for(int i=0; i<size; i++) chordproglist[i] = new ChordprogElement(chordlist.item(i));
+      }
+    }
+    return chordproglist;
   }
 
   public class HeaderElement extends NodeInterface {
