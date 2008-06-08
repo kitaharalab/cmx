@@ -931,9 +931,15 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
   
   public class EasyChord{
-    int onset;
-    int offset;
-    String chord;
+    public int onset;
+    public int offset;
+    public String chord;
+    
+    public EasyChord(int onset, int offset, String chord){
+    	this.onset = onset;
+    	this.offset = offset;
+    	this.chord = chord;
+    }
   }
     
       
