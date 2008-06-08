@@ -537,6 +537,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 	}
 	
 	//Inner Class: AboutFrame
+	/*
 	class AboutFrame extends JFrame implements ActionListener{
 		
 		private final String about_frame_title = "About";
@@ -593,7 +594,7 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 					"Version: 0.1.0\n" +
 					"\n" +
 					"(c)Copyright CrestMuseXML Development Project\n" +
-					"2006, 2008. All right reserved.";
+					"2006 - 2008. All right reserved.";
 			
 			panelCMXDI.setLayout(new FlowLayout(FlowLayout.LEFT));
 			JTextArea textarea = new JTextArea(text);
@@ -653,28 +654,175 @@ public class CMXDeviationInstancePlayer extends JFrame implements ActionListener
 			}
 		}
 	}
+	*/
+
+	class AboutFrame extends JFrame implements ActionListener{
+		
+		private final String about_frame_title = "About";
+		private final int default_aboutframe_width = 450;
+		private final int default_aboutframe_height = 300;
+		
+		private Container cont = getContentPane();
+		private JPanel panel = new JPanel();
+		
+		
+		private JTextArea areaCMXDI = new JTextArea();
+		private JTextArea areaBSD = new JTextArea();
+		private JTextArea areaApache = new JTextArea();
+		
+		private JButton buttonCMXDI = new JButton();
+		private JButton buttonBSDLicense = new JButton();
+		private JButton buttonApacheLicense = new JButton();
+		
+		private Desktop desktop = Desktop.getDesktop();
+		
+
+		
+		String cmxtext = "CMXDeviationInstancePlayer\n" +
+		"Version: 0.1.0\n" +
+		"\n" +
+		"(c)Copyright CrestMuseXML Development Project\n" +
+		"2006-2008. All right reserved.";
+		
+		String bsdtext = "\nThis program is distributed under the BSD license.";
+			
+		String apachetext = "\nThis Program uses software developed by the Apache Software Foundation.";
+
+		
+		
+		public AboutFrame(){
+		
+			this.setTitle(about_frame_title);
+			this.setSize(default_aboutframe_width, default_aboutframe_height);
+			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+			this.setContentPane(cont);
+			
+			cont.add(panel);
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+			areaCMXDI.setText(cmxtext);
+			areaCMXDI.setEditable(false);
+			areaCMXDI.setBackground(this.getBackground());
+			panel.add(areaCMXDI);
+			
+			buttonCMXDI.setText("http://www.crestmuse.jp/cmx/");
+			buttonCMXDI.addActionListener(this);
+			panel.add(buttonCMXDI);
+			
+			areaBSD.setText(bsdtext);
+			areaBSD.setEditable(false);
+			areaBSD.setBackground(this.getBackground());
+			panel.add(areaBSD);
+			
+			buttonBSDLicense.setText("View License");
+			buttonBSDLicense.addActionListener(this);
+			panel.add(buttonBSDLicense);
+			
+			areaApache.setText(apachetext);
+			areaApache.setEditable(false);
+			areaApache.setBackground(this.getBackground());
+			panel.add(areaApache);
+			
+			buttonApacheLicense.setText("View Apache software License");
+			buttonApacheLicense.addActionListener(this);
+			panel.add(buttonApacheLicense);
+			
+			this.setVisible(true);
+		}
+		
+
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			
+			if(ae.getSource().equals(buttonCMXDI)) jumptoURL("http://www.crestmuse.jp/cmx/");
+			if(ae.getSource().equals(buttonBSDLicense)){
+				
+				JFrame bsdframe = new JFrame("BSD License");
+				bsdframe.setSize(600, 500);
+				Container cont = bsdframe.getContentPane();
+				
+				String bsdlicense = "\nCopyright (c) 2006-2007, CrestMuseXML Development Project."+
+	"All rights reserved.\n"+
+	"\n"+
+	"Redistribution and use in source and binary forms, with or without \n"+
+	"modification, are permitted provided that the following conditions are met:\n"+
+	"\n"+
+	"  * Redistributions of source code must retain the above copyright notice, \n"+
+	"    this list of conditions and the following disclaimer.\n"+
+	"  * Redistributions in binary form must reproduce the above copyright notice,\n"+
+	"    this list of conditions and the following disclaimer in the documentation \n"+
+	"    and/or other materials provided with the distribution.\n"+
+	"  * Neither the name of the <ORGANIZATION> nor the names of its contributors \n"+
+	"    may be used to endorse or promote products derived from this software \n"+
+	"    without specific prior written permission.\n"+
+	"\n"+
+	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"+
+	"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"+
+	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"+
+	"A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR\n"+
+	"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\n"+
+	"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n"+
+	"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n"+
+	"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF\n"+
+	"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\n"+
+	"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"+
+	"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n";
+				
+				JTextArea license = new JTextArea(bsdlicense);
+				license.setEditable(false);
+				license.setBackground(this.getBackground());
+				
+				cont.add(license);
+				
+				bsdframe.setVisible(true);
+				
+			};
+			if(ae.getSource().equals(buttonApacheLicense)) jumptoURL("http://www.apache.org/licenses/LICENSE-2.0");
+			
+		}
+		
+
+		public void jumptoURL(String urlstring){
+			
+			try{
+				desktop.browse(new URI(urlstring));
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	
 	//Inner Class: HelpFrame
 	class HelpFrame extends JFrame{
 		
 		private final String help_frame_title = "Help";
 		private final int default_helpframe_width = 600;
-		private final int default_helpframe_height = 300;
+		private final int default_helpframe_height = 400;
 		
 		private Container cont = getContentPane();
 		
-		private String helptext = "Before playing, you must choose SMF or DeviationXML from \"File\" menu.\n" +
+		private String helptext = "DeviationInstancePlayer plays back musical performances" +
+				"described in MuxicXML + DeviationInstanceXML.\n" +
 				"\n" +
-				"Play: Start playing music.\n" +
-				"Back: Return music to first position.\n" +
-				"Stop: Stop playing music.\n" +
-				"Deviation on checkbox: Enable/Disable deviation.\n" +
+				"Usage:" +
+				"\tBefore playing, you must choose SMF or DeviationXML from \"File\" menu.\n" +
 				"\n" +
-				"File -> Open : Open filechoose dialog. You can choose SMF or DeviationXML.\n" +
-				"File -> Exit : Exit this application.\n" +
+				"\tPlay: Start playing music.\n" +
+				"\tBack: Return music to first position.\n" +
+				"\tStop: Stop playing music.\n" +
+				"\tDeviation on checkbox: Enable/Disable deviation.\n" +
 				"\n" +
-				"Help -> Help : Show this document.\n" +
-				"Help -> about this : Show this player's information and using library license.";
+				"File:\n" +
+				"\tOpen : Open filechoose dialog. You can choose SMF or DeviationXML.\n" +
+				"\tExit : Exit this application.\n" +
+				"\n" +
+				"Help:\n" +
+				"\tHelp : Show this document.\n" +
+				"\tHelp -> about this : Show this player's information and using library license.";
 		
 		public HelpFrame(){
 			this.setTitle(help_frame_title);
