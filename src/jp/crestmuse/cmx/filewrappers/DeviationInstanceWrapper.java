@@ -320,6 +320,22 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private double currentTempo = 120.0;
   private int initticks = 0;
 
+    private boolean requiresTempoDevReturn(Control c1, Control c2, 
+					   int ticksPerBeat) 
+    throws IOException {
+	int tick1 = getTicks(c1.measure(), Math.floor(c1.beat()+1), 
+			     ticksPerBeat);
+	int tick2 = getTicks(c2.measure(), c2.beat(), ticksPerBeat);
+	return tick1 < tick2;
+    }
+
+    private int getTicks(int measure, double beat, int ticksPerBeat) 
+    throws IOException {
+	return getTargetMusicXML().getCumulativeTicks(measure, ticksPerBeat) 
+	    + (int)(beat *  ticksPerBeat);
+    }
+	
+
   private void controlToSCCHeader(Control c, SCCXMLWrapper dest,
       int ticksPerBeat) throws IOException {
     if (c != null) {
@@ -335,8 +351,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         dest.addHeaderElement(c.timestamp(ticksPerBeat), "TEMPO", currentTempo
             * c.value());
         Control nextTempoDev = tctrlview.lookAhead("tempo", "tempo-deviation");
-        if (nextTempoDev == null || nextTempoDev.measure() > c.measure()
-            || nextTempoDev.beat() > Math.floor(c.beat()) + 1) {
+	if (nextTempoDev == null 
+	    || requiresTempoDevReturn(c, nextTempoDev, ticksPerBeat)) {
+	// if (nextTempoDev == null || nextTempoDev.measure() > c.measure()
+	//  || nextTempoDev.beat() > Math.floor(c.beat()) + 1) {
           int cumulativeTicks = getTargetMusicXML().getCumulativeTicks(
               c.measure(), ticksPerBeat);
           int t2 = initticks + cumulativeTicks + ticksPerBeat
@@ -525,6 +543,17 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
   }
 
+    private void addBarlinesToSCC(SCCXMLWrapper dest, 
+				  MusicXMLWrapper musicxml, 
+				  int ticksPerBeat) {
+	MusicXMLWrapper.Measure[] measurelist = 
+	    musicxml.getPartList()[0].getMeasureList();
+	dest.beginAnnotations();
+	for (MusicXMLWrapper.Measure measure : measurelist) 
+	    dest.addBarline(measure.cumulativeTicks(ticksPerBeat), "");
+	dest.endAnnotations();
+    }
+
   public void toSCCXML(SCCXMLWrapper dest, final int ticksPerBeat)
       throws IOException {
     MusicXMLWrapper musicxml = getTargetMusicXML();
@@ -542,6 +571,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       processPartwiseForSCC(partid, ticksPerBeat, partwiseNoteList);
     }
     addNoteListToSCC(dest, partwiseNoteList);
+    addBarlinesToSCC(dest, musicxml, ticksPerBeat);
     dest.finalizeDocument();
   }
 

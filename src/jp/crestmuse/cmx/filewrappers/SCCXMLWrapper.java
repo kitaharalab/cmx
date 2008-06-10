@@ -21,11 +21,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   private int division = 0;
   private Part[] partlist = null;
   private HeaderElement[] headlist = null;
-  private ChordprogElement[] chordproglist = null;
+    private Annotation[] chords = null;
+    private Annotation[] barlines = null;
+    //  private ChordprogElement[] chordproglist = null;
   
   private boolean headerStarted = false;
   private boolean partStarted = false;
-  private boolean chordprogStarted = false;
+    private boolean annotationsStarted = false;
+    //  private boolean chordprogStarted = false;
 
   private Map<NumberedNote,MusicXMLWrapper.Note> notemap = 
     new HashMap<NumberedNote,MusicXMLWrapper.Note>();
@@ -244,45 +247,101 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
   
-  public void beginChordprog() {
-    checkElementAddition(!chordprogStarted);
-    addChild("chord-prog");
-    chordprogStarted = true;
-  }
+    public void beginAnnotations() {
+	addChild("annotations");
+	annotationsStarted = true;
+    }
+
+    //  public void beginChordprog() {
+    //    checkElementAddition(!chordprogStarted);
+    //    addChild("chord-prog");
+    //    chordprogStarted = true;
+    //  }
+
+    public void addAnnotation(String type, int onset, int offset, 
+			      String content) {
+	checkElementAddition(annotationsStarted);
+	addChildAndText(type, onset + " " + offset + " " + content);
+    }
+
+    public void addChord(int onset, int offset, String content) {
+	addAnnotation("chord", onset, offset, content);
+    }
+
+    public void addBarline(int time, String details) {
+	addAnnotation("barline", time, time, details);
+    }
   
-  public void addChordElement(int onset, int offset, String chord) {
-    checkElementAddition(chordprogStarted);
-    addChild("chord");
-    addText(onset + " " + offset + " " + chord);
-    returnToParent();
-}
+    //  public void addChordElement(int onset, int offset, String chord) {
+    //    checkElementAddition(chordprogStarted);
+    //    addChild("chord");
+    //    addText(onset + " " + offset + " " + chord);
+    //    returnToParent();
+    //}
   
-  public void endChordprog() {
-    checkElementAddition(chordprogStarted);
-    returnToParent();
-    chordprogStarted = false;
-  }
-  
-  public class ChordprogElement extends NodeInterface{
+    public void endAnnotations() {
+	checkElementAddition(annotationsStarted);
+	returnToParent();
+	annotationsStarted = false;
+    }
+
+    //  public void endChordprog() {
+    //    checkElementAddition(chordprogStarted);
+    //    returnToParent();
+    //    chordprogStarted = false;
+    //  }
+
+  public class Annotation extends NodeInterface{
     private int onset;
     private int offset;
-    private String chord;
-    private ChordprogElement(Node node) {
+    private String content;
+    private Annotation(Node node) {
       super(node);
       String[] data = getText(node()).split("\\s");
       onset = Integer.parseInt(data[0]);
-      offset = Integer.parseInt(data[1]);
-      chord = data[2];
+      offset = data.length >= 2 ? Integer.parseInt(data[1]) : onset;
+      content = data.length >= 3 ? data[2] : null;
     }
     protected String getSupportedNodeName() {
-      return "chord";
+      return "chord|barline";
     }
     public int onset(){ return onset; }
     public int offset(){ return offset; }
-    public String chord(){ return chord; }
+    public String content(){ return content; }
   }
   
-  public ChordprogElement[] getChordprogElementList() {
+    public Annotation[] getChordList() {
+	if (chords != null) {
+	    return chords;
+	} else {
+	    Node ann = selectSingleNode("/scc/annotations");
+	    if (ann == null) return null;
+	    NodeList nl = selectNodeList(ann, "chord");
+	    int size = nl.getLength();
+	    chords = new Annotation[size];
+	    for (int i = 0; i < size; i++)
+		chords[i] = new Annotation(nl.item(i));
+	    return chords;
+	}
+    }
+
+    public Annotation[] getBarlineList() {
+	if (barlines != null) {
+	    return barlines;
+	} else {
+	    Node ann = selectSingleNode("/scc/annotations");
+	    if (ann == null) return null;
+	    NodeList nl = selectNodeList(ann, "barline");
+	    int size = nl.getLength();
+	    barlines = new Annotation[size];
+	    for (int i = 0; i < size; i++)
+		barlines[i] = new Annotation(nl.item(i));
+	    return barlines;
+	}
+    }
+
+    /*
+  public Annotation[] getChordList() {
     if(chordproglist == null){
       Node chordprognode = selectSingleNode("/scc/chord-prog");
       if(chordprognode == null) return null;
@@ -295,6 +354,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
     return chordproglist;
   }
+    */
 
   public class HeaderElement extends NodeInterface {
     private int timestamp;

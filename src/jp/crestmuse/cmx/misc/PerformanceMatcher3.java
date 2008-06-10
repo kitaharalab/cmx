@@ -5,6 +5,7 @@ import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
@@ -26,8 +27,15 @@ public class PerformanceMatcher3 {
   private MusicXMLWrapper musicxml;
   private MIDIXMLWrapper midixml;
 
-  private SCCXMLWrapper scoreSCC;
-  private SCCXMLWrapper pfmSCC;
+    private String partid;
+    private Measure[] measurelist;
+    private Note[] scoreNotes, pfmNotes;
+    private Annotation[] barlines;
+
+    //  private SCCXMLWrapper scoreSCC;
+    //  private SCCXMLWrapper pfmSCC;
+
+    private DeviationDataSet dds;
 
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
@@ -46,8 +54,14 @@ public class PerformanceMatcher3 {
     TransformerException {
     this.musicxml = score;
     this.midixml = pfm;
-    scoreSCC = score.makeDeadpanSCCXML(ticksPerBeat);
-    pfmSCC = pfm.toSCCXML();
+    Part part0 = musicxml.getPartList()[0];
+    measurelist = part0.getMeasureList();
+    partid = part0.id();
+    SCCXMLWrapper scoreSCC = score.makeDeadpanSCCXML(ticksPerBeat);
+    SCCXMLWrapper pfmSCC = pfm.toSCCXML();
+    barlines = scoreSCC.getBarlineList();
+    scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
+    pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(100);
     scoreTicksPerBeat = scoreSCC.getDivision();
     pfmTicksPerBeat = pfmSCC.getDivision();
     HeaderElement[] h = pfmSCC.getHeaderElementList();
@@ -61,26 +75,28 @@ public class PerformanceMatcher3 {
     DeviationInstanceWrapper dev = 
       DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
     DeviationDataSet dds = dev.createDeviationDataSet();
-    Note[] scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
-    Note[] pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(100);
-    int[] path = getPath(dtw(scoreNotes, pfmNotes, 500));
+    //    measurelist = musicxml
+    //    scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
+    //    pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(100);
+    //    barlines = scoreSCC.getBarlineList();
+    int[] path = getPath(dtw(500));
     int[] indexlist = new int[path.length];
     List<Note> extraNotes = new ArrayList<Note>();
-    alignNotes(scoreNotes, pfmNotes, path, indexlist, extraNotes);
-    ArrayList<TempoAndTime> tempolist = alignBeats(scoreNotes, 
-                                                   pfmNotes, indexlist);
+    alignNotes(path, indexlist, extraNotes);
+    ArrayList<TempoAndTime> tempolist = alignBeats(indexlist);
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
     double initSil = tempolist.get(1).timeInSec;
     dds.setInitialSilence(initSil);
-    String partid = musicxml.getPartList()[0].id();
-    Measure[] measures = musicxml.getPartList()[0].getMeasureList();
-    setMeasureNumbers(measures, tempolist);
-    int headMeasure = measures[0].number();
+    //    String partid = musicxml.getPartList()[0].id();
+    //    Measure[] measures = musicxml.getPartList()[0].getMeasureList();
+    //    setMeasureNumbers(measures, tempolist);
+    int headMeasure = measurelist[0].number();
     dds.addNonPartwiseControl(headMeasure, 1, "tempo", avgtempo);
     addTempoDeviations(dds, tempolist, avgtempo);
-    setNotewiseDeviations(dds, scoreNotes, pfmNotes, indexlist, 
-                          extraNotes, partid, tempolist);
+    setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
+    //    setNotewiseDeviations(dds, scoreNotes, pfmNotes, indexlist, 
+    //                          extraNotes, partid, tempolist);
     dds.addElementsToWrapper();
     return dev;
   }
@@ -116,7 +132,7 @@ public class PerformanceMatcher3 {
     return path;
   }
   
-  private static DTWMatrix dtw(Note[] scoreNotes, Note[] pfmNotes, int r) {
+  private DTWMatrix dtw(int r) {
     int I = scoreNotes.length;
     int J = pfmNotes.length;
     int scoreTicks = scoreNotes[I-1].offset();
@@ -234,11 +250,7 @@ public class PerformanceMatcher3 {
     }
   }
 
-  private static void alignNotes(Note[] scoreNotes, 
-                                 Note[] pfmNotes, 
-                                 int[] path, 
-                                 int[] indexlist, 
-                                 List<Note> extraNotes) {
+  private void alignNotes(int[] path, int[] indexlist, List<Note> extraNotes) {
     for (int m = 0; m < indexlist.length; m++)
       indexlist[m] = -1;
     boolean[] alreadyPut = new boolean[pfmNotes.length];
@@ -284,11 +296,8 @@ public class PerformanceMatcher3 {
   }
 
   private void setNotewiseDeviations(DeviationDataSet dds, 
-                                     Note[] scoreNotes, 
-                                     Note[] pfmNotes, 
                                      int[] indexlist, 
                                      List<Note> extraNotes, 
-                                     String partid, 
                                      ArrayList<TempoAndTime> tempolist) {
     for (int i = 0; i < indexlist.length; i++) {
       if (indexlist[i] >= 0) 
@@ -301,13 +310,15 @@ public class PerformanceMatcher3 {
       addExtraNote(dds, note, partid, tempolist);
   }
 
-  private TempoAndTime searchTnT(double tick, int i, 
+    private int i = 0;
+
+  private TempoAndTime searchTnT(double tick, 
                                  ArrayList<TempoAndTime> tempolist) {
     int size = tempolist.size();
-    while (i >= size || tempolist.get(i).tickInPfm > tick && i > 0) 
-      i--;
+    while (i >= size-1 || tempolist.get(i).tickInPfm > tick && i > 0) 
+	i--;
     while (i < 0 || tempolist.get(i+1).tickInPfm <= tick && i < size-2)
-      i++;
+	i++;
     return tempolist.get(i);
   }
 
@@ -316,7 +327,7 @@ public class PerformanceMatcher3 {
                                 ArrayList<TempoAndTime> tempolist){
     int initticks = (int)(tempolist.get(0).tickInPfm);
     TempoAndTime tnt = searchTnT(noteP.onset(), 
-                                 noteS.onset()/scoreTicksPerBeat, 
+				 //noteS.onset()/scoreTicksPerBeat, 
                                  tempolist);
     double onsetInPfm, onsetInScore;
     if (tnt.measure >= 0) {
@@ -328,7 +339,7 @@ public class PerformanceMatcher3 {
     }
     double attack = onsetInPfm * tnt.tempo / (pfmTicksPerBeat * baseTempo)
 	- onsetInScore / scoreTicksPerBeat;
-    tnt = searchTnT(noteP.offset(), noteS.offset() / scoreTicksPerBeat,
+    tnt = searchTnT(noteP.offset(), //noteS.offset() / scoreTicksPerBeat,
                     tempolist);
     double offsetInPfm, offsetInScore;
     if (tnt.measure >= 0) {
@@ -394,6 +405,106 @@ public class PerformanceMatcher3 {
   }
     
 
+    private ArrayList<TempoAndTime> alignBeats(int[] indexlist) {
+	ArrayList<TempoAndTime> tempolist = new ArrayList<TempoAndTime>();
+	tempolist.add(getZerothTempoAndTime());
+	int i = 0;
+	for (int k = 0; k < barlines.length - 1; k++) {
+	    int measure = getMeasureNumber(barlines[k].onset());
+	    int beat = 1;
+	    for (int currentTick = barlines[k].onset(); 
+		 currentTick < barlines[k+1].onset(); 
+		 currentTick += scoreTicksPerBeat) {
+		i = addTempoAndTime(currentTick, measure, beat, i, 
+				    indexlist, tempolist);
+		beat++;
+	    }
+	}
+	int currentTick = barlines[barlines.length-1].onset();
+	int measure = getMeasureNumber(currentTick);
+	int beat = 1;
+	i = addTempoAndTime(currentTick, measure, beat, i, 
+			    indexlist, tempolist);
+	int lastOffset = currentTick;
+	for ( ; i < scoreNotes.length; i++)
+	    if (scoreNotes[i].offset() > lastOffset)
+		lastOffset = scoreNotes[i].offset();
+	for (currentTick += scoreTicksPerBeat; 
+	     currentTick <= lastOffset; 
+	     currentTick += scoreTicksPerBeat) {
+	    TempoAndTime tnt = new TempoAndTime(currentTick);
+	    tnt.measure = measure;
+	    tnt.beat = ++beat;
+	    tempolist.add(tnt);
+	    //	    tempolist.add(new TempoAndTime(currentTick));
+	}
+	return tempolist;
+    }
+
+    private int addTempoAndTime(int currentTick, int measure, int beat, int i, 
+				int[] indexlist, 
+				ArrayList<TempoAndTime> tempolist) {
+	while (i < scoreNotes.length) {
+	    if (indexlist[i] == -1) {
+		i++;
+		continue;
+	    }
+	    if (tickcmp(scoreNotes[i].onset(), currentTick, 5)) {
+		int j, count = 0, total = 0;
+		for (j = i; ; j++) {
+		    try {
+			if (!tickcmp(scoreNotes[j].onset(),currentTick,5))
+			    break;
+			if (indexlist[j] == -1)
+			    continue;
+			total += pfmNotes[indexlist[j]].onset();
+			count++;
+		    } catch (ArrayIndexOutOfBoundsException e) {
+			break;
+		    }
+		}
+		TempoAndTime tnt = new TempoAndTime(currentTick);
+		tnt.measure = measure;
+		tnt.beat = beat;
+		if (count > 0)
+		    tnt.setTickInPfm((double)total / (double)count);
+		tempolist.add(tnt);
+		return j;
+	    }
+	    if (scoreNotes[i].onset() > currentTick) {
+		TempoAndTime tnt = new TempoAndTime(currentTick);
+		tnt.measure = measure;
+		tnt.beat = beat;
+		//		tempolist.add(new TempoAndTime(currentTick));
+		return i;
+	    }
+	    i++;
+	}
+	return i;
+    }
+
+    private int lastMeasureNumber = 0;
+
+    private int getMeasureNumber(int tick) {
+	int tick0 = 
+	    measurelist[lastMeasureNumber].cumulativeTicks(scoreTicksPerBeat);
+	System.err.println(tick + " : " + tick0);
+	if (tick0 == tick) {
+	    return lastMeasureNumber;
+	} else if (tick0 > tick) {
+	    lastMeasureNumber--;
+	    return getMeasureNumber(tick);
+	} else {
+	    lastMeasureNumber++;
+	    return getMeasureNumber(tick);
+	}
+    }
+
+
+
+
+
+    /*
   private ArrayList<TempoAndTime> alignBeats(Note[] scoreNotes, 
                                              Note[] pfmNotes, 
                                              int[] indexlist) {
@@ -413,7 +524,7 @@ public class PerformanceMatcher3 {
         int j, count = 0, total = 0;
         for (j = i; ; j++) {
           try {
-	      if (!tickcmp(scoreNotes[j].onset(), tick, 5)) break;
+            if (!tickcmp(scoreNotes[j].onset(), tick, 5)) break;
             if (indexlist[j] == -1) continue;
             total += pfmNotes[indexlist[j]].onset();
             count++;
@@ -444,6 +555,7 @@ public class PerformanceMatcher3 {
     }
     return tempolist;
   }
+    */
 
   private void interpolateBeatTime(ArrayList<TempoAndTime> tempolist) {
     TempoAndTime tnt0 = tempolist.get(1);
@@ -479,7 +591,7 @@ public class PerformanceMatcher3 {
     } catch (IndexOutOfBoundsException e) {}
   }            
 
-  private static double calcTempo(ArrayList<TempoAndTime> tempolist) {
+  private double calcTempo(ArrayList<TempoAndTime> tempolist) {
     int size = tempolist.size();
     double prevTempo = 0.0;
     double sum = 0.0;
@@ -489,9 +601,17 @@ public class PerformanceMatcher3 {
       TempoAndTime tnt = tempolist.get(i);
       if (Double.isNaN(tnt.timeInSec)) {
         prevtnt.tempo = prevTempo;
-        tnt.setTimeInSec(prevtnt.timeInSec + 60.0 / prevTempo);
+	int interval = tnt.tickInScore - prevtnt.tickInScore;
+	double pfmInterval = 
+	    (double)(interval * 60 / scoreTicksPerBeat) / prevTempo;
+	tnt.setTimeInSec(prevtnt.timeInSec + pfmInterval);
+	//  tnt.setTimeInSec(prevtnt.timeInSec + 60.0 / prevTempo);
       } else {
-        prevtnt.tempo = (60.0 / (tnt.timeInSec - prevtnt.timeInSec));
+	  int interval = tnt.tickInScore - prevtnt.tickInScore;
+	  double pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
+	  prevtnt.tempo = 
+	      (double)(interval * 60 / scoreTicksPerBeat) / pfmInterval;
+	  // prevtnt.tempo = (60.0 / (tnt.timeInSec - prevtnt.timeInSec));
         prevTempo = prevtnt.tempo;
       }
       sum += prevtnt.tempo;
@@ -502,6 +622,7 @@ public class PerformanceMatcher3 {
     return sum / (double)count;
   }
 
+    /*
   private void setMeasureNumbers(Measure[] measures, 
                                  List<TempoAndTime> tempolist) {
       int lastmeasure = -1;
@@ -534,6 +655,7 @@ public class PerformanceMatcher3 {
     }
 
   }
+    */
 
   private static void addTempoDeviations(DeviationDataSet dds, 
                                          ArrayList<TempoAndTime> tempolist, 
