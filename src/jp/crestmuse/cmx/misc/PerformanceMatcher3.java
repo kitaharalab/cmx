@@ -310,7 +310,7 @@ public class PerformanceMatcher3 {
       addExtraNote(dds, note, partid, tempolist);
   }
 
-    private int i = 0;
+  private int i = 0;
 
   private TempoAndTime searchTnT(double tick, 
                                  ArrayList<TempoAndTime> tempolist) {
@@ -405,101 +405,102 @@ public class PerformanceMatcher3 {
   }
     
 
-    private ArrayList<TempoAndTime> alignBeats(int[] indexlist) {
-	ArrayList<TempoAndTime> tempolist = new ArrayList<TempoAndTime>();
-	tempolist.add(getZerothTempoAndTime());
-	int i = 0;
-	for (int k = 0; k < barlines.length - 1; k++) {
-	    int measure = getMeasureNumber(barlines[k].onset());
-	    int beat = 1;
-	    for (int currentTick = barlines[k].onset(); 
-		 currentTick < barlines[k+1].onset(); 
-		 currentTick += scoreTicksPerBeat) {
-		i = addTempoAndTime(currentTick, measure, beat, i, 
-				    indexlist, tempolist);
-		beat++;
-	    }
-	}
-	int currentTick = barlines[barlines.length-1].onset();
-	int measure = getMeasureNumber(currentTick);
-	int beat = 1;
-	i = addTempoAndTime(currentTick, measure, beat, i, 
-			    indexlist, tempolist);
-	int lastOffset = currentTick;
-	for ( ; i < scoreNotes.length; i++)
-	    if (scoreNotes[i].offset() > lastOffset)
-		lastOffset = scoreNotes[i].offset();
-	for (currentTick += scoreTicksPerBeat; 
-	     currentTick <= lastOffset; 
-	     currentTick += scoreTicksPerBeat) {
-	    TempoAndTime tnt = new TempoAndTime(currentTick);
-	    tnt.measure = measure;
-	    tnt.beat = ++beat;
-	    tempolist.add(tnt);
-	    //	    tempolist.add(new TempoAndTime(currentTick));
-	}
-	return tempolist;
+  private ArrayList<TempoAndTime> alignBeats(int[] indexlist) {
+    ArrayList<TempoAndTime> tempolist = new ArrayList<TempoAndTime>();
+    tempolist.add(getZerothTempoAndTime());
+    int i = 0;
+    for (int k = 0; k < barlines.length - 1; k++) {
+      int measure = getMeasureNumber(barlines[k].onset());
+      int beat = 1;
+      for (int currentTick = barlines[k].onset(); 
+           currentTick < barlines[k+1].onset(); 
+           currentTick += scoreTicksPerBeat) {
+        i = addTempoAndTime(currentTick, measure, beat, i, 
+                            indexlist, tempolist);
+        beat++;
+      }
     }
-
-    private int addTempoAndTime(int currentTick, int measure, int beat, int i, 
-				int[] indexlist, 
-				ArrayList<TempoAndTime> tempolist) {
-	while (i < scoreNotes.length) {
-	    if (indexlist[i] == -1) {
-		i++;
-		continue;
-	    }
-	    if (tickcmp(scoreNotes[i].onset(), currentTick, 5)) {
-		int j, count = 0, total = 0;
-		for (j = i; ; j++) {
-		    try {
-			if (!tickcmp(scoreNotes[j].onset(),currentTick,5))
-			    break;
-			if (indexlist[j] == -1)
-			    continue;
-			total += pfmNotes[indexlist[j]].onset();
-			count++;
-		    } catch (ArrayIndexOutOfBoundsException e) {
-			break;
-		    }
-		}
-		TempoAndTime tnt = new TempoAndTime(currentTick);
-		tnt.measure = measure;
-		tnt.beat = beat;
-		if (count > 0)
-		    tnt.setTickInPfm((double)total / (double)count);
-		tempolist.add(tnt);
-		return j;
-	    }
-	    if (scoreNotes[i].onset() > currentTick) {
-		TempoAndTime tnt = new TempoAndTime(currentTick);
-		tnt.measure = measure;
-		tnt.beat = beat;
-		//		tempolist.add(new TempoAndTime(currentTick));
-		return i;
-	    }
-	    i++;
-	}
-	return i;
+    int currentTick = barlines[barlines.length-1].onset();
+    int measure = getMeasureNumber(currentTick);
+    int beat = 1;
+    i = addTempoAndTime(currentTick, measure, beat, i, 
+                        indexlist, tempolist);
+    int lastOffset = currentTick;
+    for ( ; i < scoreNotes.length; i++)
+      if (scoreNotes[i].offset() > lastOffset)
+        lastOffset = scoreNotes[i].offset();
+    for (currentTick += scoreTicksPerBeat; 
+         currentTick <= lastOffset; 
+         currentTick += scoreTicksPerBeat) {
+      TempoAndTime tnt = new TempoAndTime(currentTick);
+      tnt.measure = measure;
+      tnt.beat = ++beat;
+      tempolist.add(tnt);
+      //	    tempolist.add(new TempoAndTime(currentTick));
     }
-
-    private int lastMeasureNumber = 0;
-
-    private int getMeasureNumber(int tick) {
-	int tick0 = 
-	    measurelist[lastMeasureNumber].cumulativeTicks(scoreTicksPerBeat);
-	System.err.println(tick + " : " + tick0);
-	if (tick0 == tick) {
-	    return lastMeasureNumber;
-	} else if (tick0 > tick) {
-	    lastMeasureNumber--;
-	    return getMeasureNumber(tick);
-	} else {
-	    lastMeasureNumber++;
-	    return getMeasureNumber(tick);
-	}
+    return tempolist;
+  }
+  
+  private int addTempoAndTime(int currentTick, int measure, int beat, int i, 
+                              int[] indexlist, 
+                              ArrayList<TempoAndTime> tempolist) {
+    while (i < scoreNotes.length) {
+      if (indexlist[i] == -1) {
+        i++;
+        continue;
+      }
+      if (tickcmp(scoreNotes[i].onset(), currentTick, 5)) {
+        int j, count = 0, total = 0;
+        for (j = i; ; j++) {
+          try {
+            if (!tickcmp(scoreNotes[j].onset(),currentTick,5))
+              break;
+            if (indexlist[j] == -1)
+              continue;
+            total += pfmNotes[indexlist[j]].onset();
+            count++;
+          } catch (ArrayIndexOutOfBoundsException e) {
+            break;
+          }
+        }
+        TempoAndTime tnt = new TempoAndTime(currentTick);
+        tnt.measure = measure;
+        tnt.beat = beat;
+        if (count > 0)
+          tnt.setTickInPfm((double)total / (double)count);
+        tempolist.add(tnt);
+        return j;
+      }
+      if (scoreNotes[i].onset() > currentTick) {
+        TempoAndTime tnt = new TempoAndTime(currentTick);
+        tnt.measure = measure;
+        tnt.beat = beat;
+        tempolist.add(tnt);
+        //		tempolist.add(new TempoAndTime(currentTick));
+        return i;
+      }
+      i++;
     }
+    return i;
+  }
 
+  private int lastMeasureNumber = 0;
+
+  private int getMeasureNumber(int tick) {
+    int tick0 = 
+      measurelist[lastMeasureNumber].cumulativeTicks(scoreTicksPerBeat);
+    if (tick0 == tick) {
+      return measurelist[lastMeasureNumber].number();
+//      return lastMeasureNumber;
+    } else if (tick0 > tick) {
+      lastMeasureNumber--;
+      return getMeasureNumber(tick);
+    } else {
+      lastMeasureNumber++;
+      return getMeasureNumber(tick);
+    }
+  }
+  
 
 
 
