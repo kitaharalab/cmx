@@ -633,7 +633,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         int size = measures.getLength();
 	measurelist = new Measure[size];
 	for (int i = 0; i < size; i++) {
-	  Measure measure = new Measure(measures.item(i), this);
+	  Measure measure = new Measure(measures.item(i), 
+                                        i > 0 ? measurelist[i-1] : null, 
+                                        this);
           measure.setCumulativeTicks(cumulativeTicks);
 //          measure.cumulativeTicks = cumulativeTicks;
 //          Attributes attr = measure.getAttributesNodeInterface();
@@ -642,6 +644,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
 //              INTERNAL_TICKS_PER_BEAT * attr.beats() * 4 / attr.beatType();
 //          cumulativeTicks += ticks;
           cumulativeTicks += measure.duration(INTERNAL_TICKS_PER_BEAT);
+          measure.getMusicDataList();
           measurelist[i] = measure;
         }
       }
@@ -707,10 +710,17 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     // changed int -> long 20080609
     private long cumulativeTicks;
     private int duration = -1;
+    private Measure prevMeasure;
+    private Note[] tiedNotes = null;
     
-    private Measure(Node node, Part part) {
+    private Measure(Node node, Measure prevMeasure, Part part) {
       super(node);
       this.part = part;
+      this.prevMeasure = prevMeasure;
+      if (prevMeasure == null)
+        tiedNotes = new Note[128];
+      else
+        tiedNotes = prevMeasure.tiedNotes;
       strNumber = getAttribute(node(), "number");
       try {
         number = Integer.parseInt(strNumber);
@@ -772,7 +782,6 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      *forward, backupなどが該当します. </p>
      *********************************************************************/
     public MusicData[] getMusicDataList() {
-      Note[] tiedNotes = new Note[128];
       Note topnote = null;
       int noteindex = 0;
       if (mdlist == null) {
