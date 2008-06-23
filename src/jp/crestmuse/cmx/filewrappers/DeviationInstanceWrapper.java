@@ -255,7 +255,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   @Override
   protected void analyze() throws IOException {
     try {
-      getTargetMusicXML().analyze();
+//      getTargetMusicXML().analyze();
       addLinks("//note-deviation", getTargetMusicXML());
       addLinks("//chord-deviation", getTargetMusicXML());
       addLinks("//miss-note", getTargetMusicXML());
@@ -1143,4 +1143,5 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return "miss-note";
     }
   }
+
 }
