@@ -401,6 +401,12 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
   public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords) 
     throws TransformerException, IOException, 
     ParserConfigurationException, SAXException {
+    toSCCXML(dest, chords, null);
+  }
+    
+    public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords, String key) 
+    throws TransformerException, IOException, 
+    ParserConfigurationException, SAXException {
     dest.setDivision(ticksPerBeat);
     final Map<Byte, ArrayList<MutableMusicEvent>> channelToNotes = 
         new HashMap<Byte, ArrayList<MutableMusicEvent>>();
@@ -486,6 +492,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     for(int i=0;i<headerList.size();i+=2){
       dest.addHeaderElement(headerList.get(i), "TEMPO", headerList.get(i+1));
     }
+    if(key != null) dest.addHeaderElement(0, "KEY", key);
     dest.endHeader();
     Map.Entry<Byte, ArrayList<MutableMusicEvent>> mapent;
     Iterator<Map.Entry<Byte, ArrayList<MutableMusicEvent>>> iterator 
