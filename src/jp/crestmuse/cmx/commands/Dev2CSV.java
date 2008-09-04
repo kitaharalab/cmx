@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.commands.test;
+package jp.crestmuse.cmx.commands;
 
 import java.io.IOException;
 
@@ -7,12 +7,11 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import jp.crestmuse.cmx.commands.CMXCommand;
 import jp.crestmuse.cmx.filewrappers.CSVWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 
-public class Dev2CSVTest extends
+public class Dev2CSV extends
     CMXCommand<DeviationInstanceWrapper, CSVWrapper> {
   
   private int devisionPerMeasure = 4;
@@ -39,7 +38,7 @@ public class Dev2CSVTest extends
   }
 
   public static void main(String[] args) {
-    Dev2CSVTest d2c = new Dev2CSVTest();
+    Dev2CSV d2c = new Dev2CSV();
     try {
       d2c.start(args);
     } catch (Exception e) {

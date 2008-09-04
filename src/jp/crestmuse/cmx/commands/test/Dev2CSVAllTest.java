@@ -11,6 +11,7 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
+import jp.crestmuse.cmx.commands.Dev2CSV;
 import jp.crestmuse.cmx.filewrappers.*;
 
 /**
@@ -20,7 +21,7 @@ import jp.crestmuse.cmx.filewrappers.*;
  *         <address>hashida@kwansei.ac.jp</address>
  * @since 2008/05/31
  */
-public class Dev2CSVAllTest extends Dev2CSVTest {
+public class Dev2CSVAllTest extends Dev2CSV {
 
 	@Override
 	protected CSVWrapper run(DeviationInstanceWrapper f) throws IOException,
@@ -38,7 +39,7 @@ public class Dev2CSVAllTest extends Dev2CSVTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Dev2CSVTest d2c = new Dev2CSVAllTest();
+		Dev2CSV d2c = new Dev2CSVAllTest();
 		try {
 			d2c.start(args);
 		} catch (Exception e) {
