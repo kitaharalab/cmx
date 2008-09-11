@@ -771,7 +771,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   
   public void hoge(){
     TimewiseControlView tcv = this.getTimewiseControlView();
-    System.out.println(tcv.getRoot().type());
+    tcv.getRoot();
     while (tcv.hasElementsAtNextTime()) {
       System.out.println(tcv.getFirstElementAtNextTime().type());
       while (tcv.hasMoreElementsAtSameTime())
