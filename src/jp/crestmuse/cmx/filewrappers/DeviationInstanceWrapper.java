@@ -768,6 +768,16 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   public TreeView<Control> getNonPartwiseControlView() {
     return getTimewiseControlView();
   }
+  
+  public void hoge(){
+    TimewiseControlView tcv = this.getTimewiseControlView();
+    System.out.println(tcv.getRoot().type());
+    while (tcv.hasElementsAtNextTime()) {
+      System.out.println(tcv.getFirstElementAtNextTime().type());
+      while (tcv.hasMoreElementsAtSameTime())
+        System.out.println(tcv.getNextElementAtSameTime());
+    }
+  }
 
   private TimewiseControlView getTimewiseControlView() {
     if (tctrlview == null)
