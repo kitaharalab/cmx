@@ -68,21 +68,22 @@ public class Dev2NoteFormatTest {
 							
 							nf.len = note.actualDuration() ;
 							
-							//Deviation non-partwise
-							double currenttempo_dev = 1.0;
-							for (Control cont : dev.getNonPartwiseList(dev)) {
-								if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
-									if(cont.type().equals("tempo")) currenttempo = cont.value();
-									else if(cont.type().equals("tempo-deviation"))currenttempo_dev = cont.value();
+							if(nf.pitch != null){ //休符でないnull音符の謎を回避・・・
+								//Deviation non-partwise
+								double currenttempo_dev = 1.0;
+								for (Control cont : dev.getNonPartwiseList(dev)) {
+									if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
+										if(cont.type().equals("tempo")) currenttempo = cont.value();
+										else if(cont.type().equals("tempo-deviation"))currenttempo_dev = cont.value();
+									}
+									else break;
 								}
-								else break;
+								if(starttime_buf != nf.starttime){
+									System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
+									starttime_buf = nf.starttime;
+								}
+								System.out.println(nf.getFormedElement());
 							}
-							if(starttime_buf != nf.starttime){
-								System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
-								starttime_buf = nf.starttime;
-							}
-							System.out.println(nf.getFormedElement());
-							
 						}
 					}
 				}
