@@ -54,35 +54,36 @@ public class Dev2NoteFormatTest {
 								
 							}
 							else{
-								nf.starttime = 1.0 + (measure.number()-1)*header.beattype + note.onsetWithinMeasure();
+								nf.starttime = (measure.number()-1)*header.beattype + note.beat();
 								nf.pitch = (note.pitchStep() + note.pitchOctave());
-							}
 							
-							//Deviation notewise
-							DeviationInstanceWrapper.NoteDeviation currentdev = dev.getNoteDeviation((MusicXMLWrapper.Note)md);
-							if(currentdev != null){
-								nf.vel = (int)(dev.getBaseDynamics() * currentdev.dynamics());
-								nf.on_devi = header.beattype/4 * currentdev.attack();
-								nf.off_devi = header.beattype/4 * currentdev.release();
-							}
 							
-							nf.len = note.actualDuration() ;
-							
-							if(nf.pitch != null){ //休符でないnull音符の謎を回避・・・
-								//Deviation non-partwise
-								double currenttempo_dev = 1.0;
-								for (Control cont : dev.getNonPartwiseList(dev)) {
-									if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
-										if(cont.type().equals("tempo")) currenttempo = cont.value();
-										else if(cont.type().equals("tempo-deviation"))currenttempo_dev = cont.value();
+								//Deviation notewise
+								DeviationInstanceWrapper.NoteDeviation currentdev = dev.getNoteDeviation((MusicXMLWrapper.Note)md);
+								if(currentdev != null){
+									nf.vel = (int)(dev.getBaseDynamics() * currentdev.dynamics());
+									nf.on_devi = header.beattype/4 * currentdev.attack();
+									nf.off_devi = header.beattype/4 * currentdev.release();
+								}
+								
+								nf.len = note.actualDuration() ;
+								
+								//if(nf.pitch != null){ //休符でないnull音符の謎を回避・・・
+									//Deviation non-partwise
+									double currenttempo_dev = 1.0;
+									for (Control cont : dev.getNonPartwiseList(dev)) {
+										if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
+											if(cont.type().equals("tempo")) currenttempo = cont.value();
+											else if(cont.type().equals("tempo-deviation"))currenttempo_dev = cont.value();
+										}
+										else break;
 									}
-									else break;
-								}
-								if(starttime_buf != nf.starttime){
-									System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
-									starttime_buf = nf.starttime;
-								}
-								System.out.println(nf.getFormedElement());
+									if(starttime_buf != nf.starttime){
+										System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
+										starttime_buf = nf.starttime;
+									}
+									System.out.println(nf.getFormedElement());
+							
 							}
 						}
 					}
