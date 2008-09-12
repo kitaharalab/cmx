@@ -19,8 +19,7 @@ public class Dev2NoteFormatTest {
 		//System.out.println(dev.getTargetMusicXMLFileName()); #=> wiener-p012-013.xml 読めてはいる
 		try{
 			//かきこみじにつかう
-			//File file = new File("output.txt");
-			//BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+      FileWriter fw = new FileWriter(new File("output.txt"));
 			
 			
 			//DeviationXMLに対応するMusicXML取得
@@ -28,7 +27,8 @@ public class Dev2NoteFormatTest {
 			//ヘッダ作成
 			NoteFormatElement header = new NoteFormatElement();
 			header = header.setHeaderInformation(mus);
-			System.out.println(header.getHeader());
+			//System.out.println(header.getHeader());
+      fw.write(header.getHeader() + System.getProperty("line.separator"));
 			
 			//パート取得
 			MusicXMLWrapper.Part[] partlist = mus.getPartList();
@@ -79,10 +79,12 @@ public class Dev2NoteFormatTest {
 										else break;
 									}
 									if(starttime_buf != nf.starttime){
-										System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
+									  //System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
+									  fw.write(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype + System.getProperty("line.separator"));
 										starttime_buf = nf.starttime;
 									}
-									System.out.println(nf.getFormedElement());
+									//System.out.println(nf.getFormedElement());
+									fw.write(nf.getFormedElement() + System.getProperty("line.separator"));
 							
 							}
 						}
@@ -91,6 +93,7 @@ public class Dev2NoteFormatTest {
 				//次のパートへ
 				partcount++;
 			}
+			fw.close();
 			
 			
 			
