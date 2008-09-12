@@ -27,20 +27,24 @@ public class Dev2NoteFormatTest {
 			MusicXMLWrapper mus = dev.getTargetMusicXML();
 			//ヘッダ作成
 			NoteFormatElement header = new NoteFormatElement();
-			header.setHeaderInformation(mus);
+			header = header.setHeaderInformation(mus);
+			System.out.println(header.getHeader());
 			
 			//パート取得
 			MusicXMLWrapper.Part[] partlist = mus.getPartList();
-			int partcount = 0; //パート識別ナンバー、NoteFormatでのidentで使う　メインパートかどうかの判定は置いとく
+			int partcount = 1; //パート識別ナンバー、NoteFormatでのidentで使う　メインパートかどうかの判定は置いとく
 			for (MusicXMLWrapper.Part part : partlist) {
 				//パート内の小節リスト取得
 				MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
+				double currenttempo = measurelist[0].tempo();
 				for (MusicXMLWrapper.Measure measure : measurelist) {
 					//小節内のMusicDataList(NoteやらAttributeやら)取得
 					MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
+					double starttime_buf = 0;
 					for (MusicXMLWrapper.MusicData md : mdlist) {
 						//TODO mdがNoteなら書き出す
 						if(md instanceof MusicXMLWrapper.Note){
+							
 							
 							MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
 							NoteFormatElement nf = new NoteFormatElement();
@@ -50,17 +54,34 @@ public class Dev2NoteFormatTest {
 								
 							}
 							else{
+								nf.starttime = 1.0 + (measure.number()-1)*header.beattype + note.onsetWithinMeasure();
 								nf.pitch = (note.pitchStep() + note.pitchOctave());
-
 							}
 							
-							//TODO 基準となる四分音符の長さを取っとく
+							//Deviation notewise
 							DeviationInstanceWrapper.NoteDeviation currentdev = dev.getNoteDeviation((MusicXMLWrapper.Note)md);
 							if(currentdev != null){
-								//nf.vel = hogehoge() * currentdev.dynamics();
+								nf.vel = (int)(dev.getBaseDynamics() * currentdev.dynamics());
+								nf.on_devi = header.beattype/4 * currentdev.attack();
+								nf.off_devi = header.beattype/4 * currentdev.release();
 							}
 							
+							nf.len = note.actualDuration() ;
 							
+							//Deviation non-partwise
+							double currenttempo_dev = 1.0;
+							for (Control cont : dev.getNonPartwiseList(dev)) {
+								if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
+									if(cont.type().equals("tempo")) currenttempo = cont.value();
+									else if(cont.type().equals("tempo-deviation"))currenttempo_dev = cont.value();
+								}
+								else break;
+							}
+							if(starttime_buf != nf.starttime){
+								System.out.println(nf.starttime+" BPM "+currenttempo*currenttempo_dev+" "+header.beattype);
+								starttime_buf = nf.starttime;
+							}
+							System.out.println(nf.getFormedElement());
 							
 						}
 					}
@@ -71,11 +92,8 @@ public class Dev2NoteFormatTest {
 			
 			
 			
-			/* non-partwise
-			for (Control cont : dev.getNonPartwiseList(dev)) {
-				System.out.println(cont.value());
-			}
-			*/
+
+			
 			
 			
 			
@@ -91,12 +109,13 @@ public class Dev2NoteFormatTest {
 	
 	/**
 	 * Note形式の各要素(Header,音符,休符等)を持つクラスです。
-	 * いっしょくたにしてるので良くない
+	 * いっしょくたにしてるので良くないかも
 	 */
 	class NoteFormatElement{
 		
 		//header attributes
-		String beat = null;
+		int beat = -1; //分子
+		int beattype = -1; //分母  beat/beattype で仕様書のBEATになります
 		String bpm = null, bpmbeat = null;
 		String beattime = null, beattimebeat = null;
 		String tactus = null, tactusbeat = null;
@@ -130,7 +149,7 @@ public class Dev2NoteFormatTest {
 		
 		/**
 		 * 最低限の情報のNoteFormatの書式を返します
-		 * 080912現在値にDeviation操作は加えていません
+		 * 080912現在、返す値にDeviation操作は加えていません
 		 * @return String
 		 */
 		String getSimpleFormedElement(){
@@ -147,21 +166,24 @@ public class Dev2NoteFormatTest {
 			//TODO できるだけ多く取る
 			NoteFormatElement nf = new NoteFormatElement();
 			nf.title = mus.getMovementTitle();
-			
+			nf.beat = Integer.parseInt(mus.getPartList()[0].getChildText("beats"));
+			nf.beattype = Integer.parseInt(mus.getPartList()[0].getChildText("beat-type"));
+			//nf.bpm = mus.getPartList()[0].getChildText();
+			//nf.bpmbeat = mus.getPartList()[0].getChildText("beat-type");
 			return nf;
 		}
 		
 		/**
 		 * ヘッダを返します
-		 * 予め値がセットされている必要があります
+		 * 予めsetHeaderInfomation()などで値がセットされている必要があります
 		 * @return String
 		 */
 		String getHeader(){
 			
 			String header = "Header {\n";
 			
-			if(beat != null) 
-				header += "  BEAT "+beat+"\n"; 
+			if(beat != -1 && beattype != -1) 
+				header += "  BEAT "+beat+"/"+beattype+"\n"; 
 			if(bpm != null) 
 				header += "  BPM "+bpm+" "+bpmbeat+"\n";
 			if(beattime != null) 
