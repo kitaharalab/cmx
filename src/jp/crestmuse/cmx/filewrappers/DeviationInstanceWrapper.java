@@ -769,15 +769,25 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return getTimewiseControlView();
   }
   
-  public void hoge(){
-    TimewiseControlView tcv = this.getTimewiseControlView();
+  //TODO 微妙な実装かも
+  /**
+   * DeviationInstanceのnon-partwiseを時系列順にリストで返します
+   * @param dev
+   */
+  public LinkedList<Control> getNonPartwiseList(DeviationInstanceWrapper dev){
+    LinkedList<Control> list = new LinkedList<Control>();
+    TimewiseControlView tcv = dev.getTimewiseControlView();
+    
     tcv.getRoot();
     while (tcv.hasElementsAtNextTime()) {
-      System.out.println(tcv.getFirstElementAtNextTime().type());
+      list.add(tcv.getFirstElementAtNextTime());
       while (tcv.hasMoreElementsAtSameTime())
-        System.out.println(tcv.getNextElementAtSameTime());
+        list.add(tcv.getNextElementAtSameTime());
     }
+    
+    return list;
   }
+  
 
   private TimewiseControlView getTimewiseControlView() {
     if (tctrlview == null)
@@ -1116,7 +1126,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     // }
 
     public final double attack() {
+      
       return attack;
+      
+      
     }
 
     public final double release() {
