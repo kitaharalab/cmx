@@ -771,8 +771,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   
   //TODO 微妙な実装かも
   /**
-   * DeviationInstanceのnon-partwiseを時系列順にリストで返します
+   * DeviationInstanceのnon-partwise(tempo, tempo-deviation)
+   * を時系列順にリストで返します
    * @param dev
+   * @author R.Tokuami
    */
   public LinkedList<Control> getNonPartwiseList(DeviationInstanceWrapper dev){
     LinkedList<Control> list = new LinkedList<Control>();
@@ -786,6 +788,27 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
     
     return list;
+  }
+  
+  /**
+   * DeviationInstanceのExtraNotesをリストで取得します
+   * @param dev 対象とするDeviationInstanceWrapper
+   * @param partID パートID
+   * @author R.Tokuami
+   * @return
+   */
+  public LinkedList<ExtraNote> getExtraNotesList(DeviationInstanceWrapper dev, String partID){
+	  LinkedList<ExtraNote> list = new LinkedList<ExtraNote>();
+	  TreeView<ExtraNote> tv = dev.getExtraNoteView(partID);
+	  
+	  tv.getRoot();
+	  while(tv.hasElementsAtNextTime()){
+		  list.add(tv.getFirstElementAtNextTime());
+		  while(tv.hasMoreElementsAtSameTime())
+			  list.add(tv.getNextElementAtSameTime());
+	  }
+	  
+	  return list;
   }
   
 
@@ -987,6 +1010,15 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return "extra-note";
     }
 
+    /**
+     * ExtraNoteが位置する小節を返します
+     * @author R.Tokuami
+     * @return 小節番号
+     */
+    public final int measure(){
+    	return measure;
+    }
+    
     public final double beat() {
       return beat;
     }
