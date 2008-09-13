@@ -1,6 +1,5 @@
 package jp.crestmuse.cmx.commands.test;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,13 +9,15 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.Control;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.ExtraNote;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
-import jp.crestmuse.cmx.misc.TreeView;
+
+/**
+ * DeviationInstanceWrapperからNote形式に変換するクラスです。
+ * @author R.Tokuami
+ */
 
 public class Dev2NoteFormatTest {
 
-	//デバッグモードのフラグ
-	boolean debug_mode = false;
+	boolean debug_mode = false; //デバッグモードのフラグ
 	FileWriter fw;
 	public Dev2NoteFormatTest(DeviationInstanceWrapper dev){
 		
@@ -52,10 +53,9 @@ public class Dev2NoteFormatTest {
 					double starttime_buf = 0;
 					for (MusicXMLWrapper.MusicData md : mdlist) {
 						if(md instanceof MusicXMLWrapper.Note){
-							
 							MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
-							NoteFormatElement nf = new NoteFormatElement();
 							
+							NoteFormatElement nf = new NoteFormatElement();
 							nf.starttime = (measure.number()-1)*header.beattype + note.beat();
 							nf.ident = partID;
 							nf.len = 4/header.beattype * note.actualDuration() ;
@@ -168,12 +168,6 @@ public class Dev2NoteFormatTest {
 		}
 	}
 	
-	
-	
-	/**
-	 * Note形式の各要素(Header,音符,休符等)を持つクラスです。
-	 * Headerも個々の音符いっしょくたにしてるので良くないかも
-	 */
 
 	
 	public static void main(String[] args) {
@@ -201,6 +195,11 @@ public class Dev2NoteFormatTest {
 	}
 }
 
+
+/**
+ * Note形式の各要素(Header,音符,休符等)を持つクラスです。
+ * Headerも個々の音符いっしょくたにしてるので良くないかも
+ */
 class NoteFormatElement{
 	
 	//header attributes
@@ -258,6 +257,7 @@ class NoteFormatElement{
 		nf.title = mus.getMovementTitle();
 		nf.beat = Integer.parseInt(mus.getPartList()[0].getChildText("beats"));
 		nf.beattype = Integer.parseInt(mus.getPartList()[0].getChildText("beat-type"));
+		nf.generator = "Dev2NoteFormatTest";
 		//nf.bpm = mus.getPartList()[0].getChildText();
 		//nf.bpmbeat = mus.getPartList()[0].getChildText("beat-type");
 		return nf;
@@ -306,4 +306,5 @@ class NoteFormatElement{
 	static public String getEnd(){
 		return "END";
 	}
+	
 }
