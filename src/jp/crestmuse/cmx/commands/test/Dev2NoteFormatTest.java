@@ -233,7 +233,7 @@ class NoteFormatElement{
 	 * @return String
 	 */
 	String getFormedElement(){
-		return starttime+" ("+on_devi+" part"+ident+" "+pitch+" "+vel+" "+len+" "+off_devi+")";
+		return starttime+" ("+on_devi+" "+ident+" "+pitch+" "+vel+" "+len+" "+off_devi+")";
 	}
 	
 	/**
