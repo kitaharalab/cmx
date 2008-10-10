@@ -189,4 +189,8 @@ public class WAVPlayer implements LineSupportingMusicPlayer {
       buff.put(x[i + from]);
     return buff.array();
   }
+
+  public long getTickPosition() {
+    throw new UnsupportedOperationException();
+  }
 } 

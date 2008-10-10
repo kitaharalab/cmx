@@ -86,4 +86,8 @@ public class SMFPlayer implements MusicPlayer {
       sequencer.close();
   }
 
+  public long getTickPosition() {
+    return sequencer.getTickPosition();
+  }
+
 }

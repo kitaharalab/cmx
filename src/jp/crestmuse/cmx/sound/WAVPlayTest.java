@@ -12,7 +12,7 @@ public class WAVPlayTest implements WAVPlaySynchronized {
       sync.wavplay();
   }
 
-  public void synchronize(double currentTime, WAVPlaySynchronizer sync) {
+  public void synchronize(double currentTime, long currentTick, WAVPlaySynchronizer sync) {
   }
 
   public void start(WAVPlaySynchronizer sync) {

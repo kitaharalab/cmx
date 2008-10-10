@@ -5,5 +5,5 @@ public interface MusicPlayer extends Runnable {
   void stop();
   boolean isNowPlaying();
   long getMicrosecondPosition();
-
+  long getTickPosition();
 }

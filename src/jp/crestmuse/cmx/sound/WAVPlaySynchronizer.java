@@ -67,10 +67,11 @@ public class WAVPlaySynchronizer implements Runnable, LineListener {
   public void run() {
     while (true) {
       if (isNowPlaying()) {
+        long currentTick = player.getTickPosition();
         long currentPosition = player.getMicrosecondPosition();
         double t = (double)currentPosition / 1000000.0;
         for (WAVPlaySynchronized sync : synclist)
-          sync.synchronize(t, this);
+          sync.synchronize(t, currentTick, this);
         try {
           thDraw.sleep(sleeptime);
         } catch (InterruptedException e) {

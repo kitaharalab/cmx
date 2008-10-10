@@ -25,6 +25,12 @@ public class SPExecutor {
   int nFrames;
   int timeunit;
 
+  /**
+   * nFramesに0以下の値を指定すると、startを呼び出した際、stopを呼び出すまで処理を続けます．
+   * @param params
+   * @param nFrames
+   * @param timeunit
+   */
   public SPExecutor(Map params, int nFrames, int timeunit) {
     list = new ArrayList<SPModule>();
     map = new HashMap<ProducerConsumerCompatible,SPModule>();
@@ -72,10 +78,27 @@ public class SPExecutor {
   /*********************************************************************
    *登録されたデータ処理モジュールの実行を開始します. 
    ********************************************************************/
-  public void start() throws InterruptedException {
-    for (int t = 0; t < nFrames; t++)
-      for (SPModule m : list)
-        m.module.execute(m.src, m.dest);
+  public void start() {
+    for (final SPModule m : list){
+      m.thread = new Thread(){
+        public void run() {
+          for(int i=0; i<nFrames || nFrames<=0; i++){
+            try {
+              m.module.execute(m.src, m.dest);
+              if(Thread.interrupted()) break;
+            } catch (InterruptedException e) {
+              break;
+            }
+          }
+        }
+      };
+      m.thread.start();
+    }
+  }
+  
+  public void stop(){
+    for(SPModule m : list)
+      if(list != null) m.thread.interrupt();
   }
 
   /*********************************************************************
@@ -94,5 +117,6 @@ public class SPExecutor {
     ProducerConsumerCompatible module;
     List<QueueReader> src = new ArrayList<QueueReader>();
     List<TimeSeriesCompatible> dest = new ArrayList<TimeSeriesCompatible>();
+    Thread thread = null;
   }
 }
