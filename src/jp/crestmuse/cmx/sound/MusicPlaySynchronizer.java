@@ -3,25 +3,25 @@ package jp.crestmuse.cmx.sound;
 import java.util.*;
 import javax.sound.sampled.*;
 
-public class WAVPlaySynchronizer implements Runnable, LineListener {
+public class MusicPlaySynchronizer implements Runnable, LineListener {
 
   private MusicPlayer player;
   private Thread thPlay = null;
   private Thread thDraw;
-  private List<WAVPlaySynchronized> synclist = 
-    new ArrayList<WAVPlaySynchronized>();
+  private List<MusicPlaySynchronized> synclist = 
+    new ArrayList<MusicPlaySynchronized>();
   private boolean thPlayStarted = false;
   private boolean stoppedByUser = false;
   private long sleeptime = 100;
 
-  public WAVPlaySynchronizer(MusicPlayer player) {
+  public MusicPlaySynchronizer(MusicPlayer player) {
     this.player = player;
     if (player instanceof LineSupportingMusicPlayer)
       ((LineSupportingMusicPlayer)player).addLineListener(this);
     thPlay = new Thread(player);
   }
 
-  public void addSynchronizedComponent(WAVPlaySynchronized c) {
+  public void addSynchronizedComponent(MusicPlaySynchronized c) {
     synclist.add(c);
   }
 
@@ -50,12 +50,13 @@ public class WAVPlaySynchronizer implements Runnable, LineListener {
     if (type.equals(LineEvent.Type.START)) {
       thDraw = new Thread(this);
       thDraw.start();
-      for (WAVPlaySynchronized sync : synclist)
+      for (MusicPlaySynchronized sync : synclist)
         sync.start(this);
     } else if (type.equals(LineEvent.Type.STOP)) {
-      thDraw.stop();
-      thDraw = null;
-      for (WAVPlaySynchronized sync : synclist)
+      //thDraw.stop();
+      //thDraw = null;
+      thDraw.interrupt();
+      for (MusicPlaySynchronized sync : synclist)
         sync.stop(this);
     }
   }
@@ -65,18 +66,21 @@ public class WAVPlaySynchronizer implements Runnable, LineListener {
   }
 
   public void run() {
-    while (true) {
+    while (!Thread.interrupted()) {
       if (isNowPlaying()) {
-        long currentTick = player.getTickPosition();
+        long currentTick = -1;
+        try {
+          currentTick = player.getTickPosition();
+        } catch (UnsupportedOperationException e) {}
         long currentPosition = player.getMicrosecondPosition();
         double t = (double)currentPosition / 1000000.0;
-        for (WAVPlaySynchronized sync : synclist)
+        for (MusicPlaySynchronized sync : synclist)
           sync.synchronize(t, currentTick, this);
-        try {
-          thDraw.sleep(sleeptime);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+      }
+      try {
+        Thread.sleep(sleeptime);
+      } catch (InterruptedException e) {
+        break;
       }
     }
   }

@@ -1,24 +1,24 @@
 package jp.crestmuse.cmx.sound;
 import jp.crestmuse.cmx.amusaj.filewrappers.WAVXMLWrapper;
 
-public class WAVPlayTest implements WAVPlaySynchronized {
+public class WAVPlayTest implements MusicPlaySynchronized {
 
   WAVPlayTest(String filename) throws Exception {
     WAVXMLWrapper wavxml = WAVXMLWrapper.readWAV(filename);
       WAVPlayer player = new WAVPlayer(wavxml);
-      WAVPlaySynchronizer sync = 
-        new WAVPlaySynchronizer(player);
+      MusicPlaySynchronizer sync = 
+        new MusicPlaySynchronizer(player);
       sync.addSynchronizedComponent(this);
       sync.wavplay();
   }
 
-  public void synchronize(double currentTime, long currentTick, WAVPlaySynchronizer sync) {
+  public void synchronize(double currentTime, long currentTick, MusicPlaySynchronizer sync) {
   }
 
-  public void start(WAVPlaySynchronizer sync) {
+  public void start(MusicPlaySynchronizer sync) {
   }
 
-  public void stop(WAVPlaySynchronizer sync) {
+  public void stop(MusicPlaySynchronizer sync) {
     System.exit(0);
   }
     
