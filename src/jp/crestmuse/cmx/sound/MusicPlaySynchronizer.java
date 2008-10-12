@@ -25,14 +25,14 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
     synclist.add(c);
   }
 
-  public void wavplay() {
+  public void play() {
     player.play();
     if (!thPlayStarted) thPlay.start();
     thPlayStarted = true;
     stoppedByUser = false;
   } 
 
-  public void wavstop() {
+  public void stop() {
     stoppedByUser = true;
     if (player != null) player.stop();
   }
