@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
+
 import java.util.*;
 
 /************************************************************************
@@ -31,7 +32,7 @@ public class SPExecutor {
    * @param nFrames
    * @param timeunit
    */
-  public SPExecutor(Map params, int nFrames, int timeunit) {
+  public SPExecutor(Map<String, Object> params, int nFrames, int timeunit) {
     list = new ArrayList<SPModule>();
     map = new HashMap<ProducerConsumerCompatible,SPModule>();
     this.params = params;
@@ -79,32 +80,28 @@ public class SPExecutor {
    *登録されたデータ処理モジュールの実行を開始します. 
    ********************************************************************/
   public void start() {
-    for (final SPModule m : list){
-      m.thread = new Thread(){
-        public void run() {
-          for(int i=0; i<nFrames || nFrames<=0; i++){
-            try {
-              m.module.execute(m.src, m.dest);
-              if(Thread.interrupted()) break;
-            } catch (InterruptedException e) {
-              break;
-            }
-          }
-        }
-      };
-      m.thread.start();
-    }
+    for (SPModule m : list)
+      m.start();
   }
   
   public void stop(){
     for(SPModule m : list)
-      if(list != null) m.thread.interrupt();
+      m.interrupt();
   }
-
+  
+  public boolean finished(){
+    for(SPModule m : list)
+      if(!m.finish) return false;
+    return true;
+  }
+  
+  public boolean finished(ProducerConsumerCompatible module){
+    return map.get(module).finish;
+  }
   /*********************************************************************
    *指定されたデータ処理モジュールの全チャンネルの出力を返します. 
    *********************************************************************/
-  public List<TimeSeriesCompatible> 
+  public List<TimeSeriesCompatible>
   getResult(ProducerConsumerCompatible module) {
     return map.get(module).dest;
   }
@@ -113,10 +110,22 @@ public class SPExecutor {
 //    return list.get(index).dest;
 //  }
 
-  private class SPModule {
+  private class SPModule extends Thread {
     ProducerConsumerCompatible module;
     List<QueueReader> src = new ArrayList<QueueReader>();
     List<TimeSeriesCompatible> dest = new ArrayList<TimeSeriesCompatible>();
-    Thread thread = null;
+    boolean finish = false;
+    public void run() {
+      for(int i=0; i<nFrames || nFrames<=0; i++){
+        try {
+          module.execute(src, dest);
+          if(Thread.interrupted()) break;
+        } catch (InterruptedException e) {
+          break;
+        }
+      }
+      finish = true;
+    }
   }
+
 }
