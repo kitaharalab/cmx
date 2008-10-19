@@ -16,7 +16,7 @@ public class QueueWrapper<E> {
     alreadyRead = new byte[size];
   }
 
-  public QueueReader createReader() {
+  public QueueReader<E> createReader() {
     nReaders++;
     return new QueueReaderImpl();
   }
@@ -60,7 +60,7 @@ public class QueueWrapper<E> {
 //    }
 
     public Iterator<E> iterator() {
-      return new Iterator() {
+      return new Iterator<E>() {
           public boolean hasNext() {
             return next < size;
           }
