@@ -171,7 +171,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
     }
-    try {
+//    try {
       exec.start();
       prepareOutputData(SPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible<PeakSet> peaks = 
@@ -185,9 +185,9 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
 //      dataset.setHeaders(params);
 //      dataset.addElementsToWrapper();
 //      setOutputData(spd);
-    } catch (InterruptedException e) {
-      showErrorMessage(e);
-    }
+//    } catch (InterruptedException e) {
+//      showErrorMessage(e);
+//    }
   }
 
 

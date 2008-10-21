@@ -11,9 +11,12 @@ import jp.crestmuse.cmx.misc.*;
 /** @deprecated
  *OBSOLETE!!! */
 public abstract class CMXCommandForGUI extends CMXCommand {
-  int getLeastNumOfArgs() {
+  protected int requiredFiles() {
     return 0;
   }
+//  int getLeastNumOfArgs() {
+//    return 0;
+//  }
   void runAll() throws IOException, ParserConfigurationException, 
     TransformerException, SAXException, InvalidFileTypeException, 
     InvalidOptionException {

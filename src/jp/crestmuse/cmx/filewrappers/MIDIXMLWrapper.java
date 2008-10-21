@@ -29,7 +29,13 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
   private boolean firstElementsAdded = false;
   private boolean trackStarted = false;
 
+  private String smfFileName = null;
+
   private Track[] tracks = null;
+
+  public String getSMFFileName() {
+    return smfFileName;
+  }
 
   public void addElementsFirstForFormat0(int ticksPerBeat) {
     format = 0;
@@ -158,12 +164,14 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
   public void writefileAsSMF(String filename) throws IOException {
     DataOutputStream dataout = new DataOutputStream 
       (new BufferedOutputStream(new FileOutputStream(filename)));
+    smfFileName = filename;
     writeAsSMF(dataout);
   }
 
   public void writefileAsSMF(File file) throws IOException {
     DataOutputStream dataout = new DataOutputStream 
       (new BufferedOutputStream(new FileOutputStream(file)));
+    smfFileName = file.getName();
     writeAsSMF(dataout);
   }
 
@@ -198,6 +206,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
       (new BufferedInputStream(new FileInputStream(filename)));
     midixml.readSMF(datain);
     midixml.finalizeDocument();
+    midixml.smfFileName = filename;
     return midixml;
   }
 

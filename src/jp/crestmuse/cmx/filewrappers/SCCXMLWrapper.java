@@ -608,9 +608,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         newscc.endPart();
       }
       public final void processNote(Note note, SCCXMLWrapper w) {
-        byte velocity = it2.next();
-        newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), velocity, 
-                              note.getMusicXMLWrapperNote());
+        if (note instanceof ControlChange) {
+          ControlChange cc = (ControlChange)note;
+          newscc.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), cc.value());
+        } else {
+          byte velocity = it2.next();
+          newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), velocity, 
+                                note.getMusicXMLWrapperNote());
+        }
       }
     };
     if (sorted)
@@ -647,10 +652,15 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         newscc.endPart();
       }
       public final void processNote(Note note, SCCXMLWrapper w) {
-        byte diffvel = it2.next();
-        int vel = Math.max(Math.min(note.velocity + diffvel, 127), 0);
-        newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), vel, 
-                              note.getMusicXMLWrapperNote());
+        if (note instanceof ControlChange) {
+          ControlChange cc = (ControlChange)note;
+          newscc.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), cc.value());
+        } else {
+          byte diffvel = it2.next();
+          int vel = Math.max(Math.min(note.velocity + diffvel, 127), 0);
+          newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), vel, 
+                                note.getMusicXMLWrapperNote());
+        }
       }
     };
     if (sorted)

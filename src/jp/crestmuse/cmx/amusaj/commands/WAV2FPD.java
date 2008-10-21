@@ -50,7 +50,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       new F0PDFCalculatorModule();
     exec.addSPModule(f0calc);
     exec.connect(peakext, 0, f0calc, 0);
-    try {
+//    try {
       exec.start();
       prepareOutputData(FPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible ts = 
@@ -64,9 +64,9 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
 //      dataset.setHeaders(params);
 //      dataset.addElementsToWrapper();
 //      setOutputData(fpd);
-    } catch (InterruptedException e) {
-      showErrorMessage(e);
-    }
+//    } catch (InterruptedException e) {
+//      showErrorMessage(e);
+//    }
   }
 
   public static void main(String[] args) {
