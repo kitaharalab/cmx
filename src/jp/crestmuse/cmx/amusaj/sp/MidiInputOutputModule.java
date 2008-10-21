@@ -2,20 +2,26 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
 import javax.swing.JFrame;
 
@@ -34,7 +40,8 @@ public class MidiInputOutputModule {
     MusicPlayer mp;
     SPExecutor sp;
     Transmitter tm;
-
+    MidiDevice input_device;
+    
     BlockingQueue<MidiEventWithTicktime> src_queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
 
     public MidiInput(MusicPlayer mp, SPExecutor sp)
@@ -43,7 +50,8 @@ public class MidiInputOutputModule {
       this.sp = sp;
 
       // initializing device
-      tm = MidiSystem.getTransmitter();
+      input_device = setMidiDevice();
+      tm = input_device.getTransmitter();
       tm.setReceiver(this);
 
       // initializing
@@ -100,6 +108,46 @@ public class MidiInputOutputModule {
       tm.close();
     }
 
+    //test
+    public MidiDevice setMidiDevice(){
+    	//良くない感じだけどとりあえずMidiDeviceを全部表示して選択する
+    	MidiDevice.Info[] info = MidiSystem.getMidiDeviceInfo();
+    	MidiDevice device = null;
+    	
+    	for (int i = 0; i < info.length; i++) {
+	    	try {
+	    		System.err.println("*** " + i + " ***");
+	            System.err.println("  Description:" + info[i].getDescription());
+	            System.err.println("  Name:" + info[i].getName());
+	            System.err.println("  Vendor:" + info[i].getVendor());
+	            device = MidiSystem.getMidiDevice(info[i]);
+	            if (device instanceof Sequencer) {
+	                System.err.println("  *** This is Sequencer.");
+	            }
+	            if (device instanceof Synthesizer) {
+	                System.err.println("  *** This is Synthesizer.");
+	            }
+	            System.err.println();
+	    	} 
+	    	catch (MidiUnavailableException e) {
+	    		e.printStackTrace();
+	    	}
+    	}
+    	
+    	try{
+	    	BufferedReader r =
+	            new BufferedReader(new InputStreamReader(System.in), 1);
+	        System.out.print("Using Device Number: ");
+	        String s = r.readLine();
+	        device = MidiSystem.getMidiDevice(info[Integer.parseInt(s)]);
+	        
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	
+    	return device;
+    }
   }
 
   public class MidiOutput implements
