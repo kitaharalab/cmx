@@ -30,6 +30,8 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
     if (!thPlayStarted) thPlay.start();
     thPlayStarted = true;
     stoppedByUser = false;
+    //thDraw = new Thread(this);
+    //thDraw.start();
   } 
 
   public void stop() {

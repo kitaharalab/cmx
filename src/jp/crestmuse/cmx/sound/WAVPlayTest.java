@@ -9,7 +9,7 @@ public class WAVPlayTest implements MusicPlaySynchronized {
       MusicPlaySynchronizer sync = 
         new MusicPlaySynchronizer(player);
       sync.addSynchronizedComponent(this);
-      sync.wavplay();
+      sync.play();
   }
 
   public void synchronize(double currentTime, long currentTick, MusicPlaySynchronizer sync) {
