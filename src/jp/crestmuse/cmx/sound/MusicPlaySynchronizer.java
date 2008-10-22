@@ -1,13 +1,12 @@
 package jp.crestmuse.cmx.sound;
 
 import java.util.*;
-import javax.sound.sampled.*;
 
-public class MusicPlaySynchronizer implements Runnable, LineListener {
+public class MusicPlaySynchronizer implements Runnable {
 
   private MusicPlayer player;
-  private Thread thPlay = null;
-  private Thread thDraw;
+  //private Thread thPlay = null;
+  //private Thread thDraw;
   private List<MusicPlaySynchronized> synclist = 
     new ArrayList<MusicPlaySynchronized>();
   private boolean thPlayStarted = false;
@@ -16,9 +15,9 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
 
   public MusicPlaySynchronizer(MusicPlayer player) {
     this.player = player;
-    if (player instanceof LineSupportingMusicPlayer)
-      ((LineSupportingMusicPlayer)player).addLineListener(this);
-    thPlay = new Thread(player);
+    //if (player instanceof LineSupportingMusicPlayer)
+    //  ((LineSupportingMusicPlayer)player).addLineListener(this);
+    //thPlay = new Thread(player);
   }
 
   public void addSynchronizedComponent(MusicPlaySynchronized c) {
@@ -27,11 +26,13 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
 
   public void play() {
     player.play();
-    if (!thPlayStarted) thPlay.start();
+    if (!thPlayStarted){
+      //thPlay.start();
+      new Thread(player).start();
+      new Thread(this).start();
+    }
     thPlayStarted = true;
     stoppedByUser = false;
-    //thDraw = new Thread(this);
-    //thDraw.start();
   } 
 
   public void stop() {
@@ -46,7 +47,7 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
   public boolean isNowPlaying() {
     return  (player != null) && (player.isNowPlaying());
   }
-
+/*
   public void update(LineEvent e) {
     LineEvent.Type type = e.getType();
     if (type.equals(LineEvent.Type.START)) {
@@ -62,13 +63,15 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
         sync.stop(this);
     }
   }
-
+*/
   public void setSleepTime(long sleeptime) {
     this.sleeptime = sleeptime;
   }
 
   public void run() {
-    while (!Thread.interrupted()) {
+    for (MusicPlaySynchronized sync : synclist)
+      sync.start(this);
+    while (isNowPlaying() || isStoppedByUser()) {
       if (isNowPlaying()) {
         long currentTick = -1;
         try {
@@ -85,5 +88,7 @@ public class MusicPlaySynchronizer implements Runnable, LineListener {
         break;
       }
     }
+    for (MusicPlaySynchronized sync : synclist)
+      sync.stop(this);
   }
 }
