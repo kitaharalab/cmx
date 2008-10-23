@@ -223,6 +223,39 @@ public class MidiInputOutputModule {
 
   }
 
+  public class PrintModule implements ProducerConsumerCompatible<MidiEventWithTicktime, MidiEventWithTicktime>{
+
+    @Override
+    public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
+        int frames, int timeunit) {
+      return new MidiEvents();
+    }
+
+    @Override
+    public void execute(List<QueueReader<MidiEventWithTicktime>> src,
+        List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
+        throws InterruptedException {
+      MidiEventWithTicktime e =  src.get(0).take();
+      System.out.println(e.getMessage().getMessage()[1]);
+      dest.get(0).add(e);
+    }
+
+    @Override
+    public int getInputChannels() {
+      return 1;
+    }
+
+    @Override
+    public int getOutputChannels() {
+      return 1;
+    }
+
+    @Override
+    public void setParams(Map<String, Object> params) {
+    }
+    
+  }
+  
   public class MidiEventWithTicktime extends MidiEvent {
     long music_position;
 
@@ -237,7 +270,7 @@ public class MidiInputOutputModule {
 
     private LinkedBlockingQueue<MidiEventWithTicktime> queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
     private QueueWrapper<MidiEventWithTicktime> qWrapper;
-    private int frames = 256;
+    private int frames = 1024;
 
     MidiEvents() {
       queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
@@ -303,11 +336,14 @@ public class MidiInputOutputModule {
       MidiInput mi = new MidiInput(player, sp, setMidiDevice());
       MidiOutput mo = new MidiOutput(MidiSystem.getReceiver());
       OctaveUp ou = new OctaveUp();
+      PrintModule pm = new PrintModule();
       sp.addSPModule(mi);
-      sp.addSPModule(ou);
+      sp.addSPModule(pm);
+      //sp.addSPModule(ou);
       sp.addSPModule(mo);
-      sp.connect(mi, 0, ou, 0);
-      sp.connect(ou, 0, mo, 0);
+      sp.connect(mi, 0, pm, 0);
+      sp.connect(pm, 0, mo, 0);
+      //sp.connect(mi, 0, mo, 0);
       sp.start();
       System.out.println("press enter to start >>>");
       System.in.read();
