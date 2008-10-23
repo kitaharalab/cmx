@@ -6,28 +6,44 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
-public class F0PDFCalculatorModule 
-  implements ProducerConsumerCompatible<PeakSet,DoubleArray> {
+public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
+//  implements ProducerConsumerCompatible<PeakSet,DoubleArray> {
 
   private F0PDFCalculatorFactory factory = 
     F0PDFCalculatorFactory.getFactory();
   private F0PDFCalculator f0calc;
-  private Map<String,Object> params;
+//  private Map<String,Object> params;
   private boolean paramSet = false;
   private double nnFrom, nnThru, step;
 
-  public void setParams(Map<String,Object> params) {
-    this.params = params;
+  public void setParams(Map<String,String> params) {
+    super.setParams(params);
+    copyParamsFromConfigXML("param", "f0pdf", 
+                            "NOTENUMBER_FROM", "NOTENUMBER_THRU", 
+                            "STEP");
+//    this.params = params;
     paramSet = false;
   }
 
   private void setParams() {
+    nnFrom = getParamDouble("NOTENUMBER_FROM");
+    nnThru = getParamDouble("NOTENUMBER_THRU");
+    step = getParamDouble("STEP");
+    f0calc = factory.createCalculator(nnFrom, nnThru, step);
+    paramSet = true;
+  }
+
+/*
+  private void setParams() {
     ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
-    if (params.containsKey("NOTENUMBER_FROM")) {
-      nnFrom = (Double)params.get("NOTENUMBER_FROM");
+    if (containsParam("NOTENUMBER_FROM")) {
+      nnFrom = getParamDouble("NOTENUMBER_FROM");
+//    if (params.containsKey("NOTENUMBER_FROM")) {
+//      nnFrom = (Double)params.get("NOTENUMBER_FROM");
     } else {
       nnFrom = config.getParamDouble("param", "f0pdf", "NOTENUMBER_FROM");
-      params.put("NOTENUMBER_FROM", nnFrom);
+      params.
+//      params.put("NOTENUMBER_FROM", nnFrom);
     }
     if (params.containsKey("NOTENUMBER_THRU")) {
       nnThru = (Double)params.get("NOTENUMBER_THRU");
@@ -44,6 +60,7 @@ public class F0PDFCalculatorModule
     f0calc = factory.createCalculator(nnFrom, nnThru, step);
 
   }
+*/
 
   public F0PDFCalculatorModule() {
 //    f0calc = factory.createCalculator(nnFrom, nnThru, step);
@@ -65,8 +82,8 @@ public class F0PDFCalculatorModule
     return 1;
   }
 
-  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
-  }
+//  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
+//    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
+//  }
 
 }

@@ -9,13 +9,13 @@ import jp.crestmuse.cmx.misc.*;
 import static java.lang.Math.*;
 import java.util.*;
 
-public class PeakExtractor 
-  implements ProducerConsumerCompatible<ComplexArray,PeakSet> {
+public class PeakExtractor extends SPModule<ComplexArray,PeakSet> {
+//  implements ProducerConsumerCompatible<ComplexArray,PeakSet> {
 
     private static double powerthrs = 0;
     private static double rpowerthrs = 0;
 
-  private Map<String,Object> params = null;
+//  private Map<String,Object> params = null;
 
 //    private double[][] fftresult, fftresultL, fftresultR;
     private int fs;
@@ -94,10 +94,10 @@ public class PeakExtractor
     return 1;
   }
 
-  public TimeSeriesCompatible<PeakSet> 
-  createOutputInstance(int nFrames, int timeunit) {
-    return new MutablePeaks(nFrames, timeunit);
-  }
+//  public TimeSeriesCompatible<PeakSet> 
+//  createOutputInstance(int nFrames, int timeunit) {
+//    return new MutablePeaks(nFrames, timeunit);
+//  }
 
   public void execute(List<QueueReader<ComplexArray>> src, 
                       List<TimeSeriesCompatible<PeakSet>> dest) 
@@ -167,10 +167,10 @@ public class PeakExtractor
                    subarray(ipd, 0, k)));
   }
                          
-  public void setParams(Map<String,Object> params) {
-    this.params = params;
-    fs = (Integer)params.get("SAMPLE_RATE");
-    winsize = (Integer)params.get("WINDOW_SIZE");
+  public void setParams(Map<String,String> params) {
+    super.setParams(params);
+    fs = getParamInt("SAMPLE_RATE");
+    winsize = getParamInt("WINDOW_SIZE");
   }
 
 /*

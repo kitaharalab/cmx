@@ -29,20 +29,20 @@ public class WAVPlayer implements LineSupportingMusicPlayer {
   private static final int BUFFER_SIZE = 256 * 1024;
   private static final long SLEEP_TIME = 1000;
 
-  public WAVPlayer(WAVXMLWrapper wav) throws LineUnavailableException {
-    nowPlaying = false;
-    init(wav.getDataChunkList()[0].getAudioData());
-  }
+//  public WAVPlayer(WAVXMLWrapper wav) throws LineUnavailableException {
+//    nowPlaying = false;
+//    init(wav.getDataChunkList()[0].getAudioData());
+//  }
 
   public WAVPlayer(AudioDataCompatible wav) throws LineUnavailableException {
     nowPlaying = false;
     init(wav);
   }
   
-  public void changeWaveform(WAVXMLWrapper wav) 
-    throws LineUnavailableException {
-    init(wav.getDataChunkList()[0].getAudioData());
-  }
+//  public void changeWaveform(WAVXMLWrapper wav) 
+//    throws LineUnavailableException {
+//    init(wav.getDataChunkList()[0].getAudioData());
+//  }
 
   public void changeWaveform(AudioDataCompatible wav)
     throws LineUnavailableException {

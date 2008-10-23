@@ -7,7 +7,8 @@ import java.util.concurrent.*;
 public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   private int nFrames;
   private int timeunit;
-  BlockingQueue<D> queue;
+  private int dim = -1;
+  private BlockingQueue<D> queue;
   private QueueWrapper<D> qwrap;
   private Map<String,String> attr;
 
@@ -24,7 +25,7 @@ public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   }
 
   public int dim() {
-    throw new UnsupportedOperationException();
+    return dim;
   }
 
   public int frames() {
@@ -36,7 +37,19 @@ public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   }
 
   public void add(D d) throws InterruptedException {
-    queue.put(d);
+    if (d instanceof Array) {
+      int dim1 = ((Array)d).length();
+      if (dim == dim1) {
+        queue.put(d);
+      } else if (dim == -1) {
+        dim = dim1;
+        queue.put(d);
+      } else {
+        throw new IllegalStateException("unmatch dimension");
+      }
+    } else {
+      queue.put(d);
+    }
   }
   
   public String getAttribute(String key) {

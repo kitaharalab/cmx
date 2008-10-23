@@ -10,24 +10,24 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 
 public abstract class AbstractWAVAnalyzer extends CMXCommand {
-  protected Map<String,Object> params = new HashMap<String,Object>();
+  protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
 
   protected boolean setOptionsLocal(String option, String value) {
     if (option.equals("-winsize")) {
-      params.put("WINDOW_SIZE", Integer.valueOf(value));
+      params.put("WINDOW_SIZE", String.valueOf(value));
       return true;
     } else if (option.equals("-wintype")) {
-      params.put("WINDOW_TYPE", Integer.valueOf(value));
+      params.put("WINDOW_TYPE", String.valueOf(value));
       return true;
     } else if (option.equals("-shift")) {
-      params.put("SHIFT", Double.valueOf(value));
+      params.put("SHIFT", String.valueOf(value));
       return true;
     } else if (option.equals("-ch")) {
       if (value.equals("mix"))
-        params.put("TARGET_CHANNEL", -1);
+        params.put("TARGET_CHANNEL", "-1");
       else
-        params.put("TARGET_CHANNEL", Integer.valueOf(value));
+        params.put("TARGET_CHANNEL", String.valueOf(value));
       return true;
     } else {
       return false;

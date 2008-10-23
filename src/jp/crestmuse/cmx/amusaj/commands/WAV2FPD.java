@@ -18,13 +18,13 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     if (super.setOptionsLocal(option, value)) {
       return true;
     } else if (option.equals("-from") || option.equals("-f")) {
-      params.put("NOTENUMBER_FROM", Double.valueOf(value));
+      params.put("NOTENUMBER_FROM", String.valueOf(value));
       return true;
     } else if (option.equals("-thru") || option.equals("-t")) {
-      params.put("NOTENUMBER_THRU", Double.valueOf(value));
+      params.put("NOTENUMBER_THRU", String.valueOf(value));
       return true;
     } else if (option.equals("-step")) {
-      params.put("STEP", Double.valueOf(value));
+      params.put("STEP", String.valueOf(value));
       return true;
     } else {
       return false;

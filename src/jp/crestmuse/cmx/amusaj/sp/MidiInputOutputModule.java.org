@@ -74,13 +74,9 @@ public class MidiInputOutputModule {
     return device;
   }
 
-  public class MidiInput 
-    extends SPModule<Object,MidiEventWithTicktime>
-    implements Receiver, Runnable 
-  //    implements
-  //      ProducerConsumerCompatible<Object, MidiEventWithTicktime>, Receiver,
-  //      Runnable 
-  {
+  public class MidiInput implements
+      ProducerConsumerCompatible<Object, MidiEventWithTicktime>, Receiver,
+      Runnable {
 
     MusicPlayer mp;
     SPExecutor sp;
@@ -106,13 +102,11 @@ public class MidiInputOutputModule {
       th.start();
     }
 
-/*
     // ProducerConsumerCompatible
     public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
         int frames, int timeunit) {
       return new MidiEvents();
     }
-*/
 
     public void execute(List<QueueReader<Object>> src,
         List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
@@ -128,8 +122,8 @@ public class MidiInputOutputModule {
       return 1;
     }
 
-//    public void setParams(Map<String, Object> params) {
-//    }
+    public void setParams(Map<String, Object> params) {
+    }
 
     // Receiver
     public void close() {
@@ -162,14 +156,12 @@ public class MidiInputOutputModule {
     }
   }
 
-  public class OctaveUp extends SPModule<MidiEventWithTicktime,MidiEventWithTicktime> {
-  //implements ProducerConsumerCompatible<MidiEventWithTicktime, 
-  //MidiEventWithTicktime>{
+  public class OctaveUp implements ProducerConsumerCompatible<MidiEventWithTicktime, MidiEventWithTicktime>{
 
-//    public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
-//        int frames, int timeunit) {
-//      return new MidiEvents();
-//    }
+    public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
+        int frames, int timeunit) {
+      return new MidiEvents();
+    }
 
     public void execute(List<QueueReader<MidiEventWithTicktime>> src,
         List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
@@ -192,15 +184,14 @@ public class MidiInputOutputModule {
       return 1;
     }
 
-//    public void setParams(Map<String, Object> params) {
-//    }
+    public void setParams(Map<String, Object> params) {
+    }
     
     
   }
   
-  public class MidiOutput extends SPModule<MidiEventWithTicktime,Object> {
-  //implements
-  //      ProducerConsumerCompatible<MidiEventWithTicktime, Object> {
+  public class MidiOutput implements
+      ProducerConsumerCompatible<MidiEventWithTicktime, Object> {
 
     Receiver receiver = null;
 
@@ -227,20 +218,18 @@ public class MidiInputOutputModule {
       return 0;
     }
 
-//    public void setParams(Map<String, Object> params) {
-//    }
+    public void setParams(Map<String, Object> params) {
+    }
 
   }
 
-  public class PrintModule extends SPModule<MidiEventWithTicktime,MidiEventWithTicktime> {
-  //implements ProducerConsumerCompatible<MidiEventWithTicktime, 
-  //MidiEventWithTicktime>{
+  public class PrintModule implements ProducerConsumerCompatible<MidiEventWithTicktime, MidiEventWithTicktime>{
 
-//    @Override
-//    public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
-//        int frames, int timeunit) {
-//      return new MidiEvents();
-//    }
+    @Override
+    public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
+        int frames, int timeunit) {
+      return new MidiEvents();
+    }
 
     @Override
     public void execute(List<QueueReader<MidiEventWithTicktime>> src,
@@ -261,9 +250,9 @@ public class MidiInputOutputModule {
       return 1;
     }
 
-//    @Override
-//    public void setParams(Map<String, Object> params) {
-//    }
+    @Override
+    public void setParams(Map<String, Object> params) {
+    }
     
   }
   
@@ -276,7 +265,6 @@ public class MidiInputOutputModule {
     }
   }
 
-/*
   public class MidiEvents implements
       TimeSeriesCompatible<MidiEventWithTicktime> {
 
@@ -339,7 +327,6 @@ public class MidiInputOutputModule {
     }
 
   }
-*/
 
   public MidiInputOutputModule(String[] args) {
     try {

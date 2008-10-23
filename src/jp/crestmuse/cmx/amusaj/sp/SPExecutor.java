@@ -22,7 +22,7 @@ import java.util.*;
 public class SPExecutor {
   private List<SPModule> list;
   private Map<ProducerConsumerCompatible,SPModule> map;
-  private Map<String,Object> params;
+  private Map<String,String> params;
   int nFrames;
   int timeunit;
 
@@ -32,7 +32,7 @@ public class SPExecutor {
    * @param nFrames
    * @param timeunit
    */
-  public SPExecutor(Map<String, Object> params, int nFrames, int timeunit) {
+  public SPExecutor(Map<String,String> params, int nFrames, int timeunit) {
     list = new ArrayList<SPModule>();
     map = new HashMap<ProducerConsumerCompatible,SPModule>();
     this.params = params;

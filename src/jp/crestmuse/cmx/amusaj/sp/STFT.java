@@ -12,9 +12,10 @@ import java.util.*;
  *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 
  *短時間フーリエ変換を行います. 
  *********************************************************************/
-public class STFT implements 
-                  ProducerConsumerCompatible<DoubleArray,ComplexArray> {
-  private Map<String,Object> params = null;
+public class STFT extends SPModule<DoubleArray,ComplexArray> {
+//public class STFT implements 
+//                  ProducerConsumerCompatible<DoubleArray,ComplexArray> {
+//  private Map<String,Object> params = null;
   private int winsize = -1;
   private String wintype = null;
   private double[] window;
@@ -65,10 +66,12 @@ public class STFT implements
 
   public void changeWindow(String wintype, int winsize) {
     this.winsize = winsize;
-    if (params != null) params.put("WINDOW_SIZE", winsize);
+    setParam("WINDOW_SIZE", winsize);
+//    if (params != null) params.put("WINDOW_SIZE", winsize);
 //    buff = new double[winsize];
     this.wintype = wintype;
-    if (params != null) params.put("WINDOW_TYPE", wintype);
+    setParam("WINDOW_TYPE", wintype);
+//    if (params != null) params.put("WINDOW_TYPE", wintype);
     if (wintype.startsWith("ham"))
       window = hamming(winsize);
     else if (wintype.startsWith("han"))
@@ -82,14 +85,22 @@ public class STFT implements
   }
        
 
-  public void setParams(Map<String, Object> params) {
-    this.params = params;
+  public void setParams(Map<String, String> params) {
+    super.setParams(params);
+    copyParamsFromConfigXML("param", "fft", "WINDOW_TYPE");
+//    this.params = params;
 //    if (winslider == null) 
 //      winslider = new WindowSlider();
 //    winslider.setParams(params);
     paramSet = false;
   }
+
+  private void setParams() {
+    wintype = getParam("WINDOW_TYPE").toLowerCase();
+    paramSet = true;
+  }
   
+/*
   private void setParams() {
     ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
 //    int winsize;
@@ -100,11 +111,14 @@ public class STFT implements
 //      params.put("WINDOW_SIZE", winsize);
 //    }
 //    buff = new double[winsize];
-    if (params != null && params.containsKey("WINDOW_TYPE")) {
-      wintype = ((String)params.get("WINDOW_TYPE")).toLowerCase();
+    if (containsParam("WINDOW_TYPE")) {
+      wintype = getParam("WINDOW_TYPE").toLowerCase();
+//    if (params != null && params.containsKey("WINDOW_TYPE")) {
+//      wintype = ((String)params.get("WINDOW_TYPE")).toLowerCase();
     } else {
       wintype = config.getParam("param", "fft", "WINDOW_TYPE").toLowerCase();
-      params.put("WINDOW_TYPE", wintype);
+      setParam("WINDOW_TYPE", wintype);
+//      params.put("WINDOW_TYPE", wintype);
     }
 //    changeWindow(wintype, winsize);
 //    if (wintype.startsWith("ham"))
@@ -136,6 +150,7 @@ public class STFT implements
     paramSet = true;
 //  }
   }
+*/
 
 /*
   public void setInputData(AudioDataCompatible audiodata) {
@@ -256,10 +271,10 @@ public class STFT implements
     return isStereo ? 3 : 1;
   }
 
-  public TimeSeriesCompatible<ComplexArray> 
-      createOutputInstance(int nFrames, int timeunit) {
-    return new MutableComplexTimeSeries(nFrames, timeunit);
-  }
+//  public TimeSeriesCompatible<ComplexArray> 
+//      createOutputInstance(int nFrames, int timeunit) {
+//    return new MutableComplexTimeSeries(nFrames, timeunit);
+//  }
 
 /*
   private void stft1ch(DoubleArray wav, TimeSeriesCompatible dest, 

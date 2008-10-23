@@ -11,7 +11,7 @@ import java.util.*;
  *各チャンネルにキューが接続される形になります.  </p>
  ***********************************************************************/
 public interface ProducerConsumerCompatible<D, E> {
-  public void setParams(Map<String,Object> params);
+  public void setParams(Map<String,String> params);
 //  public boolean setOptionsLocal(String option, String value);
   /**********************************************************************
    *ここに処理内容を記述します. 引数srcに全入力チャンネルに対するQueueReaderが

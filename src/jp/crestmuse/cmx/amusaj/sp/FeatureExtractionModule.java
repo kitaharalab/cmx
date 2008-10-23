@@ -5,10 +5,10 @@ import jp.crestmuse.cmx.misc.*;
 
 import java.util.*;
 
-public class FeatureExtractionModule 
-  implements ProducerConsumerCompatible<DoubleArray,DoubleArray> {
+public class FeatureExtractionModule extends SPModule<DoubleArray,DoubleArray>{
+//  implements ProducerConsumerCompatible<DoubleArray,DoubleArray> {
   
-  private Map<String,Object> params = null;
+//  private Map<String,Object> params = null;
   private FeatureExtractor fe;
 
   public FeatureExtractionModule(FeatureExtractor fe) {
@@ -23,9 +23,9 @@ public class FeatureExtractionModule
     return fe.nFeatureTypes();
   }
 
-  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
-    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
-  }
+//  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
+//    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
+//  }
 
   public void execute(List<QueueReader<DoubleArray>> src, 
                       List<TimeSeriesCompatible<DoubleArray>> dest) 
@@ -41,7 +41,7 @@ public class FeatureExtractionModule
     fe.nextFrame();
   }
 
-  public void setParams(Map<String,Object> params) {
-    this.params = params;
-  }
+//  public void setParams(Map<String,Object> params) {
+//    this.params = params;
+//  }
 }
