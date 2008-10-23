@@ -4,21 +4,32 @@ import java.util.concurrent.*;
 
 public class QueueWrapper<E> {
   private java.util.Queue<E> queue;
-  private ArrayList<E> list;
-  private int size;
+  private ArrayList<PacketWithReadedCount> list;
   private byte nReaders = (byte)0;
-  private byte[] alreadyRead;
+  int removedNum;
+  
+  public QueueWrapper(java.util.Queue<E> q){
+    this(q, 0);
+  }
 
   public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
-    this.size = size;
-    list = new ArrayList<E>();
-    alreadyRead = new byte[size];
+    list = new ArrayList<PacketWithReadedCount>();
+    removedNum = 0;
   }
 
   public QueueReader<E> createReader() {
     nReaders++;
     return new QueueReaderImpl();
+  }
+  
+  private class PacketWithReadedCount{
+    E packet;
+    int readedCount;
+    public PacketWithReadedCount(E packet) {
+      this.packet = packet;
+      this.readedCount = 0;
+    }
   }
 
   private class QueueReaderImpl implements QueueReader<E> {
@@ -28,41 +39,31 @@ public class QueueWrapper<E> {
     }
 
     public E take() throws InterruptedException {
-      E e;
-      if (next < list.size()) {
-        e = list.get(next);
+      PacketWithReadedCount pwrc;
+      if (next < list.size() + removedNum) {
+        pwrc = list.get(next - removedNum);
       } else {
+        E e;
         if (queue instanceof BlockingQueue)
           e = ((BlockingQueue<E>)queue).take();
         else
           e = queue.poll();
-        list.add(e);
+        pwrc = new PacketWithReadedCount(e);
+        list.add(pwrc);
       }
-      alreadyRead[next]++;
-      if (alreadyRead[next] >= nReaders)
-        list.set(next, null);
+      pwrc.readedCount++;
+      if (pwrc.readedCount >= nReaders){
+        list.remove(0);
+        removedNum++;
+      }
       next++;
-      return e;
+      return pwrc.packet;
     }
-
-/*
-    public E get(int index) {
-      if (index < next) {
-        return list.get(index);
-      } else {
-        throw new IndexOutOfBoundsException();
-      }
-    }
-*/
-
-//    public boolean isAvailable(int index) {
-//      return index < next;
-//    }
 
     public Iterator<E> iterator() {
       return new Iterator<E>() {
           public boolean hasNext() {
-            return next < size;
+            return next < list.size() + removedNum;
           }
           public E next() {
             try {
@@ -76,6 +77,5 @@ public class QueueWrapper<E> {
           }
         };
     }
-
   }
 }
