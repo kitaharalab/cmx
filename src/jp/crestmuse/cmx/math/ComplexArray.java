@@ -1,7 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-public interface ComplexArray {
-  int length();
+public interface ComplexArray extends Array {
   double getReal(int index);
   double getImag(int index);
   void setReal(int index, double value);

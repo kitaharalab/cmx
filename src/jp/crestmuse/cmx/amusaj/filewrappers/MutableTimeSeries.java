@@ -4,14 +4,14 @@ import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public abstract class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
+public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   private int nFrames;
   private int timeunit;
   BlockingQueue<D> queue;
   private QueueWrapper<D> qwrap;
   private Map<String,String> attr;
 
-  MutableTimeSeries(int nFrames, int timeunit) {
+  public MutableTimeSeries(int nFrames, int timeunit) {
     this.nFrames = nFrames;
     this.timeunit = timeunit;
     queue = new LinkedBlockingQueue<D>();
@@ -23,6 +23,10 @@ public abstract class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
     return qwrap.createReader();
   }
 
+  public int dim() {
+    throw new UnsupportedOperationException();
+  }
+
   public int frames() {
     return nFrames;
   }
@@ -31,6 +35,10 @@ public abstract class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
     return timeunit;
   }
 
+  public void add(D d) throws InterruptedException {
+    queue.put(d);
+  }
+  
   public String getAttribute(String key) {
     return attr.get(key);
   }

@@ -23,15 +23,16 @@ implements TimeSeriesCompatible<DoubleArray> {
     nFrames = getAttributeInt("frames");
     if (hasAttribute("timeunit"))
       timeunit = getAttributeInt("timeunit");
-    ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
-//    ByteBuffer buff = 
-//      ByteBuffer.wrap(Base64.decodeBase64(getText().getBytes()));
+//    ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
+////    ByteBuffer buff = 
+////      ByteBuffer.wrap(Base64.decodeBase64(getText().getBytes()));
+    StringTokenizer st = new StringTokenizer(getText());
     queue = new LinkedList<DoubleArray>();
     qwrap = new QueueWrapper(queue, nFrames);
     for (int n = 0; n < nFrames; n++) {
       DoubleArray array = factory.createArray(dim);
       for (int i = 0; i < dim; i++)
-        array.set(i, (double)buff.getFloat());
+        array.set(i, Double.parseDouble(st.nextToken()));
       queue.add(array);
     }
   }
@@ -86,15 +87,25 @@ implements TimeSeriesCompatible<DoubleArray> {
     int dim = ts.dim();
     int nFrames = ts.frames();
     QueueReader<DoubleArray> queue = ts.getQueueReader();
-    ByteBuffer buff = ByteBuffer.allocate(dim * nFrames * 4);
+    StringBuilder sb = new StringBuilder();
     try {
-      for (int n =  0; n < nFrames; n++) {
+      for (int n = 0; n < nFrames-1; n++) {
         DoubleArray array = queue.take();
-        for (int i = 0; i < dim; i++)
-          buff.putFloat((float)array.get(i));
+        sb.append(Utils.toString2(array));
       }
+      DoubleArray array = queue.take();
+      sb.append(Utils.toString2(array));
     } catch (InterruptedException e) {}
-    String s = Base64.encode(buff.array());
+    String s = sb.toString();
+//    ByteBuffer buff = ByteBuffer.allocate(dim * nFrames * 4);
+//    try {
+//      for (int n =  0; n < nFrames; n++) {
+//        DoubleArray array = queue.take();
+//        for (int i = 0; i < dim; i++)
+//          buff.putFloat((float)array.get(i));
+//      }
+//    } catch (InterruptedException e) {}
+//    String s = Base64.encode(buff.array());
     wrapper.addChild(nodename);
     Iterator<Map.Entry<String,String>> it = ts.getAttributeIterator();
     while (it.hasNext()) {

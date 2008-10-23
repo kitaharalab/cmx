@@ -10,7 +10,7 @@ public class Peaks extends NodeInterface
   implements TimeSeriesCompatible<PeakSet>  {
   private int nFrames;
   private int timeunit;
-  private int bytesize;
+//  private int bytesize;
   private java.util.Queue<PeakSet> queue;
   private QueueWrapper qwrap;
   private DoubleArrayFactory factory;
@@ -20,16 +20,23 @@ public class Peaks extends NodeInterface
     factory = DoubleArrayFactory.getFactory();
     nFrames = getAttributeInt("frames");
     timeunit = getAttributeInt("timeunit");
-    ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
+    StringTokenizer st = new StringTokenizer(getText());
+//    ByteBuffer buff = ByteBuffer.wrap(Base64.decode(getText()));
     queue = new LinkedList<PeakSet>();
-    bytesize = 0;
+//    bytesize = 0;
     for (int n = 0; n < nFrames; n++) {
-      int nPeaks = buff.getInt();
+      int nPeaks = Integer.parseInt(st.nextToken());
+//      int nPeaks = buff.getInt();
       PeakSet peakset = new PeakSet(nPeaks);
-      bytesize += 4 + 4 * nPeaks;
+//      bytesize += 4 + 4 * nPeaks;
       for (int i = 0; i < nPeaks; i++) 
-        peakset.setPeak(i, buff.getFloat(), buff.getFloat(), buff.getFloat(), 
-                        buff.getFloat(), buff.getFloat());
+        peakset.setPeak(i, Double.parseDouble(st.nextToken()), 
+                        Double.parseDouble(st.nextToken()), 
+                        Double.parseDouble(st.nextToken()), 
+                        Double.parseDouble(st.nextToken()), 
+                        Double.parseDouble(st.nextToken()));
+//     peakset.setPeak(i, buff.getFloat(), buff.getFloat(), buff.getFloat(), 
+//                     buff.getFloat(), buff.getFloat());
       queue.add(peakset);
     }
     qwrap = new QueueWrapper(queue, nFrames);
@@ -51,9 +58,9 @@ public class Peaks extends NodeInterface
     return nFrames;
   }
 
-  public int bytesize() {
-    return bytesize;
-  }
+//  public int bytesize() {
+//    return bytesize;
+//  }
 
   public int timeunit() {
     return timeunit;
@@ -86,20 +93,27 @@ public class Peaks extends NodeInterface
   public static void addPeaksToWrapper(TimeSeriesCompatible<PeakSet> peaks, 
                                        String nodename, 
                                        CMXFileWrapper wrapper) {
-    ByteBuffer buff = ByteBuffer.allocate(peaks.bytesize());
+//    ByteBuffer buff = ByteBuffer.allocate(peaks.bytesize());
+    StringBuilder sb = new StringBuilder();
     QueueReader<PeakSet> queue = peaks.getQueueReader();
     int nFrames = peaks.frames();
     try {
       for (int n = 0; n < nFrames; n++) {
         PeakSet peakset = queue.take();
         int nPeaks = peakset.nPeaks();
-        buff.putInt(nPeaks);
+        sb.append(nPeaks).append(" ");
+//        buff.putInt(nPeaks);
         for (int i = 0; i < nPeaks; i++) {
-          buff.putFloat((float)peakset.freq(i));
-          buff.putFloat((float)peakset.power(i));
-          buff.putFloat((float)peakset.phase(i));
-          buff.putFloat((float)peakset.iid(i));
-          buff.putFloat((float)peakset.ipd(i));
+          sb.append(peakset.freq(i)).append(" ");
+          sb.append(peakset.power(i)).append(" ");
+          sb.append(peakset.phase(i)).append(" ");
+          sb.append(peakset.iid(i)).append(" ");
+          sb.append(peakset.ipd(i)).append(" ");
+//          buff.putFloat((float)peakset.freq(i));
+//          buff.putFloat((float)peakset.power(i));
+//          buff.putFloat((float)peakset.phase(i));
+//          buff.putFloat((float)peakset.iid(i));
+//          buff.putFloat((float)peakset.ipd(i));
         }
       }
     } catch (InterruptedException e) {}
@@ -109,10 +123,10 @@ public class Peaks extends NodeInterface
       Map.Entry<String,String> e = it.next();
       wrapper.setAttribute(e.getKey(), e.getValue());
     }
-    wrapper.setAttribute("bytesize", peaks.bytesize());
+//    wrapper.setAttribute("bytesize", peaks.bytesize());
     wrapper.setAttribute("frames", peaks.frames());
     wrapper.setAttribute("timeunit", peaks.timeunit());
-    wrapper.addText(Base64.encode(buff.array()));
+    wrapper.addText(sb.toString());
     wrapper.returnToParent();
   }
 
