@@ -192,12 +192,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
                            "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
                            "DeviationInstanceXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/deviation.dtd");
-      addClassTable("riff-wave", 
-                    AMUSA_PACKAGE_BASE + "." + "WAVXMLWrapper");
-      addDocumentTypeTable("riff-wave", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
-                           "WAVXML//EN", 
-                           "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
+//      addClassTable("riff-wave", 
+//                    AMUSA_PACKAGE_BASE + "." + "WAVXMLWrapper");
+//      addDocumentTypeTable("riff-wave", 
+//                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
+//                           "WAVXML//EN", 
+//                           "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
       addClassTable("spd", 
                     AMUSA_PACKAGE_BASE + "." + "SPDXMLWrapper");
       addDocumentTypeTable("spd", 
