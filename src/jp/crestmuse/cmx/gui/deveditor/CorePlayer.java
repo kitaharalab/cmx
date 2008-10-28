@@ -92,7 +92,7 @@ public class CorePlayer implements MusicPlayer {
   }
   
   public void writeFile(OutputStream out) throws IOException, SAXException {
-    //compiledDeviations.get(playingIndex).calcDeviation().write(out);
+    compiledDeviations.get(playingIndex).calcDeviation().write(out);
   }
 
 }

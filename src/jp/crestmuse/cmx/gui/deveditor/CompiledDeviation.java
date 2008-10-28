@@ -13,8 +13,10 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.ChordDeviation;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.Control;
@@ -28,10 +30,10 @@ import jp.crestmuse.cmx.misc.MutableNote;
 import jp.crestmuse.cmx.misc.TreeView;
 
 public class CompiledDeviation {
-  // TODO Deviation書き出し
+
   public static int TICKS_PER_BEAT = 480;
   private int BASE_DYNAMICS = 100;
-  private int TEMPO = 60;
+  private int TEMPO = 72;
   private Sequence sequence;
   private ArrayList<DeviatedNote> deviatedNotes;
   private TreeMap<Integer, Integer> ticks2tempo;
@@ -104,16 +106,18 @@ public class CompiledDeviation {
     
     for(Entry<String, Track> e : part2track.entrySet())
       processExtraNotes(deviation, e.getKey(), e.getValue());
+
   }
 
   private void processNonPartwiseControls(DeviationInstanceWrapper deviation) {
     Track track = sequence.createTrack();
+    setTempo(0, track, TEMPO);
     TreeView<Control> tv = deviation.getNonPartwiseControlView();
     int currentTempo = addTempo(tv.getRoot(), track, TEMPO);
     while (tv.hasElementsAtNextTime()) {
-      addTempo(tv.getFirstElementAtNextTime(), track, currentTempo);
+      currentTempo = addTempo(tv.getFirstElementAtNextTime(), track, currentTempo);
       while (tv.hasMoreElementsAtSameTime())
-        addTempo(tv.getNextElementAtSameTime(), track, currentTempo);
+        currentTempo = addTempo(tv.getNextElementAtSameTime(), track, currentTempo);
     }
   }
 
@@ -128,20 +132,25 @@ public class CompiledDeviation {
       tempo = (int) (currentTempo * c.value());
     } else
       return currentTempo;
-    MetaMessage mmessage = new MetaMessage();
-    int l = 60 * 1000000 / tempo;
     try {
-      // セットテンポイベント
-      mmessage.setMessage(0x51, new byte[] { (byte) (l / 65536),
-          (byte) (l % 65536 / 256), (byte) (l % 256) }, 3);
-      track.add(new MidiEvent(mmessage, c.timestamp(TICKS_PER_BEAT)));
-      ticks2tempo.put(c.timestamp(TICKS_PER_BEAT), tempo);
-    } catch (InvalidMidiDataException e) {
-      e.printStackTrace();
+      setTempo(c.timestamp(TICKS_PER_BEAT), track, tempo);
     } catch (IOException e) {
       e.printStackTrace();
     }
     return currentTempo;
+  }
+
+  private void setTempo(int timeStamp, Track track, int tempo) {
+    MetaMessage mmessage = new MetaMessage();
+    int l = 60 * 1000000 / tempo;
+    try {
+      mmessage.setMessage(0x51, new byte[] { (byte) (l / 65536),
+          (byte) (l % 65536 / 256), (byte) (l % 256) }, 3);
+      track.add(new MidiEvent(mmessage, timeStamp));
+      ticks2tempo.put(timeStamp, tempo);
+    } catch (InvalidMidiDataException e) {
+      e.printStackTrace();
+    }
   }
   
   private void calcMsecs(){
@@ -182,19 +191,34 @@ public class CompiledDeviation {
   public ArrayList<DeviatedNote> getDeviatedNotes() {
     return deviatedNotes;
   }
+  
+  public DeviationInstanceWrapper calcDeviation() throws InvalidFileTypeException{
+    DeviationInstanceWrapper deviation = (DeviationInstanceWrapper)CMXFileWrapper.createDocument(DeviationInstanceWrapper.TOP_TAG);
+    DeviationDataSet dds = deviation.createDeviationDataSet();
+    double baseTempo = 0.0;
+    for(int t : ticks2tempo.values()) baseTempo += t;
+    baseTempo /= ticks2tempo.size();
+    dds.addNonPartwiseControl(1, 1.0, "tempo", baseTempo);
+    for(Entry<Integer, Integer> e : ticks2tempo.entrySet())
+      dds.addNonPartwiseControl(e.getKey()/(TICKS_PER_BEAT*4) + 1, (double)(e.getKey()%(TICKS_PER_BEAT*4))/TICKS_PER_BEAT + 1, "tempo-deviation", e.getValue()/baseTempo);
+    for(DeviatedNote dn : deviatedNotes) dn.write(dds);
+    dds.addElementsToWrapper();
+    return deviation;
+  }
 
   public class DeviatedNote extends MutableNote {
-    // TODO 挙動テスト
-    private MusicXMLWrapper.Note note = null;
+
+    private MusicXMLWrapper.Note note;
     private double attack;
     private double release;
     private double dynamics;
     private double endDynamics;
-    private MidiEvent noteOn = null;
-    private MidiEvent noteOff = null;
+    private MidiEvent noteOn;
+    private MidiEvent noteOff;
     private boolean isMissNote;
-    private String partid = null;
-    
+    private String partid;
+    private Track track;
+
     private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track) throws InvalidMidiDataException{
       this(note, 0.0, 0.0, 1.0, 1.0, isMissNote, track);
     }
@@ -211,6 +235,7 @@ public class CompiledDeviation {
       this.dynamics = dynamics;
       this.endDynamics = endDynamics;
       this.partid = partid;
+      this.track = track;
       ShortMessage on = new ShortMessage();
       on.setMessage(ShortMessage.NOTE_ON, notenum(), velocity());
       noteOn = new MidiEvent(on, onset());
@@ -235,8 +260,8 @@ public class CompiledDeviation {
     public int onsetInMSec() {
       int prevTicks = 0;
       for(int ticks : ticks2msec.keySet()){
-        if(ticks > onset()) break;
         prevTicks = ticks;
+        if(ticks > onset()) break;
       }
       return ticks2msec.get(prevTicks) + (int)((onset() - prevTicks)/(double)TICKS_PER_BEAT/ticks2tempo.get(prevTicks)*60*1000);
     }
@@ -254,8 +279,8 @@ public class CompiledDeviation {
     public int offsetInMSec() {
       int prevTicks = 0;
       for(int ticks : ticks2msec.keySet()){
-        if(ticks > offset()) break;
         prevTicks = ticks;
+        if(ticks > offset()) break;
       }
       return ticks2msec.get(prevTicks) + (int)((offset() - prevTicks)/(double)TICKS_PER_BEAT/ticks2tempo.get(prevTicks)*60*1000);
     }
@@ -285,7 +310,18 @@ public class CompiledDeviation {
     }
 
     /**
-     * このNoteのDeviationを変更する。
+     * このNoteのDeviationを変更する
+     * 引数はそれぞれ相対指定
+     * @param attack
+     * @param release
+     * @throws InvalidMidiDataException
+     */
+    public void changeDeviation(double attack, double release) throws InvalidMidiDataException{
+      changeDeviation(attack, release, this.dynamics, this.endDynamics);
+    }
+
+    /**
+     * このNoteのDeviationを変更する
      * attack, releaseは相対指定
      * dynamics, endDynamicsは絶対指定
      * @param attack
@@ -303,19 +339,25 @@ public class CompiledDeviation {
     }
 
     private void updateMidiEvent() throws InvalidMidiDataException{
-      noteOn.setTick(onset());
-      ShortMessage sm = (ShortMessage)noteOn.getMessage();
-      sm.setMessage(sm.getStatus(), sm.getData1(), velocity());
-      noteOff.setTick(offset());
-      sm = (ShortMessage)noteOff.getMessage();
-      sm.setMessage(sm.getStatus(), sm.getData1(), offVelocity());
+      ShortMessage smon = (ShortMessage)noteOn.getMessage();
+      smon.setMessage(smon.getStatus(), smon.getData1(), velocity());
+      MidiEvent meon = new MidiEvent(smon, onset());
+      ShortMessage smoff = (ShortMessage)noteOff.getMessage();
+      smoff.setMessage(smoff.getStatus(), smoff.getData1(), offVelocity());
+      MidiEvent meoff = new MidiEvent(smoff, offset());
+      track.remove(noteOn);
+      track.remove(noteOff);
+      track.add(meon);
+      track.add(meoff);
+      noteOn = meon;
+      noteOff = meoff;
     }
     
     public void write(DeviationDataSet dds){
       if(note == null){
         if(isMissNote) return;
-        int measure = onset()/(TICKS_PER_BEAT*4);
-        double beat = (onset() - measure)/(double)TICKS_PER_BEAT;
+        int measure = onset()/(TICKS_PER_BEAT*4) + 1;
+        double beat = (onset()%(TICKS_PER_BEAT*4))/(double)TICKS_PER_BEAT + 1;
         double duration = (offset() - onset())/(double)TICKS_PER_BEAT;
         dds.addExtraNote(partid, measure, beat, notenum(), duration, dynamics, endDynamics);
       }

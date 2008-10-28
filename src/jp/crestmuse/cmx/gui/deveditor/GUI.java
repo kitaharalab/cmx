@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.gui.deveditor;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -30,39 +31,36 @@ import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
 public class GUI implements MusicPlaySynchronized {
   // TODO 直前に開いたディレクトリを表示
-
   private CorePlayer corePlayer;
   private MusicPlaySynchronizer synchronizer;
-  private DefaultListModel models;
+  private DefaultListModel playList;
   private JMenuItem openMenuItem;
   private ArrayList<PianoRollPanel> pianoRollPanels;
   private PianoRollPanel showingPanel;
-  private JScrollPane pianoRollPanel;
+  private JScrollPane scrollPane;
 
   public GUI() throws MidiUnavailableException {
     corePlayer = new CorePlayer();
     synchronizer = new MusicPlaySynchronizer(corePlayer);
     synchronizer.addSynchronizedComponent(this);
     pianoRollPanels = new ArrayList<PianoRollPanel>();
-    pianoRollPanel = new JScrollPane();
-    JFrame f = new JFrame();
-    f.setSize(640, 480);
-    f.getContentPane().add(pianoRollPanel);
-    f.setVisible(true);
+    scrollPane = new JScrollPane();
 
     final JFrame frame = new JFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(500, 500);
+    frame.setSize(640, 720);
     frame.getContentPane().setLayout(new FlowLayout());
     setMenuBar(frame);
+    scrollPane.setPreferredSize(new Dimension(512, 512));
+    frame.getContentPane().add(scrollPane);
     setList(frame);
     setButtons(frame);
     frame.setVisible(true);
   }
 
   private void setList(final JFrame frame) {
-    models = new DefaultListModel();
-    JList list = new JList(models);
+    playList = new DefaultListModel();
+    JList list = new JList(playList);
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     list.addListSelectionListener(new ListSelectionListener(){
       public void valueChanged(ListSelectionEvent e) {
@@ -70,7 +68,10 @@ public class GUI implements MusicPlaySynchronized {
           int index = ((JList)e.getSource()).getSelectedIndex();
           corePlayer.changeDeviation(index);
           showingPanel = pianoRollPanels.get(index);
-          pianoRollPanel.setViewportView(showingPanel);
+          showingPanel.setScrollPane();
+          Point p = scrollPane.getViewport().getViewPosition();
+          p.y = (showingPanel.getHeight() - scrollPane.getHeight())/2;
+          scrollPane.getViewport().setViewPosition(p);
         } catch (InvalidMidiDataException e1) {
           e1.printStackTrace();
         }
@@ -100,10 +101,20 @@ public class GUI implements MusicPlaySynchronized {
         corePlayer.reset();
       }
     });
+    JButton change = new JButton("change");
+    change.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        if(showingPanel != null){
+          showingPanel.changeTimeLine();
+          scrollPane.repaint();
+        }
+      }
+    });
 
     frame.getContentPane().add(start);
     frame.getContentPane().add(stop);
     frame.getContentPane().add(reset);
+    frame.getContentPane().add(change);
   }
 
   private void setMenuBar(final JFrame frame) {
@@ -149,9 +160,12 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   public void synchronize(double currentTime, long currentTick, MusicPlaySynchronizer wavsync) {
-    Point p = pianoRollPanel.getViewport().getViewPosition();
-    p.x = showingPanel.getX(currentTime, currentTick);
-    pianoRollPanel.getViewport().setViewPosition(p);
+    Point p = scrollPane.getViewport().getViewPosition();
+    p.x = showingPanel.getPlayPointX(currentTime, currentTick);
+    int width = scrollPane.getViewport().getWidth();
+    p.x = Math.max(0, Math.min(showingPanel.getWidth() - width, p.x - width/2));
+    scrollPane.getViewport().setViewPosition(p);
+    showingPanel.repaint();
   }
 
   public void open(final String fileName) {
@@ -160,11 +174,11 @@ public class GUI implements MusicPlaySynchronized {
         try {
           CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
           CompiledDeviation cd = corePlayer.open(wrapper);
-          pianoRollPanels.add(new PianoRollPanel(cd));
+          pianoRollPanels.add(new PianoRollPanel(cd, scrollPane));
           SwingUtilities.invokeLater(new Runnable(){
             public void run() {
-              String name = "dev" + models.getSize();
-              models.addElement(name);
+              String name = "dev" + playList.getSize();
+              playList.addElement(name);
             }
           });
         } catch (Exception e) {
