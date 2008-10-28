@@ -1,13 +1,11 @@
 package jp.crestmuse.cmx.sound;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import java.io.*;
 import java.nio.*;
-import java.net.*;
 import java.util.*;
 import javax.sound.sampled.*;
 
-public class WAVPlayer implements LineSupportingMusicPlayer {
+public class WAVPlayer implements MusicPlayer {
 
   private byte[] waveform;
   private AudioFormat fmt = null;

@@ -1,15 +1,8 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -24,11 +17,9 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
-import javax.swing.JFrame;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
-import jp.crestmuse.cmx.misc.QueueWrapper;
 import jp.crestmuse.cmx.sound.MusicPlayer;
 import jp.crestmuse.cmx.sound.SMFPlayer;
 
@@ -242,7 +233,6 @@ public class MidiInputOutputModule {
 //      return new MidiEvents();
 //    }
 
-    @Override
     public void execute(List<QueueReader<MidiEventWithTicktime>> src,
         List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
         throws InterruptedException {
@@ -251,12 +241,10 @@ public class MidiInputOutputModule {
       dest.get(0).add(e);
     }
 
-    @Override
     public int getInputChannels() {
       return 1;
     }
 
-    @Override
     public int getOutputChannels() {
       return 1;
     }

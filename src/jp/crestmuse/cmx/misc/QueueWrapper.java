@@ -9,9 +9,12 @@ public class QueueWrapper<E> {
   int removedNum;
   
   public QueueWrapper(java.util.Queue<E> q){
-    this(q, 0);
+    queue = q;
+    list = new ArrayList<PacketWithReadedCount>();
+    removedNum = 0;
   }
 
+  @Deprecated
   public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
     list = new ArrayList<PacketWithReadedCount>();

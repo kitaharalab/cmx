@@ -2,22 +2,35 @@ package jp.crestmuse.cmx.sound;
 
 import java.util.*;
 
+/**
+ * <p>このクラスは複数の{@link MusicPlaySynchronized}オブジェクトをひとつの
+ * {@link MusicPlayer}の再生と同期させます．</p>
+ * 
+ * <p>一定時間ごとに所持する{@link MusicPlaySynchronized}オブジェクトの
+ * {@link MusicPlaySynchronized#synchronize(double, long, MusicPlaySynchronizer)}
+ * メソッドを呼び出します．これはこのクラスの{@link #play()}メソッドから演奏を
+ * 開始したときのみ動作し、外部から{@link MusicPlayer#play()}メソッドを呼び
+ * 出すと同期処理は行われません．</p>
+ * 
+ * <p>最初にこのクラスの{@link #play()}を呼び出したときのみ、
+ * MusicPlayerのスレッドを生成、開始します．</p>
+ * @author Naoyuki Totani
+ * @see MusicPlaySynchronized
+ * @see MusicPlayer
+ *
+ */
 public class MusicPlaySynchronizer implements Runnable {
 
   private MusicPlayer player;
-  //private Thread thPlay = null;
-  //private Thread thDraw;
   private List<MusicPlaySynchronized> synclist = 
     new ArrayList<MusicPlaySynchronized>();
-  private boolean thPlayStarted = false;
+  private boolean playerThreadStarted = false;
+  private boolean syncThreadStarted = false;
   private boolean stoppedByUser = false;
   private long sleeptime = 100;
 
   public MusicPlaySynchronizer(MusicPlayer player) {
     this.player = player;
-    //if (player instanceof LineSupportingMusicPlayer)
-    //  ((LineSupportingMusicPlayer)player).addLineListener(this);
-    //thPlay = new Thread(player);
   }
 
   public void addSynchronizedComponent(MusicPlaySynchronized c) {
@@ -26,12 +39,12 @@ public class MusicPlaySynchronizer implements Runnable {
 
   public void play() {
     player.play();
-    if (!thPlayStarted){
-      //thPlay.start();
+    if (!playerThreadStarted)
       new Thread(player).start();
+    if(!syncThreadStarted)
       new Thread(this).start();
-    }
-    thPlayStarted = true;
+    playerThreadStarted = true;
+    syncThreadStarted = true;
     stoppedByUser = false;
   } 
 
@@ -47,23 +60,7 @@ public class MusicPlaySynchronizer implements Runnable {
   public boolean isNowPlaying() {
     return  (player != null) && (player.isNowPlaying());
   }
-/*
-  public void update(LineEvent e) {
-    LineEvent.Type type = e.getType();
-    if (type.equals(LineEvent.Type.START)) {
-      thDraw = new Thread(this);
-      thDraw.start();
-      for (MusicPlaySynchronized sync : synclist)
-        sync.start(this);
-    } else if (type.equals(LineEvent.Type.STOP)) {
-      //thDraw.stop();
-      //thDraw = null;
-      thDraw.interrupt();
-      for (MusicPlaySynchronized sync : synclist)
-        sync.stop(this);
-    }
-  }
-*/
+
   public void setSleepTime(long sleeptime) {
     this.sleeptime = sleeptime;
   }
@@ -90,5 +87,6 @@ public class MusicPlaySynchronizer implements Runnable {
     }
     for (MusicPlaySynchronized sync : synclist)
       sync.stop(this);
+    syncThreadStarted = false;
   }
 }
