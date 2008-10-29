@@ -3,23 +3,32 @@ import java.util.*;
 import org.w3c.dom.*;
 
 public class ConfigXMLWrapper extends CMXFileWrapper {
-  public Map<String,AbstractHeaderNodeInterface> map = 
-    new HashMap<String,AbstractHeaderNodeInterface>();
+  public Map<String,ParamSet> map = new HashMap<String,ParamSet>();
   public String getParam(String category, final String subcategory, 
                          String key) {
     String c = category + ":" + subcategory;
     if (map.containsKey(c)) {
       return map.get(c).getHeaderElement(key);
     } else {
-      Node node = selectSingleNode("/config/"+category+"/"+subcategory);
-      AbstractHeaderNodeInterface header = 
-        new AbstractHeaderNodeInterface(node) {
-          protected String getSupportedNodeName() {
-            return subcategory;
-          }
-        };
+      Node node = selectSingleNode("/config/"+category+"/category[@name='"+subcategory+"']");
+      ParamSet header = new ParamSet(node);
+//      AbstractHeaderNodeInterface header = 
+//        new AbstractHeaderNodeInterface(node) {
+//          protected String getSupportedNodeName() {
+//            return subcategory;
+//          }
+//        };
       map.put(c, header);
       return header.getHeaderElement(key);
+    }
+  }
+
+  private class ParamSet extends AbstractHeaderNodeInterface {
+    protected ParamSet(Node node) {
+      super(node);
+    }
+    protected String getSupportedNodeName() {
+      return "category";
     }
   }
 

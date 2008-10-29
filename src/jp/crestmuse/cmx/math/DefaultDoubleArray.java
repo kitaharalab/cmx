@@ -50,6 +50,14 @@ class DefaultDoubleArray implements DoubleArray,Cloneable {
     }
   }
 
+  public String encode() {
+    return Utils.toString2(this);
+  }
+
+//  public String getEncodeFormatName() {
+//    return "array";
+//  }
+
 /*
   public DoubleArray subarray(int from, int thru) {
     double[] newarray = new double[thru - from];

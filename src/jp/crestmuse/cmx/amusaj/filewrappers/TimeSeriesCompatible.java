@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
+import java.util.*;
 
 /*********************************************************************
  *時系列データを表すクラスのためのインターフェイスです. 
@@ -8,8 +9,9 @@ import jp.crestmuse.cmx.misc.*;
  *一定のサンプリングレートでデータが並んでいるものです. 
  *時系列データへのアクセスはFirst-in First-outとします. 
  *********************************************************************/
-public interface TimeSeriesCompatible<D> 
-  extends AmusaDataCompatible<D> {
+public interface TimeSeriesCompatible<D>
+//  extends AmusaDataCompatible<D> 
+{
 
   public QueueReader<D> getQueueReader();
   /*******************************************************************
@@ -22,6 +24,14 @@ public interface TimeSeriesCompatible<D>
    *時間分解能をミリ秒単位で返します. 
    *******************************************************************/
   public int timeunit();
+  String getAttribute(String key);
+  int getAttributeInt(String key);
+  double getAttributeDouble(String key);
+  void setAttribute(String key, String value);
+  void setAttribute(String key, int value);
+  void setAttribute(String key, double value);
+  Iterator<Map.Entry<String,String>> getAttributeIterator();
+
   /*******************************************************************
    *新たな多次元ベクトルを末尾に追加します. 
    *******************************************************************/

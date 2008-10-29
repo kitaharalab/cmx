@@ -9,8 +9,7 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
-public abstract class AbstractWAVAnalyzer 
-  extends CMXCommand<WAVWrapper,AmusaXMLWrapper> {
+public abstract class AbstractWAVAnalyzer extends CMXCommand {
   protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
 
@@ -41,19 +40,45 @@ public abstract class AbstractWAVAnalyzer
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
-  protected AmusaXMLWrapper run(WAVWrapper wav) 
-    throws IOException,ParserConfigurationException,
+  protected void run() throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
+    WAVWrapper wav = (WAVWrapper)indata();
+//    WAVXMLWrapper wav = (WAVXMLWrapper)indata();  
     WindowSlider winslider = new WindowSlider();
     winslider.setParams(params);
+//    AudioDataCompatible audiodata = wav.getDataChunkList()[0].getAudioData();
+//    winslider.setInputData(audiodata);           // originally wav
     winslider.setInputData(wav);
+//    STFT stft = new STFT();
+//    stft.setParams(params);
+//    stft.setInputData(wav);
+//    stft.setInputData(wav.getDataChunkList()[0].getAudioData());
     int nFrames = winslider.getAvailableFrames();
     int timeunit = winslider.getTimeUnit();
+//    int nFrames = stft.getAvailableFrames();
+//    int timeunit = stft.getTimeUnit();
     SPExecutor ex = new SPExecutor(params, nFrames, timeunit);
-    return analyzeWaveform(wav, winslider, ex);
+//    analyzeWaveform(audiodata, winslider, ex);
+    analyzeWaveform(wav, winslider, ex);
+//    analyzeWaveform(wav, stft, ex);
+    if (dataset != null) {
+      dataset.setHeaders(params);
+      dataset.addElementsToWrapper();
+    }
   }
 
-  protected abstract AmusaXMLWrapper analyzeWaveform(AudioDataCompatible wav, 
+  protected void prepareOutputData(String toptag) 
+    throws IOException,ParserConfigurationException,
+    TransformerException,SAXException {
+    newOutputData(toptag);
+    dataset = ((AmusaXMLWrapper)outdata()).createDataSet();
+  }
+
+  protected void addOutputData(AmusaDataCompatible data) {
+    dataset.add(data);
+  }
+
+  protected abstract void analyzeWaveform(AudioDataCompatible wav, 
                                           WindowSlider winslider, 
                                           SPExecutor exec) 
     throws IOException,ParserConfigurationException,

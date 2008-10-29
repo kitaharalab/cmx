@@ -1,14 +1,19 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.misc.*;
+import java.io.*;
 import java.util.*;
 
-public class AmusaDataSet<D extends AmusaDataCompatible> 
+public class AmusaDataSet<D extends TimeSeriesCompatible>
   implements AmusaDataSetCompatible<D> {
   Map<String,String> header;
   List<D> data;
-  private AmusaXMLWrapper wrapper;
+//  private AmusaXMLWrapper wrapper;
+  private String fmt;
   
-  AmusaDataSet(AmusaXMLWrapper wrapper) {
-    this.wrapper = wrapper;
+  public AmusaDataSet(String fmt) {
+//    this.wrapper = wrapper;
+    this.fmt = fmt;
     header = new HashMap<String,String>();
     data = new ArrayList<D>();
   }
@@ -95,6 +100,45 @@ public class AmusaDataSet<D extends AmusaDataCompatible>
     return data;
   }
 
+  public AmusaXMLWrapper toWrapper() throws IOException {
+    AmusaXMLWrapper wrapper = 
+    (AmusaXMLWrapper)CMXFileWrapper.createDocument("amusaxml");
+    wrapper.setAttribute("format", fmt);
+    wrapper.addChild("header");
+    Set<Map.Entry<String,String>> header = this.header.entrySet();
+    for (Map.Entry<String,String> e : header) {
+      wrapper.addChild("meta");
+      wrapper.setAttribute("name", e.getKey());
+      wrapper.setAttribute("content", e.getValue());
+      wrapper.returnToParent();
+    }
+    wrapper.returnToParent();
+    for (D d : data) {
+      int nFrames = d.frames();
+      QueueReader<? extends Encodable> queue = d.getQueueReader();
+      StringBuilder sb = new StringBuilder();
+      try {
+        for (int n = 0; n < nFrames-1; n++)
+          sb.append(queue.take().encode()).append("\n");
+        sb.append(queue.take().encode());
+      } catch (InterruptedException e) {}
+      wrapper.addChild("data");
+      Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
+      while (it.hasNext()) {
+        Map.Entry<String,String> e = it.next();
+        wrapper.setAttribute(e.getKey(), e.getValue());
+      }
+      wrapper.setAttribute("frames", nFrames);
+      if (d.dim() > 0) wrapper.setAttribute("dim", d.dim());
+      if (d.timeunit() > 0) wrapper.setAttribute("timeunit", d.timeunit());
+      wrapper.addText(sb.toString());
+      wrapper.returnToParent();
+    }
+    wrapper.finalizeDocument();
+    return wrapper;
+  }
+
+/*
   public void addElementsToWrapper() {
     wrapper.addChild("header");
     Set<Map.Entry<String,String>> header = this.header.entrySet();
@@ -108,4 +152,5 @@ public class AmusaDataSet<D extends AmusaDataCompatible>
     for (D d : data) 
       wrapper.addDataElement(d);
   }
+*/
 }

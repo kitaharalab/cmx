@@ -198,30 +198,36 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 //                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
 //                           "WAVXML//EN", 
 //                           "http://www.crestmuse.jp/cmx/dtds/wavxml.dtd");
-      addClassTable("spd", 
-                    AMUSA_PACKAGE_BASE + "." + "SPDXMLWrapper");
-      addDocumentTypeTable("spd", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
-                           "SPDXML//EN", 
-                           "http://www.crestmuse.jp/cmx/dtds/spdxml.dtd");
-      addClassTable("fpd", 
-                    AMUSA_PACKAGE_BASE + "." + "FPDXMLWrapper");
-      addDocumentTypeTable("fpd", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
-                           "FPDXML//EN", 
-                           "http://www.crestmuse.jp/cmx/dtds/fpdxml.dtd");
-      addClassTable("tbd",
-                    AMUSA_PACKAGE_BASE + "." + "TBDXMLWrapper");
-      addDocumentTypeTable("tbd",
-                           "-//CrestMuse//DTD CrestMuseXML 0.40 " +
-                    "TBDXML//EN", 
-                    "http://www.crestmuse.jp/cmx/dtds/tbdxml.dtd");
-      addClassTable("igram", 
-                    AMUSA_PACKAGE_BASE + "." + "IGRAMXMLWrapper");
-      addDocumentTypeTable("igram", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
-                           "IGRAMXML//EN", 
-                           "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
+//      addClassTable("spd", 
+//                    AMUSA_PACKAGE_BASE + "." + "SPDXMLWrapper");
+//      addDocumentTypeTable("spd", 
+//                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
+//                           "SPDXML//EN", 
+//                           "http://www.crestmuse.jp/cmx/dtds/spdxml.dtd");
+//      addClassTable("fpd", 
+//                    AMUSA_PACKAGE_BASE + "." + "FPDXMLWrapper");
+//      addDocumentTypeTable("fpd", 
+//                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
+//                           "FPDXML//EN", 
+//                           "http://www.crestmuse.jp/cmx/dtds/fpdxml.dtd");
+//      addClassTable("tbd",
+//                    AMUSA_PACKAGE_BASE + "." + "TBDXMLWrapper");
+//      addDocumentTypeTable("tbd",
+//                           "-//CrestMuse//DTD CrestMuseXML 0.40 " +
+//                    "TBDXML//EN", 
+//                    "http://www.crestmuse.jp/cmx/dtds/tbdxml.dtd");
+//      addClassTable("igram", 
+//                    AMUSA_PACKAGE_BASE + "." + "IGRAMXMLWrapper");
+//      addDocumentTypeTable("igram", 
+//                           "-//CrestMuse//DTD CrestMuseXML 0.40 " + 
+//                           "IGRAMXML//EN", 
+//                           "http://www.crestmuse.jp/cmx/dtds/igramxml.dtd");
+      addClassTable("amusaxml", 
+                    AMUSA_PACKAGE_BASE + "." + "AmusaXMLWrapper");
+      addDocumentTypeTable("amusaxml", 
+                           "-//CrestMuse//DTD CrestMuseXML 0.41 " +
+                           "AmusaXML//EN", 
+                           "http://www.crestmuse.jp/cmx/dtds/amusaxml.dtd");
       addClassTable("Mpeg7", 
                     AMUSA_PACKAGE_BASE + "." + "MPEG7Wrapper");
     } catch (ClassNotFoundException e) {

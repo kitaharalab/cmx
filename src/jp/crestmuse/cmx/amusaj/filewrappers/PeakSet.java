@@ -1,7 +1,8 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.misc.*;
 
-public class PeakSet {
+public class PeakSet implements Encodable {
   private int nPeaks;
   private DoubleArray freq;
   private DoubleArray power;
@@ -105,6 +106,19 @@ public class PeakSet {
         }
       }
     }
+  }
+
+  public String encode() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(nPeaks).append(" ");
+    for (int i = 0; i < nPeaks; i++) {
+      sb.append(freq(i)).append(" ");
+      sb.append(power(i)).append(" ");
+      sb.append(phase(i)).append(" ");
+      sb.append(iid(i)).append(" ");
+      sb.append(ipd(i)).append(" ");
+    }
+    return sb.toString();
   }
 
   public class Filter {

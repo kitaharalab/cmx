@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.math;
+import jp.crestmuse.cmx.misc.*;
 
 class DefaultComplexArray implements ComplexArray {
   private double[] re, im;
@@ -56,4 +57,5 @@ class DefaultComplexArray implements ComplexArray {
     newarray.thru = this.from + thru;
     return newarray;
   }
+
 }

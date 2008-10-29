@@ -31,10 +31,9 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     }
   }
 
-  protected AmusaXMLWrapper analyzeWaveform(AudioDataCompatible wav, 
-                                            WindowSlider winslider, 
-                                            SPExecutor exec)  
-    throws IOException,
+  protected void analyzeWaveform(AudioDataCompatible wav, 
+                                 WindowSlider winslider, 
+                                 SPExecutor exec)  throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
     STFT stft = new STFT();
@@ -51,12 +50,23 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       new F0PDFCalculatorModule();
     exec.addSPModule(f0calc);
     exec.connect(peakext, 0, f0calc, 0);
-    exec.start();
-    TimeSeriesCompatible ts = 
-      (TimeSeriesCompatible)exec.getResult(f0calc).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("array");
-    dataset.add(ts);
-    return dataset.toWrapper();
+//    try {
+      exec.start();
+      prepareOutputData(FPDXMLWrapper.TOP_TAG);
+      TimeSeriesCompatible ts = 
+        (TimeSeriesCompatible)exec.getResult(f0calc).get(0);
+//      TimeSeriesCompatible ts = (TimeSeriesCompatible)exec.getResult(3).get(0);
+//      FPDXMLWrapper fpd = 
+//        (FPDXMLWrapper)CMXFileWrapper.createDocument(FPDXMLWrapper.TOP_TAG);
+//      AmusaDataSet<TimeSeriesCompatible> dataset = fpd.createDataSet();
+      addOutputData(ts);
+//      dataset.add(ts);
+//      dataset.setHeaders(params);
+//      dataset.addElementsToWrapper();
+//      setOutputData(fpd);
+//    } catch (InterruptedException e) {
+//      showErrorMessage(e);
+//    }
   }
 
   public static void main(String[] args) {
