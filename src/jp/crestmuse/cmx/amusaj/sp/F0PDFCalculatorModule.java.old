@@ -7,10 +7,12 @@ import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
 public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
+//  implements ProducerConsumerCompatible<PeakSet,DoubleArray> {
 
   private F0PDFCalculatorFactory factory = 
     F0PDFCalculatorFactory.getFactory();
   private F0PDFCalculator f0calc;
+//  private Map<String,Object> params;
   private boolean paramSet = false;
   private double nnFrom, nnThru, step;
 
@@ -19,6 +21,7 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
     copyParamsFromConfigXML("param", "f0pdf", 
                             "NOTENUMBER_FROM", "NOTENUMBER_THRU", 
                             "STEP");
+//    this.params = params;
     paramSet = false;
   }
 
@@ -30,8 +33,37 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
     paramSet = true;
   }
 
-  public F0PDFCalculatorModule() {
+/*
+  private void setParams() {
+    ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
+    if (containsParam("NOTENUMBER_FROM")) {
+      nnFrom = getParamDouble("NOTENUMBER_FROM");
+//    if (params.containsKey("NOTENUMBER_FROM")) {
+//      nnFrom = (Double)params.get("NOTENUMBER_FROM");
+    } else {
+      nnFrom = config.getParamDouble("param", "f0pdf", "NOTENUMBER_FROM");
+      params.
+//      params.put("NOTENUMBER_FROM", nnFrom);
+    }
+    if (params.containsKey("NOTENUMBER_THRU")) {
+      nnThru = (Double)params.get("NOTENUMBER_THRU");
+    } else {
+      nnThru = config.getParamDouble("param", "f0pdf", "NOTENUMBER_THRU");
+      params.put("NOTENUMBER_THRU", nnThru);
+    }
+    if (params.containsKey("STEP")) {
+      step = (Double)params.get("STEP");
+    } else {
+      step = config.getParamDouble("param", "f0pdf", "STEP");
+      params.put("STEP", step);
+    }
+    f0calc = factory.createCalculator(nnFrom, nnThru, step);
 
+  }
+*/
+
+  public F0PDFCalculatorModule() {
+//    f0calc = factory.createCalculator(nnFrom, nnThru, step);
   }
 
   public void execute(List<QueueReader<PeakSet>> src, 
@@ -39,12 +71,6 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
     throws InterruptedException {
     if (!paramSet) setParams();
     PeakSet peaks = src.get(0).take();
-//    try {
-//      dest.get(0).add((DoubleArray)f0calc.calcWeights(peaks).clone());
-//    } catch (CloneNotSupportedException e) {
-//      e.printStackTrace();
-//      System.exit(1);
-//    }
     dest.get(0).add(f0calc.calcWeights(peaks));
   }
 
@@ -55,5 +81,9 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
   public int getOutputChannels() {
     return 1;
   }
+
+//  public TimeSeriesCompatible createOutputInstance(int nFrames, int timeunit) {
+//    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
+//  }
 
 }

@@ -6,10 +6,15 @@ import java.util.*;
 
 public class AmusaDataSet<D extends TimeSeriesCompatible>
   implements AmusaDataSetCompatible<D> {
-  Map<String,String> header;
-  List<D> data;
+  private Map<String,String> header;
+  private List<D> data;
 //  private AmusaXMLWrapper wrapper;
-  private String fmt;
+  String fmt;
+
+  AmusaDataSet() {
+    header = new HashMap<String,String>();
+    data = new ArrayList<D>();
+  }
   
   public AmusaDataSet(String fmt) {
 //    this.wrapper = wrapper;

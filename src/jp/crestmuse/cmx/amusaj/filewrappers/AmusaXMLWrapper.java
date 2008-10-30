@@ -26,8 +26,7 @@ public class AmusaXMLWrapper extends CMXFileWrapper
   private static final String HEADER_TAG = "header";
   private static final String DATA_TAG = "data";
 
-  private static final DoubleArrayFactory factory = 
-    DoubleArrayFactory.getFactory();
+  private AmusaDecoder decoder = AmusaDecoder.getInstance();
 
 /*
   String toptag() {
@@ -65,11 +64,16 @@ public class AmusaXMLWrapper extends CMXFileWrapper
 //    return new AmusaDataSet<D>(this);
 //  }
 
+  public void changeDecoder(AmusaDecoder decoder) {
+    this.decoder = decoder;
+  }
+
+  protected void analyze() {
+    NamedNodeMap map = getDocument().getDocumentElement().getAttributes();
+    format = map.getNamedItem("format").getNodeValue();
+  }
+
   public String getFormat() {
-    if (format == null) {
-      NamedNodeMap map = getDocument().getDocumentElement().getAttributes();
-      format = map.getNamedItem("format").getNodeValue();
-    }
     return format;
   }
 
@@ -120,15 +124,17 @@ public class AmusaXMLWrapper extends CMXFileWrapper
       NodeList nl = selectNodeList("/" + TOP_TAG + "/" + DATA_TAG);
       int size = nl.getLength();
       datalist = new ArrayList<TimeSeriesCompatible>();
-      String format = getFormat();
-      if (format.equals("array"))
-        for (int i = 0; i < size; i++)
-          datalist.add(new DoubleArrayTimeSeries(nl.item(i)));
-      else if (format.equals("peaks"))
-        for (int i = 0; i < size; i++)
-          datalist.add(new Peaks(nl.item(i)));
-      else
-        throw new IllegalStateException("Format '" + format + "' is not supported.");
+      for (int i = 0; i < size; i++)
+        datalist.add(new Data(nl.item(i)));
+//      String format = getFormat();
+//      if (format.equals("array"))
+//        for (int i = 0; i < size; i++)
+//          datalist.add(new DoubleArrayTimeSeries(nl.item(i)));
+//      else if (format.equals("peaks"))
+//        for (int i = 0; i < size; i++)
+//          datalist.add(new Peaks(nl.item(i)));
+//      else
+//        throw new IllegalStateException("Format '" + format + "' is not supported.");
 //      for (int i = 0; i < size; i++)
 //        datalist.add(createDataNodeInterface(nl.item(i)));
     }
@@ -145,8 +151,7 @@ public class Header extends AbstractHeaderNodeInterface {
   }
 }
 
-  public abstract class Data<E> extends NodeInterface 
-    implements TimeSeriesCompatible<E> {
+  public class Data<E> extends NodeInterface implements TimeSeriesCompatible<E> {
 
     private int dim = -1;
     private int nFrames;
@@ -161,11 +166,14 @@ public class Header extends AbstractHeaderNodeInterface {
       nFrames = getAttributeInt("frames");
       queue = new LinkedList<E>();
       qwrap = new QueueWrapper(queue, nFrames);
-      interpretTextElement(getText(), queue);
+      StringTokenizer st = new StringTokenizer(getText());
+      for (int i = 0; i < nFrames; i++)
+        queue.add((E)decoder.decode(st, format, dim));
+//      interpretTextElement(getText(), queue);
     }
 
-    protected abstract void 
-    interpretTextElement(String text, java.util.Queue<E> queue);
+//    protected abstract void 
+//    interpretTextElement(String text, java.util.Queue<E> queue);
     
     protected final String getSupportedNodeName() {
       return "data";
@@ -208,6 +216,7 @@ public class Header extends AbstractHeaderNodeInterface {
     }
   }
 
+/*
   public class DoubleArrayTimeSeries extends Data<DoubleArray> {
     protected DoubleArrayTimeSeries(Node node) {
       super(node);
@@ -224,7 +233,9 @@ public class Header extends AbstractHeaderNodeInterface {
       }
     }
   }
+*/
 
+/*
   public class Peaks extends Data<PeakSet> {
     protected Peaks(Node node) {
       super(node);
@@ -246,7 +257,7 @@ public class Header extends AbstractHeaderNodeInterface {
       }
     }
   }
-        
+*/      
 
 }
                           
