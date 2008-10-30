@@ -22,6 +22,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
                                             SPExecutor exec)
     throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
+    System.out.println(jp.crestmuse.cmx.math.Utils.toString2(wav.getDoubleArrayWaveform()[0]));
     exec.addSPModule(winslider);
     STFT stft = new STFT();
     stft.setStereo(winslider.isStereo());
@@ -37,7 +38,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
 //      prepareOutputData(SPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible<PeakSet> peaks = 
         (TimeSeriesCompatible<PeakSet>)exec.getResult(peakext).get(0);
-      AmusaDataSet dataset = new AmusaDataSet("peaks");
+      AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
       dataset.add(peaks);
       return dataset.toWrapper();
 //      addOutputData(peaks);

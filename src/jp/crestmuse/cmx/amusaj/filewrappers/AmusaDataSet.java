@@ -23,6 +23,12 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
     data = new ArrayList<D>();
   }
 
+  public AmusaDataSet(String fmt, Map<String,String> header) {
+    this.fmt = fmt;
+    this.header = header;
+    data = new ArrayList<D>();
+  }
+
 /*********************************************************************
  *Returns the item corresponding to the specified key in the header. 
  *<br>

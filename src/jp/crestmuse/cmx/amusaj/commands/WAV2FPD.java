@@ -54,7 +54,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     exec.start();
     TimeSeriesCompatible ts = 
       (TimeSeriesCompatible)exec.getResult(f0calc).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("array");
+    AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
     dataset.add(ts);
     return dataset.toWrapper();
   }

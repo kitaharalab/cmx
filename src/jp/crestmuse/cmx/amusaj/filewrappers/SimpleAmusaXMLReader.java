@@ -68,7 +68,7 @@ public class SimpleAmusaXMLReader {
       if (localName.equals("amusaxml")) {
         dataset.fmt = format = attrs.getValue("format");
       } else if (localName.equals("header")) {
-        currentTagName = "head";
+        currentTagName = "header";
       } else if (localName.equals("meta")) {
         if (!"header".equals(currentTagName))
           throw new SAXException("'meta' should be in 'header'.");

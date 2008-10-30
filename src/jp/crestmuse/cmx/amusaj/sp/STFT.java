@@ -74,7 +74,10 @@ public class STFT extends SPModule<DoubleArray,ComplexArray> {
     DoubleArray signal = src.get(0).take();
     if (winsize < 0 || winsize != signal.length())
       changeWindow(wintype, signal.length());
-    ComplexArray aa = fft.executeR2C(signal, window);
+//    ComplexArray aa = fft.executeR2C(signal, window);
+//    for (int i = 0; i < aa.length(); i++)
+//      System.out.print(Math.hypot(aa.getReal(i), aa.getImag(i)) + " ");
+//    System.out.println();
     dest.get(0).add(fft.executeR2C(signal, window));
     if (isStereo) {
       dest.get(1).add(fft.executeR2C(src.get(1).take(), window));

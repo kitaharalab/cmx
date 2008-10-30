@@ -106,6 +106,10 @@ public class SPExecutor {
     return map.get(module).dest;
   }
 
+  public Map<String,String> getParams() {
+    return params;
+  }
+
 //  public List<AmusaDataCompatible> getResult(int index) {
 //    return list.get(index).dest;
 //  }
