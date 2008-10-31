@@ -121,9 +121,23 @@ public class PeakSet implements Encodable {
     return sb.toString();
   }
 
-  public class Filter {
-    public boolean usesLCF, usesHCF;
-    public double LCFbtm, LCFtop, HCFbtm, HCFtop;
+  public static class Filter {
+    private boolean usesLCF, usesHCF;
+    private double LCFbtm, LCFtop, HCFbtm, HCFtop;
   }
+
+  public static final Filter getFilter(boolean usesLCF, double LCFbtm, 
+                                       double LCFtop, boolean usesHCF, 
+                                       double HCFtop, double HCFbtm) {
+    Filter f = new Filter();
+    f.usesLCF = usesLCF;
+    f.LCFbtm = LCFbtm;
+    f.LCFtop = LCFtop;
+    f.usesHCF = usesHCF;
+    f.HCFtop = HCFtop;
+    f.HCFbtm = HCFbtm;
+    return f;
+  }
+
 
 }

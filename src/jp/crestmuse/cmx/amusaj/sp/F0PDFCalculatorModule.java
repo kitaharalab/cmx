@@ -14,11 +14,20 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
   private boolean paramSet = false;
   private double nnFrom, nnThru, step;
 
+  private String filterName = null;
+  private PeakSet.Filter filter = null;
+
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "f0pdf", 
                             "NOTENUMBER_FROM", "NOTENUMBER_THRU", 
                             "STEP");
+    if (params.containsKey("FILTER_NAME"))
+      copyParamsFromConfigXML("filters", 
+                              filterName = params.get("FILTER_NAME"), 
+                             "LOW_CUT_FILTER", "LOW_CUT_BUTTOM", 
+                             "LOW_CUT_TOP", "HIGH_CUT_FILTER", 
+                             "HIGH_CUT_TOP", "HIGH_CUT_BUTTOM");
     paramSet = false;
   }
 
@@ -27,6 +36,13 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
     nnThru = getParamDouble("NOTENUMBER_THRU");
     step = getParamDouble("STEP");
     f0calc = factory.createCalculator(nnFrom, nnThru, step);
+    if (filterName != null) 
+      filter = PeakSet.getFilter(getParam("LOW_CUT_FILTER").equals("on"), 
+                                 getParamDouble("LOW_CUT_BUTTOM"), 
+                                 getParamDouble("LOW_CUT_TOP"), 
+                                 getParam("HIGH_CUT_FILTER").equals("on"), 
+                                 getParamDouble("HIGH_CUT_TOP"), 
+                                 getParamDouble("HIGH_CUT_BUTTOM"));
     paramSet = true;
   }
 
@@ -39,12 +55,7 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
     throws InterruptedException {
     if (!paramSet) setParams();
     PeakSet peaks = src.get(0).take();
-//    try {
-//      dest.get(0).add((DoubleArray)f0calc.calcWeights(peaks).clone());
-//    } catch (CloneNotSupportedException e) {
-//      e.printStackTrace();
-//      System.exit(1);
-//    }
+    if (filter != null) peaks.filter(filter);
     dest.get(0).add(f0calc.calcWeights(peaks));
   }
 

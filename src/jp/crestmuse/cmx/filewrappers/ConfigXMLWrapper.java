@@ -10,7 +10,7 @@ public class ConfigXMLWrapper extends CMXFileWrapper {
     if (map.containsKey(c)) {
       return map.get(c).getHeaderElement(key);
     } else {
-      Node node = selectSingleNode("/config/"+category+"/category[@name='"+subcategory+"']");
+      Node node = selectSingleNode("/config/"+category+"/*[@name='"+subcategory+"']");
       ParamSet header = new ParamSet(node);
 //      AbstractHeaderNodeInterface header = 
 //        new AbstractHeaderNodeInterface(node) {
@@ -28,7 +28,7 @@ public class ConfigXMLWrapper extends CMXFileWrapper {
       super(node);
     }
     protected String getSupportedNodeName() {
-      return "category";
+      return "category|filter";
     }
   }
 

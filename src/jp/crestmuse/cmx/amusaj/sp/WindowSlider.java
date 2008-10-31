@@ -9,12 +9,8 @@ import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
 import java.util.*;
 
 public class WindowSlider extends SPModule<Object,DoubleArray> {
-//  implements ProducerConsumerCompatible<Object, DoubleArray> {
 
-//  private Map<String,Object> params = null;
   private int winsize = 0;
-//  private String wintype = null;
-//  private double[] window;
   private double shift = Double.NaN;
   private int shift_;
   private int chTarget = 0;
@@ -30,83 +26,32 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
     DoubleArrayFactory.getFactory();
 
   private int t = 0;
-//  private int t0 = 0, t1 = 0, t2 = 0;
 
   public void setParams(Map<String,String> params) {
     super.setParams(params);
-//    this.params = params;
+    copyParamsFromConfigXML("param", "fft", "WINDOW_SIZE", "SHIFT");
     paramSet = false;
     setParams();
   }
 
   private void setParams() {
-    ConfigXMLWrapper config = CMXCommand.getConfigXMLWrapper();
-//    int winsize;
-    if (containsParam("WINDOW_SIZE"))
-      winsize = getParamInt("WINDOW_SIZE");
-//    if (params != null && params.containsKey("WINDOW_SIZE")) 
-//      winsize = (Integer)params.get("WINDOW_SIZE");
-    else {
-      winsize = config.getParamInt("param", "fft", "WINDOW_SIZE");
-      setParam("WINDOW_SIZE", winsize);
-//      params.put("WINDOW_SIZE", winsize);
-    }
-//    String wintype;
-//    if (params != null && params.containsKey("WINDOW_TYPE")) 
-//      wintype = ((String)params.get("WINDOW_TYPE")).toLowerCase();
-//    else
-//      wintype = config.getParam("param", "fft", "WINDOW_TYPE");
-//    changeWindow(wintype, winsize);
-    
-    if (containsParam("SHIFT")) {
-      shift = getParamDouble("SHIFT");
-//    if (params != null && params.containsKey("SHIFT")) {
-//      shift = (Double)params.get("SHIFT");
-    } else {
-      shift = config.getParamDouble("param", "fft", "SHIFT");
-      setParam("SHIFT", shift);
-//      if (params != null) params.put("SHIFT", shift);
-    }
+    winsize = getParamInt("WINDOW_SIZE");
+    shift = getParamDouble("SHIFT");
     if (containsParam("TARGET_CHANNEL")) {
       chTarget = getParamInt("TARGET_CHANNEL");
-//    if (params != null && params.containsKey("TARGET_CHANNEL")) {
-//      chTarget = (Integer)params.get("TARGET_CHANNEL");
     } else {
       chTarget = 0;
       setParam("TARGET_CHANNEL", 0);
-//      if (params != null) params.put("TARGET_CHANNEL", 0);
     }
     paramSet = true;
   }
-
-/*
-  public void changeWindow(String wintype, int winsize) {
-    this.winsize = winsize;
-    if (params != null) params.put("WINDOW_SIZE", winsize);
-    buff = new double[winsize];
-    this.wintype = wintype;
-    if (params != null) params.put("WINDOW_TYPE", wintype);
-    if (wintype.startsWith("ham"))
-      window = hamming(winsize);
-    else if (wintype.startsWith("han"))
-      window = hanning(winsize);
-    else if (wintype.startsWith("gaus"))
-      window = gaussian(winsize);
-    else if (wintype.startsWith("rect"))
-      window = null;
-    else
-      throw new IllegalStateException("Unsupported window type");
-  }
-*/
 
   public void setInputData(AudioDataCompatible audiodata) {
     if (!paramSet) setParams();
     channels = audiodata.channels();
     setParam("CHANNELS", channels);
-//    if (params != null) params.put("CHANNELS", channels);
     fs = audiodata.sampleRate();
     setParam("SAMPLE_RATE", fs);
-//    if (params != null) params.put("SAMPLE_RATE", fs);
     if (shift < 1)
       shift = shift * fs;
     shift_ = (int)shift;
@@ -129,13 +74,14 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
       wavR = null;
       isStereo = false;
     }
+    if (isStereo)
+      setParam("STEREO", "Yes");
     t = 0;
-//    t0 = t1 = t2 = 0;
   }
 
-  public boolean isStereo() {
-    return isStereo;
-  }
+//  public boolean isStereo() {
+//    return isStereo;
+//  }
 
   public int getInputChannels() {
     return 0;
@@ -144,11 +90,6 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
   public int getOutputChannels() {
     return isStereo ? 3 : 1;
   }
-
-//  public TimeSeriesCompatible createOutputInstance(int nFrames, 
-//                                                   int timeunit) {
-//    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
-//  }
 
   public int getAvailableFrames() {
     return 
@@ -171,33 +112,4 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
     t += shift_;
   }
                     
-/*
-  private void calcWindowedSignal(DoubleArray wav, int index) {
-    if (window == null)
-      for (int i = 0; i < buff.length; i++)
-        buff[i] = wav.get(index + i);
-    else
-      for (int i = 0; i < buff.length; i++)
-        buff[i] = wav.get(index + i) * window[i];
-  }
-
-  public double[] getNextWindowedSignalMixed() {
-    calcWindowedSignal(wavM, t0);
-    t0 += shift_;
-    return buff;
-  }
-
-  public double[] getNextWindowedSignalLeft() {
-    calcWindowedSignal(wavL, t1);
-    t1 += shift_;
-    return buff;
-  }
-
-  public double[] getNextWindowedSignalRight() {
-    calcWindowedSignal(wavR, t2);
-    t2 += shift_;
-    return buff;
-    }
-*/
-
 }

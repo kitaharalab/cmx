@@ -50,12 +50,17 @@ public class STFT extends SPModule<DoubleArray,ComplexArray> {
 
   private void setParams() {
     wintype = getParam("WINDOW_TYPE").toLowerCase();
+    String stereo = getParam("STEREO");
+    isStereo = 
+      stereo != null 
+      && (stereo.startsWith("Y") || stereo.startsWith("y") 
+          || stereo.startsWith("T") || stereo.startsWith("t"));
     paramSet = true;
   }
   
-  public void setStereo(boolean b) {
-    isStereo = b;
-  }
+//  public void setStereo(boolean b) {
+//    isStereo = b;
+//  }
 
   /*********************************************************************
    *（古い）あらかじめsetInputDataメソッドでセットしたwaveformに対してSTFTを実行します. 

@@ -71,36 +71,37 @@ public class AmusaXMLWrapper extends CMXFileWrapper
   protected void analyze() {
     NamedNodeMap map = getDocument().getDocumentElement().getAttributes();
     format = map.getNamedItem("format").getNodeValue();
+    header = new Header(selectSingleNode("/" + TOP_TAG + "/" + HEADER_TAG));
   }
 
   public String getFormat() {
     return format;
   }
 
-  private Header getHeader() {
-    if (header == null)
-      header = new Header(selectSingleNode("/" + TOP_TAG + "/" + HEADER_TAG));
-    return header;
-  }
+//  private Header getHeader() {
+//  if (header == null)
+//    header = new Header(selectSingleNode("/" + TOP_TAG + "/" + HEADER_TAG));
+//    return header;
+//  }
 
   public String[] getHeaderNameList() {
-    return getHeader().getHeaderNameList();
+    return header.getHeaderNameList();
   }
 
   public String getHeader(String key) {
-    return getHeader().getHeaderElement(key);
+    return header.getHeaderElement(key);
   }
 
   public int getHeaderInt(String key) {
-    return getHeader().getHeaderElementInt(key);
+    return header.getHeaderElementInt(key);
   }
 
   public double getHeaderDouble(String key) {
-    return getHeader().getHeaderElementDouble(key);
+    return header.getHeaderElementDouble(key);
   }
 
   public boolean containsHeaderKey(String key) {
-    return getHeader().containsHeaderKey(key);
+    return header.containsHeaderKey(key);
   }
 
   public void setHeader(String key, String value) {
@@ -141,7 +142,7 @@ public class AmusaXMLWrapper extends CMXFileWrapper
     return datalist;
   }
 
-public class Header extends AbstractHeaderNodeInterface {
+private class Header extends AbstractHeaderNodeInterface {
   Header(Node node) {
     super(node);
   }
@@ -151,7 +152,7 @@ public class Header extends AbstractHeaderNodeInterface {
   }
 }
 
-  public class Data<E> extends NodeInterface implements TimeSeriesCompatible<E> {
+  private class Data<E> extends NodeInterface implements TimeSeriesCompatible<E> {
 
     private int dim = -1;
     private int nFrames;

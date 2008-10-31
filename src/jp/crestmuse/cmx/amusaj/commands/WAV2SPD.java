@@ -24,7 +24,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
     STFT stft = new STFT();
-    stft.setStereo(winslider.isStereo());
+//    stft.setStereo(winslider.isStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);

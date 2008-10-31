@@ -12,6 +12,7 @@ import org.xml.sax.*;
 
 public class WAV2FPD extends AbstractWAVAnalyzer {
   private double nnFrom = Double.NaN, nnThru = Double.NaN, step = Double.NaN;
+  private String filterName = null;
   private boolean paramSet = false;
 
   protected boolean setOptionsLocal(String option, String value) {
@@ -26,6 +27,9 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     } else if (option.equals("-step")) {
       params.put("STEP", String.valueOf(value));
       return true;
+    } else if (option.equals("-filter")) {
+      params.put("FILTER_NAME", value);
+      return true;
     } else {
       return false;
     }
@@ -38,7 +42,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
     STFT stft = new STFT();
-    stft.setStereo(winslider.isStereo());
+//    stft.setStereo(winslider.isStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
@@ -47,8 +51,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
     }
-    F0PDFCalculatorModule f0calc = 
-      new F0PDFCalculatorModule();
+    F0PDFCalculatorModule f0calc = new F0PDFCalculatorModule();
     exec.addSPModule(f0calc);
     exec.connect(peakext, 0, f0calc, 0);
     exec.start();

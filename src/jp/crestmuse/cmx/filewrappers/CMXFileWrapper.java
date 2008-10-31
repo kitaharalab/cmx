@@ -230,6 +230,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
                            "http://www.crestmuse.jp/cmx/dtds/amusaxml.dtd");
       addClassTable("Mpeg7", 
                     AMUSA_PACKAGE_BASE + "." + "MPEG7Wrapper");
+      addClassTable("script", 
+                    AMUSA_PACKAGE_BASE + "." + "AmusaScriptWrapper");
+      addDocumentTypeTable("script", 
+                           "-//CrestMuse//DTD CrestMuseXML 0.41 " + 
+                           "AmusaScriptXML//EN", 
+                           "http://www.crestmuse.jp/cmx/dtds/amusascript.dtd");
     } catch (ClassNotFoundException e) {
       throw new ExternalLibraryException(e.toString());
     }
