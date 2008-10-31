@@ -28,7 +28,7 @@ function data = decodePeaks(text, nFrames)
 
 X = strread(text);
 
-nTotalPeaks = sum(X(:, 1))
+nTotalPeaks = sum(X(:, 1));
 time = zeros(nTotalPeaks, 1);
 freq = zeros(nTotalPeaks, 1);
 power = zeros(nTotalPeaks, 1);
@@ -48,7 +48,7 @@ for n = 1 : nFrames
     ipd(k) = X(n, 5 * i + 1);
     k = k + 1;
   end
-  fprintf(1, '.');
+%  fprintf(1, '.');
 end
 time(k : end) = [];   data.time = time;
 freq(k : end) = [];   data.freq = freq;

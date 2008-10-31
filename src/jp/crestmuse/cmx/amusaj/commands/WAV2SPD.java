@@ -22,7 +22,6 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
                                             SPExecutor exec)
     throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
-    System.out.println(jp.crestmuse.cmx.math.Utils.toString2(wav.getDoubleArrayWaveform()[0]));
     exec.addSPModule(winslider);
     STFT stft = new STFT();
     stft.setStereo(winslider.isStereo());

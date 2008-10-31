@@ -321,6 +321,7 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
       bytearray = new byte[(int)size];
       datain.read(bytearray);
       ByteBuffer buff = ByteBuffer.wrap(bytearray);
+      buff.order(ByteOrder.LITTLE_ENDIAN);
       dataInShort = new short[length * fmt.channels];
       if (fmt.bitsPerSample == 8)
         for (int t = 0; t < length; t++) 
