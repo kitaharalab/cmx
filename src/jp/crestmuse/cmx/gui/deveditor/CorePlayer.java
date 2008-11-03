@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
 import org.xml.sax.SAXException;
@@ -14,7 +15,6 @@ import org.xml.sax.SAXException;
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.sound.MusicPlayer;
 
 public class CorePlayer implements MusicPlayer {
@@ -62,6 +62,14 @@ public class CorePlayer implements MusicPlayer {
     sequencer.setTickPosition(0);
   }
   
+  public void setTickPosition(long tick){
+    sequencer.setTickPosition(tick);
+  }
+  
+  public void setMicrosecondPosition(long microseconds){
+    sequencer.setMicrosecondPosition(microseconds);
+  }
+  
   public CompiledDeviation open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
     DeviationInstanceWrapper dev;
     try{
@@ -86,9 +94,9 @@ public class CorePlayer implements MusicPlayer {
     sequencer.setTickPosition(tick);
     playingIndex = index;
   }
-
-  public void changeNoteDeviation(Note note, double attack, double release, double dynamics, double endDynamics) throws InvalidMidiDataException {
-    //compiledDeviations.get(playingIndex).changeNoteDeviation(note, attack, release, dynamics, endDynamics);
+  
+  public Sequence getCurrentSequence(){
+    return compiledDeviations.get(playingIndex).getSequence();
   }
   
   public void writeFile(OutputStream out) throws IOException, SAXException {

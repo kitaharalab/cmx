@@ -32,7 +32,7 @@ import jp.crestmuse.cmx.misc.TreeView;
 public class CompiledDeviation {
 
   public static int TICKS_PER_BEAT = 480;
-  private int BASE_DYNAMICS = 100;
+  private int BASE_DYNAMICS = 63;
   private int TEMPO = 72;
   private Sequence sequence;
   private ArrayList<DeviatedNote> deviatedNotes;
@@ -255,15 +255,24 @@ public class CompiledDeviation {
     }
     
     /**
+     * 表情なしonsetを返す．
+     */
+    public int onsetOriginal(){
+      return super.onset();
+    }
+    
+    /**
      * 表情付きonsetをミリ秒単位で返す
      */
     public int onsetInMSec() {
-      int prevTicks = 0;
-      for(int ticks : ticks2msec.keySet()){
-        prevTicks = ticks;
-        if(ticks > onset()) break;
-      }
-      return ticks2msec.get(prevTicks) + (int)((onset() - prevTicks)/(double)TICKS_PER_BEAT/ticks2tempo.get(prevTicks)*60*1000);
+      return tickInMSec(new OnsetHandler());
+    }
+    
+    /**
+     * 表情なしonsetをミリ秒単位で返す．
+     */
+    public int onsetOriginalInMSec(){
+      return tickInMSec(new OnsetOriginalHandler());
     }
     
     /**
@@ -274,15 +283,33 @@ public class CompiledDeviation {
     }
     
     /**
+     * 表情なしoffsetを返す．
+     */
+    public int offsetOriginal(){
+      return super.offset();
+    }
+    
+    /**
      * 表情付きoffsetをミリ秒単位で返す
      */
     public int offsetInMSec() {
+      return tickInMSec(new OffsetHandler());
+    }
+    
+    /**
+     * 表情なしoffsetをミリ秒単位で返す．
+     */
+    public int offsetOriginalInMSec(){
+      return tickInMSec(new OffsetOriginalHandler());
+    }
+    
+    private int tickInMSec(TickHandler handler){
       int prevTicks = 0;
       for(int ticks : ticks2msec.keySet()){
         prevTicks = ticks;
-        if(ticks > offset()) break;
+        if(ticks > handler.tick()) break;
       }
-      return ticks2msec.get(prevTicks) + (int)((offset() - prevTicks)/(double)TICKS_PER_BEAT/ticks2tempo.get(prevTicks)*60*1000);
+      return ticks2msec.get(prevTicks) + (int)((handler.tick() - prevTicks)/(double)TICKS_PER_BEAT/ticks2tempo.get(prevTicks)*60*1000);
     }
     
     /**
@@ -290,18 +317,22 @@ public class CompiledDeviation {
      */
     public int velocity() {
       if(isMissNote) return 0;
-      return (int)(super.velocity() * dynamics);
+      return Math.min((int)(super.velocity()*dynamics), 127);
     }
     
     /**
      * 表情付きoffVelocityを返す
      */
     public int offVelocity() {
-      return (int)(super.offVelocity()*endDynamics);
+      return Math.min((int)(super.offVelocity()*endDynamics), 127);
+    }
+    
+    public MusicXMLWrapper.Note getNote(){
+      return note;
     }
 
-    public int ticksPerBeat() {
-      return super.ticksPerBeat();
+    public boolean isExtraNote(){
+      return note == null;
     }
 
     public void setMissNote(boolean isMissNote) throws InvalidMidiDataException{
@@ -365,7 +396,25 @@ public class CompiledDeviation {
       else if(attack!=0.0 || release!=0.0 || dynamics!=1.0 || endDynamics!=1.0)
         dds.addNoteDeviation(note, attack, release, dynamics, endDynamics);
     }
-
+    
+    private abstract class TickHandler{
+      abstract int tick();
+    }
+    
+    private class OnsetHandler extends TickHandler{
+      int tick() { return onset(); }
+    }
+    
+    private class OnsetOriginalHandler extends TickHandler{
+      int tick() { return onsetOriginal(); }
+    }
+    
+    private class OffsetHandler extends TickHandler{
+      int tick() { return offset(); }
+    }
+    
+    private class OffsetOriginalHandler extends TickHandler{
+      int tick() { return offsetOriginal(); }
+    }
   }
-
 }

@@ -9,35 +9,48 @@ public class PrintableDeviatedNote {
 // TODO widthが負の数(onset > offset)のやつがいる
   private CompiledDeviation.DeviatedNote deviatedNote;
   private int x, y, width, height;
-  private Color color;
+  private Color fillColor;
+  private Color roundColor;
 
   public PrintableDeviatedNote(CompiledDeviation.DeviatedNote deviatedNote) {
     this.deviatedNote = deviatedNote;
-    y = PianoRollPanel.HEIGHT_PER_NOTE*deviatedNote.notenum();
+    y = PianoRollPanel.HEIGHT_PER_NOTE*(127 - deviatedNote.notenum());
     height = PianoRollPanel.HEIGHT_PER_NOTE;
     asTickTime();
-    color = Color.RED;
+    if(deviatedNote.isExtraNote()){
+      fillColor = new Color(255, 255, 0, deviatedNote.velocity()*2);
+      roundColor = Color.YELLOW;
+    }else if(deviatedNote.getNote().voice() == 1){
+      fillColor = new Color(255, 0, 0, deviatedNote.velocity()*2);
+      roundColor = Color.RED;
+    }else{
+      fillColor = new Color(255, 127, 0, deviatedNote.velocity()*2);
+      roundColor = Color.ORANGE;
+    }
   }
 
   public void print(Graphics g){
-    g.setColor(color);
+    g.setColor(fillColor);
     g.fillRect(x, y, width, height);
+    g.setColor(roundColor);
+    g.drawRect(x + 1, y + 1, width - 3, height - 3);
+/*
     g.setColor(color.brighter());
     g.drawLine(x, y, x + width - 1, y);
     g.drawLine(x, y, x, y + height - 1);
     g.setColor(color.darker());
     g.drawLine(x, y + height, x + width, y + height);
     g.drawLine(x + width, y, x + width, y + height);
-  }
+*/
+    }
   
   public void printAsHover(Graphics g){
-    x -= 5; y -= 5; width += 10; height += 10;
-    print(g);
-    x += 5; y += 5; width -= 10; height -= 10;
+    g.setColor(roundColor);
+    g.fillRect(x - 5, y - 5, width + 10, height + 10);
   }
   
   public void asTickTime(){
-    int ticksPerBeat = deviatedNote.ticksPerBeat();
+    int ticksPerBeat = CompiledDeviation.TICKS_PER_BEAT;
     x = (int)(deviatedNote.onset() / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
     width = (int)((deviatedNote.offset() - deviatedNote.onset()) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
   }
