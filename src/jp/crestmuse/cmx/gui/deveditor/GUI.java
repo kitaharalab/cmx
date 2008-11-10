@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.gui.deveditor;
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -13,60 +13,177 @@ import java.util.ArrayList;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
+/**
+ * Deviationエディターのメインクラス．
+ * @author ntotani
+ *
+ */
 public class GUI implements MusicPlaySynchronized {
+
+  /**
+   * GUIクラス唯一のインスタンス．
+   */
+  public static GUI Instance() { return instance; }
+  private static GUI instance;
 
   private CorePlayer corePlayer;
   private MusicPlaySynchronizer synchronizer;
-  private DefaultListModel playList;
+  private boolean showAsTickTime;
   private JMenuItem openMenuItem;
+  private JCheckBoxMenuItem tempoMenuItem;
+  private JComboBox comboBox;
   private ArrayList<PianoRollPanel> pianoRollPanels;
   private PianoRollPanel showingPanel;
   private JScrollPane scrollPane;
   private JFrame mainFrame;
   private JSlider currentPositionSlider;
-  private boolean showAsTickTime;
 
-  public GUI() throws MidiUnavailableException {
+  private GUI() throws MidiUnavailableException {
     corePlayer = new CorePlayer();
     synchronizer = new MusicPlaySynchronizer(corePlayer);
     synchronizer.addSynchronizedComponent(this);
     showAsTickTime = true;
     pianoRollPanels = new ArrayList<PianoRollPanel>();
-    scrollPane = new JScrollPane();
 
     mainFrame = new JFrame();
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    mainFrame.setSize(640, 720);
-    mainFrame.getContentPane().setLayout(new FlowLayout());
-    setMenuBar(mainFrame);
-    scrollPane.setPreferredSize(new Dimension(512, 512));
-    mainFrame.getContentPane().add(scrollPane);
-    setList(mainFrame);
-    setSlider();
-    setButtons(mainFrame);
+    mainFrame.setSize(640, 480);
+    mainFrame.getContentPane().setLayout(new BorderLayout());
+    setMenuBar();
+    setScrollPane();
+    JPanel south = new JPanel(new FlowLayout());
+    setList(south);
+    setSlider(south);
+    setButtons(south);
+    mainFrame.getContentPane().add(south, BorderLayout.SOUTH);
     mainFrame.setVisible(true);
   }
+  
+  private void setMenuBar() {
+    JMenuBar menuBar = new JMenuBar();
+    JMenu file = new JMenu("file");
+    openMenuItem = new JMenuItem("open");
+    openMenuItem.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+        if(fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
+          openMenuItem.setEnabled(false);
+          open(fc.getSelectedFile().getAbsolutePath());
+        }
+      }
+    });
+    JMenuItem save = new JMenuItem("save");
+    save.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+        if(fc.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
+          save(fc.getSelectedFile());
+        }
+      }
+    });
+    JMenuItem quit = new JMenuItem("quit");
+    quit.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        System.exit(0);
+      }
+    });
+    file.add(openMenuItem);
+    file.add(save);
+    file.add(quit);
+    
+    JMenu show = new JMenu("show");
+    tempoMenuItem = new JCheckBoxMenuItem("tempo");
+    tempoMenuItem.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        if(showingPanel != null)
+          showingPanel.tempoFrame.setVisible(tempoMenuItem.isSelected());
+      }
+    });
+    show.add(tempoMenuItem);
+    
+    menuBar.add(file);
+    menuBar.add(show);
+    mainFrame.setJMenuBar(menuBar);
+  }
 
-  private void setSlider(){
+  private void setScrollPane(){
+    scrollPane = new JScrollPane();
+    JSlider scale = new JSlider();
+    scale.setMinimum(PianoRollPanel.WIDTH_PER_BEAT/2);
+    scale.setValue(PianoRollPanel.WIDTH_PER_BEAT);
+    scale.setMaximum(PianoRollPanel.WIDTH_PER_BEAT*2);
+    scale.addChangeListener(new ChangeListener(){
+      public void stateChanged(ChangeEvent e) {
+        PianoRollPanel.WIDTH_PER_BEAT = ((JSlider)e.getSource()).getValue();
+        if(showingPanel != null)
+          showingPanel.updateScale();
+        scrollPane.repaint();
+      }
+    });
+    scrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
+    scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
+    scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
+    scrollPane.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
+    mainFrame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+  }
+
+  private void setList(JPanel parent) {
+    comboBox = new JComboBox();
+    comboBox.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        try {
+          // 表示中のテンポウィンドウがあれば隠す
+          if(showingPanel != null)
+            showingPanel.tempoFrame.setVisible(false);
+  
+          // 新しいパネルに切り替える
+          int index = ((JComboBox)e.getSource()).getSelectedIndex();
+          corePlayer.changeDeviation(index);
+          showingPanel = pianoRollPanels.get(index);
+          showingPanel.updateScale();
+          showingPanel.setScrollPane(scrollPane);
+  
+          // y座標を中央までずらす
+          Point p = scrollPane.getViewport().getViewPosition();
+          p.y = (showingPanel.getPreferredSize().height - scrollPane.getHeight())/2;
+          scrollPane.getViewport().setViewPosition(p);
+  
+          // 再生位置スライダーを設定
+          if(showAsTickTime)
+            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getTickLength());
+          else
+            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getMicrosecondLength());
+  
+          // テンポウィンドウを表示（非表示）
+          showingPanel.tempoFrame.setVisible(tempoMenuItem.isSelected());
+        } catch (InvalidMidiDataException e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
+    parent.add(comboBox);
+  }
+
+  private void setSlider(JPanel parent){
     currentPositionSlider = new JSlider();
     currentPositionSlider.setValue(0);
     currentPositionSlider.addMouseListener(new MouseListener(){
@@ -83,56 +200,30 @@ public class GUI implements MusicPlaySynchronized {
         setPlayPosition(currentPositionSlider.getValue());
       }
     });
-    mainFrame.getContentPane().add(currentPositionSlider);
+    parent.add(currentPositionSlider);
   }
 
-  private void setList(final JFrame frame) {
-    playList = new DefaultListModel();
-    JList list = new JList(playList);
-    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    list.addListSelectionListener(new ListSelectionListener(){
-      public void valueChanged(ListSelectionEvent e) {
-        try {
-          int index = ((JList)e.getSource()).getSelectedIndex();
-          corePlayer.changeDeviation(index);
-          showingPanel = pianoRollPanels.get(index);
-          showingPanel.setShowAsTickTime(showAsTickTime);
-          showingPanel.setScrollPane(scrollPane);
-          Point p = scrollPane.getViewport().getViewPosition();
-          p.y = (showingPanel.getHeight() - scrollPane.getHeight())/2;
-          scrollPane.getViewport().setViewPosition(p);
-          if(showAsTickTime)
-            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getTickLength());
-          else
-            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getMicrosecondLength());
-        } catch (InvalidMidiDataException e1) {
-          e1.printStackTrace();
-        }
-      }
-    });
-    JScrollPane sp = new JScrollPane();
-    sp.getViewport().setView(list);
-    frame.getContentPane().add(sp);
-  }
-
-  private void setButtons(final JFrame frame) {
+  private void setButtons(JPanel parent) {
     JButton start = new JButton("start");
     start.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
-        currentPositionSlider.setEnabled(false);
-        synchronizer.play();
-      }
-    });
-    JButton stop = new JButton("stop");
-    stop.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        currentPositionSlider.setEnabled(true);
-        synchronizer.stop();
+        JButton button = (JButton)e.getSource();
+        if(synchronizer.isNowPlaying()){
+          currentPositionSlider.setEnabled(true);
+          synchronizer.stop();
+          button.setText("start");
+        }else{
+          currentPositionSlider.setEnabled(false);
+          synchronizer.play();
+          button.setText("pause");
+        }
       }
     });
     JButton reset = new JButton("reset");
     reset.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
+        currentPositionSlider.setEnabled(true);
+        synchronizer.stop();
         setPlayPosition(0);
       }
     });
@@ -141,7 +232,7 @@ public class GUI implements MusicPlaySynchronized {
       public void actionPerformed(ActionEvent e) {
         showAsTickTime = !showAsTickTime;
         if(showingPanel != null){
-          showingPanel.setShowAsTickTime(showAsTickTime);
+          showingPanel.updateNotes();
           mainFrame.repaint();
         }
         if(showAsTickTime){
@@ -153,47 +244,10 @@ public class GUI implements MusicPlaySynchronized {
         }
       }
     });
-
-    frame.getContentPane().add(start);
-    frame.getContentPane().add(stop);
-    frame.getContentPane().add(reset);
-    frame.getContentPane().add(change);
-  }
-
-  private void setMenuBar(final JFrame frame) {
-    JMenuBar menuBar = new JMenuBar();
-    JMenu file = new JMenu("file");
-    openMenuItem = new JMenuItem("open");
-    openMenuItem.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if(fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-          openMenuItem.setEnabled(false);
-          open(fc.getSelectedFile().getAbsolutePath());
-        }
-      }
-    });
-    JMenuItem save = new JMenuItem("save");
-    save.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if(fc.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION){
-          save(fc.getSelectedFile());
-        }
-      }
-    });
-    JMenuItem quit = new JMenuItem("quit");
-    quit.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        System.exit(0);
-      }
-    });
-
-    file.add(openMenuItem);
-    file.add(save);
-    file.add(quit);
-    menuBar.add(file);
-    frame.setJMenuBar(menuBar);
+    
+    parent.add(start);
+    parent.add(reset);
+    parent.add(change);
   }
 
   public void start(MusicPlaySynchronizer wavsnyc) {
@@ -210,7 +264,7 @@ public class GUI implements MusicPlaySynchronized {
         Point p = scrollPane.getViewport().getViewPosition();
         p.x = showingPanel.getPlayPointX(currentTime, currentTick);
         int width = scrollPane.getViewport().getWidth();
-        p.x = Math.max(0, Math.min(showingPanel.getWidth() - width, p.x - width/2));
+        p.x = Math.max(0, Math.min(showingPanel.getPreferredSize().width - width, p.x - width/2));
         scrollPane.getViewport().setViewPosition(p);
         if(showAsTickTime)
           currentPositionSlider.setValue((int)currentTick);
@@ -220,19 +274,27 @@ public class GUI implements MusicPlaySynchronized {
     });
     showingPanel.repaint();
   }
+  
+  /**
+   * タイムラインの表示形式を返す．楽譜時刻の場合true,実時刻の場合falseを返す．
+   * @return タイムラインの表示形式
+   */
+  public boolean getShowAsTickTime() { return showAsTickTime; }
 
+  /**
+   * ファイルを開く．MusicXMLかDeviationInstanceXML以外が指定されると無視される．
+   * @param fileName
+   */
   public void open(final String fileName) {
-    final GUI gui = this;
     Thread th = new Thread(){
       public void run() {
         try {
           CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
           CompiledDeviation cd = corePlayer.open(wrapper);
-          pianoRollPanels.add(new PianoRollPanel(cd, gui));
+          pianoRollPanels.add(new PianoRollPanel(cd));
           SwingUtilities.invokeLater(new Runnable(){
             public void run() {
-              String name = "dev" + playList.getSize();
-              playList.addElement(name);
+              comboBox.addItem("dev" + comboBox.getItemCount());
             }
           });
         } catch (Exception e) {
@@ -248,6 +310,10 @@ public class GUI implements MusicPlaySynchronized {
     th.start();
   }
   
+  /**
+   * ファイルを保存する．
+   * @param file
+   */
   public void save(final File file){
     Thread t = new Thread(){
       public void run(){
@@ -261,6 +327,10 @@ public class GUI implements MusicPlaySynchronized {
     t.start();
   }
 
+  /**
+   * 再生位置を変更し、画面をその位置までスクロールする．引数は、楽譜時刻表示の場合tickを、実時刻表時の場合マイクロ秒で指定する．
+   * @param position 再生位置
+   */
   public void setPlayPosition(long position) {
     if(showAsTickTime)
       corePlayer.setTickPosition(position);
@@ -273,7 +343,7 @@ public class GUI implements MusicPlaySynchronized {
     SwingUtilities.invokeLater(new Runnable(){
       public void run() {
         try {
-          new GUI();
+          GUI.instance = new GUI();
         } catch (MidiUnavailableException e) {
           e.printStackTrace();
         }

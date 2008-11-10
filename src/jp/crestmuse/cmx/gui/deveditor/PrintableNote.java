@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class PrintableNote {
-  
+
+  private PianoRollPanel parent;
   private int x, y, width, height;
   private int onset, offset, onsetInMSec, offsetInMSec;
   
-  public PrintableNote(CompiledDeviation.DeviatedNote dn){
+  public PrintableNote(CompiledDeviation.DeviatedNote dn, PianoRollPanel parent){
+    this.parent = parent;
     onset = dn.onsetOriginal();
     offset = dn.offsetOriginal();
     onsetInMSec = dn.onsetOriginalInMSec();
@@ -29,7 +31,9 @@ public class PrintableNote {
     width = (int)((offset - onset) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
   }
   
-  public void asRealTime(int panelWidth, int milSecLength){
+  public void asRealTime(){
+    int panelWidth = parent.getPreferredSize().width;
+    int milSecLength = (int)(parent.getCompiledDeviation().getSequence().getMicrosecondLength()/1000);
     x = (int)(panelWidth*onsetInMSec/milSecLength);
     width = (int)(panelWidth*(offsetInMSec - onsetInMSec)/milSecLength);
   }

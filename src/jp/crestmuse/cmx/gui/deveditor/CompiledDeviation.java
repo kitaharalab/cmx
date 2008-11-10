@@ -3,6 +3,7 @@ package jp.crestmuse.cmx.gui.deveditor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -32,7 +33,7 @@ import jp.crestmuse.cmx.misc.TreeView;
 public class CompiledDeviation {
 
   public static int TICKS_PER_BEAT = 480;
-  private int BASE_DYNAMICS = 63;
+  private int BASE_DYNAMICS = 127;
   private int TEMPO = 72;
   private Sequence sequence;
   private ArrayList<DeviatedNote> deviatedNotes;
@@ -192,6 +193,10 @@ public class CompiledDeviation {
     return deviatedNotes;
   }
   
+  public Map<Integer, Integer> getTicks2Tempo(){
+    return ticks2tempo;
+  }
+  
   public DeviationInstanceWrapper calcDeviation() throws InvalidFileTypeException{
     DeviationInstanceWrapper deviation = (DeviationInstanceWrapper)CMXFileWrapper.createDocument(DeviationInstanceWrapper.TOP_TAG);
     DeviationDataSet dds = deviation.createDeviationDataSet();
@@ -334,6 +339,16 @@ public class CompiledDeviation {
     public boolean isExtraNote(){
       return note == null;
     }
+    
+    public double getAttack() { return attack; }
+    
+    public double getRelease() { return release; }
+    
+    public double getDynamics() { return dynamics; }
+    
+    public double getEndDynamics() { return endDynamics; }
+    
+    public boolean getIsMissNote() { return isMissNote; }
 
     public void setMissNote(boolean isMissNote) throws InvalidMidiDataException{
       this.isMissNote = isMissNote;
@@ -347,8 +362,8 @@ public class CompiledDeviation {
      * @param release
      * @throws InvalidMidiDataException
      */
-    public void changeDeviation(double attack, double release) throws InvalidMidiDataException{
-      changeDeviation(attack, release, this.dynamics, this.endDynamics);
+    public boolean changeDeviation(double attack, double release) throws InvalidMidiDataException{
+      return changeDeviation(attack, release, this.dynamics, this.endDynamics);
     }
 
     /**
@@ -361,12 +376,44 @@ public class CompiledDeviation {
      * @param endDynamics
      * @throws InvalidMidiDataException 
      */
-    public void changeDeviation(double attack, double release, double dynamics, double endDynamics) throws InvalidMidiDataException{
+    public boolean changeDeviation(double attack, double release, double dynamics, double endDynamics) throws InvalidMidiDataException{
       this.attack += attack;
       this.release += release;
+      if(onset() >= offset() || dynamics < 0 || endDynamics < 0){
+        this.attack -= attack;
+        this.release -= release;
+        return false;
+      }
       this.dynamics = dynamics;
       this.endDynamics = endDynamics;
       updateMidiEvent();
+      return true;
+    }
+    
+    public boolean changeAttackInMsec(int targetMsec) throws InvalidMidiDataException{
+      int nearestTick = ticks2msec.firstKey();
+      for(Map.Entry<Integer, Integer> e : ticks2msec.entrySet()){
+        if(e.getValue() > targetMsec) break;
+        nearestTick = e.getKey();
+      }
+      double beatPerSeconds = ticks2tempo.get(nearestTick)/60.0;
+      double seconds = (targetMsec - ticks2msec.get(nearestTick))/1000.0;
+      int tickDist = (int)(beatPerSeconds*seconds*TICKS_PER_BEAT);
+      int targetTick = nearestTick + tickDist;
+      return changeDeviation((double)(targetTick - onset())/TICKS_PER_BEAT, 0.0);
+    }
+    
+    public boolean changeReleaseInMsec(int targetMsec) throws InvalidMidiDataException{
+      int nearestTick = ticks2msec.firstKey();
+      for(Map.Entry<Integer, Integer> e : ticks2msec.entrySet()){
+        if(e.getValue() > targetMsec) break;
+        nearestTick = e.getKey();
+      }
+      double beatPerSeconds = ticks2tempo.get(nearestTick)/60.0;
+      double seconds = (targetMsec - ticks2msec.get(nearestTick))/1000.0;
+      int tickDist = (int)(beatPerSeconds*seconds*TICKS_PER_BEAT);
+      int targetTick = nearestTick + tickDist;
+      return changeDeviation(0.0, (double)(targetTick - offset())/TICKS_PER_BEAT);
     }
 
     private void updateMidiEvent() throws InvalidMidiDataException{
