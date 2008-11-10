@@ -19,6 +19,10 @@ import javax.swing.JScrollPane;
 
 import jp.crestmuse.cmx.gui.deveditor.PrintableDeviatedNote.NoteMoveHandle;
 
+/**
+ * このクラスはDeviationエディターで表示されるピアノロールを表します．
+ * @author ntotani
+ */
 public class PianoRollPanel extends JPanel implements MouseListener, MouseMotionListener {
 
   public static int WIDTH_PER_BEAT = 32;
@@ -32,7 +36,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   private ColumnHeaderPanel columnHeader;
   private RowHeaderPanel rowHeader;
   private int playingLine;
-  JFrame tempoFrame;
+  private JFrame tempoFrame;
   private NoteEditFrame noteEditFrame;
 
   public PianoRollPanel(CompiledDeviation compiledDeviation) {
@@ -162,6 +166,14 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     return compiledDeviation;
   }
   
+  public JFrame getTempoFrame() { return tempoFrame; }
+  
+  /**
+   * 現在の再生位置のX座標を返します．
+   * @param currentTime
+   * @param currentTick
+   * @return
+   */
   public int getPlayPointX(double currentTime, long currentTick){
     if(GUI.Instance().getShowAsTickTime())
       playingLine = (int)(getPreferredSize().width*currentTick/compiledDeviation.getSequence().getTickLength());
@@ -176,6 +188,9 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     jsp.setRowHeaderView(rowHeader);
   }
 
+  /**
+   * パネルの幅を更新する．
+   */
   public void updateScale(){
     int tickLength = (int)compiledDeviation.getSequence().getTickLength();
     int width = WIDTH_PER_BEAT * tickLength / CompiledDeviation.TICKS_PER_BEAT;
@@ -187,6 +202,9 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     columnHeader.widthPerSecond = width/seconds;
   }
 
+  /**
+   * ノートの幅を更新する．
+   */
   public void updateNotes(){
     if(GUI.Instance().getShowAsTickTime()){
       for(PrintableDeviatedNote n : deviatedNotes) n.asTickTime();

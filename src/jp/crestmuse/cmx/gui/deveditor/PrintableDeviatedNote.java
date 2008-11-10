@@ -5,6 +5,10 @@ import java.awt.Graphics;
 
 import javax.sound.midi.InvalidMidiDataException;
 
+/**
+ * PianoRollPanel上でDeviatedNoteを表示するするためのクラスです．
+ * @author ntotani
+ */
 public class PrintableDeviatedNote {
 // TODO widthが負の数(onset > offset)のやつがいる
   private CompiledDeviation.DeviatedNote deviatedNote;
@@ -47,12 +51,18 @@ public class PrintableDeviatedNote {
     return deviatedNote;
   }
   
+  /**
+   * 楽譜時刻として位置と幅を更新する．
+   */
   public void asTickTime(){
     int ticksPerBeat = CompiledDeviation.TICKS_PER_BEAT;
     x = (int)(deviatedNote.onset() / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
     width = (int)((deviatedNote.offset() - deviatedNote.onset()) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
   }
   
+  /**
+   * 実時刻として位置を更新する．
+   */
   public void asRealTime(){
     int panelWidth = parent.getPreferredSize().width;
     int milSecLength = (int)(parent.getCompiledDeviation().getSequence().getMicrosecondLength()/1000);
@@ -68,6 +78,9 @@ public class PrintableDeviatedNote {
     return isMouseOver(mouseX, mouseY) && mouseX > x + width/2;
   }
   
+  /**
+   * DeviatedNoteのchangeDeviationを呼び出して位置と色を更新する．
+   */
   public boolean changeDeviation(double attack, double release, double dynamics, double endDynamics){
     try {
       if(deviatedNote.changeDeviation(attack, release, dynamics, endDynamics)){

@@ -33,7 +33,7 @@ import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
 /**
- * Deviationエディターのメインクラス．
+ * このクラスは一つのCorePlayerと複数のPianoRollPanelを持つDeviationエディターのメインクラスです．
  * @author ntotani
  *
  */
@@ -115,7 +115,7 @@ public class GUI implements MusicPlaySynchronized {
     tempoMenuItem.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         if(showingPanel != null)
-          showingPanel.tempoFrame.setVisible(tempoMenuItem.isSelected());
+          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
       }
     });
     show.add(tempoMenuItem);
@@ -153,7 +153,7 @@ public class GUI implements MusicPlaySynchronized {
         try {
           // 表示中のテンポウィンドウがあれば隠す
           if(showingPanel != null)
-            showingPanel.tempoFrame.setVisible(false);
+            showingPanel.getTempoFrame().setVisible(false);
   
           // 新しいパネルに切り替える
           int index = ((JComboBox)e.getSource()).getSelectedIndex();
@@ -174,7 +174,7 @@ public class GUI implements MusicPlaySynchronized {
             currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getMicrosecondLength());
   
           // テンポウィンドウを表示（非表示）
-          showingPanel.tempoFrame.setVisible(tempoMenuItem.isSelected());
+          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
         } catch (InvalidMidiDataException e1) {
           e1.printStackTrace();
         }

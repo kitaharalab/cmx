@@ -30,6 +30,10 @@ import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
 import jp.crestmuse.cmx.misc.MutableNote;
 import jp.crestmuse.cmx.misc.TreeView;
 
+/**
+ * このクラスは一つのSequenceと複数のDeviatedNoteを保持し、DeviationEditorで扱う曲の一曲を表します．
+ * @author ntotani
+ */
 public class CompiledDeviation {
 
   public static int TICKS_PER_BEAT = 480;
@@ -197,6 +201,11 @@ public class CompiledDeviation {
     return ticks2tempo;
   }
   
+  /**
+   * DeviatedNoteへの変更を加えたDeviationInstanceWrapperを返す．
+   * @return
+   * @throws InvalidFileTypeException
+   */
   public DeviationInstanceWrapper calcDeviation() throws InvalidFileTypeException{
     DeviationInstanceWrapper deviation = (DeviationInstanceWrapper)CMXFileWrapper.createDocument(DeviationInstanceWrapper.TOP_TAG);
     DeviationDataSet dds = deviation.createDeviationDataSet();
@@ -211,6 +220,15 @@ public class CompiledDeviation {
     return deviation;
   }
 
+  /**
+   * このクラスは一つのノートを表します．
+   * noteフィールドが元のMusicXMLのNote一つを表し、
+   * attack, release, dynamics, endDynamicsは
+   * それぞれDeviationInstanceの形式で演奏表情を表します．
+   * isMissNoteがtrueならミスノートとして扱われ、
+   * noteがnullの場合extra noteとして扱われます．
+   * @author ntotani
+   */
   public class DeviatedNote extends MutableNote {
 
     private MusicXMLWrapper.Note note;
@@ -218,11 +236,11 @@ public class CompiledDeviation {
     private double release;
     private double dynamics;
     private double endDynamics;
-    private MidiEvent noteOn;
-    private MidiEvent noteOff;
     private boolean isMissNote;
     private String partid;
     private Track track;
+    private MidiEvent noteOn;
+    private MidiEvent noteOff;
 
     private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track) throws InvalidMidiDataException{
       this(note, 0.0, 0.0, 1.0, 1.0, isMissNote, track);
@@ -390,6 +408,12 @@ public class CompiledDeviation {
       return true;
     }
     
+    /**
+     * このノートのonsetが指定した時刻になるようにattackを変更する．引数は実時刻の絶対位置をしていする．
+     * @param targetMsec
+     * @return
+     * @throws InvalidMidiDataException
+     */
     public boolean changeAttackInMsec(int targetMsec) throws InvalidMidiDataException{
       int nearestTick = ticks2msec.firstKey();
       for(Map.Entry<Integer, Integer> e : ticks2msec.entrySet()){
@@ -403,6 +427,12 @@ public class CompiledDeviation {
       return changeDeviation((double)(targetTick - onset())/TICKS_PER_BEAT, 0.0);
     }
     
+    /**
+     * このノートのoffsetが指定した時刻になるようにreleaseを変更する．引数は実時刻の絶対位置をしていする．
+     * @param targetMsec
+     * @return
+     * @throws InvalidMidiDataException
+     */
     public boolean changeReleaseInMsec(int targetMsec) throws InvalidMidiDataException{
       int nearestTick = ticks2msec.firstKey();
       for(Map.Entry<Integer, Integer> e : ticks2msec.entrySet()){
@@ -431,6 +461,10 @@ public class CompiledDeviation {
       noteOff = meoff;
     }
     
+    /**
+     * このノートをDeviationDataSetに書き出す．
+     * @param dds
+     */
     public void write(DeviationDataSet dds){
       if(note == null){
         if(isMissNote) return;

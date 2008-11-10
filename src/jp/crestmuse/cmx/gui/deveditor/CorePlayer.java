@@ -17,6 +17,10 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.sound.MusicPlayer;
 
+/**
+ * このクラスは一つのSequencerと複数のCompiledDeviationを所持し、指定された曲を演奏するクラスです．
+ * @author ntotani
+ */
 public class CorePlayer implements MusicPlayer {
 
   private ArrayList<CompiledDeviation> compiledDeviations;
