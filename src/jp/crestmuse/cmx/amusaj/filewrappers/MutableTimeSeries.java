@@ -16,7 +16,7 @@ public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
     this.nFrames = nFrames;
     this.timeunit = timeunit;
     queue = new LinkedBlockingQueue<D>();
-    qwrap = new QueueWrapper<D>(queue, nFrames);
+    qwrap = new QueueWrapper<D>(queue);
     attr = new HashMap<String,String>();
   }
 

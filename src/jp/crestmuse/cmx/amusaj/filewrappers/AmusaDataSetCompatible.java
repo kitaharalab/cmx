@@ -1,7 +1,9 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import java.util.*;
+import jp.crestmuse.cmx.filewrappers.*;
 
-public interface AmusaDataSetCompatible<D extends TimeSeriesCompatible> {
+public interface AmusaDataSetCompatible<D extends TimeSeriesCompatible> 
+    extends FileWrapperCompatible {
   public String getHeader(String key);
   public int getHeaderInt(String key);
   public double getHeaderDouble(String key);

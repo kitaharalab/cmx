@@ -3,6 +3,7 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 import java.io.*;
 import java.util.*;
+import java.util.zip.*;
 
 public class AmusaDataSet<D extends TimeSeriesCompatible>
   implements AmusaDataSetCompatible<D> {
@@ -164,4 +165,92 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
       wrapper.addDataElement(d);
   }
 */
+
+  public String getFileName() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void write(OutputStream out) throws IOException {
+      write(new PrintStream(out));
+  }
+
+  public void write(Writer writer)throws IOException {
+    write(new PrintWriter(writer));
+  }
+
+  public void writefile(File file) throws IOException {
+    write(new PrintStream(file));
+  }
+
+  public void writeGZippedFile(File file) throws IOException {
+    write(new GZIPOutputStream(new BufferedOutputStream(
+                                 new FileOutputStream(file))));
+  }
+
+  private void write(PrintStream p) throws IOException {
+    try {
+      p.println("<amusaxml format=\"" + fmt + "\">");
+      p.println("  <header>");
+      Set<Map.Entry<String,String>> entrySet = header.entrySet();
+      for (Map.Entry<String,String> e : entrySet)
+        p.println("    <meta name=\"" + e.getKey() 
+                   + "\" content=\"" + e.getValue() + "\" />");
+      p.println("  </header>");
+      for (D d : data) {
+        QueueReader<? extends Encodable> queue = d.getQueueReader();
+        Encodable first = queue.take();
+        StringBuilder sbAttr = new StringBuilder();
+        int nFrames = d.frames();
+        d.setAttribute("frames", nFrames);
+        if (d.dim() > 0) d.setAttribute("dim", d.dim());
+        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
+        Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
+        while (it.hasNext()) {
+          Map.Entry<String,String> e = it.next();
+          sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
+        }
+        p.println("  <data" + sbAttr.toString() + ">");
+        p.println(first.encode());
+        for (int n = 1; n < nFrames; n++)
+          p.println(queue.take().encode());
+        p.println("  </data>");
+      }
+      p.println("</amusaxml>");
+    } catch (InterruptedException e) {}
+  }
+
+  private void write(PrintWriter p) throws IOException {
+    try {
+      p.println("<amusaxml format=\"" + fmt + "\">");
+      p.println("  <header>");
+      Set<Map.Entry<String,String>> entrySet = header.entrySet();
+      for (Map.Entry<String,String> e : entrySet)
+        p.println("    <meta name=\"" + e.getKey() 
+                   + "\" content=\"" + e.getValue() + "\" />");
+      p.println("  </header>");
+      for (D d : data) {
+        QueueReader<? extends Encodable> queue = d.getQueueReader();
+        Encodable first = queue.take();
+        StringBuilder sbAttr = new StringBuilder();
+        int nFrames = d.frames();
+        d.setAttribute("frames", nFrames);
+        if (d.dim() > 0) d.setAttribute("dim", d.dim());
+        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
+        Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
+        while (it.hasNext()) {
+          Map.Entry<String,String> e = it.next();
+          sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
+        }
+        p.println("  <data" + sbAttr.toString() + ">");
+        p.println(first.encode());
+        for (int n = 1; n < nFrames; n++)
+          p.println(queue.take().encode());
+        p.println("  </data>");
+      }
+      p.println("</amusaxml>");
+    } catch (InterruptedException e) {}
+  }
+
+
+
 }

@@ -10,7 +10,7 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 
 public abstract class AbstractWAVAnalyzer 
-  extends CMXCommand<WAVWrapper,AmusaXMLWrapper> {
+  extends CMXCommand<WAVWrapper,AmusaDataSetCompatible> {
   protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
 
@@ -25,10 +25,7 @@ public abstract class AbstractWAVAnalyzer
       params.put("SHIFT", String.valueOf(value));
       return true;
     } else if (option.equals("-ch")) {
-      if (value.equals("mix"))
-        params.put("TARGET_CHANNEL", "-1");
-      else
-        params.put("TARGET_CHANNEL", String.valueOf(value));
+      params.put("TARGET_CHANNEL", value);
       return true;
     } else {
       return false;
@@ -41,7 +38,7 @@ public abstract class AbstractWAVAnalyzer
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
-  protected AmusaXMLWrapper run(WAVWrapper wav) 
+  protected AmusaDataSetCompatible run(WAVWrapper wav) 
     throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
     WindowSlider winslider = new WindowSlider();
@@ -53,7 +50,7 @@ public abstract class AbstractWAVAnalyzer
     return analyzeWaveform(wav, winslider, ex);
   }
 
-  protected abstract AmusaXMLWrapper analyzeWaveform(AudioDataCompatible wav, 
+  protected abstract AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                           WindowSlider winslider, 
                                           SPExecutor exec) 
     throws IOException,ParserConfigurationException,

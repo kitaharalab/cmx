@@ -380,7 +380,7 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
       writeUnsignedInt(size, dataout);
       int length = (int)(size / fmt.blocksize);
       for (int t = 0; t < length; t++) {
-        if (t % 65536 == 0) System.err.print(".");
+//        if (t % 65536 == 0) System.err.print(".");
         for (int i = 0; i < fmt.channels; i++) {
           if (fmt.bitsPerSample == 8)
             dataout.writeByte((int)((getWaveform()[i].get(t) * 128) + 128));

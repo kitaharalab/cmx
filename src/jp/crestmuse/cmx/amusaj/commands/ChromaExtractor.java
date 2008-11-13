@@ -10,30 +10,22 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 
 
-public class WAV2FPD extends AbstractWAVAnalyzer {
-  private double nnFrom = Double.NaN, nnThru = Double.NaN, step = Double.NaN;
-  private String filterName = null;
-  private boolean paramSet = false;
+public class ChromaExtractor extends AbstractWAVAnalyzer {
 
   protected boolean setOptionsLocal(String option, String value) {
     if (super.setOptionsLocal(option, value)) {
       return true;
-    } else if (option.equals("-from") || option.equals("-f")) {
-      params.put("NOTENUMBER_FROM", String.valueOf(value));
+    } else if (option.startsWith("-l")) {
+      params.put("CHROMA_LOW_LIMIT_FREQ", value);
       return true;
-    } else if (option.equals("-thru") || option.equals("-t")) {
-      params.put("NOTENUMBER_THRU", String.valueOf(value));
-      return true;
-    } else if (option.equals("-step")) {
-      params.put("STEP", String.valueOf(value));
-      return true;
-    } else if (option.equals("-filter")) {
-      params.put("FILTER_NAME", value);
+    } else if (option.startsWith("-h")) {
+      params.put("CHROMA_HIGH_LIMIT_FREQ", value);
       return true;
     } else {
       return false;
     }
   }
+
 
   protected AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                             WindowSlider winslider, 
@@ -42,21 +34,28 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
     STFT stft = new STFT();
-//    stft.setStereo(winslider.isStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
     int ch = winslider.getOutputChannels();
+    System.err.println(ch);
+    System.err.println(stft.getInputChannels());
+    System.err.println(stft.getOutputChannels());
+    System.err.println(peakext.getInputChannels());
+    System.err.println(params);
     for (int i = 0; i < ch; i++) {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
     }
-    F0PDFCalculatorModule f0calc = new F0PDFCalculatorModule();
-    exec.addSPModule(f0calc);
-    exec.connect(peakext, 0, f0calc, 0);
+    jp.crestmuse.cmx.amusaj.sp.ChromaExtractor chroma = 
+      new jp.crestmuse.cmx.amusaj.sp.ChromaExtractor();
+    exec.addSPModule(chroma);
+    exec.connect(peakext, 0, chroma, 0);
+//    exec.setSleepTime(10);
     exec.start();
+//    exec.startSingleThread();
     TimeSeriesCompatible ts = 
-      (TimeSeriesCompatible)exec.getResult(f0calc).get(0);
+      (TimeSeriesCompatible)exec.getResult(chroma).get(0);
     AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
     dataset.add(ts);
     return dataset;
@@ -64,11 +63,11 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
   }
 
   public static void main(String[] args) {
-    WAV2FPD wav2fpd = new WAV2FPD();
+    ChromaExtractor ce = new ChromaExtractor();
     try {
-      wav2fpd.start(args);
+      ce.start(args);
     } catch (Exception e) {
-      wav2fpd.showErrorMessage(e);
+      ce.showErrorMessage(e);
       System.exit(1);
     }
   }

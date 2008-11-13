@@ -35,12 +35,30 @@ public class Operations {
     return z;
   }
 
+  public static void addX(DoubleArray x, DoubleArray y) {
+    int length = x.length();
+    for (int i = 0; i < length; i++)
+      x.set(i, x.get(i) + y.get(i));
+  }
+
   public static DoubleArray add(DoubleArray x, double y) {
     int length = x.length();
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(i) + y);
     return z;
+  }
+
+  public static void addX(DoubleArray x, double y) {
+    int length = x.length();
+    for (int i = 0; i < length; i++)
+      x.set(i, x.get(i) + y);
+  }
+
+  public static void addX(DoubleArray x, DoubleArray y, int from) {
+    int length = y.length();
+    for (int i = 0; i < length; i++)
+      x.set(i + from, x.get(i + from) + y.get(i));
   }
 
   public static void divX(DoubleArray x, double y) {

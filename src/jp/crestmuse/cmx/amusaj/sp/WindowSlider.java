@@ -14,10 +14,10 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
   private double shift = Double.NaN;
   private int shift_;
   private int chTarget = 0;
-  private boolean paramSet = false;
+//  private boolean paramSet = false;
 
   private double[] buff;
-  private int channels;
+//  private int channels;
   private int fs;
   private DoubleArray wavM = null, wavL = null, wavR = null;
   private boolean isStereo;
@@ -30,54 +30,60 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "fft", "WINDOW_SIZE", "SHIFT");
-    paramSet = false;
-    setParams();
+//    paramSet = false;
+//    setParams();
   }
 
+/*
   private void setParams() {
     winsize = getParamInt("WINDOW_SIZE");
     shift = getParamDouble("SHIFT");
-    if (containsParam("TARGET_CHANNEL")) {
-      chTarget = getParamInt("TARGET_CHANNEL");
-    } else {
-      chTarget = 0;
-      setParam("TARGET_CHANNEL", 0);
-    }
     paramSet = true;
   }
+*/
 
   public void setInputData(AudioDataCompatible audiodata) {
-    if (!paramSet) setParams();
-    channels = audiodata.channels();
+    winsize = getParamInt("WINDOW_SIZE");
+    int channels = audiodata.channels();
     setParam("CHANNELS", channels);
     fs = audiodata.sampleRate();
     setParam("SAMPLE_RATE", fs);
+    shift = getParamDouble("SHIFT");
     if (shift < 1)
       shift = shift * fs;
     shift_ = (int)shift;
     DoubleArray[] w = audiodata.getDoubleArrayWaveform();
-    if (chTarget == 0 && channels == 2) {
-      wavM = add(w[0], w[1]);
-      divX(wavM, 2);
-      wavL = w[0];
-      wavR = w[1];
-      isStereo = true;
-    } else if (chTarget == -1 && channels == 2) {
-      wavM = add(w[0], w[1]);
-      divX(wavM, 2);
-      wavL = null;
-      wavR = null;
-      isStereo = false;
-    } else {
-      wavM = w[chTarget];
-      wavL = null;
-      wavR = null;
-      isStereo = false;
+    if (!containsParam("TARGET_CHANNEL")) {
+      if (channels == 2) setParam("TARGET_CHANNEL", "stereo");
+      else setParam("TARGET_CHANNEL", "0");
     }
-    if (isStereo)
-      setParam("STEREO", "Yes");
+    if (channels == 2 && getParam("TARGET_CHANNEL").equalsIgnoreCase("mix")) {
+      wavM = add(w[0], w[1]);
+      divX(wavM, 2);
+      setWaveform(wavM, null, null, false);
+    } else if (channels == 2 
+               && getParam("TARGET_CHANNEL").equalsIgnoreCase("stereo")) {
+      wavM = add(w[0], w[1]);
+      divX(wavM, 2);
+      setWaveform(wavM, w[0], w[1], true);
+    } else {
+      try {
+        setWaveform(w[getParamInt("TARGET_CHANNEL")], null, null, false);
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException("TARGET_CHANNEL should be an integer, 'mix', or 'stereo'.");
+      }
+    }
     t = 0;
   }
+        
+  private void setWaveform(DoubleArray wM, DoubleArray wL, DoubleArray wR, 
+                           boolean isStereo) {
+    wavM = wM;
+    wavL = wL;
+    wavR = wR;
+    this.isStereo = isStereo;
+  }
+
 
 //  public boolean isStereo() {
 //    return isStereo;

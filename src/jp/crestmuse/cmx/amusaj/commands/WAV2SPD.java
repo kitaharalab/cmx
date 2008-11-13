@@ -17,7 +17,7 @@ import org.xml.sax.*;
 
 public class WAV2SPD extends AbstractWAVAnalyzer {
 
-  protected AmusaXMLWrapper analyzeWaveform(AudioDataCompatible wav, 
+  protected AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                             WindowSlider winslider, 
                                             SPExecutor exec)
     throws IOException,
@@ -39,7 +39,8 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
         (TimeSeriesCompatible<PeakSet>)exec.getResult(peakext).get(0);
       AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
       dataset.add(peaks);
-      return dataset.toWrapper();
+      return dataset;
+//      return dataset.toWrapper();
 //      addOutputData(peaks);
   }
 

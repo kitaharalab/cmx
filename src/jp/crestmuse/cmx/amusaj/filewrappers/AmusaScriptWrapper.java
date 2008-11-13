@@ -56,7 +56,7 @@ public class AmusaScriptWrapper extends CMXFileWrapper {
       super(node);
       NodeList nodelist = getChildNodes();
       int size = nodelist.getLength();
-      map = new HashMap<String,String>();
+      map = new LinkedHashMap<String,String>();
       for (int i = 0; i < size; i++) 
         map.put(getAttribute(nodelist.item(i), "name"), 
                 getAttribute(nodelist.item(i), "object"));
