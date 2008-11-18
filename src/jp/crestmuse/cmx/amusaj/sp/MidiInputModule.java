@@ -13,18 +13,19 @@ import javax.sound.midi.Transmitter;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.MusicPlayer;
+import jp.crestmuse.cmx.sound.TickTimer;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
 public class MidiInputModule 
   extends SPModule<Object,MidiEventWithTicktime>
-  implements Receiver, Runnable 
+  implements Receiver //Runnable
 //    implements
 //      ProducerConsumerCompatible<Object, MidiEventWithTicktime>, Receiver,
 //      Runnable 
 {
 
-  MusicPlayer mp;
-  SPExecutor sp;
+  TickTimer tt = null;
+  //SPExecutor sp;
   Transmitter tm;
   MidiDevice input_device;
   BlockingQueue<MidiEventWithTicktime> src_queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
@@ -32,30 +33,36 @@ public class MidiInputModule
   public MidiInputModule(SPExecutor sp, MidiDevice device)
       throws MidiUnavailableException{
     this.input_device = device;
-    this.sp = sp;
+    //this.sp = sp;
     
     
     
   }
-  public MidiInputModule(MusicPlayer mp, SPExecutor sp, MidiDevice device)
+  public MidiInputModule(TickTimer tt, SPExecutor sp, MidiDevice device)
       throws MidiUnavailableException {
     this.input_device = device;
-    this.mp = mp;
-    this.sp = sp;
+    this.tt = tt;
+    //this.sp = sp;
 
     // initializing device
     input_device.open();
     tm = input_device.getTransmitter();
     tm.setReceiver(this);
   }
-
+  
+  public void setTickTimer(TickTimer tt){
+    this.tt = tt;
+    //これでいいのかね
+  }
+  
+  /*
   public void play() {
     mp.play();
     Thread th = new Thread(this);
     th.start();
   }
 
-/*
+
   // ProducerConsumerCompatible
   public TimeSeriesCompatible<MidiEventWithTicktime> createOutputInstance(
       int frames, int timeunit) {
@@ -81,19 +88,23 @@ public class MidiInputModule
 //  }
 
   // Receiver
-  public void close() {}
+  public void close() {
+    tm.close();
+    input_device.close();
+  }
 
   public void send(MidiMessage message, long timeStamp) {
     // MIDIメッセージが来るたびにsendが呼び出される。
     long position = -1;
-    if (mp.isNowPlaying()) {
-      position = mp.getTickPosition();
+    if(tt == null){
+      position = tt.getTickPosition();
     }
     MidiEventWithTicktime miwt = new MidiEventWithTicktime(message,
         timeStamp, position);
     src_queue.add(miwt);
   }
 
+/*
   // Runnable
   // MusicPlayerを監視し、曲が停止したら終了処理
   public void run() {
@@ -108,5 +119,5 @@ public class MidiInputModule
     tm.close();
     input_device.close();
   }
-
+*/
 }

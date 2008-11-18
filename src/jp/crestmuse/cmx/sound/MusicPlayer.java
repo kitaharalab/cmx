@@ -1,9 +1,8 @@
 package jp.crestmuse.cmx.sound;
 
-public interface MusicPlayer extends Runnable {
+public interface MusicPlayer extends Runnable, TickTimer{
   void play();
   void stop();
   boolean isNowPlaying();
   long getMicrosecondPosition();
-  long getTickPosition();
 }

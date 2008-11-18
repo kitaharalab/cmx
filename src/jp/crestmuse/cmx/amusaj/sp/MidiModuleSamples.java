@@ -17,7 +17,14 @@ import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.SMFPlayer;
 
-public class MidiModuleSamples {
+public class MidiModuleSamples implements Runnable{
+  
+  SPExecutor sp = null;
+  SMFPlayer player = null;
+  MidiInputModule  mi = null;
+  MidiOutputModule mo = null;
+  OctaveUp ou = null;
+  PrintModule pm = null;
   
   public static MidiDevice.Info[] getMidiDeviceInfos() {
     return MidiSystem.getMidiDeviceInfo();
@@ -127,15 +134,27 @@ public class MidiModuleSamples {
       
     }
   
+  public void run(){
+    while(player.isNowPlaying() == true){
+      try{
+        Thread.sleep(1000);
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+    }
+    sp.stop();
+    mi.close();
+  }
+  
   public MidiModuleSamples(String[] args){
     try {
-      SPExecutor sp = new SPExecutor(null, 0, 0);
-      SMFPlayer player = new SMFPlayer();
+      sp = new SPExecutor(null, 0, 0);
+      player = new SMFPlayer();
       player.readSMF(args[0]);
-      MidiInputModule mi = new MidiInputModule(player, sp, setMidiDevice());
-      MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
-      OctaveUp ou = new OctaveUp();
-      PrintModule pm = new PrintModule();
+      mi = new MidiInputModule(player, sp, setMidiDevice());
+      mo = new MidiOutputModule(MidiSystem.getReceiver());
+      ou = new OctaveUp();
+      pm = new PrintModule();
       sp.addSPModule(mi);
       sp.addSPModule(pm);
       //sp.addSPModule(ou);
@@ -146,7 +165,11 @@ public class MidiModuleSamples {
       sp.start();
       System.out.println("press enter to start >>>");
       System.in.read();
-      mi.play();
+      player.play();
+      Thread th = new Thread(this);
+      th.start();
+      //mi.play();
+      
     } catch (Exception e) {
       e.printStackTrace();
     }
