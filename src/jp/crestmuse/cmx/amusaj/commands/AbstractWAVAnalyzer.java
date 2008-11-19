@@ -44,9 +44,9 @@ public abstract class AbstractWAVAnalyzer
     WindowSlider winslider = new WindowSlider();
     winslider.setParams(params);
     winslider.setInputData(wav);
-    int nFrames = winslider.getAvailableFrames();
+//    int nFrames = winslider.getAvailableFrames();
     int timeunit = winslider.getTimeUnit();
-    SPExecutor ex = new SPExecutor(params, nFrames, timeunit);
+    SPExecutor ex = new SPExecutor(params, timeunit);
     return analyzeWaveform(wav, winslider, ex);
   }
 

@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -112,42 +113,45 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
     return data;
   }
 
-  public AmusaXMLWrapper toWrapper() throws IOException {
-    AmusaXMLWrapper wrapper = 
-    (AmusaXMLWrapper)CMXFileWrapper.createDocument("amusaxml");
-    wrapper.setAttribute("format", fmt);
-    wrapper.addChild("header");
-    Set<Map.Entry<String,String>> header = this.header.entrySet();
-    for (Map.Entry<String,String> e : header) {
-      wrapper.addChild("meta");
-      wrapper.setAttribute("name", e.getKey());
-      wrapper.setAttribute("content", e.getValue());
-      wrapper.returnToParent();
-    }
-    wrapper.returnToParent();
-    for (D d : data) {
-      int nFrames = d.frames();
-      QueueReader<? extends Encodable> queue = d.getQueueReader();
-      StringBuilder sb = new StringBuilder();
-      try {
-        for (int n = 0; n < nFrames-1; n++)
-          sb.append(queue.take().encode()).append("\n");
-        sb.append(queue.take().encode());
-      } catch (InterruptedException e) {}
-      wrapper.addChild("data");
-      Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
-      while (it.hasNext()) {
-        Map.Entry<String,String> e = it.next();
-        wrapper.setAttribute(e.getKey(), e.getValue());
+  public AmusaXMLWrapper toWrapper() throws IOException,InterruptedException {
+//    try {
+      AmusaXMLWrapper wrapper = 
+        (AmusaXMLWrapper)CMXFileWrapper.createDocument("amusaxml");
+      wrapper.setAttribute("format", fmt);
+      wrapper.addChild("header");
+      Set<Map.Entry<String,String>> header = this.header.entrySet();
+      for (Map.Entry<String,String> e : header) {
+        wrapper.addChild("meta");
+        wrapper.setAttribute("name", e.getKey());
+        wrapper.setAttribute("content", e.getValue());
+        wrapper.returnToParent();
       }
-      wrapper.setAttribute("frames", nFrames);
-      if (d.dim() > 0) wrapper.setAttribute("dim", d.dim());
-      if (d.timeunit() > 0) wrapper.setAttribute("timeunit", d.timeunit());
-      wrapper.addText(sb.toString());
       wrapper.returnToParent();
-    }
-    wrapper.finalizeDocument();
-    return wrapper;
+      for (D d : data) {
+        int nFrames = 0;
+        QueueReader<? extends SPElement> queue = d.getQueueReader();
+        StringBuilder sb = new StringBuilder();
+        SPElement elem = queue.take();
+        sb.append(elem.encode());
+        while (elem.hasNext()) {
+          elem = queue.take();
+          sb.append("\n").append(elem.encode());
+        }
+        wrapper.addChild("data");
+        Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
+        while (it.hasNext()) {
+          Map.Entry<String,String> e = it.next();
+          wrapper.setAttribute(e.getKey(), e.getValue());
+        }
+        wrapper.setAttribute("frames", nFrames);
+        if (d.dim() > 0) wrapper.setAttribute("dim", d.dim());
+//      if (d.timeunit() > 0) wrapper.setAttribute("timeunit", d.timeunit());
+        wrapper.addText(sb.toString());
+        wrapper.returnToParent();
+      }
+      wrapper.finalizeDocument();
+      return wrapper;
+//    } catch (InterruptedException e) {}
   }
 
 /*
@@ -197,22 +201,25 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
                    + "\" content=\"" + e.getValue() + "\" />");
       p.println("  </header>");
       for (D d : data) {
-        QueueReader<? extends Encodable> queue = d.getQueueReader();
-        Encodable first = queue.take();
+        QueueReader<? extends SPElement> queue = d.getQueueReader();
+        List<SPElement> l = new LinkedList<SPElement>();
+        SPElement elem;
+        do {
+          elem = queue.take();
+          l.add(elem);
+        } while (elem.hasNext());
         StringBuilder sbAttr = new StringBuilder();
-        int nFrames = d.frames();
-        d.setAttribute("frames", nFrames);
+        d.setAttribute("frames", l.size());
         if (d.dim() > 0) d.setAttribute("dim", d.dim());
-        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
+//        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
         Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
         while (it.hasNext()) {
           Map.Entry<String,String> e = it.next();
           sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
         }
         p.println("  <data" + sbAttr.toString() + ">");
-        p.println(first.encode());
-        for (int n = 1; n < nFrames; n++)
-          p.println(queue.take().encode());
+        for (SPElement e : l)
+          p.println(e.encode());
         p.println("  </data>");
       }
       p.println("</amusaxml>");
@@ -229,22 +236,25 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
                    + "\" content=\"" + e.getValue() + "\" />");
       p.println("  </header>");
       for (D d : data) {
-        QueueReader<? extends Encodable> queue = d.getQueueReader();
-        Encodable first = queue.take();
+        QueueReader<? extends SPElement> queue = d.getQueueReader();
+        List<SPElement> l =new LinkedList<SPElement>();
+        SPElement elem;
+        do {
+          elem = queue.take();
+          l.add(elem);
+        } while (elem.hasNext());
         StringBuilder sbAttr = new StringBuilder();
-        int nFrames = d.frames();
-        d.setAttribute("frames", nFrames);
+        d.setAttribute("frames", l.size());
         if (d.dim() > 0) d.setAttribute("dim", d.dim());
-        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
+//        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
         Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
         while (it.hasNext()) {
           Map.Entry<String,String> e = it.next();
           sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
         }
         p.println("  <data" + sbAttr.toString() + ">");
-        p.println(first.encode());
-        for (int n = 1; n < nFrames; n++)
-          p.println(queue.take().encode());
+        for (SPElement e : l)
+          p.println(e.encode());
         p.println("  </data>");
       }
       p.println("</amusaxml>");

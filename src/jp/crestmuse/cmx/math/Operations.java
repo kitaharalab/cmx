@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.math;
+import org.apache.commons.math.stat.descriptive.rank.*;
 
 public class Operations {
 
@@ -8,6 +9,8 @@ public class Operations {
     BooleanArrayFactory.getFactory();
   private static final ComplexArrayFactory cfactory = 
     ComplexArrayFactory.getFactory();
+
+  private static final Median median = new Median();
 
   private Operations() { }
 
@@ -75,6 +78,25 @@ public class Operations {
     return sum;
   }
 
+  public static class MinResult {
+    public double min;
+    public int argmin;
+  }
+
+  public static MinResult min(DoubleArray x) {
+    MinResult result = new MinResult();
+    result.min = Double.POSITIVE_INFINITY;
+    int length = x.length();
+    double value;
+    for (int i = 0; i < length; i++)
+      if ((value = x.get(i)) < result.min) {
+        result.min = value;
+        result.argmin = i;
+      }
+    return result;
+  }
+
+/*
   public static double min(DoubleArray x) {
     double min = Double.POSITIVE_INFINITY;
     int length = x.length();
@@ -83,6 +105,29 @@ public class Operations {
       if ((value = x.get(i)) < min)
         min = value;
     return min;
+  }
+*/
+
+  public static class MaxResult {
+    public double max;
+    public int argmax;
+  }
+
+  public static MaxResult max(DoubleArray x) {
+    MaxResult result = new MaxResult();
+    result.max = Double.NEGATIVE_INFINITY;
+    int length = x.length();
+    double value;
+    for (int i = 0; i < length; i++)
+      if ((value = x.get(i)) > result.max) {
+        result.max = value;
+        result.argmax = i;
+      }
+    return result;
+  }
+  
+  public static double median(DoubleArray x) {
+    return median.evaluate(x.toArray());
   }
 
   public static boolean containsNaNInf(DoubleArray x) {

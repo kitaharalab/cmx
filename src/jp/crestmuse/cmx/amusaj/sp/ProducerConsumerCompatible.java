@@ -10,7 +10,7 @@ import java.util.*;
  *各モジュールには, 基本的には入力チャンネルと出力チャンネルが各々1つ以上あり, 
  *各チャンネルにキューが接続される形になります.  </p>
  ***********************************************************************/
-public interface ProducerConsumerCompatible<D, E> {
+public interface ProducerConsumerCompatible<D extends SPElement, E extends SPElement> {
   public void setParams(Map<String,String> params);
 //  public boolean setOptionsLocal(String option, String value);
   /**********************************************************************
@@ -35,6 +35,7 @@ public interface ProducerConsumerCompatible<D, E> {
   /**********************************************************************
    *
    **********************************************************************/
-  public TimeSeriesCompatible<E> 
-    createOutputInstance(int nFrames, int timeunit);
+//  public TimeSeriesCompatible<E> 
+  //    createOutputInstance(int nFrames, int timeunit);
+//    createOutputInstance(int nFrames, int timeunit);
 }

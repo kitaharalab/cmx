@@ -51,9 +51,10 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
       new jp.crestmuse.cmx.amusaj.sp.ChromaExtractor();
     exec.addSPModule(chroma);
     exec.connect(peakext, 0, chroma, 0);
-//    exec.setSleepTime(10);
+//    TimeCoarsener tc = new TimeCoarsener();
+//    exec.addSPModule(tc);
+//    exec.connect(chroma, 0, tc, 0);
     exec.start();
-//    exec.startSingleThread();
     TimeSeriesCompatible ts = 
       (TimeSeriesCompatible)exec.getResult(chroma).get(0);
     AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());

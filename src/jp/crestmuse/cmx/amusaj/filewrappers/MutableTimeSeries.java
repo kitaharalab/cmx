@@ -1,20 +1,23 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
+public class MutableTimeSeries<D extends SPElement> implements TimeSeriesCompatible<D> {
   private int nFrames;
   private int timeunit;
   private int dim = -1;
   private BlockingQueue<D> queue;
   private QueueWrapper<D> qwrap;
   private Map<String,String> attr;
+  private boolean complete = false;
 
-  public MutableTimeSeries(int nFrames, int timeunit) {
-    this.nFrames = nFrames;
-    this.timeunit = timeunit;
+  public MutableTimeSeries() {
+//  public MutableTimeSeries(int nFrames, int timeunit) {
+//    this.nFrames = nFrames;
+//    this.timeunit = timeunit;
     queue = new LinkedBlockingQueue<D>();
     qwrap = new QueueWrapper<D>(queue);
     attr = new HashMap<String,String>();
@@ -28,13 +31,14 @@ public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
     return dim;
   }
 
-  public int frames() {
-    return nFrames;
-  }
+//  public int frames() {
+//    return queue.size();
+//    return nFrames;
+//  }
 
-  public int timeunit() {
-    return timeunit;
-  }
+//  public int timeunit() {
+//    return timeunit;
+//  }
 
   public void add(D d) throws InterruptedException {
     if (d instanceof Array) {
@@ -50,8 +54,14 @@ public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
     } else {
       queue.put(d);
     }
+    if (!d.hasNext())
+      complete =true;
   }
   
+  public boolean isComplete() {
+    return complete;
+  }
+
   public String getAttribute(String key) {
     return attr.get(key);
   }

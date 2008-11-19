@@ -1,34 +1,40 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.amusaj.sp.*;
 
-public class PeakSet implements Encodable {
+public class PeakSet implements SPElement {
   private int nPeaks;
   private DoubleArray freq;
   private DoubleArray power;
   private DoubleArray phase;
   private DoubleArray iid;
   private DoubleArray ipd;
+
+  private boolean hasNext = true;
+
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
-  public PeakSet(int nPeaks) {
+  public PeakSet(int nPeaks, boolean hasNext) {
     this.nPeaks = nPeaks;
     freq = factory.createArray(nPeaks);
     power = factory.createArray(nPeaks);
     phase = factory.createArray(nPeaks);
     iid = factory.createArray(nPeaks);
     ipd = factory.createArray(nPeaks);
+    this.hasNext = hasNext;
   }
 
   public PeakSet(DoubleArray freq, DoubleArray power, DoubleArray phase, 
-                 DoubleArray iid, DoubleArray ipd) {
+                 DoubleArray iid, DoubleArray ipd, boolean hasNext) {
     nPeaks = freq.length();
     this.freq = freq;
     this.power = power;
     this.phase = phase;
     this.iid = iid;
     this.ipd = ipd;
+    this.hasNext = hasNext;
   }
 
   public void setPeak(int i, double freq, double power, double phase, 
@@ -119,6 +125,10 @@ public class PeakSet implements Encodable {
       sb.append(ipd(i)).append(" ");
     }
     return sb.toString();
+  }
+
+  public boolean hasNext() {
+    return hasNext;
   }
 
   public static class Filter {

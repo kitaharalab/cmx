@@ -9,7 +9,7 @@ import jp.crestmuse.cmx.misc.*;
 import static java.lang.Math.*;
 import java.util.*;
 
-public class PeakExtractor extends SPModule<ComplexArray,PeakSet> {
+public class PeakExtractor extends SPModule<SPComplexArray,PeakSet> {
 
     private static double powerthrs = 0;
     private static double rpowerthrs = 0;
@@ -50,11 +50,11 @@ public class PeakExtractor extends SPModule<ComplexArray,PeakSet> {
     return 1;
   }
 
-  public void execute(List<QueueReader<ComplexArray>> src, 
+  public void execute(List<QueueReader<SPComplexArray>> src, 
                       List<TimeSeriesCompatible<PeakSet>> dest) 
     throws InterruptedException{
-    ComplexArray fftresult = src.get(0).take();
-    ComplexArray fftresultL, fftresultR;
+    SPComplexArray fftresult = src.get(0).take();
+    SPComplexArray fftresultL, fftresultR;
     boolean isStereo;
     if (src.size() > 1 && src.get(1) != null) {
       fftresultL = src.get(1).take();
@@ -113,7 +113,7 @@ public class PeakExtractor extends SPModule<ComplexArray,PeakSet> {
     dest.get(0).add
       (new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
                    subarray(phase, 0, k), subarray(iid, 0, k), 
-                   subarray(ipd, 0, k)));
+                   subarray(ipd, 0, k), fftresult.hasNext()));
   }
                          
   public void setParams(Map<String,String> params) {

@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Utils.*;
@@ -372,23 +373,23 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 
   
   private abstract class MyTimeSeries 
-    implements TimeSeriesCompatible<DoubleArray> {
+    implements TimeSeriesCompatible<SPDoubleArray> {
     int dim;
     int nFrames;
     private int timeunit;
-    java.util.Queue<DoubleArray> queue;
+    java.util.Queue<SPDoubleArray> queue;
     private MPEG7NodeInterface parent;
-    private QueueWrapper<DoubleArray> qwrap;
+    private QueueWrapper<SPDoubleArray> qwrap;
     private MyTimeSeries(String text, int dim, int frames, int timeunit, 
                          MPEG7NodeInterface parent) {
       this.dim = dim;
       this.nFrames = frames;
       this.timeunit = timeunit;
-      queue = new LinkedList<DoubleArray>();
-      qwrap = new QueueWrapper(queue, nFrames);
+      queue = new LinkedList<SPDoubleArray>();
+      qwrap = new QueueWrapper<SPDoubleArray>(queue, nFrames);
       this.parent = parent;
     }
-    public QueueReader<DoubleArray> getQueueReader() {
+    public QueueReader<SPDoubleArray> getQueueReader() {
       return qwrap.createReader();
     }
 //    public void finalizeQueueReader() {
@@ -403,10 +404,13 @@ public class MPEG7Wrapper extends CMXFileWrapper {
     public int timeunit() {
       return timeunit;
     }
-    public int bytesize() {
-      return 4 * dim();
+    public boolean isComplete() {
+      return true;
     }
-    public void add(DoubleArray array) {
+//    public int bytesize() {
+//      return 4 * dim();
+//    }
+    public void add(SPDoubleArray array) {
       throw new UnsupportedOperationException();
     }
     public void setAttribute(String key, String value) {
@@ -442,7 +446,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
        for (int n = 0; n < nFrames; n++) {
          DoubleArray array = factory.createArray(dim);
          array.set(0, Double.parseDouble(ss[n]));
-         queue.add(array);
+         queue.add(new SPDoubleArray(array, n < nFrames-1));
        }
      }
    }
@@ -462,7 +466,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 //        DoubleArray array = factory.createArray(dim);
 //        for (int i = 0; i < dim; i++)
 //          array.set(i, Double.parseDouble(sss[i]));
-        queue.add(array);
+        queue.add(new SPDoubleArray(array, n < nFrames - 1));
       }
     }
   }

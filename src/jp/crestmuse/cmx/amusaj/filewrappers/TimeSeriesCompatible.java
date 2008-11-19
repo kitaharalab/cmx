@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
@@ -9,7 +10,7 @@ import java.util.*;
  *一定のサンプリングレートでデータが並んでいるものです. 
  *時系列データへのアクセスはFirst-in First-outとします. 
  *********************************************************************/
-public interface TimeSeriesCompatible<D>
+public interface TimeSeriesCompatible<D extends SPElement>
 //  extends AmusaDataCompatible<D> 
 {
 
@@ -18,12 +19,12 @@ public interface TimeSeriesCompatible<D>
    *多次元ベクトルの次元数を返します. 
    *******************************************************************/
   public int dim();
-  public int frames();
+//  public int frames();
 //  public int bytesize();
   /*******************************************************************
    *時間分解能をミリ秒単位で返します. 
    *******************************************************************/
-  public int timeunit();
+//  public int timeunit();
   String getAttribute(String key);
   int getAttributeInt(String key);
   double getAttributeDouble(String key);
@@ -31,6 +32,8 @@ public interface TimeSeriesCompatible<D>
   void setAttribute(String key, int value);
   void setAttribute(String key, double value);
   Iterator<Map.Entry<String,String>> getAttributeIterator();
+
+  boolean isComplete();
 
   /*******************************************************************
    *新たな多次元ベクトルを末尾に追加します. 

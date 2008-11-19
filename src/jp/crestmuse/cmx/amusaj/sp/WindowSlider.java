@@ -8,7 +8,7 @@ import static jp.crestmuse.cmx.math.Operations.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
 import java.util.*;
 
-public class WindowSlider extends SPModule<Object,DoubleArray> {
+public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
 
   private int winsize = 0;
   private double shift = Double.NaN;
@@ -94,26 +94,37 @@ public class WindowSlider extends SPModule<Object,DoubleArray> {
   }
 
   public int getOutputChannels() {
-    return isStereo ? 3 : 1;
+    return 3;
+//    return isStereo ? 3 : 1;
   }
 
+/*
   public int getAvailableFrames() {
     return 
       Math.max(0, 
                1 + (int)Math.floor((double)(wavM.length() - winsize) / shift_));
   }
+*/
 
   public int getTimeUnit() {
     return 1000 * shift_ / fs;
   }
 
-  public void execute(List<QueueReader<Object>> src,
-                      List<TimeSeriesCompatible<DoubleArray>> dest)
+  public void execute(List<QueueReader<SPDummyObject>> src,
+                      List<TimeSeriesCompatible<SPDoubleArray>> dest)
     throws InterruptedException {
-    dest.get(0).add(wavM.subarrayX(t, t + winsize));
+    boolean hasNext = (t + shift_ + winsize < wavM.length());
+    SPDoubleArray a = new SPDoubleArray(wavM.subarrayX(t, t + winsize), 
+                                        hasNext);
+    dest.get(0).add(a);
     if (isStereo) {
-      dest.get(1).add(wavL.subarrayX(t, t + winsize));
-      dest.get(2).add(wavR.subarrayX(t, t + winsize));
+      dest.get(1).add(new SPDoubleArray(wavL.subarrayX(t, t + winsize), 
+                                        hasNext));
+      dest.get(2).add(new SPDoubleArray(wavR.subarrayX(t, t + winsize), 
+                                        hasNext));
+    } else {
+      dest.get(1).add(a);
+      dest.get(2).add(a);
     }
     t += shift_;
   }

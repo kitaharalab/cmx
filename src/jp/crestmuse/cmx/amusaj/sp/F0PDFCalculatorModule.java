@@ -6,7 +6,7 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
-public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
+public class F0PDFCalculatorModule extends SPModule<PeakSet,SPDoubleArray> {
 
   private F0PDFCalculatorFactory factory = 
     F0PDFCalculatorFactory.getFactory();
@@ -51,12 +51,13 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,DoubleArray> {
   }
 
   public void execute(List<QueueReader<PeakSet>> src, 
-                      List<TimeSeriesCompatible<DoubleArray>> dest) 
+                      List<TimeSeriesCompatible<SPDoubleArray>> dest) 
     throws InterruptedException {
     if (!paramSet) setParams();
     PeakSet peaks = src.get(0).take();
     if (filter != null) peaks.filter(filter);
-    dest.get(0).add(f0calc.calcWeights(peaks));
+    dest.get(0).add(new SPDoubleArray(f0calc.calcWeights(peaks), 
+                                      peaks.hasNext()));
   }
 
   public int getInputChannels() {

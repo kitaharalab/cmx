@@ -5,7 +5,7 @@ import jp.crestmuse.cmx.misc.*;
 
 import java.util.*;
 
-public class FeatureExtractionModule extends SPModule<DoubleArray,DoubleArray>{
+public class FeatureExtractionModule extends SPModule<SPDoubleArray,SPDoubleArray>{
 //  implements ProducerConsumerCompatible<DoubleArray,DoubleArray> {
   
 //  private Map<String,Object> params = null;
@@ -27,15 +27,15 @@ public class FeatureExtractionModule extends SPModule<DoubleArray,DoubleArray>{
 //    return new MutableDoubleArrayTimeSeries(nFrames, timeunit);
 //  }
 
-  public void execute(List<QueueReader<DoubleArray>> src, 
-                      List<TimeSeriesCompatible<DoubleArray>> dest) 
+  public void execute(List<QueueReader<SPDoubleArray>> src, 
+                      List<TimeSeriesCompatible<SPDoubleArray>> dest) 
     throws InterruptedException {
-    DoubleArray wav = src.get(0).take();
+    SPDoubleArray wav = src.get(0).take();
     int n = getOutputChannels();
     fe.extractFeatures(wav);
     for (int i = 0; i < n; i++) {
       TimeSeriesCompatible ts = dest.get(i);
-      ts.add(fe.getFeature(i));
+      ts.add(new SPDoubleArray(fe.getFeature(i), wav.hasNext()));
       ts.setAttribute("type", fe.getFeatureType(i));
     }
     fe.nextFrame();

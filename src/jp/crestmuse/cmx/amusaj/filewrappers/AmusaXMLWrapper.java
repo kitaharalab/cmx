@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.math.*;
@@ -152,7 +153,7 @@ private class Header extends AbstractHeaderNodeInterface {
   }
 }
 
-  private class Data<E> extends NodeInterface implements TimeSeriesCompatible<E> {
+  private class Data<E extends SPElement> extends NodeInterface implements TimeSeriesCompatible<E> {
 
     private int dim = -1;
     private int nFrames;
@@ -169,7 +170,7 @@ private class Header extends AbstractHeaderNodeInterface {
       qwrap = new QueueWrapper(queue, nFrames);
       StringTokenizer st = new StringTokenizer(getText());
       for (int i = 0; i < nFrames; i++)
-        queue.add((E)decoder.decode(st, format, dim));
+        queue.add((E)decoder.decode(st, format, dim, i < nFrames-1));
 //      interpretTextElement(getText(), queue);
     }
 
@@ -194,6 +195,10 @@ private class Header extends AbstractHeaderNodeInterface {
 
     public final int timeunit() {
       return timeunit;
+    }
+
+    public final boolean isComplete() {
+      return true;
     }
 
     public final void add(E e) {

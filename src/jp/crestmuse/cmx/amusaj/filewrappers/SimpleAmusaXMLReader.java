@@ -80,7 +80,7 @@ public class SimpleAmusaXMLReader {
         dim = sDim == null ? -1 : Integer.parseInt(sDim);
         String sTimeUnit = attrs.getValue("timeunit");
         int timeunit = sTimeUnit == null ? -1 : Integer.parseInt(sTimeUnit);
-        ts = new MutableTimeSeries(nFrames, timeunit);
+        ts = new MutableTimeSeries();
 //        if (format.equals("array"))
 //          ts = new MutableTimeSeries<DoubleArray>(nFrames, timeunit);
 //        else if (format.equals("peaks"))
@@ -100,7 +100,7 @@ public class SimpleAmusaXMLReader {
         StringTokenizer st = new StringTokenizer(sb.toString());
         for (int i = 0; i < nFrames; i++) {
           try {
-            ts.add(decoder.decode(st, format, dim));
+            ts.add(decoder.decode(st, format, dim, i < nFrames-1));
           } catch (InterruptedException e) {
           }
         }

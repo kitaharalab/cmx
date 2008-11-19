@@ -46,6 +46,32 @@ public class Utils {
     return toString(x, " ", "", "");
   }
 
+  public static String toString(ComplexArray x, String sep, 
+                                String left, String right) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(left);
+    int length = x.length();
+    if (length >= 1) {
+      sb.append(String.valueOf(x.getReal(0))).append(" + ");
+      sb.append(String.valueOf(x.getImag(0))).append(" i");
+      for (int i = 1; i < length; i++) {
+        sb.append(sep);
+        sb.append(String.valueOf(x.getReal(i))).append(" + ");
+        sb.append(String.valueOf(x.getImag(i))).append(" i");
+      }
+    }
+    sb.append(right);
+    return sb.toString();
+  }
+
+  public static String toString(ComplexArray x) {
+    return toString(x, ", ", "{", "}");
+  }
+
+  public static String toString2(ComplexArray x) {
+    return toString(x, " ", "", "");
+  }
+
   public static String toString(DoubleMatrix x, String sep1, String sep2, 
                                 String left, String right) {
     StringBuilder sb = new StringBuilder();

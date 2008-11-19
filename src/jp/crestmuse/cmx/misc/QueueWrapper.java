@@ -4,20 +4,20 @@ import java.util.concurrent.*;
 
 public class QueueWrapper<E> {
   private java.util.Queue<E> queue;
-  private ArrayList<PacketWithReadedCount> list;
+  private ArrayList<PacketWithReadCount> list;
   private byte nReaders = (byte)0;
   int removedNum;
   
   public QueueWrapper(java.util.Queue<E> q){
     queue = q;
-    list = new ArrayList<PacketWithReadedCount>();
+    list = new ArrayList<PacketWithReadCount>();
     removedNum = 0;
   }
 
   @Deprecated
   public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
-    list = new ArrayList<PacketWithReadedCount>();
+    list = new ArrayList<PacketWithReadCount>();
     removedNum = 0;
   }
 
@@ -26,10 +26,10 @@ public class QueueWrapper<E> {
     return new QueueReaderImpl();
   }
   
-  private class PacketWithReadedCount{
+  private class PacketWithReadCount{
     E packet;
     int readedCount;
-    public PacketWithReadedCount(E packet) {
+    public PacketWithReadCount(E packet) {
       this.packet = packet;
       this.readedCount = 0;
     }
@@ -41,8 +41,17 @@ public class QueueWrapper<E> {
       next = 0;
     }
 
+/*
+    public E peek() {
+      if (next < list.size() + removedNum)
+        return list.get(next - removedNum).packet;
+      else
+        return queue.peek();
+    }
+*/
+
     public E take() throws InterruptedException {
-      PacketWithReadedCount pwrc;
+      PacketWithReadCount pwrc;
       if (next < list.size() + removedNum) {
         pwrc = list.get(next - removedNum);
       } else {
@@ -51,7 +60,7 @@ public class QueueWrapper<E> {
           e = ((BlockingQueue<E>)queue).take();
         else
           e = queue.poll();
-        pwrc = new PacketWithReadedCount(e);
+        pwrc = new PacketWithReadCount(e);
         list.add(pwrc);
       }
       pwrc.readedCount++;

@@ -25,7 +25,7 @@ public class SPExecutor {
   private SPThread lastThread = null;
   private Map<ProducerConsumerCompatible,SPModule> map;
   private Map<String,String> params;
-  private int nFrames;
+//  private int nFrames;
   private int timeunit;
   private long sleepTime = 0;
 
@@ -35,12 +35,12 @@ public class SPExecutor {
    * @param nFrames
    * @param timeunit
    */
-  public SPExecutor(Map<String,String> params, int nFrames, int timeunit) {
+  public SPExecutor(Map<String,String> params, int timeunit) {
     list = new LinkedList<SPThread>();
 //    list = new ArrayList<SPModule>();
     map = new HashMap<ProducerConsumerCompatible,SPModule>();
     this.params = params;
-    this.nFrames = nFrames;
+//    this.nFrames = nFrames;
     this.timeunit = timeunit;
   }
 
@@ -55,7 +55,8 @@ public class SPExecutor {
      spm.module = module;
      int n = module.getOutputChannels();
      for (int i = 0; i < n; i++)
-       spm.dest.add(module.createOutputInstance(nFrames, timeunit));
+       spm.dest.add(new MutableTimeSeries());
+//       spm.dest.add(module.createOutputInstance(timeunit));
      n = module.getInputChannels();
      for (int i = 0; i < n; i++)
        spm.src.add(null);
@@ -88,8 +89,9 @@ public class SPExecutor {
    *チャンネルの概念については, ProducerConsumerCompatibleインターフェースの
    *ドキュメントをご覧ください. 
    *********************************************************************/
-  public void connect(ProducerConsumerCompatible output, int ch1, 
-                      ProducerConsumerCompatible input, int ch2) {
+  public void connect
+  (ProducerConsumerCompatible output, int ch1, 
+   ProducerConsumerCompatible input, int ch2) {
     SPModule spm1 = map.get(output);
     SPModule spm2 = map.get(input);
     System.err.println(spm1);
@@ -141,7 +143,7 @@ public class SPExecutor {
   /*********************************************************************
    *指定されたデータ処理モジュールの全チャンネルの出力を返します. 
    *********************************************************************/
-  public List<TimeSeriesCompatible>
+  public List<TimeSeriesCompatible<? extends SPElement>>
   getResult(ProducerConsumerCompatible module) {
     return map.get(module).dest;
   }
@@ -162,10 +164,24 @@ public class SPExecutor {
     private List<SPModule> modules = new LinkedList<SPModule>();
     private boolean finish = false;
     public void run() {
-      for (int i = 0; i < nFrames || nFrames <= 0; i++) {
+      int nModules = modules.size();
+      int nFinished = 0;
+      while (nFinished < nModules) {
         try {
-          for (SPModule m : modules)
-            m.module.execute(m.src, m.dest);
+          for (SPModule m : modules) {
+            if (!m.finish) {
+//              if (!m.src.get(0).peek().hasNext()) {
+//                m.finish = true;
+//                nFinished++;
+//              }
+              m.module.execute(m.src, m.dest);
+              if (m.dest.get(0).isComplete()) {
+                System.err.println("finished: " + m.module);
+                m.finish = true;
+                nFinished++;
+              }
+            }
+          }
           if (sleepTime > 0)
             sleep(sleepTime);
           if (Thread.interrupted()) break;
@@ -173,16 +189,18 @@ public class SPExecutor {
           break;
         }
       }
-      for (SPModule m : modules)
-        m.finish = true;
+//      for (SPModule m : modules)
+//        m.finish = true;
       finish = true;
     }
   }
 
   private class SPModule {
     ProducerConsumerCompatible module;
-    List<QueueReader> src = new ArrayList<QueueReader>();
-    List<TimeSeriesCompatible> dest = new ArrayList<TimeSeriesCompatible>();
+    List<QueueReader<? extends SPElement>> src 
+    = new ArrayList<QueueReader<? extends SPElement>>();
+    List<TimeSeriesCompatible<? extends SPElement>> dest 
+    = new ArrayList<TimeSeriesCompatible<? extends SPElement>>();
     boolean finish = false;
   }
 

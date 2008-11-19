@@ -4,15 +4,19 @@ import jp.crestmuse.cmx.commands.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import java.util.*;
 
-public abstract class SPModule<D,E> 
+public abstract class SPModule<D extends SPElement, E extends SPElement> 
   implements ProducerConsumerCompatible<D,E> {
 
   private Map<String,String> params = null;
 
-  public TimeSeriesCompatible<E> createOutputInstance
-  (int nFrames, int timeunit) {
-    return new MutableTimeSeries<E>(nFrames, timeunit);
-  }
+//  public TimeSeriesCompatible<E> createOutputInstance
+//  (int nFrames, int timeunit) {
+//    return new MutableTimeSeries<E>(getNumOfOutputFrames(nFrames), timeunit);
+//  }
+
+//  protected int getNumOfOutputFrames(int nInputFrames) {
+//    return nInputFrames;
+//  }
 
   public void setParams(Map<String,String> params) {
     this.params = params;

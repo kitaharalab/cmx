@@ -12,7 +12,7 @@ import java.util.*;
  *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 
  *短時間フーリエ変換を行います. 
  *********************************************************************/
-public class STFT extends SPModule<DoubleArray,ComplexArray> {
+public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
   private int winsize = -1;
   private String wintype = null;
   private double[] window;
@@ -73,32 +73,39 @@ public class STFT extends SPModule<DoubleArray,ComplexArray> {
    *@param src 常にnullを指定します(何を指定しても無視されます)
    *@param dest STFT実行結果格納用リスト
    *********************************************************************/
-  public void execute(List<QueueReader<DoubleArray>> src, 
-                      List<TimeSeriesCompatible<ComplexArray>> dest) 
+  public void execute(List<QueueReader<SPDoubleArray>> src, 
+                      List<TimeSeriesCompatible<SPComplexArray>> dest) 
     throws InterruptedException {
     if (!paramSet) setParams();
-    DoubleArray signal = src.get(0).take();
+    SPDoubleArray signal = src.get(0).take();
     if (winsize < 0 || winsize != signal.length())
       changeWindow(wintype, signal.length());
-//    ComplexArray aa = fft.executeR2C(signal, window);
-//    for (int i = 0; i < aa.length(); i++)
-//      System.out.print(Math.hypot(aa.getReal(i), aa.getImag(i)) + " ");
-//    System.out.println();
-    dest.get(0).add(fft.executeR2C(signal, window));
+    SPComplexArray fftresult = 
+      new SPComplexArray(fft.executeR2C(signal, window), signal.hasNext());
+    dest.get(0).add(fftresult);
     if (isStereo) {
-      dest.get(1).add(fft.executeR2C(src.get(1).take(), window));
-      dest.get(2).add(fft.executeR2C(src.get(2).take(), window));
+      dest.get(1).add(
+        new SPComplexArray(fft.executeR2C(src.get(1).take(), window), 
+                           signal.hasNext()));
+      dest.get(2).add(
+        new SPComplexArray(fft.executeR2C(src.get(2).take(), window), 
+                           signal.hasNext()));
+    } else {
+      dest.get(1).add(fftresult);
+      dest.get(2).add(fftresult);
     }
   }
 
   public int getInputChannels() {
-    if (!paramSet) setParams();
-    return isStereo ? 3 : 1;
+    return 3;
+//    if (!paramSet) setParams();
+//    return isStereo ? 3 : 1;
   }
 
   public int getOutputChannels() {
-    if (!paramSet) setParams();
-    return isStereo ? 3 : 1;
+    return 3;
+//    if (!paramSet) setParams();
+//    return isStereo ? 3 : 1;
   }
 
 }

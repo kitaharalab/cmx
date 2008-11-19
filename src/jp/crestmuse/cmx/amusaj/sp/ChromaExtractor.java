@@ -2,10 +2,11 @@ package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
+import static jp.crestmuse.cmx.math.Operations.*;
 import static java.lang.Math.*;
 import java.util.*;
 
-public class ChromaExtractor extends SPModule<PeakSet,DoubleArray> {
+public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
 
     private static final DoubleArrayFactory factory = DoubleArrayFactory.getFactory();
 
@@ -16,10 +17,10 @@ public class ChromaExtractor extends SPModule<PeakSet,DoubleArray> {
   private boolean paramSet = false;
 
     public void execute(List<QueueReader<PeakSet>> src, 
-			List<TimeSeriesCompatible<DoubleArray>> dest)
+			List<TimeSeriesCompatible<SPDoubleArray>> dest)
 	throws InterruptedException {
 	PeakSet peaks = src.get(0).take();
-	dest.get(0).add(calcChroma(peaks));
+	dest.get(0).add(new SPDoubleArray(calcChroma(peaks), peaks.hasNext()));
     }
 
   private void setParams() {
@@ -50,6 +51,7 @@ public class ChromaExtractor extends SPModule<PeakSet,DoubleArray> {
 	    w = exp(-df*df/(2*bw*bw));
 	    chroma.set((nn+1)%12, w * peakset.power(i));
 	}
+        divX(chroma, sum(chroma));
 	return chroma;
     }
 
