@@ -64,7 +64,7 @@ public class GUI implements MusicPlaySynchronized {
     showAsTickTime = true;
     pianoRollPanels = new ArrayList<PianoRollPanel>();
 
-    mainFrame = new JFrame();
+    mainFrame = new JFrame("DeviationEditor");
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     mainFrame.setSize(640, 480);
     mainFrame.getContentPane().setLayout(new BorderLayout());

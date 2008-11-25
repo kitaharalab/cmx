@@ -12,37 +12,29 @@ import javax.sound.midi.Transmitter;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
-import jp.crestmuse.cmx.sound.MusicPlayer;
 import jp.crestmuse.cmx.sound.TickTimer;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
 public class MidiInputModule 
-  extends SPModule<Object,MidiEventWithTicktime>
-  implements Receiver //Runnable
-//    implements
-//      ProducerConsumerCompatible<Object, MidiEventWithTicktime>, Receiver,
-//      Runnable 
+  extends SPModule<SPDummyObject,MidiEventWithTicktime>
+  implements Receiver
 {
 
-  TickTimer tt = null;
-  //SPExecutor sp;
-  Transmitter tm;
-  MidiDevice input_device;
-  BlockingQueue<MidiEventWithTicktime> src_queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
+  private TickTimer tt;
+  private Transmitter tm;
+  private MidiDevice input_device;
+  private BlockingQueue<MidiEventWithTicktime> src_queue = new LinkedBlockingQueue<MidiEventWithTicktime>();
 
-  public MidiInputModule(SPExecutor sp, MidiDevice device)
+  public MidiInputModule(MidiDevice device)
       throws MidiUnavailableException{
+    this.tt = null;
     this.input_device = device;
-    //this.sp = sp;
-    
-    
-    
   }
-  public MidiInputModule(TickTimer tt, SPExecutor sp, MidiDevice device)
+
+  public MidiInputModule(TickTimer tt, MidiDevice device)
       throws MidiUnavailableException {
-    this.input_device = device;
     this.tt = tt;
-    //this.sp = sp;
+    this.input_device = device;
 
     // initializing device
     input_device.open();
@@ -52,7 +44,6 @@ public class MidiInputModule
   
   public void setTickTimer(TickTimer tt){
     this.tt = tt;
-    //これでいいのかね
   }
   
   /*
@@ -70,7 +61,7 @@ public class MidiInputModule
   }
 */
 
-  public void execute(List<QueueReader<Object>> src,
+  public void execute(List<QueueReader<SPDummyObject>> src,
       List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
       throws InterruptedException {
     dest.get(0).add(src_queue.take());
@@ -84,9 +75,6 @@ public class MidiInputModule
     return 1;
   }
 
-//  public void setParams(Map<String, Object> params) {
-//  }
-
   // Receiver
   public void close() {
     tm.close();
@@ -96,9 +84,8 @@ public class MidiInputModule
   public void send(MidiMessage message, long timeStamp) {
     // MIDIメッセージが来るたびにsendが呼び出される。
     long position = -1;
-    if(tt == null){
+    if(tt != null)
       position = tt.getTickPosition();
-    }
     MidiEventWithTicktime miwt = new MidiEventWithTicktime(message,
         timeStamp, position);
     src_queue.add(miwt);

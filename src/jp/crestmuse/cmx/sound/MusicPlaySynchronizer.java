@@ -3,17 +3,16 @@ package jp.crestmuse.cmx.sound;
 import java.util.*;
 
 /**
- * <p>このクラスは複数の{@link MusicPlaySynchronized}オブジェクトをひとつの
- * {@link MusicPlayer}の再生と同期させます．</p>
+ * <p>このクラスは複数の{@link MusicPlaySynchronized}オブジェクトをひと
+ * つの{@link MusicPlayer}の再生と同期させます．</p>
  * 
  * <p>一定時間ごとに所持する{@link MusicPlaySynchronized}オブジェクトの
- * {@link MusicPlaySynchronized#synchronize(double, long, MusicPlaySynchronizer)}
- * メソッドを呼び出します．これはこのクラスの{@link #play()}メソッドから演奏を
- * 開始したときのみ動作し、外部から{@link MusicPlayer#play()}メソッドを呼び
- * 出すと同期処理は行われません．</p>
+ * synchronizeメソッドを呼び出します．これはこのクラスのplayメソッドから演
+ * 奏を開始したときのみ動作し、外部からMusicPlayerのplayメソッドを呼び出す
+ * と同期処理は行われません．</p>
  * 
- * <p>最初にこのクラスの{@link #play()}を呼び出したときのみ、
- * MusicPlayerのスレッドを生成、開始します．</p>
+ * <p>最初にこのクラスのplayを呼び出したときのみ、MusicPlayerのスレッドを
+ * 生成、開始します．</p>
  * @author Naoyuki Totani
  * @see MusicPlaySynchronized
  * @see MusicPlayer

@@ -24,6 +24,10 @@ public interface ProducerConsumerCompatible<D extends SPElement, E extends SPEle
     throws InterruptedException;
 //  public void execute(List<QueueReader<D>> src, 
 //                      List<E> dest) throws InterruptedException;
+  /**
+   * モジュールの処理が終了したときにSPExecutorから呼び出されます
+   */
+  public void stop(List<QueueReader<D>> src, List<TimeSeriesCompatible<E>> dest);
   /**********************************************************************
    *入力チャンネル数を返します. 
    **********************************************************************/

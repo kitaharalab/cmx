@@ -188,6 +188,8 @@ public class SPExecutor {
         } catch (InterruptedException e) {
           break;
         }
+        for (SPModule m : modules)
+          m.module.stop(m.src, m.dest);
       }
 //      for (SPModule m : modules)
 //        m.finish = true;

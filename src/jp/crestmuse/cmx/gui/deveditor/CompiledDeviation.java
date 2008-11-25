@@ -37,7 +37,7 @@ import jp.crestmuse.cmx.misc.TreeView;
 public class CompiledDeviation {
 
   public static int TICKS_PER_BEAT = 480;
-  private int BASE_DYNAMICS = 127;
+  private int BASE_DYNAMICS = 100;
   private int TEMPO = 72;
   private Sequence sequence;
   private ArrayList<DeviatedNote> deviatedNotes;

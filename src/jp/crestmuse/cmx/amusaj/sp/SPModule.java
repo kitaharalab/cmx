@@ -2,6 +2,8 @@ package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.commands.*;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.misc.QueueReader;
+
 import java.util.*;
 
 public abstract class SPModule<D extends SPElement, E extends SPElement> 
@@ -56,5 +58,8 @@ public abstract class SPModule<D extends SPElement, E extends SPElement>
     for (String key : keys) 
       if (!containsParam(key))
         setParam(key, config.getParam(namespace, category, key));
+  }
+  
+  public void stop(List<QueueReader<D>> src, List<TimeSeriesCompatible<E>> dest) {
   }
 }

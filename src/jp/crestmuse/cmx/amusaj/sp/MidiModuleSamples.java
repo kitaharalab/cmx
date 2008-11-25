@@ -148,10 +148,10 @@ public class MidiModuleSamples implements Runnable{
   
   public MidiModuleSamples(String[] args){
     try {
-      sp = new SPExecutor(null, 0, 0);
+      sp = new SPExecutor(null, 0);
       player = new SMFPlayer();
       player.readSMF(args[0]);
-      mi = new MidiInputModule(player, sp, setMidiDevice());
+      mi = new MidiInputModule(player, setMidiDevice());
       mo = new MidiOutputModule(MidiSystem.getReceiver());
       ou = new OctaveUp();
       pm = new PrintModule();
