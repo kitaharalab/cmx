@@ -166,16 +166,18 @@ public class SPExecutor {
     public void run() {
       int nModules = modules.size();
       int nFinished = 0;
+      for(SPModule m : modules)
+        if(m.dest.size() == 0) nFinished++;
       while (nFinished < nModules) {
         try {
           for (SPModule m : modules) {
             if (!m.finish) {
-//              if (!m.src.get(0).peek().hasNext()) {
-//                m.finish = true;
-//                nFinished++;
-//              }
               m.module.execute(m.src, m.dest);
-              if (m.dest.get(0).isComplete()) {
+              if(m.dest.size() == 0) continue;
+              boolean fin = true;
+              for(TimeSeriesCompatible t : m.dest)
+                fin = fin && t.isComplete();
+              if (fin) {
                 System.err.println("finished: " + m.module);
                 m.finish = true;
                 nFinished++;

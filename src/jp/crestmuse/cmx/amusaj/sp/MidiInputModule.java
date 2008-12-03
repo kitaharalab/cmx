@@ -27,8 +27,7 @@ public class MidiInputModule
 
   public MidiInputModule(MidiDevice device)
       throws MidiUnavailableException{
-    this.tt = null;
-    this.input_device = device;
+    this(null, device);
   }
 
   public MidiInputModule(TickTimer tt, MidiDevice device)

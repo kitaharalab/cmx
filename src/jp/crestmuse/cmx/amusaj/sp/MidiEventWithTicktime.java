@@ -13,6 +13,6 @@ public class MidiEventWithTicktime extends MidiEvent implements SPElement {
     return null;
   }
   public boolean hasNext() {
-    return false;
+    return true;
   }
 }
