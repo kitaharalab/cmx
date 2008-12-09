@@ -70,13 +70,17 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     F0Tracker f0track = new F0Tracker();
     exec.addSPModule(f0track);
     exec.connect(mf, 0, f0track, 0);
-    SPProgressDisplayModule disp = new SPProgressDisplayModule();
-    exec.addSPModule(disp);
-    exec.connect(f0track, 0, disp, 0);
+//    SPProgressDisplayModule disp = new SPProgressDisplayModule();
+//    exec.addSPModule(disp);
+//    exec.connect(f0track, 0, disp, 0);
+    HarmonicsExtractor harm = new HarmonicsExtractor();
+    exec.addSPModule(harm);
+    exec.connect(peakext, 0, harm, 0);
+    exec.connect(f0track, 0, harm, 1);
     exec.start();
     TimeSeriesCompatible ts = 
-      (TimeSeriesCompatible)exec.getResult(disp).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
+      (TimeSeriesCompatible)exec.getResult(harm).get(0);
+    AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
     dataset.add(ts);
     return dataset;
 //    return dataset.toWrapper();
@@ -121,14 +125,32 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
   private class F0Tracker extends SPModule<SPDoubleArray,SPDoubleArray> {
     private static final double THRS = 0.1;
     private int t = 0;
+    private double nnFrom, nnThru, step;
+    private boolean paramSet = false;
+    protected String getParamCategory() {
+      return "f0pdf";
+    }
+    protected String[] getUsedParamNames(){
+      return new String[]{"NOTENUMBER_FROM", "NOTENUMBER_THRU", "STEP"};
+    }
+    private void setParams() {
+      nnFrom = getParamDouble("NOTENUMBER_FROM");
+      nnThru = getParamDouble("NOTENUMBER_THRU");
+      step = getParamDouble("STEP");
+      paramSet = true;
+    }
+
     public void execute(List<QueueReader<SPDoubleArray>> src,
                         List<TimeSeriesCompatible<SPDoubleArray>> dest)
       throws InterruptedException {
+      if (!paramSet) setParams();
       SPDoubleArray a = src.get(0).take();
-      MaxResult max = max(a);
+      MaxResult maxresult = max(a);
       DoubleArray b = factory.createArray(1);
-      if (max.max > THRS)
-        b.set(0, max.argmax);
+      if (maxresult.max > THRS) {
+        b.set(0, nn2Hz(nnFrom + step * maxresult.argmax));
+//        System.err.println(nn2Hz(nnFrom + step * maxresult.argmax));
+      }
       dest.get(0).add(new SPDoubleArray(b, a.hasNext()));
     }
     public int getInputChannels() {
