@@ -17,6 +17,7 @@ import jp.crestmuse.cmx.amusaj.filewrappers.StringElement;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.TickTimer;
+import jp.crestmuse.cmx.sound.VirtualKeyboard;
 
 public class AccompanimentGenerator
     extends SPModule<StringElement, SPDummyObject>
@@ -40,7 +41,7 @@ public class AccompanimentGenerator
     }
     sequencer.setSequence(chord2sequence.get(nextChord));
     player = new Thread(this);
-    player.run();
+    player.start();
   }
 
   public long getTickPosition() {
@@ -76,6 +77,7 @@ public class AccompanimentGenerator
         } catch (InvalidMidiDataException e) {
           e.printStackTrace();
         }
+        sequencer.setTickPosition(0);
         sequencer.start();
       }
       try {
@@ -89,10 +91,18 @@ public class AccompanimentGenerator
   
   public static void main(String[] args){
     try {
-      MidiInputModule mi = new MidiInputModule(MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]));
-      ChordPredictorModule cp = new ChordPredictorModule(new ChordPredictor(new BayesNetWrapper("")));
+      MidiInputModule mi = new MidiInputModule(new VirtualKeyboard());
+      MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
+      ChordPredictorModule cp = new ChordPredictorModule(new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif")));
       Map<String, String> c2s = new HashMap<String, String>();
       // init maps
+      c2s.put("C", "midis/C.mid");
+      c2s.put("Dm", "midis/Dm.mid");
+      c2s.put("Em", "midis/Em.mid");
+      c2s.put("F", "midis/F.mid");
+      c2s.put("G", "midis/G.mid");
+      c2s.put("Am", "midis/Am.mid");
+      c2s.put("Bm(b5)", "midis/Bm(b5).mid");
       AccompanimentGenerator ag = new AccompanimentGenerator(c2s);
       mi.setTickTimer(ag);
 
@@ -100,7 +110,9 @@ public class AccompanimentGenerator
       sp.addSPModule(mi);
       sp.addSPModule(cp);
       sp.addSPModule(ag);
+      sp.addSPModule(mo);
       sp.connect(mi, 0, cp, 0);
+      sp.connect(mi, 0, mo, 0);
       sp.connect(cp, 0, ag, 0);
       sp.start();
     } catch (Exception e) {
