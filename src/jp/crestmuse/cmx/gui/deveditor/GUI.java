@@ -12,7 +12,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiUnavailableException;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
@@ -57,7 +56,7 @@ public class GUI implements MusicPlaySynchronized {
   private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
-  private GUI() throws MidiUnavailableException {
+  private GUI() {
     corePlayer = new CorePlayer();
     synchronizer = new MusicPlaySynchronizer(corePlayer);
     synchronizer.addSynchronizedComponent(this);
@@ -342,11 +341,7 @@ public class GUI implements MusicPlaySynchronized {
   public static void main(String[] args) {
     SwingUtilities.invokeLater(new Runnable(){
       public void run() {
-        try {
-          GUI.instance = new GUI();
-        } catch (MidiUnavailableException e) {
-          e.printStackTrace();
-        }
+        GUI.instance = new GUI();
       }
     });
   }

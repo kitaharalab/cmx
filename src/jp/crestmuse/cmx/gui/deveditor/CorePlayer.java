@@ -9,6 +9,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
+import javax.swing.JOptionPane;
 
 import org.xml.sax.SAXException;
 
@@ -29,12 +30,12 @@ public class CorePlayer implements MusicPlayer {
 
   public CorePlayer(){
     compiledDeviations = new ArrayList<CompiledDeviation>();
-    /*try {
+    try {
       sequencer = MidiSystem.getSequencer();
       sequencer.open();
     } catch (MidiUnavailableException e) {
-      e.printStackTrace();
-    }*/
+      JOptionPane.showMessageDialog(null, "can't find default sequencer");
+    }
   }
   
   protected void finalize() throws Throwable {
@@ -104,10 +105,12 @@ public class CorePlayer implements MusicPlayer {
   }
 
   public void changeDeviation(int index) throws InvalidMidiDataException{
-    if(index == playingIndex || sequencer == null) return;
-    long tick = sequencer.getTickPosition();
-    sequencer.setSequence(compiledDeviations.get(index).getSequence());
-    sequencer.setTickPosition(tick);
+    if(index == playingIndex) return;
+    try {
+      long tick = sequencer.getTickPosition();
+      sequencer.setSequence(compiledDeviations.get(index).getSequence());
+      sequencer.setTickPosition(tick);
+    } catch (NullPointerException e) {}
     playingIndex = index;
   }
   
