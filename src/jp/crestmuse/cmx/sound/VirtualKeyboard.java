@@ -155,7 +155,7 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
       this.receiver = receiver;
     }
   }
-  
+
   public static void main(String[] args){
     try {
       VirtualKeyboard vk = new VirtualKeyboard();

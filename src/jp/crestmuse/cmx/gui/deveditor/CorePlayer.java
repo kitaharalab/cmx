@@ -25,53 +25,65 @@ public class CorePlayer implements MusicPlayer {
 
   private ArrayList<CompiledDeviation> compiledDeviations;
   private int playingIndex = -1;
-  private Sequencer sequencer;
+  private Sequencer sequencer = null;
 
-  public CorePlayer() throws MidiUnavailableException {
-    // TODO デフォルトシーケンサ取れなかった場合
+  public CorePlayer(){
     compiledDeviations = new ArrayList<CompiledDeviation>();
-    sequencer = MidiSystem.getSequencer();
-    sequencer.open();
+    /*try {
+      sequencer = MidiSystem.getSequencer();
+      sequencer.open();
+    } catch (MidiUnavailableException e) {
+      e.printStackTrace();
+    }*/
   }
   
   protected void finalize() throws Throwable {
     super.finalize();
-    sequencer.close();
+    if(sequencer != null)
+      sequencer.close();
   }
 
   public long getMicrosecondPosition() {
+    if(sequencer == null) return 0;
     return sequencer.getMicrosecondPosition();
   }
 
   public long getTickPosition() {
+    if(sequencer == null) return 0;
     return sequencer.getTickPosition();
   }
 
   public boolean isNowPlaying() {
+    if(sequencer == null) return false;
     return sequencer.isRunning();
   }
 
   public void play() {
-    sequencer.start();
+    if(sequencer != null)
+      sequencer.start();
   }
 
   public void stop() {
-    sequencer.stop();
+    if(sequencer != null)
+      sequencer.stop();
   }
 
   public void run() {
   }
   
   public void reset(){
-    sequencer.setTickPosition(0);
+    if(sequencer != null)
+      sequencer.setTickPosition(0);
   }
   
   public void setTickPosition(long tick){
-    sequencer.setTickPosition(tick);
+    if(sequencer != null)
+      sequencer.setTickPosition(tick);
   }
   
   public void setMicrosecondPosition(long microseconds){
-    sequencer.setMicrosecondPosition(microseconds);
+    if(sequencer != null)
+      sequencer.setMicrosecondPosition(microseconds);
   }
   
   public CompiledDeviation open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
@@ -92,7 +104,7 @@ public class CorePlayer implements MusicPlayer {
   }
 
   public void changeDeviation(int index) throws InvalidMidiDataException{
-    if(index == playingIndex) return;
+    if(index == playingIndex || sequencer == null) return;
     long tick = sequencer.getTickPosition();
     sequencer.setSequence(compiledDeviations.get(index).getSequence());
     sequencer.setTickPosition(tick);
