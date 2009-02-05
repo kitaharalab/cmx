@@ -1,8 +1,5 @@
 package jp.crestmuse.cmx.misc;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ChordOperator {
 
   
@@ -25,8 +22,8 @@ public class ChordOperator {
     else if(chord.equals("F")) diatonic = new int[] {5, 5, 5};
     else if(chord.equals("G")) diatonic = new int[] {7, 7, 7};
     else if(chord.equals("Am")) diatonic = new int[] {9, 8, 9};
-    else if(chord.equals("Bdim")) diatonic =  new int[] {11, 10, 10};
-    
+    else diatonic =  new int[] {11, 10, 10}; //Bdim
+
     return diatonic;
   }
 }
