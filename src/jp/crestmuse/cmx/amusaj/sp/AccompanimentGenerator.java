@@ -2,50 +2,66 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Track;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.BayesNetWrapper;
 import jp.crestmuse.cmx.amusaj.filewrappers.StringElement;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
+import jp.crestmuse.cmx.misc.ChordOperator;
 import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.TickTimer;
-import jp.crestmuse.cmx.sound.VirtualKeyboard;
 
 public class AccompanimentGenerator
     extends SPModule<StringElement, SPDummyObject>
     implements TickTimer, Runnable {
 
-  private int currentSpan = 1;
+  private int currentMeasure = 1;
   private Sequencer sequencer;
-  private HashMap<String, Sequence> chord2sequence;
   private String nextChord;
   private Thread player;
+  private LinkedList<ShortMessageEvent> shortMessages;
   
-  public AccompanimentGenerator(Map<String, String> chord2smf)
+  public AccompanimentGenerator(String chord, String smf)
       throws MidiUnavailableException, InvalidMidiDataException, IOException{
-    sequencer = MidiSystem.getSequencer();
+    sequencer = MidiSystem.getSequencer(false);
+    sequencer.getTransmitter().setReceiver(MidiSystem.getReceiver());
     sequencer.open();
-    chord2sequence = new HashMap<String, Sequence>();
-    for(String chord : chord2smf.keySet()){
-      Sequence seq = MidiSystem.getSequence(new File(chord2smf.get(chord)));
-      chord2sequence.put(chord, seq);
-      nextChord = chord;
+    nextChord = chord;
+    shortMessages = new LinkedList<ShortMessageEvent>();
+    Sequence seq = MidiSystem.getSequence(new File(smf));
+    for(Track track : seq.getTracks()){
+      for(int i=0; i<track.size(); i++){
+        MidiEvent me = track.get(i);
+        MidiMessage mm = me.getMessage();
+        int status = mm.getStatus() & 0xff;
+        // 2chでノートオンかオフのとき
+        if(status == 129 || status == 145){
+          ShortMessage sm = new ShortMessage();
+          sm.setMessage(status, mm.getMessage()[1], mm.getMessage()[2]);
+          shortMessages.add(new ShortMessageEvent(sm, me.getTick()));
+        }
+      }
     }
-    sequencer.setSequence(chord2sequence.get(nextChord));
+    sequencer.setSequence(seq);
     player = new Thread(this);
     player.start();
   }
 
   public long getTickPosition() {
-    return currentSpan;
+    return currentMeasure;
   }
 
   public void execute(List<QueueReader<StringElement>> src,
@@ -68,17 +84,27 @@ public class AccompanimentGenerator
   }
 
   public void run() {
+    long ticksPerBeat = sequencer.getSequence().getResolution();
+    Track track = sequencer.getSequence().getTracks()[0];
     sequencer.start();
     while(true){
-      if(!sequencer.isRunning()){
-        currentSpan++;
-        try {
-          sequencer.setSequence(chord2sequence.get(nextChord));
-        } catch (InvalidMidiDataException e) {
-          e.printStackTrace();
+      if(sequencer.getTickPosition() >= ticksPerBeat*3*currentMeasure){
+        currentMeasure++;
+        int[] map = ChordOperator.diatonic_map_inC(nextChord);
+        long tickLength = sequencer.getTickLength();
+        Iterator<ShortMessageEvent> it = shortMessages.iterator();
+        while(it.hasNext()){
+          for(int i=0; i<3; i++){
+            ShortMessageEvent sme = it.next();
+            try {
+              ShortMessage newSm = new ShortMessage();
+              newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], sme.sm.getData2());
+              track.add(new MidiEvent(newSm, sme.tick + tickLength));
+            } catch (InvalidMidiDataException e) {
+              e.printStackTrace();
+            }
+          }
         }
-        sequencer.setTickPosition(0);
-        sequencer.start();
       }
       try {
         Thread.sleep(100);
@@ -89,21 +115,22 @@ public class AccompanimentGenerator
     sequencer.close();
   }
   
+  private class ShortMessageEvent{
+    ShortMessage sm;
+    long tick;
+    ShortMessageEvent(ShortMessage sm, long tick){
+      this.sm = sm;
+      this.tick = tick;
+    }
+  }
+  
   public static void main(String[] args){
     try {
-      MidiInputModule mi = new MidiInputModule(new VirtualKeyboard());
+      MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
+      MidiInputModule mi = new MidiInputModule(dev);
       MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
       ChordPredictorModule cp = new ChordPredictorModule(new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif")));
-      Map<String, String> c2s = new HashMap<String, String>();
-      // init maps
-      c2s.put("C", "midis/C.mid");
-      c2s.put("Dm", "midis/Dm.mid");
-      c2s.put("Em", "midis/Em.mid");
-      c2s.put("F", "midis/F.mid");
-      c2s.put("G", "midis/G.mid");
-      c2s.put("Am", "midis/Am.mid");
-      c2s.put("Bm(b5)", "midis/Bm(b5).mid");
-      AccompanimentGenerator ag = new AccompanimentGenerator(c2s);
+      AccompanimentGenerator ag = new AccompanimentGenerator("C", "midis/C.mid");
       mi.setTickTimer(ag);
 
       SPExecutor sp = new SPExecutor(null, 1);

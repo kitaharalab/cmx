@@ -14,7 +14,7 @@ public class ChordOperator {
    * @param chord 
    * @return
    */
-  static int[] diatonic_map_inC(String chord){
+  public static int[] diatonic_map_inC(String chord){
     int[] diatonic = new int[3];
     if(chord.equals("C")) diatonic = new int[] {0, 0, 0};
     else if(chord.equals("Dm")) diatonic = new int[] {2, 1, 2};
@@ -26,4 +26,5 @@ public class ChordOperator {
 
     return diatonic;
   }
+
 }

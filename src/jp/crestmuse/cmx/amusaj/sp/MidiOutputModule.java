@@ -19,7 +19,8 @@ public class MidiOutputModule extends SPModule<MidiEventWithTicktime,SPDummyObje
     public void execute(List<QueueReader<MidiEventWithTicktime>> src,
         List<TimeSeriesCompatible<SPDummyObject>> dest) throws InterruptedException {
       MidiEventWithTicktime e = src.get(0).take();
-      receiver.send(e.getMessage(), e.getTick());
+      //receiver.send(e.getMessage(), e.getTick());
+      receiver.send(e.getMessage(), 0);
     }
 
     public int getInputChannels() {

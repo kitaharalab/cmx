@@ -62,7 +62,6 @@ public class MidiModuleSamples implements Runnable{
     } catch (Exception e) {
       e.printStackTrace();
     }
-
     return device;
   }
   
@@ -148,12 +147,31 @@ public class MidiModuleSamples implements Runnable{
   
   public MidiModuleSamples(String[] args){
     try {
+      /*
+      MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
+      dev.open();
+      //Receiver res1 = MidiSystem.getReceiver();
+      Receiver res1 = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[1]).getReceiver();
+      ShortMessage sm = new ShortMessage();
+      sm.setMessage(ShortMessage.NOTE_ON, 60, 120);
+      res1.send(sm, 0);
+      sm = new ShortMessage();
+      sm.setMessage(ShortMessage.NOTE_OFF, 60, 0);
+      res1.send(sm, 960);
+      Thread.sleep(3000);
+      res1.close();
+      dev.close();
+      if(10 > 9) return;
+      */
       sp = new SPExecutor(null, 0);
       player = new SMFPlayer();
       player.readSMF(args[0]);
-      mi = new MidiInputModule(player, setMidiDevice());
+      //mi = new MidiInputModule(player, new VirtualKeyboard());
+      //mi = new MidiInputModule(player, setMidiDevice());
+      mi = new MidiInputModule(player, MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]));
       mo = new MidiOutputModule(MidiSystem.getReceiver());
-      ou = new OctaveUp();
+      //mo = new MidiOutputModule(setMidiDevice().getReceiver());
+      //ou = new OctaveUp();
       pm = new PrintModule();
       sp.addSPModule(mi);
       sp.addSPModule(pm);
