@@ -153,8 +153,8 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
    */
   private double getNoteDist(String chord, int index, int notenum) {
     notenum = cc.noteTransfer(chord, notenum%12);
-    return noteTable[notenum][index-2];
-    //
+    return -Math.log(noteTable[notenum][index-2]);
+    
   }
 
   /**
