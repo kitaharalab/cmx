@@ -307,4 +307,10 @@ class NoteFormatElement{
 		return "END";
 	}
 	
+	/**
+	 * 与えた小説番号からNote形式での小節表現を返します
+	 */
+	static public String getMeasureLine(String measureNo){
+		return "="+measureNo;
+	}
 }
