@@ -76,7 +76,7 @@ public class AccompanimentGenerator
         ShortMessageEvent sme = it.next();
         try {
           ShortMessage newSm = new ShortMessage();
-          //newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], sme.sm.getData2()/2);
+          //newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], sme.sm.getData2());
           newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], 0);
           track.add(new MidiEvent(newSm, sme.tick + measureTick));
         } catch (InvalidMidiDataException e) {
@@ -109,12 +109,15 @@ public class AccompanimentGenerator
       MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
       MidiInputModule mi = new MidiInputModule(dev);
       MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
-      ChordPredictorModule cp = new ChordPredictorModule(new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif")));
+      ChordPredictor chordPredictor = new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif"));
+      ChordPredictorModule cp = new ChordPredictorModule(chordPredictor);
       AccompanimentGenerator ag = new AccompanimentGenerator("C", "midis/C.mid");
       BaseGenerator bg = new BaseGenerator("C");
+      
       SequencerManager sm = new SequencerManager();
       sm.addGeneratable(ag);
       sm.addGeneratable(bg);
+      sm.addGeneratable(chordPredictor);
       mi.setTickTimer(sm);
       sm.start();
 

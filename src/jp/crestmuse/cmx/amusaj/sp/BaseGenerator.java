@@ -24,7 +24,7 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
   private Map<String, Integer> diatonic2notenum;
   private double[] seqMap = { 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 1.0, 0.1, 0.5, 0.5,
       0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.5, 0.1, 1.0, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0 };
-  private int BASE = 48;
+  private int BASE = 36;
   private double[][] noteTable = new double[12][3];
   private double noteTableValue = 0.5; 
   private ChordConverter cc = new ChordConverter();
@@ -105,12 +105,14 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
       for (int j = 0; j < noteKinds; j++)
         dpGraph[i][j] = new DPElement();
 
+    // 2音目
     for (int i = 0; i < noteKinds; i++) {
       int fromNum = diatonic2notenum.get(from) + BASE;
       dpGraph[0][i].dist = getNoteDist(from, 0, fromNum)
           + getSeqDist(fromNum, fromNum + i - 12);
     }
 
+    // 3, 4音目
     for (int i = 0; i < step - 1; i++) {
       for (int j = 0; j < noteKinds; j++) {
         for (int k = 0; k < noteKinds; k++) {
@@ -127,6 +129,7 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
       }
     }
 
+    // 4音目 -> ゴール
     double minDist = Double.MAX_VALUE;
     int minFrom = 0;
     for (int i = 0; i < noteKinds; i++) {
@@ -140,6 +143,7 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
       }
     }
 
+    // ゴール -> 2音目まで辿る
     while (step > 0) {
       step--;
       result[step] = minFrom - 12;
@@ -149,19 +153,21 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
   }
 
   /**
-   * コードがchordのとき、ベースのindex音目がnotenumである尤もらしさ(距離)．
+   * 調がkeyのとき、ベースのindex音目がnotenumである尤もらしさ(距離)．
    */
-  private double getNoteDist(String chord, int index, int notenum) {
-    notenum = cc.noteTransfer(chord, notenum%12);
-    return -Math.log(noteTable[notenum][index-2]);
-    
+  private double getNoteDist(String key, int index, int notenum) {
+    // TODO 調変化に対応
+    notenum = cc.noteTransfer("C", notenum%12);
+    //return -Math.log(noteTable[notenum][index]);
+    return noteTable[notenum][index];
   }
 
   /**
    * ある音の次にある音が来る尤もらしさ(距離)．
    */
   private double getSeqDist(int from, int to) {
-    return -Math.log(seqMap[to - from + 12]);
+    //return -Math.log(seqMap[to - from + 12]);
+    return seqMap[to - from + 12];
   }
 
   private class DPElement {
