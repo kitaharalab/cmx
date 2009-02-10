@@ -9,6 +9,7 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import jp.crestmuse.cmx.amusaj.commands.ChordConverter;
 import jp.crestmuse.cmx.amusaj.filewrappers.StringElement;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
@@ -24,7 +25,10 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
   private double[] seqMap = { 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 1.0, 0.1, 0.5, 0.5,
       0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.5, 0.1, 1.0, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0 };
   private int BASE = 48;
-
+  private double[][] noteTable = new double[12][3];
+  private double noteTableValue = 0.5; 
+  private ChordConverter cc = new ChordConverter();
+  
   public BaseGenerator(String chord) {
     nextChord = chord;
     diatonic2notenum = new HashMap<String, Integer>();
@@ -34,7 +38,16 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
     diatonic2notenum.put("F", 5);
     diatonic2notenum.put("G", 7);
     diatonic2notenum.put("Am", 9);
-    diatonic2notenum.put("Bm(b5)", 11);
+    diatonic2notenum.put("Bm(b5)", 11); //Bdim
+    
+    for(int i=0; i<12; i++){
+      for(int j=0; j<3; j++){
+        noteTable[i][j] = noteTableValue;
+      }
+    }
+    noteTable[0][1] = 0.01; //I 3音目
+    noteTable[4][1] = 0.01; //III 3音目
+    noteTable[7][1] = 0.01; //V 3音目
   }
 
   public void execute(List<QueueReader<StringElement>> src,
@@ -139,7 +152,9 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
    * コードがchordのとき、ベースのindex音目がnotenumである尤もらしさ(距離)．
    */
   private double getNoteDist(String chord, int index, int notenum) {
-    return 0.0;
+    notenum = cc.noteTransfer(chord, notenum%12);
+    return noteTable[notenum][index-2];
+    //
   }
 
   /**
@@ -152,6 +167,17 @@ public class BaseGenerator extends SPModule<StringElement, SPDummyObject>
   private class DPElement {
     double dist = Double.MAX_VALUE;
     int from = -1;
+  }
+  
+  public static void main(String[] args){
+    //test
+    BaseGenerator bg = new BaseGenerator("C");
+    System.out.println(bg.getNoteDist("C", 3, 0));
+    System.out.println(bg.getNoteDist("D", 3, 2));
+    System.out.println(bg.getNoteDist("C", 2, 12));
+    System.out.println(bg.getNoteDist("C#", 2, 100));
+    System.out.println(bg.getNoteDist("B", 3, 11));
+    System.out.println(bg.getNoteDist("B", 3, 10));
   }
 
 }
