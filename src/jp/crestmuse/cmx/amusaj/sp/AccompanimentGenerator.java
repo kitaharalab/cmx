@@ -13,6 +13,7 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
@@ -76,8 +77,8 @@ public class AccompanimentGenerator
         ShortMessageEvent sme = it.next();
         try {
           ShortMessage newSm = new ShortMessage();
-          //newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], sme.sm.getData2());
-          newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], 0);
+          newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], sme.sm.getData2());
+          //newSm.setMessage(sme.sm.getStatus(), sme.sm.getData1() + map[i], 0);
           track.add(new MidiEvent(newSm, sme.tick + measureTick));
         } catch (InvalidMidiDataException e) {
           e.printStackTrace();
@@ -106,15 +107,21 @@ public class AccompanimentGenerator
 
   public static void main(String[] args){
     try {
-      MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
-      MidiInputModule mi = new MidiInputModule(dev);
-      MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
+      SequencerManager sm = new SequencerManager();
+      sm.setRecording("out.mid");
+      
+      //MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
+      //MidiInputModule mi = new MidiInputModule(dev);
+      Sequencer seqr = MidiSystem.getSequencer(false);
+      seqr.setSequence(MidiSystem.getSequence(new File("kaeru01.mid")));
+      MidiInputModule mi = new MidiInputModule(seqr);
+      seqr.start();
+      MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver(), sm.getRecordTrack());
       ChordPredictor chordPredictor = new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif"));
       ChordPredictorModule cp = new ChordPredictorModule(chordPredictor);
       AccompanimentGenerator ag = new AccompanimentGenerator("C", "midis/C.mid");
       BaseGenerator bg = new BaseGenerator("C");
       
-      SequencerManager sm = new SequencerManager();
       sm.addGeneratable(ag);
       sm.addGeneratable(bg);
       sm.addGeneratable(chordPredictor);
@@ -132,6 +139,9 @@ public class AccompanimentGenerator
       sp.connect(cp, 0, ag, 0);
       sp.connect(cp, 0, bg, 0);
       sp.start();
+      
+      System.in.read();
+      sp.stop();
     } catch (Exception e) {
       e.printStackTrace();
     }
