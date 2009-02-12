@@ -17,6 +17,14 @@ public class F0PDFCalculatorModule extends SPModule<PeakSet,SPDoubleArray> {
   private String filterName = null;
   private PeakSet.Filter filter = null;
 
+  protected String getParamCategory() {
+    return "f0pdf";
+  }
+
+  protected String[] getUsedParamNames(){
+    return new String[]{"NOTENUMBER_FROM", "NOTENUMBER_THRU", "STEP"};
+  }
+
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "f0pdf", 

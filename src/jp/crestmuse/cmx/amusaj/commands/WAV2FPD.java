@@ -63,30 +63,43 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
 //    NoiseEraser ne = new NoiseEraser();
 //    exec.addSPModule(ne);
 //    exec.connect(f0calc, 0, ne, 0);
-    MedianFilter mf = new MedianFilter();
-    exec.addSPModule(mf);
-    exec.connect(f0calc, 0, mf, 0);
-    exec.newThread();
+//
+//    MedianFilter mf = new MedianFilter();
+//    exec.addSPModule(mf);
+//    exec.connect(f0calc, 0, mf, 0);
+//    exec.newThread();
+//
     F0Tracker f0track = new F0Tracker();
     exec.addSPModule(f0track);
-    exec.connect(mf, 0, f0track, 0);
+    exec.connect(f0calc, 0, f0track, 0);
+////    exec.connect(mf, 0, f0track, 0);
+
+    MedianFilter mf = new MedianFilter();
+    exec.addSPModule(mf);
+    exec.connect(f0track, 0, mf, 0);
+//
 //    SPProgressDisplayModule disp = new SPProgressDisplayModule();
 //    exec.addSPModule(disp);
 //    exec.connect(f0track, 0, disp, 0);
-    HarmonicsExtractor harm = new HarmonicsExtractor();
-    exec.addSPModule(harm);
-    exec.connect(peakext, 0, harm, 0);
-    exec.connect(f0track, 0, harm, 1);
+//
+//    HarmonicsExtractor harm = new HarmonicsExtractor();
+//    exec.addSPModule(harm);
+//    exec.connect(peakext, 0, harm, 0);
+//    exec.connect(f0track, 0, harm, 1);
     exec.start();
     TimeSeriesCompatible ts = 
-      (TimeSeriesCompatible)exec.getResult(harm).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
+//      (TimeSeriesCompatible)exec.getResult(f0calc).get(0);
+      (TimeSeriesCompatible)exec.getResult(mf).get(0);
+//      (TimeSeriesCompatible)exec.getResult(f0track).get(0);
+//      (TimeSeriesCompatible)exec.getResult(harm).get(0);
+    AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
+//    AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
     dataset.add(ts);
     return dataset;
 //    return dataset.toWrapper();
   }
 
-    private static final int WINSIZE = 50;
+  private static final int WINSIZE = 7;
 
   private class MedianFilter extends SPModule<SPDoubleArray,SPDoubleArray> {
     private DoubleArray[] buff = null;
@@ -123,7 +136,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
   }
 
   private class F0Tracker extends SPModule<SPDoubleArray,SPDoubleArray> {
-    private static final double THRS = 0.1;
+    private static final double THRS = 0;  // originally 0.1;
     private int t = 0;
     private double nnFrom, nnThru, step;
     private boolean paramSet = false;
@@ -140,15 +153,38 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       paramSet = true;
     }
 
+    private double f0prev = 0;
+
     public void execute(List<QueueReader<SPDoubleArray>> src,
                         List<TimeSeriesCompatible<SPDoubleArray>> dest)
       throws InterruptedException {
       if (!paramSet) setParams();
       SPDoubleArray a = src.get(0).take();
       MaxResult maxresult = max(a);
-      DoubleArray b = factory.createArray(1);
+      DoubleArray b = factory.createArray(1);  // originally 1;
       if (maxresult.max > THRS) {
-        b.set(0, nn2Hz(nnFrom + step * maxresult.argmax));
+        double f1 = nn2Hz(nnFrom + step * maxresult.argmax);
+        double f2 = nn2Hz(nnFrom + step * maxresult.argmax2nd);
+        double f3 = nn2Hz(nnFrom + step * maxresult.argmax3rd);
+        b.set(0, Math.min(f1, f2));
+//        if (f3 == f0prev)
+//          f0prev = f3;
+//        else if (f2 == f0prev)
+//          f0prev = f2;
+//        else
+//          f0prev = f1;
+//
+//        if (Math.abs(f3 - f0prev) < Math.abs(f1 - f0prev) &&
+//           Math.abs(f3 - f0prev) < Math.abs(f2 - f0prev))
+//          f0prev = f3;
+//        else if (Math.abs(f2 - f0prev) < Math.abs(f1 - f0prev))
+//          f0prev = f2;
+//        else
+//          f0prev = f1;
+//        b.set(0, f0prev);
+//
+//        b.set(0, nn2Hz(nnFrom + step * maxresult.argmax));
+//        b.set(1, nn2Hz(nnFrom + step * maxresult.argmax2nd));
 //        System.err.println(nn2Hz(nnFrom + step * maxresult.argmax));
       }
       dest.get(0).add(new SPDoubleArray(b, a.hasNext()));

@@ -50,6 +50,14 @@ public class PeakSet implements SPElement {
     return nPeaks;
   }
 
+  public void setFreq(int i, double value) {
+    freq.set(i, value);
+  }
+
+  public void setPower(int i, double value) {
+    power.set(i, value);
+  }
+
   public double freq(int i) {
     return freq.get(i);
   }

@@ -27,12 +27,22 @@ public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
 
   private int t = 0;
 
+  protected String getParamCategory() {
+    return "fft";
+  }
+
+  protected String[] getUsedParamNames() {
+    return new String[]{"WINDOW_SIZE", "SHIFT"};
+  }
+
+/*
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "fft", "WINDOW_SIZE", "SHIFT");
 //    paramSet = false;
 //    setParams();
   }
+*/
 
 /*
   private void setParams() {

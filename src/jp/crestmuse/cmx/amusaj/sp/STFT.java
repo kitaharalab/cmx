@@ -40,13 +40,22 @@ public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
     else
       throw new IllegalStateException("Unsupported window type");
   }
-       
 
+  protected String getParamCategory() {
+    return "fft";
+  }
+
+  protected String[] getUsedParamNames() {
+    return new String[]{"WINDOW_TYPE"};
+  }
+
+/*
   public void setParams(Map<String, String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "fft", "WINDOW_TYPE");
     paramSet = false;
   }
+*/
 
   private void setParams() {
     wintype = getParam("WINDOW_TYPE").toLowerCase();

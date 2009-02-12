@@ -20,8 +20,26 @@ public abstract class SPModule<D extends SPElement, E extends SPElement>
 //    return nInputFrames;
 //  }
 
+  protected String getParamNameSpace() {
+    return "param";
+  }
+
+  protected String getParamCategory() {
+    return "default";
+  }
+  
+  protected String[] getUsedParamNames() {
+    return null;
+  }
+
   public void setParams(Map<String,String> params) {
     this.params = params;
+    String[] paramNames = getUsedParamNames();
+    if (paramNames != null) {
+      copyParamsFromConfigXML(getParamNameSpace(), 
+                              getParamCategory(), paramNames);
+                              
+    }
   }
 
   protected String getParam(String key) {
