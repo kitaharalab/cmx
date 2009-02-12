@@ -93,7 +93,7 @@ public class AccompanimentGenerator
       List<TimeSeriesCompatible<SPDummyObject>> dest) {
     finished = true;
   }
-  
+
   public static String getChord(){ return currentChord; }
 
   private class ShortMessageEvent{
@@ -109,7 +109,6 @@ public class AccompanimentGenerator
     try {
       SequencerManager sm = new SequencerManager();
       sm.setRecording("out.mid");
-      
       //MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
       //MidiInputModule mi = new MidiInputModule(dev);
       Sequencer seqr = MidiSystem.getSequencer(false);
@@ -121,7 +120,7 @@ public class AccompanimentGenerator
       ChordPredictorModule cp = new ChordPredictorModule(chordPredictor);
       AccompanimentGenerator ag = new AccompanimentGenerator("C", "midis/C.mid");
       BaseGenerator bg = new BaseGenerator("C");
-      
+
       sm.addGeneratable(ag);
       sm.addGeneratable(bg);
       sm.addGeneratable(chordPredictor);
