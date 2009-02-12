@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.math;
 import org.apache.commons.math.stat.descriptive.rank.*;
+import static java.lang.Math.*;
 
 public class Operations {
 
@@ -64,6 +65,14 @@ public class Operations {
       x.set(i + from, x.get(i + from) + y.get(i));
   }
 
+  public static DoubleArray div(DoubleArray x, double y) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length);
+    for (int i = 0; i < length; i++)
+      z.set(i, x.get(i) / y);
+    return z;
+  }
+
   public static void divX(DoubleArray x, double y) {
     int length = x.length();
     for (int i = 0; i < length; i++)
@@ -111,8 +120,41 @@ public class Operations {
   public static class MaxResult {
     public double max;
     public int argmax;
+    public double max2nd;
+    public int argmax2nd;
+    public double max3rd;
+    public int argmax3rd;
   }
 
+  public static MaxResult max(DoubleArray x) {
+    MaxResult result = new MaxResult();
+    result.max = Double.NEGATIVE_INFINITY;
+    result.max2nd = Double.NEGATIVE_INFINITY;
+    result.max3rd = Double.NEGATIVE_INFINITY;
+    int length = x.length();
+    double value;
+    for (int i = 0; i < length; i++)
+      if ((value = x.get(i)) > result.max) {
+        result.max3rd = result.max2nd;
+        result.argmax3rd = result.argmax3rd;
+        result.max2nd = result.max;
+        result.argmax2nd = result.argmax;
+        result.max = value;
+        result.argmax = i;
+      } else if (value > result.max2nd) {
+        result.max3rd = result.max2nd;
+        result.argmax3rd = result.argmax3rd;
+        result.max2nd = value;
+        result.argmax2nd = i;
+      } else if (value > result.max3rd) {
+        result.max3rd = value;
+        result.argmax3rd = i;
+      }
+    return result;
+  }
+        
+
+/*
   public static MaxResult max(DoubleArray x) {
     MaxResult result = new MaxResult();
     result.max = Double.NEGATIVE_INFINITY;
@@ -125,7 +167,8 @@ public class Operations {
       }
     return result;
   }
-  
+*/
+
   public static double median(DoubleArray x) {
     return median.evaluate(x.toArray());
   }
@@ -193,6 +236,14 @@ public class Operations {
     return b;
   }
 
+  public static BooleanArray greaterThan(DoubleArray x, double y) {
+    int length = x.length();
+    BooleanArray b = bfactory.createArray(length);
+    for (int i = 0; i < length; i++)
+      b.set(i, x.get(i) > y);
+    return b;
+  }
+
   public static BooleanArray or(BooleanArray x, BooleanArray y) {
     int length = x.length();
     BooleanArray z = bfactory.createArray(length);
@@ -219,5 +270,24 @@ public class Operations {
     return z;
   }
 
+  public static DoubleArray mask(DoubleArray x, BooleanArray mask, double y) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length);
+    for (int i = 0; i < length; i++) {
+      if (mask.get(i)) 
+        z.set(i, y);
+      else
+        z.set(i, x.get(i));
+    }
+    return z;
+  }
+  
+    public static final int Hz2nn(double x) {
+      return 57 + (int)(12 * log(x / 220.0) / log(2));
+    }
+
+    public static final double nn2Hz(double nn) {
+      return 220 * pow(2, (nn - 57.0) / 12.0);
+    }
 
 }
