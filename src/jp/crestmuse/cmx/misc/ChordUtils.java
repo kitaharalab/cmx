@@ -3,6 +3,11 @@ package jp.crestmuse.cmx.misc;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * コードを外部的に操作するメソッドをまとめたものです。
+ * @author R.Tokuami
+ *
+ */
 public class ChordUtils {
   static public String formatChord(String src){
     String dest = src;
@@ -17,22 +22,6 @@ public class ChordUtils {
     return dest;
   }
   
-  static public ArrayList<Integer> invertChord(ArrayList<Integer> src, int invertion){
-    ChordUtils.sortNotes(src);
-    //TODO 要テスト
-    if(invertion != 0){
-      if(invertion>0){
-        src.set(0, src.get(0)+12);
-        ChordUtils.invertChord(src, invertion--);
-      }
-      else if(invertion<0){
-        src.set(src.size()-1, src.get(src.size()-1)-12);
-        ChordUtils.invertChord(src, invertion++);
-      }
-    }
-    return src;
-  }
-  
   static public void sortNotes(ArrayList<Integer> src){
     Collections.sort(src);
     return;
@@ -40,5 +29,6 @@ public class ChordUtils {
   
   public static void main(String[] args){
     //test
+    
   }
 }
