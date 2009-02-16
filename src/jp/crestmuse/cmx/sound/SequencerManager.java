@@ -71,6 +71,8 @@ public class SequencerManager implements TickTimer, Runnable {
     }
     sequencer.close();
   }
+  
+  public Sequencer getSequencer() { return sequencer; }
 
   public void addGeneratable(SequenceGeneratable sg) {
     generatables

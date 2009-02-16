@@ -7,23 +7,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.BayesNetWrapper;
 import jp.crestmuse.cmx.amusaj.filewrappers.StringElement;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.ChordOperator;
 import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.SequenceGeneratable;
-import jp.crestmuse.cmx.sound.SequencerManager;
 
 public class AccompanimentGenerator
     extends SPModule<StringElement, SPDummyObject>
@@ -102,47 +98,6 @@ public class AccompanimentGenerator
     ShortMessageEvent(ShortMessage sm, long tick){
       this.sm = sm;
       this.tick = tick;
-    }
-  }
-
-  public static void main(String[] args){
-    try {
-      SequencerManager sm = new SequencerManager();
-      sm.setRecording("out.mid");
-      //MidiDevice dev = MidiSystem.getMidiDevice(MidiSystem.getMidiDeviceInfo()[0]);
-      //MidiInputModule mi = new MidiInputModule(dev);
-      Sequencer seqr = MidiSystem.getSequencer(false);
-      seqr.setSequence(MidiSystem.getSequence(new File("kaeru01.mid")));
-      MidiInputModule mi = new MidiInputModule(seqr);
-      seqr.start();
-      MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver(), sm.getRecordTrack());
-      ChordPredictor chordPredictor = new ChordPredictor(new BayesNetWrapper("MaxDemo/080811model3.bif"));
-      ChordPredictorModule cp = new ChordPredictorModule(chordPredictor);
-      AccompanimentGenerator ag = new AccompanimentGenerator("C", "midis/C.mid");
-      BaseGenerator bg = new BaseGenerator("C");
-
-      sm.addGeneratable(ag);
-      sm.addGeneratable(bg);
-      sm.addGeneratable(chordPredictor);
-      mi.setTickTimer(sm);
-      sm.start();
-
-      SPExecutor sp = new SPExecutor(null, 1);
-      sp.addSPModule(mi);
-      sp.addSPModule(cp);
-      sp.addSPModule(ag);
-      sp.addSPModule(mo);
-      sp.addSPModule(bg);
-      sp.connect(mi, 0, cp, 0);
-      sp.connect(mi, 0, mo, 0);
-      sp.connect(cp, 0, ag, 0);
-      sp.connect(cp, 0, bg, 0);
-      sp.start();
-      
-      System.in.read();
-      sp.stop();
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 

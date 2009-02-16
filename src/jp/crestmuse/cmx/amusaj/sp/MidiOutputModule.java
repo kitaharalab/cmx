@@ -2,8 +2,12 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.util.List;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
@@ -28,8 +32,9 @@ public class MidiOutputModule extends SPModule<MidiEventWithTicktime,SPDummyObje
         List<TimeSeriesCompatible<SPDummyObject>> dest) throws InterruptedException {
       MidiEventWithTicktime e = src.get(0).take();
       receiver.send(e.getMessage(), 0);
-      if(recoder != null)
+      if(recoder != null){
         recoder.add(new MidiEvent(e.getMessage(), e.music_position));
+      }
     }
 
     public int getInputChannels() {
