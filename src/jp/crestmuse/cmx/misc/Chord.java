@@ -2,6 +2,12 @@ package jp.crestmuse.cmx.misc;
 
 import java.util.ArrayList;
 
+/**
+ * ひとつの和音を扱うクラスです。
+ * 
+ * @author R.Tokuami
+ *
+ */
 public class Chord {
   private String name;
   private ArrayList<Integer> notes = new ArrayList<Integer>();;
@@ -95,7 +101,20 @@ public class Chord {
     basenote = num;
     return;
   }
-  
+  /**
+   * 和音の名前を返します。
+   * @return
+   */
+  public String getChordName(){
+    return name;
+  }
+  /**
+   * 和音に含まれるノートのリストを返します。
+   * @return
+   */
+  public ArrayList<Integer> getNotesList(){
+    return notes;
+  }
   /**
    * コードに含まれるノートナンバーを文字列表現で返します。
    */
