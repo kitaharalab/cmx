@@ -1,15 +1,15 @@
 package jp.crestmuse.cmx.musicrepresentation;
 
 public class NoteElement implements MusicElement {
+  
+  int[] note;
 
   public String getName() {
-    // TODO 自動生成されたメソッド・スタブ
     return null;
   }
 
   public int[] getNums() {
-    // TODO 自動生成されたメソッド・スタブ
-    return null;
+    return note;
   }
 
 }

@@ -1,15 +1,19 @@
 package jp.crestmuse.cmx.musicrepresentation;
 
-public class ChordElement implements MusicElement {
+import jp.crestmuse.cmx.misc.Chord;
+
+public class ChordElement extends Chord implements MusicElement {
 
   public String getName() {
-    // TODO 自動生成されたメソッド・スタブ
-    return null;
+    return getChordName();
   }
 
   public int[] getNums() {
-    // TODO 自動生成されたメソッド・スタブ
-    return null;
+   int[] a = new int[getNotesList().size()];
+   for(int i=0; i<getNotesList().size(); i++){
+     a[i] = getNotesList().get(i);
+   }
+   return a;
   }
 
 }
