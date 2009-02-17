@@ -21,9 +21,7 @@ public class Chord {
    * @param notes ノートナンバー(可変長引数)
    */
   public Chord(int... vlnotes){
-    for (int i : vlnotes) {
-      this.notes.add(i);
-    }
+    setNoteList(vlnotes);
     this.name = NAMELESS;
     this.inversion = 0;
   }
@@ -52,6 +50,7 @@ public class Chord {
    * @param chordname コード名
    */
   public Chord(String chordname) throws RuntimeException{
+    //暫定
     if(chordname.equals("C")) setNoteList(48,52,55);
     else if(chordname.equals("Dm")) setNoteList(50,53,57);
     else if(chordname.equals("Em")) setNoteList(52,55,59);
@@ -97,6 +96,10 @@ public class Chord {
   public boolean isInverted(){
     return inversion != 0 ? true : false;
   }
+  /**
+   * 基準となるC(ド)の位置を返します。
+   * @return
+   */
   public int getBaseNote(){
     return basenote;
   }
@@ -118,7 +121,8 @@ public class Chord {
   public String getChordName(){
     return name;
   }
-  public void setNoteList(int... vlnotes){
+  
+  protected void setNoteList(int... vlnotes){
     for (int i : vlnotes) {
       this.notes.add(i);
     }
