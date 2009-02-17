@@ -2,6 +2,10 @@ package jp.crestmuse.cmx.amusaj.commands;
 
 //import java.io.*;
 
+/**
+ * @deprecated
+ * 今後の自動伴奏システムの実装にはChordUtilsを利用してください
+ */
 public class ChordConverter{
 	
 	//ChordTransfer field

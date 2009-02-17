@@ -1,7 +1,6 @@
 package jp.crestmuse.cmx.misc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,25 +56,33 @@ public class ChordUtils {
   }
   
   static public String formatChord(String src){
-    String dest = src;
-    //TODO 表記を統一する
-    return dest;
-  }
-  
-  static public ArrayList<Integer> encodeChord(String src, int basenote){
-    ArrayList<Integer> dest = new ArrayList<Integer>();
-    //TODO 文字列からノートナンバーを求める
+    String dest = new String();
+    //dest.concat(src.substring(0, getPrefixLength(src)));
     
     return dest;
   }
   
-  static public void sortNotes(ArrayList<Integer> src){
-    Collections.sort(src);
-    return;
+  static public ArrayList<Integer> encodeChord(String src, int basenote){
+    String temp = new String();
+    ArrayList<Integer> dest = new ArrayList<Integer>();
+    dest.add(0); dest.add(4); dest.add(7);
+    //delete root
+    temp = src.substring(getPrefixLength(src));
+    //3rd
+    if(temp.startsWith("m")){
+    }
+    else if(temp.startsWith("sus4")){
+    }
+    //
+    
+    
+    return dest;
   }
+    
   
   public static void main(String[] args){
     //test
     
   }
 }
+

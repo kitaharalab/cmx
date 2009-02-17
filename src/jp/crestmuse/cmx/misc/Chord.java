@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.misc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * ひとつの和音を扱うクラスです。
@@ -50,7 +51,7 @@ public class Chord {
    * @param chordname コード名
    */
   public Chord(String chordname) throws RuntimeException{
-    //暫定
+    //TODO 暫定
     if(chordname.equals("C")) setNoteList(48,52,55);
     else if(chordname.equals("Dm")) setNoteList(50,53,57);
     else if(chordname.equals("Em")) setNoteList(52,55,59);
@@ -70,23 +71,24 @@ public class Chord {
    * @param inversion
    */
   public void invertChord(int inversion){
-    ChordUtils.sortNotes(this.notes);
+    sortNotes(this.notes);
     if(inversion != 0){
       if(inversion>0){
         this.notes.set(0, this.notes.get(0)+12);
-        ChordUtils.sortNotes(this.notes);
+        sortNotes(this.notes);
         this.inversion++;
         invertChord(inversion-1);
       }
       else if(inversion<0){
         this.notes.set(this.notes.size()-1, this.notes.get(this.notes.size()-1)-12);
-        ChordUtils.sortNotes(this.notes);
+        sortNotes(this.notes);
         this.inversion--;
         invertChord(inversion+1);
       }
     }
     return;
   }
+  
   /**
    * コードが転回されたものかどうかを返します。
    * 現在のコードが既知の和音の転回形に当るかどうかではなく、
@@ -96,6 +98,7 @@ public class Chord {
   public boolean isInverted(){
     return inversion != 0 ? true : false;
   }
+  
   /**
    * 基準となるC(ド)の位置を返します。
    * @return
@@ -103,6 +106,7 @@ public class Chord {
   public int getBaseNote(){
     return basenote;
   }
+  
   /**
    * 基準となるC(ド)の位置を指定します。
    * @param num ノートナンバー
@@ -114,6 +118,7 @@ public class Chord {
     basenote = num;
     return;
   }
+  
   /**
    * 和音の名前を返します。
    * @return
@@ -121,12 +126,7 @@ public class Chord {
   public String getChordName(){
     return name;
   }
-  
-  protected void setNoteList(int... vlnotes){
-    for (int i : vlnotes) {
-      this.notes.add(i);
-    }
-  }
+
   /**
    * 和音に含まれるノートのリストを返します。
    * @return
@@ -134,6 +134,7 @@ public class Chord {
   public ArrayList<Integer> getNotesList(){
     return notes;
   }
+  
   /**
    * コードに含まれるノートナンバーを文字列表現で返します。
    */
@@ -160,9 +161,20 @@ public class Chord {
     System.out.println(this.name+":"+toString()+" Inv:"+this.inversion+" Base:"+this.basenote);
   }
   
+  private void setNoteList(int... vlnotes){
+    for (int i : vlnotes) {
+      this.notes.add(i);
+    }
+  }
+  
+  private void sortNotes(ArrayList<Integer> src){
+    Collections.sort(src);
+    return;
+  }
+  
   public static void main(String[] args){
     //test
-    Chord c = new Chord(48, 52, 55);
+    Chord c = new Chord("C");
     c.printChordStats();
     c.invertChord(2);
     c.printChordStats();
