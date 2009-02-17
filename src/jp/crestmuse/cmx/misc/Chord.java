@@ -51,8 +51,18 @@ public class Chord {
    * 作成される和音は、BaseNoteより高く最も近い音を根とする転回基本形の和音です。
    * @param chordname コード名
    */
-  public Chord(String chordname){
-    this(chordname, 0);
+  public Chord(String chordname) throws RuntimeException{
+    if(chordname.equals("C")) setNoteList(48,52,55);
+    else if(chordname.equals("Dm")) setNoteList(50,53,57);
+    else if(chordname.equals("Em")) setNoteList(52,55,59);
+    else if(chordname.equals("F")) setNoteList(53,57,60);
+    else if(chordname.equals("G")) setNoteList(55,59,62);
+    else if(chordname.equals("Am")) setNoteList(57,60,64);
+    else if(chordname.equals("Bm(b5)")) setNoteList(59,62,65);
+    else throw new RuntimeException("It is note Diatonic Chord.");
+    this.name = chordname;
+    this.inversion = 0;
+    //this(chordname, 0);
   }
   
   /**
@@ -107,6 +117,11 @@ public class Chord {
    */
   public String getChordName(){
     return name;
+  }
+  public void setNoteList(int... vlnotes){
+    for (int i : vlnotes) {
+      this.notes.add(i);
+    }
   }
   /**
    * 和音に含まれるノートのリストを返します。
