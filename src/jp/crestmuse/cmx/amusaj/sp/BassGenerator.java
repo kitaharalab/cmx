@@ -28,7 +28,7 @@ public class BassGenerator extends SPModule<StringElement, SPDummyObject>
   private double[][] noteTable = new double[12][3];
   private double noteTableValue = 0.5; 
   private ChordConverter cc = new ChordConverter();
-  
+
   public BassGenerator(String chord) {
     nextChord = chord;
     diatonic2notenum = new HashMap<String, Integer>();
@@ -39,7 +39,7 @@ public class BassGenerator extends SPModule<StringElement, SPDummyObject>
     diatonic2notenum.put("G", 7);
     diatonic2notenum.put("Am", 9);
     diatonic2notenum.put("Bm(b5)", 11); //Bdim
-    
+
     for(int i=0; i<12; i++){
       for(int j=0; j<3; j++){
         noteTable[i][j] = noteTableValue;
@@ -174,7 +174,7 @@ public class BassGenerator extends SPModule<StringElement, SPDummyObject>
     double dist = Double.MAX_VALUE;
     int from = -1;
   }
-  
+
   public static void main(String[] args){
     //test
     BassGenerator bg = new BassGenerator("C");

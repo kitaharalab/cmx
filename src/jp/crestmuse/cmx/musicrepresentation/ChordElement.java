@@ -4,6 +4,10 @@ import jp.crestmuse.cmx.misc.Chord;
 
 public class ChordElement extends Chord implements MusicElement {
 
+  public ChordElement(String chordname){
+    super(chordname);
+  }
+  
   public String getName() {
     return getChordName();
   }
