@@ -52,13 +52,13 @@ public class Chord {
    */
   public Chord(String chordname) throws RuntimeException{
     //TODO 暫定
-    if(chordname.equals("C")) setNoteList(48,52,55);
-    else if(chordname.equals("Dm")) setNoteList(50,53,57);
-    else if(chordname.equals("Em")) setNoteList(52,55,59);
-    else if(chordname.equals("F")) setNoteList(53,57,60);
-    else if(chordname.equals("G")) setNoteList(55,59,62);
-    else if(chordname.equals("Am")) setNoteList(57,60,64);
-    else if(chordname.equals("Bm(b5)")) setNoteList(59,62,65);
+    if(chordname.equals("C")) setNoteList(48,basenote+4,basenote+7);
+    else if(chordname.equals("Dm")) setNoteList(basenote+2,basenote+5,basenote+9);
+    else if(chordname.equals("Em")) setNoteList(basenote+4,basenote+7,basenote+11);
+    else if(chordname.equals("F")) setNoteList(basenote+5,basenote+9,basenote+12);
+    else if(chordname.equals("G")) setNoteList(basenote+7,basenote+11,basenote+14);
+    else if(chordname.equals("Am")) setNoteList(basenote+9,basenote+12,basenote+16);
+    else if(chordname.equals("Bm(b5)")) setNoteList(basenote+11,basenote+14,basenote+17);
     else throw new RuntimeException("It is note Diatonic Chord.");
     this.name = chordname;
     this.inversion = 0;
