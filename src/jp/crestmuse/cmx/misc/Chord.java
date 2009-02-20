@@ -13,9 +13,12 @@ public class Chord {
   private String name;
   private ArrayList<Integer> notes = new ArrayList<Integer>();;
   private int inversion = 0;
-  
-  private int basenote = 48;
+  public final int defaultBasenote = 48;
+  private int basenote = defaultBasenote;
   public String NAMELESS = "noname";
+  
+  //TODO 検討：ノートナンバーのリストを持つか、Basenoteとの差のリストを持つか
+  //TODO 実装：basenote指定のコンストラクタ
   
   /**
    * ノートナンバーから和音オブジェクトを作成します。
@@ -25,6 +28,7 @@ public class Chord {
     setNoteList(vlnotes);
     this.name = NAMELESS;
     this.inversion = 0;
+    this.basenote = -1; //暫定
   }
   
   /**
@@ -52,7 +56,7 @@ public class Chord {
    */
   public Chord(String chordname) throws RuntimeException{
     //TODO 暫定
-    if(chordname.equals("C")) setNoteList(48,basenote+4,basenote+7);
+    if(chordname.equals("C")) setNoteList(basenote,basenote+4,basenote+7);
     else if(chordname.equals("Dm")) setNoteList(basenote+2,basenote+5,basenote+9);
     else if(chordname.equals("Em")) setNoteList(basenote+4,basenote+7,basenote+11);
     else if(chordname.equals("F")) setNoteList(basenote+5,basenote+9,basenote+12);
