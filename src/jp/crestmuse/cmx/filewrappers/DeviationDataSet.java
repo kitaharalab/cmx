@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.filewrappers;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
+
 public class DeviationDataSet {
 
   private DeviationInstanceWrapper devxml = null;
