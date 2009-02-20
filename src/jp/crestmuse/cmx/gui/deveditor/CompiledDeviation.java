@@ -216,7 +216,7 @@ public class CompiledDeviation {
     for(Entry<Integer, Integer> e : ticks2tempo.entrySet())
       dds.addNonPartwiseControl(e.getKey()/(TICKS_PER_BEAT*4) + 1, (double)(e.getKey()%(TICKS_PER_BEAT*4))/TICKS_PER_BEAT + 1, "tempo-deviation", e.getValue()/baseTempo);
     for(DeviatedNote dn : deviatedNotes) dn.write(dds);
-    dds.addElementsToWrapper();
+    dds.toWrapper();
     return deviation;
   }
 

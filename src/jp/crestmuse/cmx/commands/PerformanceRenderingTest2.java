@@ -151,7 +151,7 @@ public class PerformanceRenderingTest2 extends CMXCommand {
 		xml.processNotePartwise(new ProcessHandler());
 
 		// 表情付与処理が終わったら以下の２文を実行します．
-		dds.addElementsToWrapper();
+		dds.toWrapper();
                 outputDeviationData.finalizeDocument();
 //		outputDeviationData.analyze();
 

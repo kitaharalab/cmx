@@ -97,7 +97,7 @@ public class PerformanceMatcher3 {
     setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
     //    setNotewiseDeviations(dds, scoreNotes, pfmNotes, indexlist, 
     //                          extraNotes, partid, tempolist);
-    dds.addElementsToWrapper();
+    dds.toWrapper();
     return dev;
   }
 

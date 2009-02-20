@@ -23,7 +23,7 @@ public class DeviationInstanceGeneratorSample extends CMXCommand {
 	    (indata().getFileName());
 	dds = ((DeviationInstanceWrapper)outdata()).createDeviationDataSet();
 	((MusicXMLWrapper)indata()).processNotePartwise(new SampleHandler());
-	dds.addElementsToWrapper();
+	dds.toWrapper();
 	//	writeOutputData();
     }
 

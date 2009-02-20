@@ -189,6 +189,21 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
   }
 
+  /**
+   * @deprecated
+   * 表情付けされたDeviationInstanceWrapperを生成する時は、以下のようにしてください。
+   * DeviationDataSet dds = new DeviationDataSet(musicxml);
+   * DeviationInstanceWrapper dev = dds.toWrapper();
+   * 
+   * (旧来の方法)
+   * DeviationInstanceWrapper dev = 
+   *  DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
+   * DeviationDataSet dds = dev.createDeviationDataSet();
+   * dds.addElementsToWrapper();
+   * 
+   * DeviationInstanceWrapperをもとに、DeviationDataSetを生成します。
+   * @return DeviationDataSet
+   */
   public DeviationDataSet createDeviationDataSet() {
     return new DeviationDataSet(this);
   }

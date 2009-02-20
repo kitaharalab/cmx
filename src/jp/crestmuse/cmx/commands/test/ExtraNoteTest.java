@@ -18,7 +18,7 @@ public class ExtraNoteTest extends CMXCommand {
     dds.addExtraNote("P1", 2, 2, 84, 0.5, 1, 1);
     dds.addExtraNote("P1", 2, 2.5, 84, 0.5, 1, 1);
 
-    dds.addElementsToWrapper();
+    dds.toWrapper();
     dev.finalizeDocument();
 //    setOutputData(dev);
     setOutputData(dev.toSCCXML(480));

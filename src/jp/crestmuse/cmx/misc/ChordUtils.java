@@ -10,7 +10,6 @@ import java.util.Map;
  *
  */
 public class ChordUtils {
-  
   static String[] allKeys;
   static Map<String, Integer> key2dist = new HashMap<String, Integer>();
   static Map<Integer, String[]> dist2key = new HashMap<Integer, String[]>();
@@ -28,7 +27,7 @@ public class ChordUtils {
     key2dist.put("A", 9);
     key2dist.put("A#", 10);key2dist.put("Bb", 10);
     key2dist.put("B", 11); key2dist.put("Cb", 11);
-
+    
     dist2key.put(0, new String[]{"C","B#"});
     dist2key.put(1, new String[]{"Db","C#"});
     dist2key.put(2, new String[]{"D"});
@@ -41,6 +40,7 @@ public class ChordUtils {
     dist2key.put(9, new String[]{"A"});
     dist2key.put(10, new String[]{"Bb","A#"});
     dist2key.put(11, new String[]{"B","Cb"});
+    
   }
   
   static public int getPrefixLength(String src) throws RuntimeException{

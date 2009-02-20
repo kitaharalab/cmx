@@ -4,7 +4,8 @@ import java.util.*;
 
 public class DeviationDataSet {
 
-  private DeviationInstanceWrapper wrapper;
+  private DeviationInstanceWrapper devxml = null;
+  private MusicXMLWrapper musicxml = null;
   private TreeView<Control> nonPartwise;
   private Map<String,TreeView<Control>> partwise;
   private List<NotewiseDeviation> notewise;
@@ -12,16 +13,33 @@ public class DeviationDataSet {
   private Control last = null;
   private double initSil = 0.0;
 
-  DeviationDataSet(DeviationInstanceWrapper wrapper) {
-    this.wrapper = wrapper;
+  public DeviationDataSet(DeviationInstanceWrapper devxml) {
+    this.devxml = devxml;
     nonPartwise = new TreeView<Control>();
     partwise = new HashMap<String,TreeView<Control>>();
     notewise = new ArrayList<NotewiseDeviation>();
     extraNotes = new HashMap<String,TreeView<ExtraNote>>();
   }
+  
+  /**
+   * 
+   * @param musicxml
+   */
+  public DeviationDataSet(MusicXMLWrapper musicxml){
+    this.musicxml = musicxml;
+    nonPartwise = new TreeView<Control>();
+    partwise = new HashMap<String,TreeView<Control>>();
+    notewise = new ArrayList<NotewiseDeviation>();
+    extraNotes = new HashMap<String,TreeView<ExtraNote>>();
+    //TODO
+  }
 
-  public DeviationInstanceWrapper getTargetWrapper() {
-    return wrapper;
+  public DeviationInstanceWrapper getTargetDeviationInstanceWrapper() {
+    return devxml;
+  }
+  
+  public MusicXMLWrapper getTargetMusicXMLWrapper(){
+    return musicxml;
   }
 
   public void setInitialSilence(double initSil) {
@@ -153,23 +171,23 @@ public class DeviationDataSet {
     if (c != null) {
       if (c.measure > currentMeasure) {
         if (currentMeasure >= 0)
-          wrapper.returnToParent();
-        wrapper.addChild("measure");
-        wrapper.setAttribute("number", c.measure);
+          devxml.returnToParent();
+        devxml.addChild("measure");
+        devxml.setAttribute("number", c.measure);
         currentMeasure = c.measure;
       }
-      wrapper.addChild("control");
-      wrapper.setAttribute("beat", c.beat);
-      wrapper.addChild(c.type);
+      devxml.addChild("control");
+      devxml.setAttribute("beat", c.beat);
+      devxml.addChild(c.type);
       if (c.attr != null) {
         Set<Map.Entry<String,String>> entries = c.attr.entrySet();
         for (Map.Entry<String,String> e : entries)
-          wrapper.setAttribute(e.getKey(), e.getValue());
+          devxml.setAttribute(e.getKey(), e.getValue());
       }
       if (!Double.isNaN(c.value))
-        wrapper.addText(c.value);
-      wrapper.returnToParent();
-      wrapper.returnToParent();
+        devxml.addText(c.value);
+      devxml.returnToParent();
+      devxml.returnToParent();
     }
   }
 
@@ -182,7 +200,7 @@ public class DeviationDataSet {
         while (treeview.hasMoreElementsAtSameTime())
           controlToWrapper(treeview.getNextElementAtSameTime());
       }
-      wrapper.returnToParent();
+      devxml.returnToParent();
     }
   }
 
@@ -190,22 +208,22 @@ public class DeviationDataSet {
     if (en != null) {
       if (en.measure > currentMeasure) {
         if (currentMeasure >= 0)
-          wrapper.returnToParent();
-        wrapper.addChild("measure");
-        wrapper.setAttribute("number", en.measure);
+          devxml.returnToParent();
+        devxml.addChild("measure");
+        devxml.setAttribute("number", en.measure);
         currentMeasure = en.measure;
       }
-      wrapper.addChild("extra-note");
-      wrapper.setAttribute("beat", en.beat);
-      wrapper.addChild("pitch");
-      wrapper.addChildAndText("step", en.pitchStep);
-      wrapper.addChildAndText("alter", en.pitchAlter);
-      wrapper.addChildAndText("octave", en.pitchOctave);
-      wrapper.returnToParent();
-      wrapper.addChildAndText("duration", en.duration);
-      wrapper.addChildAndText("dynamics", en.dynamics);
-      wrapper.addChildAndText("end-dynamics", en.endDynamics);
-      wrapper.returnToParent();
+      devxml.addChild("extra-note");
+      devxml.setAttribute("beat", en.beat);
+      devxml.addChild("pitch");
+      devxml.addChildAndText("step", en.pitchStep);
+      devxml.addChildAndText("alter", en.pitchAlter);
+      devxml.addChildAndText("octave", en.pitchOctave);
+      devxml.returnToParent();
+      devxml.addChildAndText("duration", en.duration);
+      devxml.addChildAndText("dynamics", en.dynamics);
+      devxml.addChildAndText("end-dynamics", en.endDynamics);
+      devxml.returnToParent();
     }
   }
 
@@ -218,39 +236,59 @@ public class DeviationDataSet {
         while (treeview.hasMoreElementsAtSameTime()) 
           extraNoteToWrapper(treeview.getNextElementAtSameTime());
       }
-      wrapper.returnToParent();
+      devxml.returnToParent();
     }
   }
 
-  public void addElementsToWrapper() {
-    wrapper.setAttributeNS("http://www.w3.org/2000/xmlns/", 
+  /**
+   * @deprecated
+   * 互換性維持のためのメソッドです。
+   * DeviationInstanceWrapperを生成するときはDeviationDataSet.toWrapper()を利用してください。
+   */
+  public void addElementsToWrapper(){
+    toWrapper();
+  }
+  
+  public DeviationInstanceWrapper toWrapper() {
+    
+    if(devxml == null){
+      devxml = DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
+    }
+
+    devxml.setAttributeNS("http://www.w3.org/2000/xmlns/", 
                            "xmlns:xlink", 
                            "http://www.w3.org/1999/xlink");
-    wrapper.setAttribute("init-silence", initSil);
-    wrapper.addChild("non-partwise");
+    devxml.setAttribute("init-silence", initSil);
+    
+    devxml.addChild("non-partwise");
     addControlViewToWrapper(nonPartwise);
-    wrapper.returnToParent();
-    wrapper.addChild("partwise");
+    devxml.returnToParent();
+    
+    devxml.addChild("partwise");
     Set<String> keys = partwise.keySet();
     for (String key : keys) {
-      wrapper.addChild("part");
-      wrapper.setAttribute("id", key);
+      devxml.addChild("part");
+      devxml.setAttribute("id", key);
       addControlViewToWrapper(partwise.get(key));
-      wrapper.returnToParent();
+      devxml.returnToParent();
     }
-    wrapper.returnToParent();
-    wrapper.addChild("notewise");
+    devxml.returnToParent();
+    
+    devxml.addChild("notewise");
     for (NotewiseDeviation nd : notewise ) 
-      nd.addToWrapper(wrapper);
-    wrapper.returnToParent();
-    wrapper.addChild("extra-notes");
+      nd.addToWrapper(devxml);
+    devxml.returnToParent();
+    
+    devxml.addChild("extra-notes");
     keys = extraNotes.keySet();
     for (String key : keys) {
-      wrapper.addChild("part");
-      wrapper.setAttribute("id", key);
+      devxml.addChild("part");
+      devxml.setAttribute("id", key);
       addExtraNotesToWrapper(extraNotes.get(key));
-      wrapper.returnToParent();
+      devxml.returnToParent();
     }
+    
+    return devxml;
   }
 
     
