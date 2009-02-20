@@ -1,8 +1,9 @@
-package jp.crestmuse.cmx.musicrepresentation;
+package jp.crestmuse.cmx.inference;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import jp.crestmuse.cmx.inference.Calculator;
 import jp.crestmuse.cmx.sound.SequencerManager;
 
 public class MusicRepresentation {
@@ -68,7 +69,7 @@ public class MusicRepresentation {
     return bassElements[i];
   }
 
-  public MusicElement addBassElements(int i){
+  public MusicElement addBassElement(int i){
     bassElements[i] = new MusicElement(Type.Bass, i);
     return bassElements[i];
   }
@@ -133,7 +134,7 @@ public class MusicRepresentation {
 
   public class MusicElement{
 
-    private double prod[];
+    private double prob[];
     private boolean isEvidence;
     private int evidence;
     private boolean isNote;
@@ -146,7 +147,7 @@ public class MusicRepresentation {
       if(type == Type.Chord) isNote = false;
       else isNote = true;
       this.index = index;
-      prod = new double[128];
+      prob = new double[128];
     }
 
     public double getProb(int i){
@@ -154,16 +155,16 @@ public class MusicRepresentation {
         if(evidence == i) return 1.0;
         return 0.0;
       }
-      return prod[i];
+      return prob[i];
     }
 
-    public int getHighestProdIndex(){
+    public int getHighestProbIndex(){
       if(isEvidence) return evidence;
       double max = Double.MIN_VALUE;
       int index = 0;
-      for(int i=0; i<prod.length; i++){
-        if(prod[i] > max){
-          max = prod[i];
+      for(int i=0; i<prob.length; i++){
+        if(prob[i] > max){
+          max = prob[i];
           index = i;
         }
       }
@@ -181,9 +182,9 @@ public class MusicRepresentation {
         for(Calculator c : bassCalculators) c.update(this, index);
     }
 
-    public void setProd(int i, double value){
+    public void setProb(int i, double value){
       isEvidence = false;
-      prod[i] = value;
+      prob[i] = value;
     }
 
     public String getLabel(int i){

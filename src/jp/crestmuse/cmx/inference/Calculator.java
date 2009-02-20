@@ -1,6 +1,7 @@
-package jp.crestmuse.cmx.musicrepresentation;
+package jp.crestmuse.cmx.inference;
 
-import jp.crestmuse.cmx.musicrepresentation.MusicRepresentation.MusicElement;
+import jp.crestmuse.cmx.inference.MusicRepresentation;
+import jp.crestmuse.cmx.inference.MusicRepresentation.MusicElement;
 
 public interface Calculator {
   /**
