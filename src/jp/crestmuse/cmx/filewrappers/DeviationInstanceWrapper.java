@@ -49,16 +49,16 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   // private boolean partwiseStarted = false;
   // private boolean notewiseStarted = false;
 
-  private int baseDynamics = 100;
+  private int baseVelocity = 100;
 
   private boolean alreadyAnalyzed = false;
 
   public void setBaseDynamics(int baseDynamics) {
-    this.baseDynamics = baseDynamics;
+    this.baseVelocity = baseDynamics;
   }
 
   public int getBaseDynamics() {
-    return baseDynamics;
+    return baseVelocity;
   }
 
   // protected void init() {
@@ -450,8 +450,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     if (en != null) {
       int onset = en.timestamp(ticksPerBeat);
       int offset = onset + (int) (en.duration() * ticksPerBeat);
-      int velocity = (int) (baseDynamics * en.dynamics());
-      int offVelocity = (int) (baseDynamics * en.endDynamics());
+      int velocity = (int) (baseVelocity * en.dynamics());
+      int offVelocity = (int) (baseVelocity * en.endDynamics());
       notelist.list.add(new MyNote(onset, offset, en.notenum(), velocity,
           offVelocity, ticksPerBeat, null));
     }
@@ -512,8 +512,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             nd = getDefaultNoteDeviation();
           int attack = (int) (ticksPerBeat * (cd.attack() + nd.attack()));
           int release = (int) (ticksPerBeat * (cd.release() + nd.release()));
-          int dynamics = (int) (baseDynamics * cd.dynamics() * nd.dynamics());
-          int endDynamics = (int) (baseDynamics * cd.endDynamics() * nd
+          int dynamics = (int) (baseVelocity * cd.dynamics() * nd.dynamics());
+          int endDynamics = (int) (baseVelocity * cd.endDynamics() * nd
               .endDynamics());
           if (!note.rest() && getMissNote(note) == null
               && !"none".equals(note.notehead())
@@ -666,7 +666,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         if (notedeviations.size() > 0) {
           for (NoteDeviation nd : notedeviations) {
             velocitySD += Math.pow(
-                (nd.dynamics() - dynamicsAve) * baseDynamics, 2);
+                (nd.dynamics() - dynamicsAve) * baseVelocity, 2);
             attackSD += Math.pow(nd.attack() - attackAve, 2);
             releaseSD += Math.pow(nd.release() - releaseAve, 2);
           }
@@ -1149,14 +1149,24 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   public class NoteDeviation extends NodeInterface implements
       NoteDeviationInterface {
     private double attack, release, dynamics, endDynamics;
+    private String type;
     private NodeList note = null;
 
     private NoteDeviation(Node node) {
       super(node);
       attack = getTextDouble(getChildByTagName("attack"));
       release = getTextDouble(getChildByTagName("release"));
-      dynamics = getTextDouble(getChildByTagName("dynamics"));
+      Node dyn = getChildByTagName("dynamics");
+      dynamics = getTextDouble(dyn);
       endDynamics = getTextDouble(getChildByTagName("end-dynamics"));
+      Node typeNode = dyn.getAttributes().getNamedItem("type");
+      if(typeNode == null) type = "rate";
+      else if(typeNode.getNodeValue().equals("rate")) type = "rate";
+      else if(typeNode.getNodeValue().equals("diff")) type = "diff";
+      else{
+        type = "rate";
+        System.err.println("warning: unsupported type");
+      }
     }
 
     @Override
