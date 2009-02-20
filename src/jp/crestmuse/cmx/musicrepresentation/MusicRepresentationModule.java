@@ -7,6 +7,7 @@ import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 import jp.crestmuse.cmx.amusaj.sp.SPDummyObject;
 import jp.crestmuse.cmx.amusaj.sp.SPModule;
 import jp.crestmuse.cmx.misc.QueueReader;
+import jp.crestmuse.cmx.musicrepresentation.MusicRepresentation.MusicElement;
 
 public class MusicRepresentationModule extends
     SPModule<MidiEventWithTicktime, SPDummyObject> {
@@ -21,9 +22,14 @@ public class MusicRepresentationModule extends
       List<TimeSeriesCompatible<SPDummyObject>> dest)
       throws InterruptedException {
     MidiEventWithTicktime w = src.get(0).take();
+    /*
     NoteElement ne = new NoteElement();
     ne.note = new int[]{w.getMessage().getMessage()[1]};
     musicRepresentation.setEvidence(0, w.music_position, ne);
+    */
+    int index = musicRepresentation.getIndex(w.music_position);
+    MusicElement me = musicRepresentation.addMelodyElement(index);
+    me.setEvidence(w.getMessage().getMessage()[1]);
   }
 
   public int getInputChannels() {

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jp.crestmuse.cmx.amusaj.commands.ChordConverter;
+import jp.crestmuse.cmx.musicrepresentation.MusicRepresentation.MusicElement;
+import jp.crestmuse.cmx.musicrepresentation.MusicRepresentation.Type;
 
 public class BassCalculator implements Calculator {
 
@@ -36,30 +38,38 @@ public class BassCalculator implements Calculator {
     noteTable[7][1] = 0.01; // V 3音目
   }
 
-  public boolean isCalc(MusicElement me, int track, int index) {
-    if (track == 1)
-      return true;
-    return false;
+  public Type[] drivenBy() {
+    return new Type[]{Type.Chord};
   }
 
-  public void update(MusicElement me, int track, int index) {
-    String currentChord = me.getName();
+  public void update(MusicElement me, int index) {
+    //String currentChord = me.getName();
+    String currentChord = me.getLabel(me.getHighestProdIndex());
     String nextChord;
     try {
-      nextChord = musicRepresentation.getMusicElement(track,
-          index + musicRepresentation.getDivision()).getName();
+      //nextChord = musicRepresentation.getMusicElement(track, index + musicRepresentation.getDivision()).getName();
+      MusicElement chord = musicRepresentation.getChordElement(index + musicRepresentation.getDivision());
+      nextChord = chord.getLabel(chord.getHighestProdIndex());
     } catch (IndexOutOfBoundsException e) {
       nextChord = currentChord;
     }
     int notenum = diatonic2notenum.get(currentChord) + BASE;
+    /*
     NoteElement ne = new NoteElement();
     ne.note = new int[] { notenum };
     musicRepresentation.setPredict(2, index, ne);
+    */
+    MusicElement bass = musicRepresentation.addBassElements(index);
+    bass.setProd(notenum, 1.0);
     int[] path = getNearestPath(currentChord, nextChord);
     for (int i = 0; i < path.length; i++) {
+      /*
       ne = new NoteElement();
       ne.note = new int[] { notenum + path[i] };
       musicRepresentation.setPredict(2, index + (i + 1) * 2, ne);
+      */
+      bass = musicRepresentation.addBassElements(index + (i + 1)*2);
+      bass.setProd(notenum + path[i], 0.5);
     }
   }
 
