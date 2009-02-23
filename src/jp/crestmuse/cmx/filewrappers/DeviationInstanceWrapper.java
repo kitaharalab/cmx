@@ -50,10 +50,11 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   // private boolean notewiseStarted = false;
 
   private int baseVelocity = 100;
+  private double baseDynamics = 1.0;
 
   private boolean alreadyAnalyzed = false;
 
-  public void setBaseDynamics(int baseDynamics) {
+  public void setBaseDynamics(int baseDynamics) { //TODO Dynamics setter
     this.baseVelocity = baseDynamics;
   }
 
@@ -364,7 +365,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         }
       } else if (c.type().equals("tempo-deviation")) {
         dest.addHeaderElement(c.timestamp(ticksPerBeat), "TEMPO", currentTempo
-            * c.value());
+            * c.value()); //TODO curve
         Control nextTempoDev = tctrlview.lookAhead("tempo", "tempo-deviation");
 	if (nextTempoDev == null 
 	    || requiresTempoDevReturn(c, nextTempoDev, ticksPerBeat)) {
@@ -450,7 +451,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     if (en != null) {
       int onset = en.timestamp(ticksPerBeat);
       int offset = onset + (int) (en.duration() * ticksPerBeat);
-      int velocity = (int) (baseVelocity * en.dynamics());
+      int velocity = (int) (baseVelocity * en.dynamics()); //TODO
       int offVelocity = (int) (baseVelocity * en.endDynamics());
       notelist.list.add(new MyNote(onset, offset, en.notenum(), velocity,
           offVelocity, ticksPerBeat, null));
@@ -475,6 +476,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         }
         notelist.list.add(new MutableControlChange(c.timestamp(ticksPerBeat),
             64, depth, ticksPerBeat));
+      }
+      if(c.type().equals("base-dynamics")){ //TODO base-dynamics 多分ちがう
+        //baseVelocity = (int)(baseVelocity * Double.valueOf(c.getText()));
       }
     }
   }
@@ -512,7 +516,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             nd = getDefaultNoteDeviation();
           int attack = (int) (ticksPerBeat * (cd.attack() + nd.attack()));
           int release = (int) (ticksPerBeat * (cd.release() + nd.release()));
-          int dynamics = (int) (baseVelocity * cd.dynamics() * nd.dynamics());
+          int dynamics = (int) (baseVelocity * cd.dynamics() * nd.dynamics()); //TODO
           int endDynamics = (int) (baseVelocity * cd.endDynamics() * nd
               .endDynamics());
           if (!note.rest() && getMissNote(note) == null
@@ -835,7 +839,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   public TreeView<Control> getPartwiseControlView(String partid) {
     if (!pctrlviews.containsKey(partid))
-      analyzePartwiseControls(partid);
+      analyzePartwiseControls(partid); //TODO check
     return pctrlviews.get(partid);
   }
 
@@ -912,7 +916,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       super(node);
       this.measure = measure;
       beat = getAttributeDouble(node(), "beat");
-      child = node().getFirstChild();
+      child = node().getFirstChild(); //TODO ほんとにこれでpedalが取れてるのかどうか
     }
 
     @Override
@@ -982,7 +986,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     private int notenum = -1;
     private double duration;
     private double dynamics;
-    private String dynamicsType = null; //TODO
+    private String dynamicsType = null;
     private double endDynamics;
 
     private ExtraNote(Node node, int measure) {
@@ -1033,6 +1037,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
     protected final String getSupportedNodeName() {
       return "extra-note";
+    }
+    
+    private String dynamicsType(){
+      return dynamicsType;
     }
 
     /**
