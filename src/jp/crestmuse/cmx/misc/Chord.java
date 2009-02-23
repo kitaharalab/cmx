@@ -2,6 +2,8 @@ package jp.crestmuse.cmx.misc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ひとつの和音を扱うクラスです。
@@ -18,7 +20,6 @@ public class Chord {
   public String NAMELESS = "noname";
   
   //TODO 検討：ノートナンバーのリストを持つか、Basenoteとの差のリストを持つか
-  //TODO 実装：basenote指定のコンストラクタ
   
   /**
    * ノートナンバーから和音オブジェクトを作成します。
@@ -32,30 +33,14 @@ public class Chord {
   }
   
   /**
-   * コード名と転回形から和音オブジェクトを作成します。
-   * 作成される和音は、BaseNoteより高く最も近い音を根とする和音です。
-   * @param chordname コード名
-   * @param inversion 転回形(基本形=0)
-   */
-  public Chord(String chordname, int inversion){
-    //TODO chordname = format(chordname); 
-    this.name = chordname;
-    
-    if(inversion != 0){
-      invertChord(inversion);
-    }
-    else{
-      this.inversion = 0;
-    }
-  }
-  
-  /**
    * コード名から和音オブジェクトを作成します。
-   * 作成される和音は、BaseNoteより高く最も近い音を根とする転回基本形の和音です。
    * @param chordname コード名
    */
   public Chord(String chordname) throws RuntimeException{
-    //TODO 暫定
+    //TODO ダイアトニックコードのみ暫定
+    //Chord(chordname, defaultBasenote);
+    this.name = chordname;
+    this.inversion = 0;
     if(chordname.equals("C")) setNoteList(basenote,basenote+4,basenote+7);
     else if(chordname.equals("Dm")) setNoteList(basenote+2,basenote+5,basenote+9);
     else if(chordname.equals("Em")) setNoteList(basenote+4,basenote+7,basenote+11);
@@ -63,10 +48,21 @@ public class Chord {
     else if(chordname.equals("G")) setNoteList(basenote+7,basenote+11,basenote+14);
     else if(chordname.equals("Am")) setNoteList(basenote+9,basenote+12,basenote+16);
     else if(chordname.equals("Bm(b5)")) setNoteList(basenote+11,basenote+14,basenote+17);
-    else throw new RuntimeException("It is note Diatonic Chord.");
-    this.name = chordname;
+    else throw new RuntimeException("It is not Diatonic Chord.");
+  }
+  
+  /**
+   * コード名とBaseNoteを指定して和音オブジェクトを作成します。
+   * 作成される和音は、BaseNoteを基準とします。
+   * BaseNoteは作成される和音の根から最も近く低いC(ド)の音です。
+   * @param chordname コード名
+   * @param basenote
+   */
+  public Chord(String chordname, int basenote){
+    this.basenote = basenote;
+    this.name = formatChord(chordname);
     this.inversion = 0;
-    //this(chordname, 0);
+    this.notes = encodeChord(this.name, this.basenote);
   }
   
   /**
@@ -174,6 +170,76 @@ public class Chord {
   private void sortNotes(ArrayList<Integer> src){
     Collections.sort(src);
     return;
+  }
+  
+  
+
+  static String[] allKeys = new String[]{"C","B#","Db","C#","D","Eb","D#","E","Fb","F","F#","Gb","G","Ab","G#","A","Bb","A#","B","Cb"};;
+  static Map<String, Integer> key2dist = new HashMap<String, Integer>();
+  static Map<Integer, String[]> dist2key = new HashMap<Integer, String[]>();
+  static{
+    key2dist.put("C", 0);  key2dist.put("B#", 0);
+    key2dist.put("C#", 1); key2dist.put("Db", 1);
+    key2dist.put("D", 2);
+    key2dist.put("D#", 3); key2dist.put("Eb", 3);
+    key2dist.put("E", 4);  key2dist.put("Fb", 4);
+    key2dist.put("F", 5);
+    key2dist.put("F#", 6); key2dist.put("Gb", 6);
+    key2dist.put("G", 7);
+    key2dist.put("G#", 8); key2dist.put("Ab", 8);
+    key2dist.put("A", 9);
+    key2dist.put("A#", 10);key2dist.put("Bb", 10);
+    key2dist.put("B", 11); key2dist.put("Cb", 11);
+    
+    dist2key.put(0, new String[]{"C","B#"});
+    dist2key.put(1, new String[]{"Db","C#"});
+    dist2key.put(2, new String[]{"D"});
+    dist2key.put(3, new String[]{"Eb","D#"});
+    dist2key.put(4, new String[]{"E","Fb"});
+    dist2key.put(5, new String[]{"F"});
+    dist2key.put(6, new String[]{"F#","Gb"});
+    dist2key.put(7, new String[]{"G"});
+    dist2key.put(8, new String[]{"Ab","G#"});
+    dist2key.put(9, new String[]{"A"});
+    dist2key.put(10, new String[]{"Bb","A#"});
+    dist2key.put(11, new String[]{"B","Cb"});
+    
+  }
+  
+  static public int getPrefixLength(String src) throws RuntimeException{
+    int dest = -1;
+    for (String str : allKeys) {
+      if(src.startsWith(str)){
+        dest = str.length();
+        break;
+      }
+    }
+    if(dest == -1) throw new RuntimeException("Processing Invalid Chord Data");
+    return dest;
+  }
+  
+  static public String formatChord(String src){
+    String dest = new String();
+    //dest.concat(src.substring(0, getPrefixLength(src)));
+    
+    return dest;
+  }
+  
+  static public ArrayList<Integer> encodeChord(String src, int basenote){
+    String temp = new String();
+    ArrayList<Integer> dest = new ArrayList<Integer>();
+    dest.add(0); dest.add(4); dest.add(7);
+    //delete root
+    temp = src.substring(getPrefixLength(src));
+    //3rd
+    if(temp.startsWith("m")){
+    }
+    else if(temp.startsWith("sus4")){
+    }
+    //
+    
+    
+    return dest;
   }
   
   public static void main(String[] args){
