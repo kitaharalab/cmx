@@ -784,7 +784,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return getTimewiseControlView();
   }
   
-  //TODO 微妙な実装かも
+  
   /**
    * DeviationInstanceのnon-partwise(tempo, tempo-deviation)
    * を時系列順にリストで返します
@@ -982,6 +982,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     private int notenum = -1;
     private double duration;
     private double dynamics;
+    private String dynamicsType = null; //TODO
     private double endDynamics;
 
     private ExtraNote(Node node, int measure) {
@@ -998,8 +999,17 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           analyzePitch(node1);
         else if (nodename.equals("duration"))
           duration = Double.parseDouble(value);
-        else if (nodename.equals("dynamics"))
+        else if (nodename.equals("dynamics")){  //TODO
           dynamics = Double.parseDouble(value);
+          Node typeNode = node1.getAttributes().getNamedItem("type");
+          if(typeNode == null) dynamicsType = "rate";
+          else if(typeNode.getNodeValue().equals("rate")) dynamicsType = "rate";
+          else if(typeNode.getNodeValue().equals("diff")) dynamicsType = "diff";
+          else{
+            dynamicsType = "rate";
+            System.err.println("warning: unsupported type");
+          }
+        }
         else if (nodename.equals("end-dynamics"))
           endDynamics = Double.parseDouble(value);
       }
@@ -1149,7 +1159,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   public class NoteDeviation extends NodeInterface implements
       NoteDeviationInterface {
     private double attack, release, dynamics, endDynamics;
-    private String type;
+    private String dynamicsType;
     private NodeList note = null;
 
     private NoteDeviation(Node node) {
@@ -1160,11 +1170,11 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       dynamics = getTextDouble(dyn);
       endDynamics = getTextDouble(getChildByTagName("end-dynamics"));
       Node typeNode = dyn.getAttributes().getNamedItem("type");
-      if(typeNode == null) type = "rate";
-      else if(typeNode.getNodeValue().equals("rate")) type = "rate";
-      else if(typeNode.getNodeValue().equals("diff")) type = "diff";
+      if(typeNode == null) dynamicsType = "rate";
+      else if(typeNode.getNodeValue().equals("rate")) dynamicsType = "rate";
+      else if(typeNode.getNodeValue().equals("diff")) dynamicsType = "diff";
       else{
-        type = "rate";
+        dynamicsType = "rate";
         System.err.println("warning: unsupported type");
       }
     }
@@ -1199,6 +1209,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
     public final double endDynamics() {
       return endDynamics;
+    }
+    
+    public final String dynamicsType() {
+      return dynamicsType;
     }
   }
 

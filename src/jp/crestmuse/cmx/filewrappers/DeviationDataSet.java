@@ -57,6 +57,27 @@ public class DeviationDataSet {
     nonPartwise.add(c, "");
     last = c;
   }
+  
+  /**
+   * 属性(Attribute)を持つNonPartwiseControl要素をTreeViewに追加します。
+   * @param measure
+   * @param beat
+   * @param type
+   * @param attrName 属性名
+   * @param attrValue 属性値
+   * @param value
+   */
+  public void addNonPartwiseControl(int measure, double beat, String type,
+      String attrName, String attrValue, double value){
+    Control c = new Control();
+    c.measure = measure;
+    c.beat = beat;
+    c.type = type;
+    c.attr.put(attrName, attrValue);
+    c.value = value;
+    nonPartwise.add(c, "");
+    last = c;
+  }
 
   public void addNonPartwiseControl(int measure, double beat, 
                                     String type) {
@@ -73,6 +94,34 @@ public class DeviationDataSet {
     if (partwise.containsKey(partid)) {
       partwise.get(partid).add(c, "");
     } else {
+      TreeView<Control> treeview = new TreeView<Control>();
+      treeview.add(c, "");
+      partwise.put(partid, treeview);
+    }
+    last = c;
+  }
+  
+  /**
+   * 属性(Attribute)を持つPartwiseControlをTreeViewに追加します。
+   * @param partid
+   * @param measure
+   * @param beat
+   * @param type
+   * @param attrName 属性名
+   * @param attrValue 属性値
+   * @param value
+   */
+  public void addPartwiseControl(String partid, int measure, double beat, String type,
+      String attrName, String attrValue, double value){
+    Control c = new Control();
+    c.measure = measure;
+    c.beat = beat;
+    c.type = type;
+    c.attr.put(attrName, attrValue);
+    c.value = value;
+    if(partwise.containsKey(partid)){
+      partwise.get(partid).add(c, "");
+    }else{
       TreeView<Control> treeview = new TreeView<Control>();
       treeview.add(c, "");
       partwise.put(partid, treeview);
@@ -107,6 +156,29 @@ public class DeviationDataSet {
     nd.attack = attack;
     nd.release = release;
     nd.dynamics = dynamics;
+    nd.endDynamics = endDynamics;
+    nd.name = "note-deviation";
+    notewise.add(nd);
+  }
+  
+  /**
+   * 属性付きdynamicsのNoteDeviationをリストに挿入します。
+   * @param note
+   * @param attack
+   * @param release
+   * @param dynamics
+   * @param dyAttrName
+   * @param dyAttrValue
+   * @param endDynamics
+   */
+  public void addNoteDeviation(MusicXMLWrapper.Note note, double attack, double release,
+      double dynamics, String dyAttrName, String dyAttrValue, double endDynamics){
+    NoteDeviation nd = new NoteDeviation();
+    nd.note = note;
+    nd.attack = attack;
+    nd.release = release;
+    nd.dynamics = dynamics;
+    nd.dyAttr.put(dyAttrName, dyAttrValue);
     nd.endDynamics = endDynamics;
     nd.name = "note-deviation";
     notewise.add(nd);
@@ -152,6 +224,44 @@ public class DeviationDataSet {
       extraNotes.put(partid, treeview);
     }
   }
+  
+  /**
+   * 属性つきDynamicsをTreeViewに追加します。
+   * @param partid
+   * @param measure
+   * @param beat
+   * @param pitchStep
+   * @param pitchAlter
+   * @param pitchOctave
+   * @param duration
+   * @param dynamics
+   * @param dyAttrName
+   * @param dyAttrValue
+   * @param endDynamics
+   */
+  public void addExtraNote(String partid, int measure, double beat, 
+      String pitchStep, int pitchAlter, int pitchOctave, 
+      double duration, double dynamics, String dyAttrName, String dyAttrValue,
+      double endDynamics) {
+    ExtraNote en = new ExtraNote();
+    en.measure = measure;
+    en.beat = beat;
+    en.pitchStep = pitchStep;
+    en.pitchAlter = pitchAlter;
+    en.pitchOctave = pitchOctave;
+    en.duration = duration;
+    en.dynamics = dynamics;
+    en.dyAttr.put(dyAttrName, dyAttrValue);
+    en.endDynamics = endDynamics;
+    if (extraNotes.containsKey(partid)) {
+      extraNotes.get(partid).add(en, "");
+    } else {
+      TreeView<ExtraNote> treeview = new TreeView<ExtraNote>();
+      treeview.add(en, "");
+      extraNotes.put(partid, treeview);
+    }
+  }
+
 
   private static final String[] pitchList = 
     new String[] {"C", "C", "D", "D", "E", "F", "F", "G", "G", "A", "A", "B"};
@@ -222,7 +332,13 @@ public class DeviationDataSet {
       devxml.addChildAndText("octave", en.pitchOctave);
       devxml.returnToParent();
       devxml.addChildAndText("duration", en.duration);
-      devxml.addChildAndText("dynamics", en.dynamics);
+      devxml.addChild("dynamics");
+      if (en.dyAttr != null) {
+        Set<Map.Entry<String,String>> entries = en.dyAttr.entrySet();
+        for (Map.Entry<String,String> e : entries)
+          devxml.setAttribute(e.getKey(), e.getValue());
+      }
+      devxml.addText(en.dynamics);
       devxml.addChildAndText("end-dynamics", en.endDynamics);
       devxml.returnToParent();
     }
@@ -328,6 +444,7 @@ public class DeviationDataSet {
     private int pitchOctave;
     private double duration;
     private double dynamics = 1.0;
+    HashMap<String, String> dyAttr = null;
     private double endDynamics = 1.0;
     public final int ordinal() {
       return measure;
@@ -347,6 +464,7 @@ public class DeviationDataSet {
     private double attack;
     private double release;
     private double dynamics;
+    HashMap<String, String> dyAttr = null;
     private double endDynamics;
     void addToWrapper(DeviationInstanceWrapper wrapper) {
       wrapper.addChild(name);
@@ -356,7 +474,13 @@ public class DeviationDataSet {
                              note.getXPathExpression() + ")");
       wrapper.addChildAndText("attack", attack);
       wrapper.addChildAndText("release", release);
-      wrapper.addChildAndText("dynamics", dynamics);
+      devxml.addChild("dynamics");
+      if (dyAttr != null) {
+        Set<Map.Entry<String,String>> entries = dyAttr.entrySet();
+        for (Map.Entry<String,String> e : entries)
+          devxml.setAttribute(e.getKey(), e.getValue());
+      }
+      devxml.addText(dynamics);
       wrapper.addChildAndText("end-dynamics", endDynamics);
       wrapper.returnToParent(); 
     }
