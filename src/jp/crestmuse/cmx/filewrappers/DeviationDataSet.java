@@ -444,7 +444,7 @@ public class DeviationDataSet {
     private int pitchOctave;
     private double duration;
     private double dynamics = 1.0;
-    HashMap<String, String> dyAttr = null;
+    private HashMap<String, String> dyAttr = null;
     private double endDynamics = 1.0;
     public final int ordinal() {
       return measure;
@@ -464,7 +464,7 @@ public class DeviationDataSet {
     private double attack;
     private double release;
     private double dynamics;
-    HashMap<String, String> dyAttr = null;
+    private HashMap<String, String> dyAttr = null;
     private double endDynamics;
     void addToWrapper(DeviationInstanceWrapper wrapper) {
       wrapper.addChild(name);

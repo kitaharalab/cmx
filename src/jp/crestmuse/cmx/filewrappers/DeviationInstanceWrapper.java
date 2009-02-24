@@ -483,7 +483,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             64, depth, ticksPerBeat));
       }
       if(c.type().equals("base-dynamics")){
-        this.baseDynamics = Double.valueOf(c.getText());
+        //this.baseDynamics = Double.valueOf(c.getText());
       }
     }
   }
@@ -517,6 +517,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           if (cd == null)
             cd = getDefaultNoteDeviation();
           NoteDeviationInterface nd = getNoteDeviation(note);
+          
           if (nd == null)
             nd = getDefaultNoteDeviation();
           int attack = (int) (ticksPerBeat * (cd.attack() + nd.attack()));
@@ -554,7 +555,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       Collections.sort(nl.list);
       for (MutableMusicEvent e : nl.list) {
         if (e instanceof MyNote) {
-          MyNote note = (MyNote) e;
+          MyNote note = (MyNote) e; //TODO rate diff
           dest.addNoteElement(note.onset(), note.offset(), note.notenum(), note
               .velocity(), note.offVelocity(), note.note);
         } else if (e instanceof MutableControlChange) {
@@ -1140,6 +1141,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     public double dynamics();
 
     public double endDynamics();
+    
+    //public String dynamicsType();
   }
 
   private static NoteDeviationInterface defaultND = new DefaultNoteDeviation();
