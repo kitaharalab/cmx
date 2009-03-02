@@ -2,11 +2,13 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.util.List;
 
+import javax.xml.transform.TransformerException;
+
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
+import jp.crestmuse.cmx.misc.TreeView;
 
 public class MusicApexDataSet {
 
-  private MusicApexWrapper apexmxl = null;
   private MusicXMLWrapper musicxml = null;
   private Boolean inherited = null;
   private ApexDataGroup grouptop = null;
@@ -18,7 +20,11 @@ public class MusicApexDataSet {
   public NoteGroup createTopLevelGroup(Boolean inherited){
     this.inherited = inherited;
     this.grouptop = new ApexDataGroup();
-    //TODO add all notes
+    grouptop.depth = 1;
+    //TODO add all notes from MusicXML
+    
+   
+    //grouptop.addNote(n);
     return grouptop;
   }
   
@@ -37,31 +43,35 @@ public class MusicApexDataSet {
 
     private int depth;
     private List<Note> notes;
-    private List<ApexDataGroup> groups;
+    private List<ApexDataGroup> subGroups;
+    private NoteGroup groupParent;
     private Note apex = null;
     private Double saliency = null;
     
     public ApexDataGroup(){
-      
-    }
-
-    @Override
-    public void addNote(Note n) {
-      // TODO 自動生成されたメソッド・スタブ
       return;
-    }
-
-    @Override
-    public void addSubgroup(NoteGroup g) {
-      // TODO 自動生成されたメソッド・スタブ
-      return;      
     }
 
     @Override
     public int depth() {
       return depth;
     }
-
+    
+    @Override
+    public boolean isApexInherited() {
+      return inherited;
+    }
+   
+    @Override
+    public Double getApexSaliency() {
+      return saliency;
+    }
+    
+    @Override
+    public List<Note> getNotes() {
+      return notes;
+    }
+    
     @Override
     public List<Note> getAllNotes() {
       // TODO 自動生成されたメソッド・スタブ
@@ -70,29 +80,26 @@ public class MusicApexDataSet {
 
     @Override
     public Note getApex() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
-    }
-
-    @Override
-    public double getApexSaliency() {
-      // TODO 自動生成されたメソッド・スタブ
-      return 0;
-    }
-
-    @Override
-    public List<Note> getNotes() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
+      return apex;
     }
 
     @Override
     public List<NoteGroup> getSubgroups() {
-      // TODO 自動生成されたメソッド・スタブ
+      //TODO
       return null;
     }
 
+    @Override
+    public void addNote(Note n) {
+      notes.add(n);
+      return;
+    }
 
+    @Override
+    public void addSubgroup(NoteGroup g) {
+      // TODO 自動生成されたメソッド・スタブ
+      return;
+    }
 
     @Override
     public void makeSubgroup(List<Note> notes) {
@@ -118,14 +125,9 @@ public class MusicApexDataSet {
     }
 
     @Override
-    public boolean isApexInherited() {
-      return inherited;
-    }
-    
-    @Override
     public void setApexInherited(boolean b) {
-      inherited = b;
-      return;
-    }
+      throw new RuntimeException("Inherited has to set at TopLevel construction in MusicApexDataSet");
+    }    
+
   }
 }
