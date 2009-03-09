@@ -155,9 +155,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
   private Document doc;
   private Node currentNode = null;
   private Node parentNode = null;
-  private String filename = null;
+  private File file = null;
+//  private String filename = null;
     private Node prevCurrentNode = null;
     private Node prevParentNode = null;
+
+  private static List<String> paths = new LinkedList<String>();
 
   private boolean finalized = false;
 
@@ -165,6 +168,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 
   static {
     try {
+      paths.add(".");
       CLASS_TABLE = new HashMap<String,Class>();
       DTD_PUBLIC_ID_TABLE = new HashMap<String,String>();
       DTD_SYSTEM_ID_TABLE = new HashMap<String,String>();
@@ -376,6 +380,14 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     analyze();
   }
 
+  public static final void addPathFirst(String s) {
+    paths.add(0, s);
+  }
+
+  public static final void addPathLast(String s) {
+    paths.add(s);
+  }
+
 //  public final void read(InputStream in) throws IOException, SAXException {
 //    doc = builder.parse(in);
 //  }
@@ -422,18 +434,28 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
   public static CMXFileWrapper readfile(File file, CMXInitializer init) 
     throws IOException {
     try {
-    initXMLProcessors();
-    Document doc;
-    String filename = file.getName();
-    if (filename.endsWith("z") || filename.endsWith("Z")) {
-      InputStream in = new GZIPInputStream
-        (new BufferedInputStream(new FileInputStream(file)));
-      doc = builder.parse(in);
-      in.close();
-    } else {
-      doc = builder.parse(file);
-    }
-    return wrap(doc, file.getPath(), init);
+      initXMLProcessors();
+      Document doc;
+      String filename = file.getName();
+      if (!(file.exists())) {
+        File f;
+        for (String path : paths) {
+          if ((f = new File(path + File.separator + filename)).exists()) {
+            file = f;
+            break;
+          }
+          throw new FileNotFoundException("File not found: " + file.getPath());
+        }
+      }
+      if (filename.endsWith("z") || filename.endsWith("Z")) {
+        InputStream in = new GZIPInputStream
+          (new BufferedInputStream(new FileInputStream(file)));
+        doc = builder.parse(in);
+        in.close();
+      } else {
+        doc = builder.parse(file);
+      }
+      return wrap(doc, file, init);
     } catch (ParserConfigurationException e) {
       throw new XMLException(e);
     } catch (SAXException e) {
@@ -452,12 +474,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 //    return f;
   }
 
-  private static CMXFileWrapper wrap(Document doc, String filename, 
+  private static CMXFileWrapper wrap(Document doc, File file, 
                                      CMXInitializer init) 
                                      throws IOException {
     String toptagname = doc.getDocumentElement().getTagName();
     CMXFileWrapper f = createInstance(toptagname);
-    f.filename = filename;
+    f.file = file;
     f.doc = doc;
     f.currentNode = doc.getDocumentElement();
     f.removeBlankTextNodes();
@@ -481,7 +503,19 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
    *<p>現在のファイル名を返します, </p>
    *********************************************************************/
   public final String getFileName() {
-    return filename;
+    return file.getName();
+  }
+
+  public final String getAbsolutePath() {
+    return file.getAbsolutePath();
+  }
+
+  public final String getParentPath() {
+    return file.getParent();
+  }
+
+  public final String getPath() {
+    return file.getPath();
   }
 
   public final String getURI() {

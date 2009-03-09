@@ -35,8 +35,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private MusicXMLWrapper targetMusicXML = null;
   private String targetMusicXMLFileName = null;
-  private String targetMusicXMLDirName = null;
-  private static String defaultDirName = ".";
+//  private String targetMusicXMLDirName = null;
+//  private static List<String> dirCondidates = new ArrayList<String>();
+//  private static String defaultDirName = ".";
   private TimewiseControlView tctrlview = null;
   private HashMap<String, TimewiseControlView> pctrlviews = new HashMap<String, TimewiseControlView>();
   private HashMap<String, TreeView<ExtraNote>> extraNotes = new HashMap<String, TreeView<ExtraNote>>();
@@ -81,21 +82,52 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
    ****************************************************************************/
   public MusicXMLWrapper getTargetMusicXML() throws IOException {
     if (targetMusicXML == null) {
+      if (getParentPath() != null)
+        addPathFirst(getParentPath());
+      targetMusicXML = (MusicXMLWrapper)readfile(getTargetMusicXMLFileName());
+    }
+    return targetMusicXML;
+  }
+
+/*
+  public MusicXMLWrapper getTargetMusicXML() throws IOException {
+    if (targetMusicXML == null) {
       try {
         targetMusicXML = (MusicXMLWrapper) readfile(targetMusicXMLDirName
             + File.separator + getTargetMusicXMLFileName());
       } catch (FileNotFoundException e) {
-        targetMusicXML = (MusicXMLWrapper) readfile(defaultDirName
-            + File.separator + getTargetMusicXMLFileName());
+        for (String dir : dirCondidates) {
+          try {
+            targetMusicXML = (MusicXMLWrapper) readfile(
+              dir + File.separator + getTargetMusicXMLFileName());
+            targetMusicXMLDirName = dir;
+            break;
+          } catch (FileNotFoundException e) {
+            continue;
+          }
+//        targetMusicXML = (MusicXMLWrapper) readfile(defaultDirName
+//            + File.separator + getTargetMusicXMLFileName());
       }
     }
     return targetMusicXML;
   }
+*/
 
   /*****************************************************************************
    * Reads the file name of the target MusicXML document. <br>
    * この表情付けインスタンスがターゲットとしているMusicXMLドキュメントの ファイル名を返します.
    ****************************************************************************/
+  public String getTargetMusicXMLFileName() {
+    if (targetMusicXMLFileName == null) {
+      File f = new File(getTopTagAttribute("target"));
+      if (f.getParent() != null)
+        addPathFirst(f.getParent());
+      targetMusicXMLFileName = f.getName();
+    }
+    return targetMusicXMLFileName;
+  }
+
+/*
   public String getTargetMusicXMLFileName() {
     if (targetMusicXMLFileName == null)
       targetMusicXMLFileName = getTopTagAttribute("target");
@@ -113,7 +145,18 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
     return targetMusicXMLFileName;
   }
+*/
 
+  public void setTargetMusicXMLFileName(String filename) {
+    File f = new File(filename);
+    if (f.getParent() != null)
+      addPathFirst(f.getParent());
+    targetMusicXMLFileName = f.getName();
+    if (!isFinalized())
+      setTopTagAttribute("target", targetMusicXMLFileName);
+  }
+
+/*
   public void setTargetMusicXMLFileName(String filename) {
     if (targetMusicXMLFileName == null)
       targetMusicXMLFileName = filename;
@@ -133,9 +176,13 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     // getDocument().getDocumentElement().setAttribute("target",
     // targetMusicXMLFileName);
   }
+*/
 
+  /** obsolete */
   public static void changeDefaultMusicXMLDirName(String dirname) {
-    defaultDirName = dirname;
+    //tentative
+    addPathFirst(dirname);
+//    defaultDirName = dirname;
   }
 
   // public void setTargetMusicXMLDirName(String dirname) {
