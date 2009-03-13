@@ -240,6 +240,14 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
                            "-//CrestMuse//DTD CrestMuseXML 0.41 " + 
                            "AmusaScriptXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/amusascript.dtd");
+      
+      //090313 MusicApex動作テストのため暫定的に追記　ここから
+      addClassTable("music-apex", PACKAGE_BASE+"."+"MusicApexWrapper");
+      addDocumentTypeTable("music-apex", "-//CrestMuse//DTD CrestMuseXML 0.41" +
+          "MusicApexXML//EN",
+          "music-apex.dtd");      
+      //ここまで
+      
     } catch (ClassNotFoundException e) {
       throw new ExternalLibraryException(e.toString());
     }
