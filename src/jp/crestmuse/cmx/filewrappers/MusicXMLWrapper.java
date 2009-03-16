@@ -1410,8 +1410,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      * @return
      */
     public boolean equals(Note arg){
-      if(this.toString().equals(arg.toString()))
+      if(this.toString().equals(arg.toString())){
         if(this.xpath.equals(arg.xpath)) return true;
+      }
       return false;
     }
 
