@@ -69,6 +69,11 @@ public class MusicApexDataSet {
     return new ApexDataGroup(notes, apex, saliency);
   }
   
+  public void setAspect(String aspect){
+    this.aspect = aspect;
+    return;
+  }
+  
   public MusicApexWrapper toWrapper(){
     /*
     if(mawxml == null){
@@ -236,7 +241,7 @@ public class MusicApexDataSet {
     }
     
     public void makeSubgroup(List<Note> notes, Note apex, Double saliency){
-      //各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
+//      各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
       for(Note checknote : notes){
         Boolean included = false;
         if(! (included = ownnotes.contains(checknote))){
@@ -255,7 +260,9 @@ public class MusicApexDataSet {
       g.ownnotes.addAll(notes);
       g.undernotes.addAll(notes);
       g.depth = this.depth + 1;
-      if(isApexInherited() == true && this.getApex() != null){
+      
+      if(isApexInherited() == true && this.getApex() != null
+          && g.ownnotes.contains(this.apex)){
         g.apex = this.apex;
         g.saliency = this.saliency;
       }
@@ -305,29 +312,22 @@ public class MusicApexDataSet {
     public NoteGroup getParentGroup(ApexDataGroup g){
       return g.groupParent;
     }
-    
-    //debug
-    private void printSubgroups(){
-      for(NoteGroup g : this.getSubgroups()){
-        System.out.println((g.getNotes().size()));
-      }
-    }
   }
   
   public static void main(String[] args){
     MusicXMLWrapper musicxml = new MusicXMLWrapper();
     try {
-      musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./devset/dev_inv02-schiff-b/sample.xml");
+      musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");
       MusicApexDataSet mad = new MusicApexDataSet(musicxml);
-      mad.createTopLevelGroup(false);
-      mad.grouptop.setApex(mad.allnotes.get(35));
+      mad.createTopLevelGroup(true);
+      mad.setAspect("hoge");
+      mad.grouptop.setApex(mad.allnotes.get(8));
       mad.grouptop.makeSubgroup(mad.getNotesByRange(5, 10), mad.allnotes.get(6));
       mad.grouptop.makeSubgroup(mad.getNotesByRange(20, 30));
       ((ApexDataGroup)mad.grouptop.subGroups.get(1)).makeSubgroup(mad.getNotesByRange(24, 28), mad.allnotes.get(28));
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
-      mad.grouptop.printSubgroups();
-      mad.toWrapper();
+       mad.toWrapper();
     } catch (Exception e) {
       e.printStackTrace();
     }
