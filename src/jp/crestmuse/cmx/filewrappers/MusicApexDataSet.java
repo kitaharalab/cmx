@@ -10,24 +10,31 @@ public class MusicApexDataSet {
   private MusicApexWrapper mawxml = null;
   private MusicXMLWrapper musicxml = null;
   private Boolean inherited = false;
+  private String aspect = null;
   private ApexDataGroup grouptop = null;
-  private List<ApexDataGroup> groupcollection;
+  
+  //private List<ApexDataGroup> groupcollection;
   private List<Note> allnotes;
   
   public MusicApexDataSet(){
-    throw new RuntimeException("MusicXMLWrapper is essential for creating MusicApexDataSet.");
+    throw new RuntimeException("MusicXMLFile is essential for creating MusicApexDataSet.");
   }
   public MusicApexDataSet(MusicXMLWrapper musicxml){
     this.musicxml = musicxml;
-    this.groupcollection = new ArrayList<ApexDataGroup>();
+//    this.groupcollection = new ArrayList<ApexDataGroup>();
   }
   
   public NoteGroup createTopLevelGroup(Boolean inherited){
+    return createTopLevelGroup(inherited, null);
+  }
+  
+  public NoteGroup createTopLevelGroup(Boolean inherited, String aspect){
     this.inherited = inherited;
+    this.aspect = aspect;
     this.grouptop = new ApexDataGroup();
     this.allnotes = new ArrayList<Note>();
     grouptop.depth = 1;
-
+//    groupcollection.add(grouptop);
     //MusicXMLのすべてのNote要素をグループに追加する
     MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
     for (MusicXMLWrapper.Part part : partlist) {
@@ -43,12 +50,23 @@ public class MusicApexDataSet {
         }
       }
     }
-    groupcollection.add(grouptop);
     return grouptop;
   }
   
   public NoteGroup createGroup(){
     return new ApexDataGroup();
+  }
+  
+  public NoteGroup createGroup(List<Note> notes){
+    return new ApexDataGroup(notes, null, Double.NaN);
+  }
+  
+  public NoteGroup createGroup(List<Note> notes, Note apex){
+    return new ApexDataGroup(notes, apex, Double.NaN);
+  }
+  
+  public NoteGroup createGroup(List<Note> notes, Note apex, Double saliency){
+    return new ApexDataGroup(notes, apex, saliency);
   }
   
   public MusicApexWrapper toWrapper(){
@@ -62,7 +80,7 @@ public class MusicApexDataSet {
     
     mawxml.setAttribute("target", musicxml.getFileName());
     mawxml.setAttribute("apex-inherited", (inherited ? "yes" : "no"));
-    //mawxml.setAttribute("aspect", "composition");
+    if(aspect != null)  mawxml.setAttribute("aspect", aspect);
     
     writeApexDataGroup(grouptop);
     
@@ -77,17 +95,18 @@ public class MusicApexDataSet {
  
   private void writeApexDataGroup(NoteGroup group){
     mawxml.addChild("group");
+    if(group.depth() == -1) throw new RuntimeException("Invalid GroupDepth");
     mawxml.setAttribute("depth", group.depth());
     
     //write subgroups
-    if(!group.getSubgroups().isEmpty()){
+    if(!(group.getSubgroups().isEmpty())){
       for(NoteGroup adg : group.getSubgroups()){
         writeApexDataGroup(adg);
       }
     }
     
     //write ownnote
-    if(!group.getNotes().isEmpty()){
+    if(!(group.getNotes().isEmpty())){
       for(Note n : group.getNotes()){
         mawxml.addChild("note");
         mawxml.setAttributeNS("http://www.w3.org/1999/xlink", 
@@ -97,6 +116,9 @@ public class MusicApexDataSet {
         mawxml.returnToParent();
       }
     }
+    else{
+      throw new RuntimeException("Creating No Notes Group");
+    }
     
     //write apex
     if(group.getApex() != null){
@@ -105,10 +127,11 @@ public class MusicApexDataSet {
           "xlink:href", 
           "#xpointer(" + 
           group.getApex().getXPathExpression() + ")");
-      if(group.getApexSaliency() != null)
+      if(!(group.getApexSaliency().isNaN())){
         mawxml.setAttribute("saliency", group.getApexSaliency());
+      }
+      mawxml.returnToParent();
     }
-    mawxml.returnToParent();
     
     mawxml.returnToParent();
     return;
@@ -124,19 +147,23 @@ public class MusicApexDataSet {
   
   class ApexDataGroup implements NoteGroup{
 
-    private int depth;
-    private List<Note> ownnotes;  //自分のグループのみが持つノート
-    private List<Note> undernotes;  //自分のグループ以下にあるノート、自分も含む
-    private List<NoteGroup> subGroups;
+    private int depth = -1;
+    private List<Note> ownnotes = new ArrayList<Note>();  //自分のグループのみが持つノート
+    private List<Note> undernotes = new ArrayList<Note>();  //自分のグループ以下にあるノート、自分も含む
+    private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
     private NoteGroup groupParent = null;
     private Note apex = null;
-    private Double saliency = null;
+    private Double saliency = Double.NaN;
     
     public ApexDataGroup(){
-      depth = -1;
-      ownnotes = new ArrayList<Note>();
-      undernotes = new ArrayList<Note>();
-      subGroups = new ArrayList<NoteGroup>();
+      return;
+    }
+    
+    public ApexDataGroup(List<Note> notes, Note apex, Double saliency){
+      this.ownnotes.addAll(notes);
+      this.undernotes.addAll(notes);
+      this.apex = apex;
+      this.saliency = saliency;
       return;
     }
 
@@ -163,29 +190,6 @@ public class MusicApexDataSet {
     @Override
     public List<Note> getAllNotes() {
       return undernotes;
-      /*
-      //再帰で
-      List<Note> notelist = new ArrayList<Note>();
-      if(getSubgroups().isEmpty()){
-        return getNotes();
-      }
-      else{
-        Iterator<NoteGroup> it = getSubgroups().iterator();
-        while(it.hasNext()){
-          NoteGroup g = it.next();
-          notelist.addAll(g.getAllNotes());
-        }
-      }
-      notelist.addAll(getNotes());
-      
-      //HashSetに一度格納し重複除去
-      HashSet<Note> set = new HashSet<Note>();
-      set.addAll(notelist);
-      notelist = new ArrayList<Note>();
-      notelist.addAll(set);
-      
-      return notelist;
-      */
     }
 
     @Override
@@ -209,41 +213,60 @@ public class MusicApexDataSet {
     public void addSubgroup(NoteGroup g) {
       if(g instanceof ApexDataGroup){
         ((ApexDataGroup)g).groupParent = this;
-        ((ApexDataGroup)g).depth = this.depth() + 1;
+        ((ApexDataGroup)g).depth = this.depth() + 1;        
         if(isApexInherited() == true){
           refreshSubGroupApex((ApexDataGroup)g);
         }
       }
       undernotes.addAll(g.getAllNotes());
       subGroups.add(g);
-      groupcollection.add((ApexDataGroup) g);
+      //groupcollection.add((ApexDataGroup) g);
       return;
     }
 
     @Override
     public void makeSubgroup(List<Note> notes) {
+      makeSubgroup(notes, null);
+      return;
+    }
+    
+    public void makeSubgroup(List<Note> notes, Note apex){
+      makeSubgroup(notes, apex, Double.NaN);
+      return;
+    }
+    
+    public void makeSubgroup(List<Note> notes, Note apex, Double saliency){
       //各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
       for(Note checknote : notes){
         Boolean included = false;
         if(! (included = ownnotes.contains(checknote))){
           for(NoteGroup ng : getSubgroups()){
             if(ng.getNotes().contains(checknote)){
-              included = true;
+              included = true;        
               break;
             }
           }
         }
         if(included == false) throw new RuntimeException("Note is not included Parent and Parent's subgroups");
       }
+      //making new group
       ApexDataGroup g = new ApexDataGroup();
       g.groupParent = this;
       g.ownnotes.addAll(notes);
       g.undernotes.addAll(notes);
       g.depth = this.depth + 1;
-      g.apex = this.apex;
-      g.saliency = this.saliency;
+      if(isApexInherited() == true && this.getApex() != null){
+        g.apex = this.apex;
+        g.saliency = this.saliency;
+      }
+      else{
+        g.apex = apex;
+        g.saliency = saliency;
+      }
+      //add to parent group
+      subGroups.add(g);
       ownnotes.removeAll(notes);
-      groupcollection.add(g);
+//      groupcollection.add(g);
       return;
     }
 
@@ -257,9 +280,8 @@ public class MusicApexDataSet {
 
     @Override
     public void setApex(Note n, double value) {
+      if(inherited) throw new RuntimeException("This Apex is inherited");
       this.apex = n;
-      if(this.saliency != null)
-        throw new RuntimeException("This Apex already has Saliency. : "+n.getXPathExpression());
       this.saliency = value;
       return;
     }
@@ -269,23 +291,6 @@ public class MusicApexDataSet {
       throw new RuntimeException("Inherited has to set at TopLevel construction in MusicApexDataSet");
     }    
 
-    /*
-    private void removeNotes(List<Note> target, List<Note> delnotes){
-      for(Note deln : delnotes){
-        Boolean removed = false;
-        for(int i=0; i<target.size(); i++){
-          if(deln == target.get(i)){
-            target.remove(i);
-            removed = true;
-            break;
-          }
-        }
-        if(!removed) throw new RuntimeException("Note not found : "+deln.toString());
-      }
-      return;
-    }
-    */
-    
     private void refreshSubGroupApex(ApexDataGroup g){
       g.apex = this.apex;
       g.saliency = this.saliency;
@@ -297,15 +302,31 @@ public class MusicApexDataSet {
       return;
     }
     
+    public NoteGroup getParentGroup(ApexDataGroup g){
+      return g.groupParent;
+    }
+    
+    //debug
+    private void printSubgroups(){
+      for(NoteGroup g : this.getSubgroups()){
+        System.out.println((g.getNotes().size()));
+      }
+    }
   }
   
   public static void main(String[] args){
     MusicXMLWrapper musicxml = new MusicXMLWrapper();
     try {
-      musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./devset/dev_inv02-schiff-b/wiener-p014-015.xml");
+      musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./devset/dev_inv02-schiff-b/sample.xml");
       MusicApexDataSet mad = new MusicApexDataSet(musicxml);
       mad.createTopLevelGroup(false);
-      mad.grouptop.makeSubgroup(mad.getNotesByRange(5, 10));
+      mad.grouptop.setApex(mad.allnotes.get(35));
+      mad.grouptop.makeSubgroup(mad.getNotesByRange(5, 10), mad.allnotes.get(6));
+      mad.grouptop.makeSubgroup(mad.getNotesByRange(20, 30));
+      ((ApexDataGroup)mad.grouptop.subGroups.get(1)).makeSubgroup(mad.getNotesByRange(24, 28), mad.allnotes.get(28));
+      //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
+      //mad.grouptop.addSubgroup(gp);
+      mad.grouptop.printSubgroups();
       mad.toWrapper();
     } catch (Exception e) {
       e.printStackTrace();
