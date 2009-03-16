@@ -474,13 +474,14 @@ public class DeviationDataSet {
                              note.getXPathExpression() + ")");
       wrapper.addChildAndText("attack", attack);
       wrapper.addChildAndText("release", release);
-      devxml.addChild("dynamics");
+      wrapper.addChild("dynamics");
       if (dyAttr != null) {
         Set<Map.Entry<String,String>> entries = dyAttr.entrySet();
         for (Map.Entry<String,String> e : entries)
-          devxml.setAttribute(e.getKey(), e.getValue());
+          wrapper.setAttribute(e.getKey(), e.getValue());
       }
-      devxml.addText(dynamics);
+      wrapper.addText(dynamics);
+      wrapper.returnToParent();
       wrapper.addChildAndText("end-dynamics", endDynamics);
       wrapper.returnToParent(); 
     }
