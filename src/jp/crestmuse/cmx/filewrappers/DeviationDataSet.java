@@ -339,6 +339,7 @@ public class DeviationDataSet {
           devxml.setAttribute(e.getKey(), e.getValue());
       }
       devxml.addText(en.dynamics);
+      devxml.returnToParent();
       devxml.addChildAndText("end-dynamics", en.endDynamics);
       devxml.returnToParent();
     }
