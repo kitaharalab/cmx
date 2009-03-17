@@ -23,6 +23,7 @@ public class PerformanceMatcher3 {
 
   private static int baseTempo = 120;
   private static final double BASE_DYNAMICS = 100.0;
+  private static final double ATTACK_LIMIT = 2.0;
 
   private MusicXMLWrapper musicxml;
   private MIDIXMLWrapper midixml;
@@ -300,7 +301,7 @@ public class PerformanceMatcher3 {
                                      List<Note> extraNotes, 
                                      ArrayList<TempoAndTime> tempolist) {
     for (int i = 0; i < indexlist.length; i++) {
-      if (indexlist[i] >= 0) 
+      if (indexlist[i] >= 0)
         addNoteDeviation(dds, scoreNotes[i], pfmNotes[indexlist[i]], 
                          tempolist);
       else
@@ -353,7 +354,11 @@ public class PerformanceMatcher3 {
       offsetInPfm * tnt.tempo / (pfmTicksPerBeat * baseTempo)
       - offsetInScore / scoreTicksPerBeat;
     double dynamics = noteP.velocity() / (double)BASE_DYNAMICS;
-    dds.addNoteDeviation(noteS.getMusicXMLWrapperNote(), 
+    if(Math.abs(attack) > ATTACK_LIMIT){
+      addMissNote(dds, noteS);
+      addExtraNote(dds, noteP, partid, tempolist);
+    }else
+      dds.addNoteDeviation(noteS.getMusicXMLWrapperNote(), 
                          attack, release, dynamics, dynamics);
   }
 
@@ -668,7 +673,6 @@ public class PerformanceMatcher3 {
                                 tnt.tempo / avgtempo);
     }
   }
-      
 
 }
   
