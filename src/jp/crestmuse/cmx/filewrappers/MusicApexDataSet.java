@@ -5,6 +5,13 @@ import java.util.List;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 
+/**
+ * MusicXMLから音楽構造グルーピングを生成するためのクラスです。
+ * インスタンスの生成にはMusicXMLWrapperを渡す必要があり、
+ * トップレベルのグループには全てのNoteが生成されます
+ * トップレベルの
+ * @author R.Tokuami
+ */
 public class MusicApexDataSet {
 
   private MusicApexWrapper mawxml = null;
@@ -12,29 +19,48 @@ public class MusicApexDataSet {
   private Boolean inherited = false;
   private String aspect = null;
   private ApexDataGroup grouptop = null;
-  
-  //private List<ApexDataGroup> groupcollection;
+
   private List<Note> allnotes;
   
-  public MusicApexDataSet(){
-    throw new RuntimeException("MusicXMLFile is essential for creating MusicApexDataSet.");
-  }
+  /**
+   * MuscXMLを元に、MusicApexDataSetオブジェクトを作成します。
+   * @param musicxml
+   */
   public MusicApexDataSet(MusicXMLWrapper musicxml){
     this.musicxml = musicxml;
-//    this.groupcollection = new ArrayList<ApexDataGroup>();
   }
   
+  /**
+   * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
+   * トップレベルグループ作成の時点でinheritedなグループかどうかを指定する必要があります。
+   * グループの頂点の音符がサブグループに含まれていたときに、
+   * 頂点であることを継承するならtrue
+   * それぞれのグループで頂点を指定するならfalse
+   * を指定してください。
+   * 
+   * @param inherited 親グループの頂点を子グループで継承するかどうか
+   * @return トップレベルグループのApexDataGroupオブジェクト
+   */
   public NoteGroup createTopLevelGroup(Boolean inherited){
     return createTopLevelGroup(inherited, null);
   }
   
+  /**
+   * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
+   * inheritedとaspectを指定する必要があります。
+   * 
+   * @param inherited
+   * @param aspect 何に着目した構造記述か
+   * @return トップレベルグループを示すApexDataGroupオブジェクト
+   */
   public NoteGroup createTopLevelGroup(Boolean inherited, String aspect){
     this.inherited = inherited;
     this.aspect = aspect;
     this.grouptop = new ApexDataGroup();
     this.allnotes = new ArrayList<Note>();
     grouptop.depth = 1;
-//    groupcollection.add(grouptop);
+    grouptop.groupParent = null;
+    
     //MusicXMLのすべてのNote要素をグループに追加する
     MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
     for (MusicXMLWrapper.Part part : partlist) {
@@ -53,48 +79,73 @@ public class MusicApexDataSet {
     return grouptop;
   }
   
+  /**
+   * どこのグループにも属さない空のApexDataGroupオブジェクトを作成します。
+   * @return
+   */
   public NoteGroup createGroup(){
     return new ApexDataGroup();
   }
   
+  /**
+   * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
+   * @param notes このグループに含まれるNoteオブジェクトのリスト
+   * @return
+   */
   public NoteGroup createGroup(List<Note> notes){
     return new ApexDataGroup(notes, null, Double.NaN);
   }
   
+  /**
+   * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
+   * @param notes このグループに含まれるNoteオブジェクトのリスト
+   * @param apex このグループの頂点のNote
+   * @return
+   */
   public NoteGroup createGroup(List<Note> notes, Note apex){
     return new ApexDataGroup(notes, apex, Double.NaN);
   }
   
-  public NoteGroup createGroup(List<Note> notes, Note apex, Double saliency){
+  /**
+   * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
+   * @param notes このグループに含まれるNoteオブジェクトのリスト
+   * @param apex このグループの頂点のNote
+   * @param saliency 頂点のNoteがどのぐらい目立っているか
+   * @return
+   */
+  public NoteGroup createGroup(List<Note> notes, Note apex, double saliency){
     return new ApexDataGroup(notes, apex, saliency);
   }
   
+  /**
+   * 作成するMusicApexDataSetクラスが何に着目した楽曲構造かをセットします。
+   * 1つのMusiApexDataSetクラスは一つのaspectを持ちます。
+   * @param aspect 着目した対象
+   */
   public void setAspect(String aspect){
     this.aspect = aspect;
     return;
   }
   
+  /**
+   * 作成したDataSetからXMLを作成し、MusicApexWrapperを生成して返します。
+   * XMLテキスト上に出力されるグループの順番は、親グループに先に追加されたものが先に記述されます。
+   * @return このMusicApexDataSetを元にしたMusicApexWrapperオブジェクト
+   * @throws RuntimeException トップレベルグループが作られていない、MusicXMLが指定されていない場合
+   */
   public MusicApexWrapper toWrapper(){
-    /*
-    if(mawxml == null){
-      MusicApexWrapper.createMusicApexWrapperFor(musicxml);
-    }
-    */
+    //check initalized
+    if(grouptop == null) throw new RuntimeException("TopLevelGroup not created.");
+    //create apexxml
     mawxml = new MusicApexWrapper();
     mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
-    
+    //write toplevel and attributes
     mawxml.setAttribute("target", musicxml.getFileName());
     mawxml.setAttribute("apex-inherited", (inherited ? "yes" : "no"));
     if(aspect != null)  mawxml.setAttribute("aspect", aspect);
-    
+    //write groups
     writeApexDataGroup(grouptop);
-    
-    try{
-      mawxml.write(System.out);
-    }
-    catch(Exception e){
-      e.printStackTrace();
-    }
+
     return mawxml;
   }
  
@@ -102,14 +153,12 @@ public class MusicApexDataSet {
     mawxml.addChild("group");
     if(group.depth() == -1) throw new RuntimeException("Invalid GroupDepth");
     mawxml.setAttribute("depth", group.depth());
-    
     //write subgroups
     if(!(group.getSubgroups().isEmpty())){
       for(NoteGroup adg : group.getSubgroups()){
         writeApexDataGroup(adg);
       }
     }
-    
     //write ownnote
     if(!(group.getNotes().isEmpty())){
       for(Note n : group.getNotes()){
@@ -124,7 +173,6 @@ public class MusicApexDataSet {
     else{
       throw new RuntimeException("Creating No Notes Group");
     }
-    
     //write apex
     if(group.getApex() != null){
       mawxml.addChild("apex");
@@ -132,17 +180,23 @@ public class MusicApexDataSet {
           "xlink:href", 
           "#xpointer(" + 
           group.getApex().getXPathExpression() + ")");
-      if(!(group.getApexSaliency().isNaN())){
-        mawxml.setAttribute("saliency", group.getApexSaliency());
+      if(!(Double.isNaN(group.getApexSaliency()))){
+         mawxml.setAttribute("saliency", group.getApexSaliency());
       }
       mawxml.returnToParent();
     }
-    
     mawxml.returnToParent();
     return;
   }
   
-  private ArrayList<Note> getNotesByRange(int start, int end){
+  /**
+   * MusicXMLに含まれるNoteのリストのindexが
+   * start番目からend番目のNoteをListにして返します
+   * @param start
+   * @param end
+   * @return
+   */
+  private List<Note> getNotesByRange(int start, int end){
     ArrayList<Note> dest = new ArrayList<Note>();
     for(int i=start; i<=end; i++){
       dest.add(allnotes.get(i));
@@ -150,6 +204,14 @@ public class MusicApexDataSet {
     return dest;
   }
   
+  /**
+   * MusicApexDataSetクラスで用いる、音楽構造グループ1つを表すクラスです。
+   * 
+   * グループの深さ、グループに属するNoteのリスト、子グループのリスト、
+   * 頂点、頂点がどのぐらい目立っているかなどを保持し、
+   * グループの状態を取得するメソッド、グループの親子関係を設定するメソッドを提供します。
+   *
+   */
   class ApexDataGroup implements NoteGroup{
 
     private int depth = -1;
@@ -158,13 +220,13 @@ public class MusicApexDataSet {
     private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
     private NoteGroup groupParent = null;
     private Note apex = null;
-    private Double saliency = Double.NaN;
+    private double saliency = Double.NaN;
     
     public ApexDataGroup(){
       return;
     }
     
-    public ApexDataGroup(List<Note> notes, Note apex, Double saliency){
+    public ApexDataGroup(List<Note> notes, Note apex, double saliency){
       this.ownnotes.addAll(notes);
       this.undernotes.addAll(notes);
       this.apex = apex;
@@ -183,7 +245,7 @@ public class MusicApexDataSet {
     }
    
     @Override
-    public Double getApexSaliency() {
+    public double getApexSaliency() {
       return saliency;
     }
     
@@ -214,7 +276,11 @@ public class MusicApexDataSet {
       return;
     }
 
+    
     @Override
+    /**
+     * 
+     */
     public void addSubgroup(NoteGroup g) {
       if(g instanceof ApexDataGroup){
         ((ApexDataGroup)g).groupParent = this;
@@ -225,7 +291,6 @@ public class MusicApexDataSet {
       }
       undernotes.addAll(g.getAllNotes());
       subGroups.add(g);
-      //groupcollection.add((ApexDataGroup) g);
       return;
     }
 
@@ -235,13 +300,26 @@ public class MusicApexDataSet {
       return;
     }
     
+    /**
+     * このインスタンスから、子としてグループを作成し、追加します。
+     * @param notes グループ化するNoteオブジェクトのリスト
+     * @param apex 作成する子グループの頂点
+     * @throws RuntimeException このインスタンスにグループ化するノートが含まれていない
+     */
     public void makeSubgroup(List<Note> notes, Note apex){
       makeSubgroup(notes, apex, Double.NaN);
       return;
     }
     
-    public void makeSubgroup(List<Note> notes, Note apex, Double saliency){
-//      各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
+    /**
+     * このインスタンスから、子としてグループを作成し、追加します。
+     * @param notes グループ化するNoteオブジェクトのリスト
+     * @param apex 作成する子グループの頂点のNote
+     * @param saliency 頂点のNoteがどれぐらい目立っているか
+     * @throws RuntimeException このインスタンスにグループ化するノートが含まれていない
+     */
+    public void makeSubgroup(List<Note> notes, Note apex, double saliency){
+      //各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
       for(Note checknote : notes){
         Boolean included = false;
         if(! (included = ownnotes.contains(checknote))){
@@ -273,7 +351,6 @@ public class MusicApexDataSet {
       //add to parent group
       subGroups.add(g);
       ownnotes.removeAll(notes);
-//      groupcollection.add(g);
       return;
     }
 
@@ -291,16 +368,13 @@ public class MusicApexDataSet {
       this.apex = n;
       this.saliency = value;
       return;
-    }
-
-    @Override
-    public void setApexInherited(boolean b) {
-      throw new RuntimeException("Inherited has to set at TopLevel construction in MusicApexDataSet");
-    }    
+    } 
 
     private void refreshSubGroupApex(ApexDataGroup g){
-      g.apex = this.apex;
-      g.saliency = this.saliency;
+      if(g.getNotes().contains(this.apex)){
+        g.apex = this.apex;
+        g.saliency = this.saliency;
+      }
       if(!(g.subGroups.isEmpty())){
         for(NoteGroup sg : g.getSubgroups()){
           g.refreshSubGroupApex((ApexDataGroup)sg);
@@ -309,8 +383,12 @@ public class MusicApexDataSet {
       return;
     }
     
-    public NoteGroup getParentGroup(ApexDataGroup g){
-      return g.groupParent;
+    /**
+     * このインスタンスの親のグループを返します。
+     * @return 親のApexDataGroupオブジェクト(存在しないならnull)
+     */
+    public NoteGroup getParentGroup(){
+      return groupParent;
     }
   }
   
@@ -328,6 +406,7 @@ public class MusicApexDataSet {
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
        mad.toWrapper();
+       mad.mawxml.write(System.out);
     } catch (Exception e) {
       e.printStackTrace();
     }

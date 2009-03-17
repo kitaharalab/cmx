@@ -1408,13 +1408,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      * 文字列表現とXPath表現を比較し、等しい場合trueを返します。
      * @param arg
      * @return
-     */
+     
     public boolean equals(Note arg){
       if(this.toString().equals(arg.toString())){
         if(this.xpath.equals(arg.xpath)) return true;
       }
       return false;
     }
+    */
 
 /*
     public final boolean hasArticulation(String name){
