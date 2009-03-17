@@ -388,6 +388,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private double currentTempo = 120.0;
   private int initticks = 0;
+  private double lastTempo = currentTempo;
+  private final int linearDivision = 8;
 
   private boolean requiresTempoDevReturn(Control c1, Control c2,
       int ticksPerBeat) throws IOException {
@@ -412,10 +414,22 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             || c.beat() != nextTempoDev.beat()) {
           dest.addHeaderElement(c.timestamp(ticksPerBeat), "TEMPO",
               currentTempo);
+          lastTempo = currentTempo;
         }
       } else if (c.type().equals("tempo-deviation")) {
-        dest.addHeaderElement(c.timestamp(ticksPerBeat), "TEMPO", currentTempo
-            * c.value()); // TODO curve
+        int time = c.timestamp(ticksPerBeat);
+        double value = currentTempo * c.value();
+        String curve = null;
+        if(c.containsAttributeInChild("curve"))
+          curve = c.getChildAttribute("curve");
+        if(curve != null && curve.equals("linear")){
+          int timeDiv = ticksPerBeat / linearDivision;
+          double tempoDiv = (value - lastTempo) / linearDivision;
+          for(int i = linearDivision - 1; i >= 1; i--)
+            dest.addHeaderElement(time - timeDiv * i, "TEMPO", value - tempoDiv * i);
+        }
+        dest.addHeaderElement(time, "TEMPO", value);
+        lastTempo = currentTempo * c.value();
         Control nextTempoDev = tctrlview.lookAhead("tempo", "tempo-deviation");
         if (nextTempoDev == null
             || requiresTempoDevReturn(c, nextTempoDev, ticksPerBeat)) {
@@ -426,6 +440,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           int t2 = initticks + cumulativeTicks + ticksPerBeat
               * (int) (Math.floor(c.beat()));
           dest.addHeaderElement(t2, "TEMPO", currentTempo);
+          lastTempo = currentTempo;
         }
       }
     }
@@ -1335,14 +1350,4 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
   }
 
-  public static void main(String[] args) {
-    try {
-      DeviationInstanceWrapper hoge = (DeviationInstanceWrapper) CMXFileWrapper
-          .readfile("deviation.xml");
-      hoge.toSCCXML(480).write(System.out);
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
 }
