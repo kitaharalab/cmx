@@ -22,17 +22,12 @@ public class DeviationDataSet {
     extraNotes = new HashMap<String,TreeView<ExtraNote>>();
   }
   
-  /**
-   * 
-   * @param musicxml
-   */
   public DeviationDataSet(MusicXMLWrapper musicxml){
     this.musicxml = musicxml;
     nonPartwise = new TreeView<Control>();
     partwise = new HashMap<String,TreeView<Control>>();
     notewise = new ArrayList<NotewiseDeviation>();
     extraNotes = new HashMap<String,TreeView<ExtraNote>>();
-    //TODO
   }
 
   public DeviationInstanceWrapper getTargetDeviationInstanceWrapper() {

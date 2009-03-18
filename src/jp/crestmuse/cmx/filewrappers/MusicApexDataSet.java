@@ -6,10 +6,27 @@ import java.util.List;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 
 /**
- * MusicXMLから音楽構造グルーピングを生成するためのクラスです。
+ * MusicXMLから音楽構造グルーピングを生成するためのクラスです。<br>
  * インスタンスの生成にはMusicXMLWrapperを渡す必要があり、
  * トップレベルのグループには全てのNoteが生成されます
- * トップレベルの
+ * 
+ * -使い方<br>
+ *  MusicXMLWrapper musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");<br>
+ *    MusicXMLのインスタンス化<br>
+ *  MusicApexDataSet ads = new MusicApexDataSet(musicxml);<br>
+ *    MusicApexDataSetにMusicXMLを渡しインスタンス化<br>
+ *  ads.createTopLevelGroup(true);<br>
+ *    inheritedを指定し、トップレベルグループを作成<br>
+ *  ads.setAspect("sample-aspect");<br>
+ *    何に着目したかを設定(任意)<br>
+ *  <br>
+ *  ads.topgroup.makeSubgroup(notes);<br>
+ *    トップレベルからグループを作成<br>
+ *  〜〜<br>
+ *  <br>
+ *  ads.toWrapper();<br>
+ *    MusicXMLWrapper化<br>
+ *  
  * @author R.Tokuami
  */
 public class MusicApexDataSet {
@@ -18,7 +35,7 @@ public class MusicApexDataSet {
   private MusicXMLWrapper musicxml = null;
   private Boolean inherited = false;
   private String aspect = null;
-  private ApexDataGroup grouptop = null;
+  private ApexDataGroup toplevel = null;
 
   private List<Note> allnotes;
   
@@ -56,10 +73,10 @@ public class MusicApexDataSet {
   public NoteGroup createTopLevelGroup(Boolean inherited, String aspect){
     this.inherited = inherited;
     this.aspect = aspect;
-    this.grouptop = new ApexDataGroup();
+    this.toplevel = new ApexDataGroup();
     this.allnotes = new ArrayList<Note>();
-    grouptop.depth = 1;
-    grouptop.groupParent = null;
+    toplevel.depth = 1;
+    toplevel.groupParent = null;
     
     //MusicXMLのすべてのNote要素をグループに追加する
     MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
@@ -70,13 +87,13 @@ public class MusicApexDataSet {
         for (MusicXMLWrapper.MusicData md : mdlist) {
           if(md instanceof MusicXMLWrapper.Note){
             MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
-            grouptop.addNote(note);
+            toplevel.addNote(note);
             allnotes.add(note);
           }
         }
       }
     }
-    return grouptop;
+    return toplevel;
   }
   
   /**
@@ -128,6 +145,14 @@ public class MusicApexDataSet {
   }
   
   /**
+   * トップレベルグループのインスタンスを返します。
+   * @return トップレベルのApexDataGroupオブジェクト
+   */
+  public ApexDataGroup topgroup(){
+    return this.toplevel;
+  }
+  
+  /**
    * 作成したDataSetからXMLを作成し、MusicApexWrapperを生成して返します。
    * XMLテキスト上に出力されるグループの順番は、親グループに先に追加されたものが先に記述されます。
    * @return このMusicApexDataSetを元にしたMusicApexWrapperオブジェクト
@@ -135,7 +160,7 @@ public class MusicApexDataSet {
    */
   public MusicApexWrapper toWrapper(){
     //check initalized
-    if(grouptop == null) throw new RuntimeException("TopLevelGroup not created.");
+    if(toplevel == null) throw new RuntimeException("TopLevelGroup not created.");
     //create apexxml
     mawxml = new MusicApexWrapper();
     mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
@@ -144,7 +169,7 @@ public class MusicApexDataSet {
     mawxml.setAttribute("apex-inherited", (inherited ? "yes" : "no"));
     if(aspect != null)  mawxml.setAttribute("aspect", aspect);
     //write groups
-    writeApexDataGroup(grouptop);
+    writeApexDataGroup(toplevel);
 
     return mawxml;
   }
@@ -396,17 +421,16 @@ public class MusicApexDataSet {
     MusicXMLWrapper musicxml = new MusicXMLWrapper();
     try {
       musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");
-      MusicApexDataSet mad = new MusicApexDataSet(musicxml);
-      mad.createTopLevelGroup(true);
-      mad.setAspect("hoge");
-      mad.grouptop.setApex(mad.allnotes.get(8));
-      mad.grouptop.makeSubgroup(mad.getNotesByRange(5, 10), mad.allnotes.get(6));
-      mad.grouptop.makeSubgroup(mad.getNotesByRange(20, 30));
-      ((ApexDataGroup)mad.grouptop.subGroups.get(1)).makeSubgroup(mad.getNotesByRange(24, 28), mad.allnotes.get(28));
+      MusicApexDataSet ads = new MusicApexDataSet(musicxml);
+      ads.createTopLevelGroup(true);
+      ads.setAspect("hoge");
+      ads.toplevel.setApex(ads.allnotes.get(8));
+      ads.toplevel.makeSubgroup(ads.getNotesByRange(5, 10), ads.allnotes.get(6));
+      ads.toplevel.makeSubgroup(ads.getNotesByRange(20, 30));
+      ((ApexDataGroup)ads.toplevel.subGroups.get(1)).makeSubgroup(ads.getNotesByRange(24, 28), ads.allnotes.get(28));
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
-       mad.toWrapper();
-       mad.mawxml.write(System.out);
+       ads.toWrapper().write(System.out);
     } catch (Exception e) {
       e.printStackTrace();
     }
