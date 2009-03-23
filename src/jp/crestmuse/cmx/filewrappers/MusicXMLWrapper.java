@@ -1403,7 +1403,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return notations1st.hasArticulation(name);
     }
     
-    /**
+    /*
      * Noteが同一かどうかを判定します。
      * 文字列表現とXPath表現を比較し、等しい場合trueを返します。
      * @param arg

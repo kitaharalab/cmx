@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Node;
+
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.misc.ProgramBugException;
 import jp.crestmuse.cmx.misc.XMLException;
@@ -18,43 +20,55 @@ public class MusicApexWrapper extends CMXFileWrapper{
   private MusicXMLWrapper targetMusicXML = null;
   private String targetMusicXMLFileName = null;
   
+  private boolean inherited;
+  private String aspect = "undefined";
+  private ApexWrapedGroup toplevel = null;
   
   
   public static MusicApexWrapper createMusicApexWrapperFor(MusicXMLWrapper musicxml){
       try {
         MusicApexWrapper apex = (MusicApexWrapper) createDocument(TOP_TAG);
         apex.targetMusicXML = musicxml;
-        apex.setTargetMusicXMLFileName(musicxml.getFileName());
         return apex;
       } catch (InvalidFileTypeException e) {
         throw new ProgramBugException(e.toString());
       }
   }
   
-  public void setTargetMusicXMLFileName(String filename) {
-    File f = new File(filename);
-    if (f.getParent() != null)
-      addPathFirst(f.getParent());
-    targetMusicXMLFileName = f.getName();
-    if (!isFinalized())
-      setTopTagAttribute("target", targetMusicXMLFileName);
+  public MusicXMLWrapper getTargetMusicXML() throws IOException {
+    if (targetMusicXML == null) {
+      if (getParentPath() != null)
+        addPathFirst(getParentPath());
+      targetMusicXML = (MusicXMLWrapper)readfile(getTargetMusicXMLFileName());
+    }
+    return targetMusicXML;
   }
-
-  public MusicXMLWrapper getTargetMusicXML(){
-    //TODO
-    return new MusicXMLWrapper();
+  
+  public String getTargetMusicXMLFileName() {
+    if (targetMusicXMLFileName == null) {
+      File f = new File(getTopTagAttribute("target"));
+      if (f.getParent() != null)
+        addPathFirst(f.getParent());
+      targetMusicXMLFileName = f.getName();
+    }
+    return targetMusicXMLFileName;
   }
-  /*
+  
   @Override
   protected void analyze() throws IOException{
-    try{
-      addLinks("", getTargetMusicXML);
-    } catch(TransformerException e){
-      throw new XMLException(e);
+    Node top = selectSingleNode("/music-apex");
+    if(NodeInterface.hasAttribute(top, "apex-inherited")){
+      this.inherited = (NodeInterface.getAttribute(top, "apex-inherited").equals("yes") ? true : false);
     }
-    alreadyAnalyzed = true;
+    if(NodeInterface.hasAttribute(top, "aspect")){
+      this.aspect = NodeInterface.getAttribute(top, "aspect");
+    }
+    if(NodeInterface.hasAttribute(top, "target")){
+      this.targetMusicXMLFileName = NodeInterface.getAttribute(top, "target");
+    }
+    return;
   }
-  */
+  
   
   class ApexWrapedGroup implements NoteGroup{
 
@@ -66,78 +80,87 @@ public class MusicApexWrapper extends CMXFileWrapper{
     private Note apex = null;
     private double saliency = Double.NaN;
     
-    @Override
-    public void addNote(Note n) {
-      // TODO 自動生成されたメソッド・スタブ
+    public ApexWrapedGroup(Node node){
       
-    }
-
-    @Override
-    public void addSubgroup(NoteGroup g) {
-      // TODO 自動生成されたメソッド・スタブ
       
+      return;
     }
-
+    
     @Override
     public int depth() {
-      // TODO 自動生成されたメソッド・スタブ
-      return 0;
+      return depth;
     }
-
+    
+    @Override
+    public boolean isApexInherited() {
+      return inherited;
+    }
+   
+    @Override
+    public double getApexSaliency() {
+      return saliency;
+    }
+    
+    @Override
+    public List<Note> getNotes() {
+      return ownnotes;
+    }
+    
     @Override
     public List<Note> getAllNotes() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
+      return undernotes;
     }
 
     @Override
     public Note getApex() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
-    }
-
-    @Override
-    public double getApexSaliency() {
-      // TODO 自動生成されたメソッド・スタブ
-      return 0;
-    }
-
-    @Override
-    public List<Note> getNotes() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
+      return apex;
     }
 
     @Override
     public List<NoteGroup> getSubgroups() {
-      // TODO 自動生成されたメソッド・スタブ
-      return null;
+      return subGroups;
     }
 
     @Override
-    public boolean isApexInherited() {
-      // TODO 自動生成されたメソッド・スタブ
-      return false;
+    public void addNote(Note n) throws UnsupportedOperationException{
+      throw new UnsupportedOperationException();
+    }
+
+    
+    @Override
+    public void addSubgroup(NoteGroup g) {
+      throw new UnsupportedOperationException();
     }
 
     @Override
     public void makeSubgroup(List<Note> notes) {
-      // TODO 自動生成されたメソッド・スタブ
-      
+      throw new UnsupportedOperationException();
     }
 
     @Override
     public void setApex(Note n) {
-      // TODO 自動生成されたメソッド・スタブ
-      
+      throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setApex(Note n, double saliency) {
-      // TODO 自動生成されたメソッド・スタブ
-      
-    }
+    public void setApex(Note n, double value) {
+      throw new UnsupportedOperationException();
+    } 
     
+    public NoteGroup getParentGroup(){
+      return groupParent;
+    }
   }
   
+  public static void main(String[] args){
+    try {
+      MusicApexWrapper maw = (MusicApexWrapper)MusicApexWrapper.readfile("sampleapex.xml");
+      System.out.println(maw.inherited);
+      System.out.println(maw.aspect);
+      System.out.println(maw.getTargetMusicXMLFileName());
+    } catch (IOException e) {
+      // TODO 自動生成された catch ブロック
+      e.printStackTrace();
+    }
+  }
 }

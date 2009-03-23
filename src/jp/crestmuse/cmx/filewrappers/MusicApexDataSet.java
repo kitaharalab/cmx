@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -430,8 +431,10 @@ public class MusicApexDataSet {
       ((ApexDataGroup)ads.toplevel.subGroups.get(1)).makeSubgroup(ads.getNotesByRange(24, 28), ads.allnotes.get(28));
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
-       ads.toWrapper().write(System.out);
-    } catch (Exception e) {
+       //ads.toWrapper().writefile(new File("sampleapex.xml"));
+      ads.toWrapper().write(System.out);
+       }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
