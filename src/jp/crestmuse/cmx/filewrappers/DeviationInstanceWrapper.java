@@ -1306,9 +1306,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     // }
 
     public final double attack() {
-
       return attack;
-
     }
 
     public final double release() {

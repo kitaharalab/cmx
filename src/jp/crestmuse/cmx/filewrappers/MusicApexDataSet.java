@@ -87,7 +87,7 @@ public class MusicApexDataSet {
         MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
         for (MusicXMLWrapper.MusicData md : mdlist) {
           if(md instanceof MusicXMLWrapper.Note){
-            MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
+            MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
             toplevel.addNote(note);
             allnotes.add(note);
           }

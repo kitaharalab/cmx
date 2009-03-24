@@ -80,42 +80,42 @@ import java.util.*;
  *********************************************************************/
 public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatible {
 
-//  public static final enum Dynamics {p, pp, ppp, pppp, ppppp, pppppp, 
-//      f, ff, fff, ffff, fffff, ffffff, mp, mf, sf, sfp, sfpp, 
-//      fp, rf, rfz, sfz, sffz, fz, other};
-  
+  //  public static final enum Dynamics {p, pp, ppp, pppp, ppppp, pppppp, 
+  //      f, ff, fff, ffff, fffff, ffffff, mp, mf, sf, sfp, sfpp, 
+  //      fp, rf, rfz, sfz, sffz, fz, other};
+
   private List<TreeView<Note>> partwiseNoteView = null;
   private TreeView<Note> timewiseNoteView = null;
   private SlurredNoteViewList slurredNoteView = null;
   private Part[] partlist = null;
-    // changed Integer -> Long 20080609
-    private List<Long> cumulativeTicksList = new MyArrayList(); 
-    private List<Long> cumulativeTicksList2 = new MyArrayList();
+  // changed Integer -> Long 20080609
+  private List<Long> cumulativeTicksList = new MyArrayList(); 
+  private List<Long> cumulativeTicksList2 = new MyArrayList();
 
   private String movementTitle = null;
   private boolean startsWithZerothMeasure;
   private boolean zerothMeasureChecked = false;
 
   static final int INTERNAL_TICKS_PER_BEAT = 10080;
-    //  static final int INTERNAL_TICKS_PER_BEAT = 1920;
+  //  static final int INTERNAL_TICKS_PER_BEAT = 1920;
 
-//  private DeviationInstanceWrapper dev;
+  //  private DeviationInstanceWrapper dev;
 
-    // changed Integer -> Long 20080609
-    private class MyArrayList extends ArrayList<Long> {
-      public Long set(int index, Long value) {
-        if (index > size()) {
-          add(null);
-          set(index, value);
-          return null;
-        } else if (index == size()) {
-          add(value);
-          return null;
-        } else {
-          return super.set(index, value);
-        }
+  // changed Integer -> Long 20080609
+  private class MyArrayList extends ArrayList<Long> {
+    public Long set(int index, Long value) {
+      if (index > size()) {
+        add(null);
+        set(index, value);
+        return null;
+      } else if (index == size()) {
+        add(value);
+        return null;
+      } else {
+        return super.set(index, value);
       }
     }
+  }
 
 
   /**********************************************************************
@@ -145,12 +145,12 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       Measure[] measurelist = part.getMeasureList();
       for (Measure measure : measurelist) {
         handler.beginMeasure(measure, this);
-	MusicData[] mdlist = measure.getMusicDataList();
-//	int noteindex = 0;
-	for (MusicData md : mdlist) {
-//          if (md instanceof Note)
-//            ((Note)md).xpath = measure.getXPathExpression() + 
-//              "/note[" + (++noteindex) + "]";
+        MusicData[] mdlist = measure.getMusicDataList();
+        //	int noteindex = 0;
+        for (MusicData md : mdlist) {
+          //          if (md instanceof Note)
+          //            ((Note)md).xpath = measure.getXPathExpression() + 
+          //              "/note[" + (++noteindex) + "]";
           handler.processMusicData(md, this);
         }
         handler.endMeasure(measure, this);
@@ -177,9 +177,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
   }
 
-//  void setDeviationInstance(DeviationInstanceWrapper dev) {
-//    this.dev = dev;
-//  }
+  //  void setDeviationInstance(DeviationInstanceWrapper dev) {
+  //    this.dev = dev;
+  //  }
 
   /**********************************************************************
    *<p>Returns the array of the parts contained in the MusicXML document.</p>
@@ -204,23 +204,23 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     makeDeadpanSCCXML(dest, ticksPerBeat);
     return dest;
   }
-    
+
   public void makeDeadpanSCCXML(final SCCXMLWrapper dest, 
-                                final int ticksPerBeat) 
-                                throws IOException {
+      final int ticksPerBeat) 
+  throws IOException {
     DeviationInstanceWrapper dev = 
       DeviationInstanceWrapper.createDeviationInstanceFor(this);
     dev.finalizeDocument();
     dev.toSCCXML(dest, ticksPerBeat);
     dest.finalizeDocument();
   }
-    
+
   /**********************************************************************
    *<p>Returns the partwise note view.</p>
    *<p>パートごとのノートビューを取得します.</p>
    *********************************************************************/
   public List<TreeView<Note>> getPartwiseNoteView() 
-    throws TransformerException {
+  throws TransformerException {
     if (partwiseNoteView == null) 
       createNoteView();
     return partwiseNoteView;
@@ -256,7 +256,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
    * @param partIndex 声部番号（0始まり）
    * @return
    *********************************************************************/
- public List<Attributes> getMeasureAttributesList(int partIndex) {
+  public List<Attributes> getMeasureAttributesList(int partIndex) {
     Measure[] m = getPartList()[partIndex].getMeasureList();
     List<Attributes> list = new ArrayList<Attributes>();
     for (int i = 0; i < m.length; i++) {
@@ -280,9 +280,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         return movementTitle;
       else
         return null;
-//    NodeList header = selectNodeList("/score-partwise/movement-title");
-//    Node title=header.item(0);
-//    return title.getTextContent();
+    //    NodeList header = selectNodeList("/score-partwise/movement-title");
+    //    Node title=header.item(0);
+    //    return title.getTextContent();
   }
 
   public boolean hasMovementTitle() {
@@ -295,75 +295,75 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
   }
 
-    private long getCumulativeTicksLocal(int measure, int ticksPerBeat) {
-	if (measure >= 0) {
-	    if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
-		return cumulativeTicksList.get(measure);
-	    else
-		return cumulativeTicksList.get(measure) 
-		    * ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
-	} else {
-	    if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
-		return cumulativeTicksList2.get(-measure);
-	    else
-		return cumulativeTicksList2.get(-measure)
-		    * ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
-	}
+  private long getCumulativeTicksLocal(int measure, int ticksPerBeat) {
+    if (measure >= 0) {
+      if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
+        return cumulativeTicksList.get(measure);
+      else
+        return cumulativeTicksList.get(measure) 
+        * ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
+    } else {
+      if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
+        return cumulativeTicksList2.get(-measure);
+      else
+        return cumulativeTicksList2.get(-measure)
+        * ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
     }
+  }
 
-    public int getCumulativeTicks(int measure, int ticksPerBeat) {
-	return (int)getCumulativeTicksLocal(measure, ticksPerBeat);
-    }
-    
-    /*
+  public int getCumulativeTicks(int measure, int ticksPerBeat) {
+    return (int)getCumulativeTicksLocal(measure, ticksPerBeat);
+  }
+
+  /*
   public int getCumulativeTicks(int measure, int ticksPerBeat) {
     if (measure >= 0) {
       if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
         return (int)cumulativeTicksList.get(measure);
       else
         return (int)(cumulativeTicksList.get(measure) 
-          * ticksPerBeat / INTERNAL_TICKS_PER_BEAT);
+   * ticksPerBeat / INTERNAL_TICKS_PER_BEAT);
     } else {
       if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
         return (int)cumulativeTicksList2.get(-measure);
       else
         return (int)(cumulativeTicksList2.get(-measure)
-          * ticksPerBeat / INTERNAL_TICKS_PER_BEAT);
+   * ticksPerBeat / INTERNAL_TICKS_PER_BEAT);
     }
   }
-    */
+   */
 
   public List<SimpleNoteList> getPartwiseNoteList
   (final int ticksPerBeat) throws TransformerException {
     final List<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
     processNotePartwise(new NoteHandlerPartwise() {
-        private int serial = 0;
-        private SimpleNoteList nl;
-        public void beginPart(Part part, MusicXMLWrapper wrapper) {
-          nl = new SimpleNoteList(++serial, part.id(), ticksPerBeat);
+      private int serial = 0;
+      private SimpleNoteList nl;
+      public void beginPart(Part part, MusicXMLWrapper wrapper) {
+        nl = new SimpleNoteList(++serial, part.id(), ticksPerBeat);
+      }
+      public void endPart(Part part, MusicXMLWrapper wrapper) {
+        l.add(nl);
+      }
+      public void beginMeasure(Measure m, MusicXMLWrapper w) {}
+      public void endMeasure(Measure m, MusicXMLWrapper w) {}
+      public void processMusicData(MusicData md, MusicXMLWrapper w) {
+        if (md instanceof Note) {
+          Note note = (Note)md;
+          if (!note.rest())
+            nl.add((Note)md);
         }
-        public void endPart(Part part, MusicXMLWrapper wrapper) {
-          l.add(nl);
-        }
-        public void beginMeasure(Measure m, MusicXMLWrapper w) {}
-        public void endMeasure(Measure m, MusicXMLWrapper w) {}
-        public void processMusicData(MusicData md, MusicXMLWrapper w) {
-          if (md instanceof Note) {
-            Note note = (Note)md;
-            if (!note.rest())
-              nl.add((Note)md);
-          }
-        }
-      });
+      }
+    });
     return l;
   }
-          
+
   public InputStream getMIDIInputStream() throws IOException, TransformerException, SAXException, ParserConfigurationException {
     return makeDeadpanSCCXML(INTERNAL_TICKS_PER_BEAT).toMIDIXML().getMIDIInputStream();
   }
-  
 
-/*
+
+  /*
   public boolean startsWithZerothMeasure() {
     if (!zerothMeasureChecked) {
       zerothMeasureChecked = true;
@@ -380,7 +380,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
     return startsWithZerothMeasure;
   }
-  */
+   */
 
   /**********************************************************************
    *各種処理の準備として, 内部で各種ノートビューを作成します.
@@ -389,7 +389,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   protected void analyze() {
     // レイジーにすべきか?
     createTimewiseNoteView();
-//    createNoteView();
+    //    createNoteView();
   }
 
   private void createTimewiseNoteView() {
@@ -412,61 +412,61 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   // not tested yet
   private void createNoteView() {
     partwiseNoteView = new ArrayList<TreeView<Note>>();
-//    timewiseNoteView = new TreeView<Note>("all");
+    //    timewiseNoteView = new TreeView<Note>("all");
     slurredNoteView = new SlurredNoteViewList();
     processNotePartwise(new NoteHandlerPartwise() {
-        private TreeView<Note> noteview;
-//        private int divisions = 1;
-//        private double currentTick = 0;
-//        private double prevTick = 0;
-//        private Note topnote;
-//        private int nBranches = 0;
-        public void beginPart(Part part, MusicXMLWrapper wrapper) {
-          noteview = new TreeView<Note>(part.id());
-        }
-        public void endPart(Part part, MusicXMLWrapper wrapper) {
-          partwiseNoteView.add(noteview);
-        }
-        public void beginMeasure(Measure measure, MusicXMLWrapper wrapper) {
-//          currentTick = 1;
-//          prevTick = 1;
-        }
-        public void endMeasure(Measure measure, MusicXMLWrapper wrapper) {
-//          for (int i = 0; i < nBranches; i++)
-//            noteview.endBranch();
-//          nBranches = 0;
-        }
-        public void processMusicData(MusicData md, MusicXMLWrapper wrapper) {
-          if (md instanceof Note) {
-            Note note = (Note)md;
-            noteview.add(note, (byte)note.voice(), "");
-//            timewiseNoteView.add(note, "");
-            // slur
-            Notations notations = note.getFirstNotations();
-            if (notations != null) {
-              List<StartStopElement> slurs = notations.getSlurList();
-              if (slurs != null)
-                for (StartStopElement slur : slurs) {
-                  if (slur.type().equals("start"))
-                    slurredNoteView.newSlur(note, slur);
-                  else if (slur.type().equals("stop"))
-                    slurredNoteView.endSlur(note, slur);
-                }
-            }
-            slurredNoteView.addNote(note);
-          } else if (md instanceof Backup) {
-//            noteview.newBranch(md.ordinal(), md.subordinal());
-//            nBranches++;
-            slurredNoteView.stopSlur();
+      private TreeView<Note> noteview;
+      //        private int divisions = 1;
+      //        private double currentTick = 0;
+      //        private double prevTick = 0;
+      //        private Note topnote;
+      //        private int nBranches = 0;
+      public void beginPart(Part part, MusicXMLWrapper wrapper) {
+        noteview = new TreeView<Note>(part.id());
+      }
+      public void endPart(Part part, MusicXMLWrapper wrapper) {
+        partwiseNoteView.add(noteview);
+      }
+      public void beginMeasure(Measure measure, MusicXMLWrapper wrapper) {
+        //          currentTick = 1;
+        //          prevTick = 1;
+      }
+      public void endMeasure(Measure measure, MusicXMLWrapper wrapper) {
+        //          for (int i = 0; i < nBranches; i++)
+        //            noteview.endBranch();
+        //          nBranches = 0;
+      }
+      public void processMusicData(MusicData md, MusicXMLWrapper wrapper) {
+        if (md instanceof Note) {
+          Note note = (Note)md;
+          noteview.add(note, (byte)note.voice(), "");
+          //            timewiseNoteView.add(note, "");
+          // slur
+          Notations notations = note.getFirstNotations();
+          if (notations != null) {
+            List<StartStopElement> slurs = notations.getSlurList();
+            if (slurs != null)
+              for (StartStopElement slur : slurs) {
+                if (slur.type().equals("start"))
+                  slurredNoteView.newSlur(note, slur);
+                else if (slur.type().equals("stop"))
+                  slurredNoteView.endSlur(note, slur);
+              }
           }
+          slurredNoteView.addNote(note);
+        } else if (md instanceof Backup) {
+          //            noteview.newBranch(md.ordinal(), md.subordinal());
+          //            nBranches++;
+          slurredNoteView.stopSlur();
         }
-      });
+      }
+    });
     slurredNoteView.postproc();
   }
-  
+
   private class SlurredNoteView extends TreeView<Note> {
-//    private Note head = null;
-//    private Note tail = null;
+    //    private Note head = null;
+    //    private Note tail = null;
     private StartStopElement startslur = null;
     private StartStopElement endslur = null;
     private SlurredNoteView(String id) {
@@ -503,23 +503,23 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       current.put(number, view);
       viewFrom.put(note, view);
       nCurrent++;
-//      System.out.println("NewSlur: " + slur);
+      //      System.out.println("NewSlur: " + slur);
     }
 
     private void addNote(Note note) {
       if (nCurrent > 0) 
         for (SlurredNoteView view : current.values()) {
           view.add(note, ""); 
-	  viewIncluding.put(note,view);
-//          System.out.println("AddNote: " + note);
-	}
+          viewIncluding.put(note,view);
+          //          System.out.println("AddNote: " + note);
+        }
     }
     //仮
     private void stopSlur() {
       if (nCurrent > 0) {
         current.clear();
         nCurrent = 0;
-//        System.out.println("StopSlur");
+        //        System.out.println("StopSlur");
       }
     }
 
@@ -533,10 +533,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         viewUntil.put(note,view);
         current.remove(number);
         nCurrent--;
-//        System.out.println("EndSlur: " + note + slur);
+        //        System.out.println("EndSlur: " + note + slur);
       } else {
         pendingSlursE.add(slur);
-//        System.out.println("PendingSlur");
+        //        System.out.println("PendingSlur");
       }
     }
 
@@ -562,7 +562,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         }
       }
     }
-      
+
     private List<? extends TreeView<Note>> getSlurredNoteViews(byte number) {
       return map.get(number);
     }
@@ -590,7 +590,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     return slurredNoteView.getNoteViewsEndingWith(note);
   }
 
-  
+
   /**********************************************************************
    *<p>This class provides methods for getting information from a "part" 
    *element.</p>
@@ -602,15 +602,15 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private Measure[] measurelist = null;
     private Node info;
     private Node midi = null;
-//    private Node midiChannel;
-//    private Node midiProgram;
+    //    private Node midiChannel;
+    //    private Node midiProgram;
     private Part(Node node, Node partlist) {
       super(node);
       id = getAttribute(node(), "id");
       info = selectSingleNode(partlist, "score-part[@id='" + id() + "']");
-//      Node midi=getChildByTagName("midi-instrument",info);
-//      midiChannel=getChildByTagName("midi-channel",midi);
-//      midiProgram=getChildByTagName("midi-program",midi);
+      //      Node midi=getChildByTagName("midi-instrument",info);
+      //      midiChannel=getChildByTagName("midi-channel",midi);
+      //      midiProgram=getChildByTagName("midi-program",midi);
     }
     /**********************************************************************
      *<p>Returns "part".</p>
@@ -628,21 +628,21 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public Measure[] getMeasureList() {
       if (measurelist == null) {
         long cumulativeTicks = 0;
-//        int ticks = 4 * INTERNAL_TICKS_PER_BEAT;
+        //        int ticks = 4 * INTERNAL_TICKS_PER_BEAT;
         NodeList measures = selectNodeList(node(), "measure");
         int size = measures.getLength();
-	measurelist = new Measure[size];
-	for (int i = 0; i < size; i++) {
-	  Measure measure = new Measure(measures.item(i), 
-                                        i > 0 ? measurelist[i-1] : null, 
-                                        this);
+        measurelist = new Measure[size];
+        for (int i = 0; i < size; i++) {
+          Measure measure = new Measure(measures.item(i), 
+              i > 0 ? measurelist[i-1] : null, 
+                  this);
           measure.setCumulativeTicks(cumulativeTicks);
-//          measure.cumulativeTicks = cumulativeTicks;
-//          Attributes attr = measure.getAttributesNodeInterface();
-//          if (attr != null && attr.beatType() != 0)
-//            ticks = 
-//              INTERNAL_TICKS_PER_BEAT * attr.beats() * 4 / attr.beatType();
-//          cumulativeTicks += ticks;
+          //          measure.cumulativeTicks = cumulativeTicks;
+          //          Attributes attr = measure.getAttributesNodeInterface();
+          //          if (attr != null && attr.beatType() != 0)
+          //            ticks = 
+          //              INTERNAL_TICKS_PER_BEAT * attr.beats() * 4 / attr.beatType();
+          //          cumulativeTicks += ticks;
           cumulativeTicks += measure.duration(INTERNAL_TICKS_PER_BEAT);
           measure.getMusicDataList();
           measurelist[i] = measure;
@@ -675,10 +675,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public String getXPathExpression() {
       if (xpath == null) {
         Node parent = node().getParentNode();
-	if (parent.isSameNode(getDocument().getDocumentElement())) 
-	  xpath = "/" + parent.getNodeName() + "/part[@id='" + id() + "']";
+        if (parent.isSameNode(getDocument().getDocumentElement())) 
+          xpath = "/" + parent.getNodeName() + "/part[@id='" + id() + "']";
         else
-	  throw new InvalidElementException();
+          throw new InvalidElementException();
       }
       return xpath;
     }
@@ -693,7 +693,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return getTextInt(getChildByTagName("midi-program", midi));
     }
   }
-  
+
   /**********************************************************************
    *<p>This class provides methods for getting information from a 
    *measure element.</p>
@@ -712,7 +712,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private int duration = -1;
     private Measure prevMeasure;
     private Note[] tiedNotes = null;
-    
+
     private Measure(Node node, Measure prevMeasure, Part part) {
       super(node);
       this.part = part;
@@ -766,13 +766,13 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         for (MusicData md : mdlist)
           duration += 
             (md instanceof Note && ((Note)md).chord()) ?
-            0 : md.actualDuration(INTERNAL_TICKS_PER_BEAT);
+                0 : md.actualDuration(INTERNAL_TICKS_PER_BEAT);
       }
       if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
         return duration;
       else
         return Math.round((float)(duration * ticksPerBeat) 
-                           / (float)INTERNAL_TICKS_PER_BEAT);
+            / (float)INTERNAL_TICKS_PER_BEAT);
     }
 
     /**********************************************************************
@@ -788,10 +788,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         int nextonset = 0;
         int prevduration = 0;
         NodeList nl = node().getChildNodes();
-	int size = nl.getLength();
-	mdlist = new MusicData[size];
-	for (int i = 0; i < size; i++) {
-	  MusicData md = getMusicDataNodeInterface(nl.item(i));
+        int size = nl.getLength();
+        mdlist = new MusicData[size];
+        for (int i = 0; i < size; i++) {
+          MusicData md = getMusicDataNodeInterface(nl.item(i));
           if (md instanceof Note) {
             Note note = (Note)md;
             if (note.chord()) {
@@ -812,8 +812,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
             note.xpath = 
               getXPathExpression() + "/note[" + (++noteindex) + "]";
           }
-//            if (&& ((Note)md).chord())
-//            nextonset -= prevduration;
+          //            if (&& ((Note)md).chord())
+          //            nextonset -= prevduration;
           md.onset = nextonset;
           prevduration = md.actualDuration(INTERNAL_TICKS_PER_BEAT);
           nextonset += prevduration;
@@ -825,9 +825,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return mdlist;
     }
 
-//    private int ticksPerBeat;
+    //    private int ticksPerBeat;
 
-/*
+    /*
     public void calcOnsets(int ticksPerBeat) {
       this.ticksPerBeat = ticksPerBeat;
       getMusicDataList();
@@ -841,7 +841,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         nextonset += prevduration;
       }
     }
-*/
+     */
 
     /**********************************************************************
      *<p>Returns the measure number.</p>
@@ -861,7 +861,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       else if (nodename.equals("forward"))
         return new Forward(node, this);
       else if (nodename.equals("direction"))
-             return new Direction(node, this);
+        return new Direction(node, this);
       else
         return new MusicData(node, this);
     }
@@ -881,20 +881,20 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public Attributes getAttributesNodeInterface() {
       getMusicDataList();
       return attr;
-//      Node n = getChildByTagName("attributes");
-//      if (n == null) return null;
-//      return new Attributes(n, this);
+      //      Node n = getChildByTagName("attributes");
+      //      if (n == null) return null;
+      //      return new Attributes(n, this);
     }
 
-/*
+    /*
      // Directionタグは複数出現することが多いため不適
     public Direction getDirectionNodeInterface() {
         Node n = getChildByTagName("direction");
         if (n == null) return null;
         return new Direction(n, this);
     }
-*/
-  
+     */
+
     /**********************************************************************
      *<p>Returns an XPath expression for this node.</p>
      *<p>このノードのXPath表現を返します.</p>
@@ -902,7 +902,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public String getXPathExpression() {
       if (xpath == null)
         xpath = part.getXPathExpression() + "/measure[@number='" + 
-          strNumber + "']";
+        strNumber + "']";
       return xpath;
     }
     public int tempo() {
@@ -926,17 +926,17 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private Measure measure;
     private int divisions;
     private int onset; 
-      // chantged int -> long 20080609
+    // chantged int -> long 20080609
     private long measureTick;
-//    private double onset;
-//    private int onsetInt;
+    //    private double onset;
+    //    private int onsetInt;
     private MusicData(Node node, Measure measure) {
       super(node);
       this.measure = measure;
       divisions = lastDivisions;
       measureTick = 
-	  getCumulativeTicksLocal(measure().number(),
-				  INTERNAL_TICKS_PER_BEAT);
+        getCumulativeTicksLocal(measure().number(),
+            INTERNAL_TICKS_PER_BEAT);
       //  measureTick = measure().cumulativeTicks(INTERNAL_TICKS_PER_BEAT);
     }
     /**********************************************************************
@@ -945,7 +945,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     @Override
     protected String getSupportedNodeName() {
       return "note|backup|forward|direction|attributes|harmony|" + 
-        "figured-bass|print|sound|barline|grouping|link|bookmark";
+      "figured-bass|print|sound|barline|grouping|link|bookmark";
     }
     public final Measure measure() {
       return measure;
@@ -961,7 +961,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
     public int actualDuration(int ticksPerBeat) {
       return Math.round((float)(duration() * ticksPerBeat) 
-                          / (float)divisions);
+          / (float)divisions);
     }
     // NOTE: onset time from the beginning of the MEASURE
     public double onsetWithinMeasure() {
@@ -970,8 +970,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     // NOTE: onset time from the beginning of the MUSICAL PIECE
     public int onset(int ticksPerBeat) {
       return measure().cumulativeTicks(ticksPerBeat)
-       + Math.round((float)(onset * ticksPerBeat) 
-                      / (float)INTERNAL_TICKS_PER_BEAT);
+      + Math.round((float)(onset * ticksPerBeat) 
+          / (float)INTERNAL_TICKS_PER_BEAT);
     }
     public int offset(int ticksPerBeat) {
       return onset(ticksPerBeat) + duration(ticksPerBeat);
@@ -981,8 +981,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
     // kari
     public int subordinal() {
-	return onset;
-	//      return onset(INTERNAL_TICKS_PER_BEAT) - measureTick;
+      return onset;
+      //      return onset(INTERNAL_TICKS_PER_BEAT) - measureTick;
     }
   }
 
@@ -1015,16 +1015,16 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private Note tiedNote = null;
 
     private String xpath = null;
-//    private double beat = Double.NaN;
+    //    private double beat = Double.NaN;
 
     private Note topchordnote = this;
     private List<Note> chordnotes = null;
 
-//    private NodeList notations = null;
+    //    private NodeList notations = null;
 
 
 
-//    private DeviationInstanceWrapper.NoteDeviation nd = null;
+    //    private DeviationInstanceWrapper.NoteDeviation nd = null;
 
 
     private Note(Node node, Measure measure) {
@@ -1082,7 +1082,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       }
     }
 
-/*
+    /*
     private Note(Node node, Measure measure) {
       super(node, measure);
       rest = (getChildByTagName("rest") != null);
@@ -1098,12 +1098,12 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         duration = getTextInt(getChildByTagName("duration"));
       chord = (getChildByTagName("chord") != null);
     }
-*/
+     */
     /**********************************************************************
      *<p>Returns "note".</p>
      *********************************************************************/
     @Override
-	protected final String getSupportedNodeName() {
+    protected final String getSupportedNodeName() {
       return "note";
     }
 
@@ -1126,7 +1126,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       else
         throw new InvalidElementException("This is a rest note");
     }
-    
+
     /**********************************************************************
      *<p>音符にシャープが付いていれば1, フラットが付いていれば-1を返します.</p>
      *********************************************************************/
@@ -1160,7 +1160,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         return actualDuration(ticksPerBeat);
       else
         return actualDuration(ticksPerBeat) 
-          + tiedNote.tiedDuration(ticksPerBeat);
+        + tiedNote.tiedDuration(ticksPerBeat);
     }
 
     public int offset(int ticksPerBeat) {
@@ -1194,8 +1194,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
 
     public final String type() {
-//      if (type == null)
-//        type = getText(getChildByTagName("type"));
+      //      if (type == null)
+      //        type = getText(getChildByTagName("type"));
       return type;
     }
 
@@ -1213,26 +1213,26 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public int timeModificationNormalNotes() {
       return getTextInt(getChildByTagName("normal-notes", timeModification));
     }
-    
+
     public final int voice(){
-    	return voice;
+      return voice;
     }
-    
+
     public final int staff(){
-    	return staff;
+      return staff;
     }
 
-  public final boolean containsTieType(String type) {
-    return ties.contains(type);
-  }
+    public final boolean containsTieType(String type) {
+      return ties.contains(type);
+    }
 
-//    public final List<String> ties() {
-//      return ties;
-//    }
-    
-//    public final String tie() {
-//      return tie;
-//    }
+    //    public final List<String> ties() {
+    //      return ties;
+    //    }
+
+    //    public final String tie() {
+    //      return tie;
+    //    }
 
     public final Note tiedTo() {
       return tiedNote;
@@ -1243,10 +1243,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
 
 
-	/**
-	 * 音名
-	 * @author Mitsuyo Hashida
-	 */
+    /**
+     * 音名
+     * @author Mitsuyo Hashida
+     */
     final public String noteName() {
       if(rest())return "rest";
       String s=pitchStep();
@@ -1256,7 +1256,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         s += "b";
       return s+pitchOctave();
     }
-	
+
     /**********************************************************************
      *<p>音高をノートナンバー形式で返します.</p>
      *********************************************************************/
@@ -1294,8 +1294,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
 
     public String toString() {
       return "Note[" + measure().number() + ": " + onsetWithinMeasure() 
-        + "--" + (actualDuration() + onsetWithinMeasure()) 
-        + "  " + noteName() + "]";
+      + "--" + (actualDuration() + onsetWithinMeasure()) 
+      + "  " + noteName() + "]";
     }
 
     /**********************************************************************
@@ -1320,13 +1320,13 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         topnote.chordnotes = new ArrayList<Note>();
       topnote.chordnotes.add(this);
     }
-      
-    
+
+
     /**********************************************************************
      *<p>このnote要素に対応するXPath表現を返します.</p>
      *********************************************************************/
     public String getXPathExpression() {   // kari
-/*      if (xpath == null) {
+      /*      if (xpath == null) {
 	MusicData[] mdlist = measure().getMusicDataList();
 	int noteindex = 0;
 	for (MusicData md : mdlist) {
@@ -1340,8 +1340,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
           }
         }
       }
-*/
-/*        NodeList nl = measure().getMusicDataList();
+       */
+      /*        NodeList nl = measure().getMusicDataList();
 	int size = nl.getLength();
 	int noteindex = 0;
 	for (int i = 0; i < size; i++) {
@@ -1356,21 +1356,21 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
           }
         }
       }
- */
+       */
       return xpath;
     }
-    
+
     /** obsolete */
     public double beat() {
       return onsetWithinMeasure() + 1.0;
-//      if (Double.isNaN(beat))
-//        throw new IllegalStateException("'beat' has not been calculated.");
-//      else 
-//        return beat;
+      //      if (Double.isNaN(beat))
+      //        throw new IllegalStateException("'beat' has not been calculated.");
+      //      else 
+      //        return beat;
     }
 
 
-/*
+    /*
     public NodeList getNotationsList() {
       if (notations == null)
         notations = selectNodeList(node(), "notations");
@@ -1380,7 +1380,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public Notations getNotationsNodeInterface(Node node) {
       return new Notations(node, this);
     }
-*/
+     */
     /**********************************************************************
      *<p>このnote要素内で最初に出現したnotations要素をラップするNotationsオブジェクト
      *を返します.</p>
@@ -1388,36 +1388,36 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public Notations getFirstNotations() {
       return notations1st;
     }
-//      if (notations == null)
-//        notations = selectNodeList(node(), "notations");
-//      if (notations != null && notations.getLength() >= 1)
-//        return getNotationsNodeInterface(notations.item(0));
-//      else
-//        return null;
-//    }
+    //      if (notations == null)
+    //        notations = selectNodeList(node(), "notations");
+    //      if (notations != null && notations.getLength() >= 1)
+    //        return getNotationsNodeInterface(notations.item(0));
+    //      else
+    //        return null;
+    //    }
 
     // kari
     public boolean hasArticulation(String name) {
-    	if (notations1st == null)
-          return false;
+      if (notations1st == null)
+        return false;
       return notations1st.hasArticulation(name);
     }
-    
+
     /*
      * Noteが同一かどうかを判定します。
      * 文字列表現とXPath表現を比較し、等しい場合trueを返します。
      * @param arg
      * @return
-     
+
     public boolean equals(Note arg){
       if(this.toString().equals(arg.toString())){
         if(this.xpath.equals(arg.xpath)) return true;
       }
       return false;
     }
-    */
+     */
 
-/*
+    /*
     public final boolean hasArticulation(String name){
       NodeList nl = getNotationsList();
       if(nl==null)
@@ -1430,17 +1430,17 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       }
       return false;
     }
-*/
+     */
 
-//    public DeviationInstanceWrapper.NoteDeviation 
-//    getNodeDeviationNodeInterface() {
-//      if (nd == null) {
-//        Node linkednode = 
-//	  linkmanager.getNodeLinkedTo(node(), "note-deviation");
-//	nd = dev.getNoteDeviationNodeInterface(linkednode);
-//      }
-//      return nd;
-//    }
+    //    public DeviationInstanceWrapper.NoteDeviation 
+    //    getNodeDeviationNodeInterface() {
+    //      if (nd == null) {
+    //        Node linkednode = 
+    //	  linkmanager.getNodeLinkedTo(node(), "note-deviation");
+    //	nd = dev.getNoteDeviationNodeInterface(linkednode);
+    //      }
+    //      return nd;
+    //    }
   }
 
   /**********************************************************************
@@ -1497,7 +1497,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       list.add(new StartStopElement(node, this));
       return list;
     }
-          
+
     /**********************************************************************
      *<p>Returns "notations".</p>
      *********************************************************************/
@@ -1505,9 +1505,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     protected final String getSupportedNodeName() {
       return "notations";
     }
-//    public boolean hasNotation(String name) {
-//      return hasChild(name, node());
-//    }
+    //    public boolean hasNotation(String name) {
+    //      return hasChild(name, node());
+    //    }
     /**********************************************************************
      *articulations要素が存在し, かつ, 指定された名前の要素が
      *articulations要素の子として存在するときに限りtrueを返します.
@@ -1571,31 +1571,31 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
 
 
-//    // 速度要チェック
-//    public StartStopElement[] getSlurList() {
-//      if (slurlist == null) {
-//        NodeList nl = selectNodeList(node(), "slur");
-//        int size = nl.getLength();
-//        slurlist = new StartStopElement[size];
-//        for (int i = 0; i < size; i++) 
-//          slurlist[i] = new StartStopElement(nl.item(i));
-//      }
-//      return slurlist;
-//    }
-      //    public NodeList getSlurList() {
-      //      return selectNodeList(node(), "slur");
-      //    }
-      //    public StartStopElement getSlurNodeInterface(Node slur) {
-      //      return new StartStopElement(slur);
-      //    }
+    //    // 速度要チェック
+    //    public StartStopElement[] getSlurList() {
+    //      if (slurlist == null) {
+    //        NodeList nl = selectNodeList(node(), "slur");
+    //        int size = nl.getLength();
+    //        slurlist = new StartStopElement[size];
+    //        for (int i = 0; i < size; i++) 
+    //          slurlist[i] = new StartStopElement(nl.item(i));
+    //      }
+    //      return slurlist;
+    //    }
+    //    public NodeList getSlurList() {
+    //      return selectNodeList(node(), "slur");
+    //    }
+    //    public StartStopElement getSlurNodeInterface(Node slur) {
+    //      return new StartStopElement(slur);
+    //    }
   }
 
   private int lastDivisions = 1;
 
-    /**********************************************************************
-     *<p>Attributes要素から情報を取り出すためのメソッドを提供します.
-     *現バージョンでは, divisions, key, time要素に対応しています.</p>
-     *********************************************************************/
+  /**********************************************************************
+   *<p>Attributes要素から情報を取り出すためのメソッドを提供します.
+   *現バージョンでは, divisions, key, time要素に対応しています.</p>
+   *********************************************************************/
   public class Attributes extends MusicData {
     private int fifths;
     private String mode = null;
@@ -1603,7 +1603,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private int beats = 0; 
     private int beatType = 0;
     private String timeSymbol = null;
-    
+
 
     // 要チェック
     private Attributes(Node node, Measure measure) {
@@ -1612,19 +1612,19 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       Node divisionNode;
       if ((divisionNode = getChildByTagName("divisions")) != null)
         lastDivisions = divisions = getTextInt(divisionNode);
-       Node key = getChildByTagName("key");
-       if (key != null) {
-         fifths = getTextInt(getChildByTagName("fifths", key));
-         mode = getText(getChildByTagName("mode", key));
-       }
-       Node time = getChildByTagName("time");
-       if (time != null) {
-         beats = getTextInt(getChildByTagName("beats", time));
-         beatType = getTextInt(getChildByTagName("beat-type", time));
-         if (hasAttribute(time, "symbol"))
-           timeSymbol = getAttribute(time, "symbol");
-       }
-      
+      Node key = getChildByTagName("key");
+      if (key != null) {
+        fifths = getTextInt(getChildByTagName("fifths", key));
+        mode = getText(getChildByTagName("mode", key));
+      }
+      Node time = getChildByTagName("time");
+      if (time != null) {
+        beats = getTextInt(getChildByTagName("beats", time));
+        beatType = getTextInt(getChildByTagName("beat-type", time));
+        if (hasAttribute(time, "symbol"))
+          timeSymbol = getAttribute(time, "symbol");
+      }
+
     }
 
     /**********************************************************************
@@ -1633,7 +1633,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     @Override
     protected final String getSupportedNodeName() {
       return "attributes";
-//      return "attributes|divisions|key|fifths|mode|time|beats|beat-type";
+      //      return "attributes|divisions|key|fifths|mode|time|beats|beat-type";
     }
 
     /**********************************************************************
@@ -1641,38 +1641,38 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      *ご覧ください.</p>
      *********************************************************************/
     public int divisions() {
-    	return divisions;
+      return divisions;
     }
-    
+
     public int fifths(){
       return fifths;
-//    	return getTextInt(fifths);
+      //    	return getTextInt(fifths);
     }
-    
+
     public String mode() {
       return mode;
-//    	return getText(mode);
+      //    	return getText(mode);
     }
-    
+
     /**********************************************************************
      *<p>拍子の分子(8分の6拍子なら6)を返します.</p>
      *********************************************************************/
     public int beats() {
       return beats;
-//    	return getTextInt(beats);
+      //    	return getTextInt(beats);
     }
-    
+
     /**********************************************************************
      *<p>拍子の分母(8分の6拍子なら8)を返します.</p>
      *********************************************************************/
     public int beatType() {
       return beatType;
-//    	return getTextInt(beatType);
+      //    	return getTextInt(beatType);
     }
-    
+
     public String timeSymbol() {
       return timeSymbol;
-//    	return getAttribute(getChildByTagName("time"), "symbol");
+      //    	return getAttribute(getChildByTagName("time"), "symbol");
     }
   }
 
@@ -1692,7 +1692,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      *<p>Returns "backup".</p>
      *********************************************************************/
     @Override
-	protected final String getSupportedNodeName() {
+    protected final String getSupportedNodeName() {
       return "backup";
     }
     public final int duration() {
@@ -1706,8 +1706,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
     public int subordinal() {
       return onset(INTERNAL_TICKS_PER_BEAT) 
-        + actualDuration(INTERNAL_TICKS_PER_BEAT);
-//      return (int)(1000.0 * (onset() + actualDuration()));
+      + actualDuration(INTERNAL_TICKS_PER_BEAT);
+      //      return (int)(1000.0 * (onset() + actualDuration()));
     }
   }
 
@@ -1764,7 +1764,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
      *<p>Returns "direction".</p>
      *********************************************************************/
     @Override
-	protected final String getSupportedNodeName() {
+    protected final String getSupportedNodeName() {
       return "direction";
     }
     /**********************************************************************
@@ -1784,9 +1784,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public final int voice() {
       return getChildTextInt("voice");
     }
-//    public double tempo(){
-//      return Double.parseDouble(getAttribute(sound, "tempo"));
-//    }
+    //    public double tempo(){
+    //      return Double.parseDouble(getAttribute(sound, "tempo"));
+    //    }
     public final String getSoundAttribute(String key) {
       return getAttribute(sound, key);
     }
@@ -1880,7 +1880,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       else
         throw new InvalidElementException("not dynamics element");
     }
-/*
+    /*
     // obsolete
     public final boolean hasDirection(String name) {
       return hasChild(name);
@@ -1895,9 +1895,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return getAttributeInt(child, 
       return getAttributeInt(getChildByTagName(name), "number");
     }
-*/
+     */
   }
-    
+
 
   /**********************************************************************
    *<p>StartStopElementクラスは, type属性とnumber属性を持ち, 

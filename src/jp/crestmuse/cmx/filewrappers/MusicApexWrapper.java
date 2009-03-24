@@ -3,10 +3,13 @@ package jp.crestmuse.cmx.filewrappers;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
@@ -19,6 +22,7 @@ public class MusicApexWrapper extends CMXFileWrapper{
   
   private MusicXMLWrapper targetMusicXML = null;
   private String targetMusicXMLFileName = null;
+  private HashMap<String, Note> xpathNoteView = null;
   
   private boolean inherited;
   private String aspect = "undefined";
@@ -54,6 +58,29 @@ public class MusicApexWrapper extends CMXFileWrapper{
     return targetMusicXMLFileName;
   }
   
+  public HashMap<String, Note> getXPathNoteView(){
+    try{
+      this.xpathNoteView = new HashMap<String, Note>();
+      MusicXMLWrapper musicxml = getTargetMusicXML();
+      MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
+      for (MusicXMLWrapper.Part part : partlist) {
+        MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
+        for (MusicXMLWrapper.Measure measure : measurelist) {
+          MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
+          for (MusicXMLWrapper.MusicData md : mdlist) { 
+            if(md instanceof MusicXMLWrapper.Note){
+              MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
+              this.xpathNoteView.put(note.getXPathExpression(), note);
+            }
+          }
+        }
+      }
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+    return xpathNoteView;
+  }
+
   @Override
   protected void analyze() throws IOException{
     Node top = selectSingleNode("/music-apex");
@@ -65,6 +92,14 @@ public class MusicApexWrapper extends CMXFileWrapper{
     }
     if(NodeInterface.hasAttribute(top, "target")){
       this.targetMusicXMLFileName = NodeInterface.getAttribute(top, "target");
+    }
+    
+    try{
+      addLinks("//note",getTargetMusicXML());
+      addLinks("//apex",getTargetMusicXML());
+    }
+    catch(TransformerException e){
+      e.printStackTrace();
     }
     return;
   }
@@ -158,9 +193,36 @@ public class MusicApexWrapper extends CMXFileWrapper{
       System.out.println(maw.inherited);
       System.out.println(maw.aspect);
       System.out.println(maw.getTargetMusicXMLFileName());
+      Node ap = maw.selectSingleNode("/music-apex/group/note");
+      printNodeStat(ap);
+      Node mxmlnote = linkmanager.getNodeLinkedFrom(ap,"note");
+      printNodeStat(mxmlnote);
+      
+      printNodeStat(mxmlnote.getParentNode());
+      System.out.println(((Element)mxmlnote.getParentNode()).getAttribute("number"));
+      
+      String path = ((Element)ap).getAttribute("xlink:href");
+      path = path.substring(path.indexOf("(")+1, path.indexOf(")"));
+      System.out.println(maw.getXPathNoteView().get(path).toString());
+      
     } catch (IOException e) {
       // TODO 自動生成された catch ブロック
       e.printStackTrace();
     }
+  }
+  
+  public static void printNodeStat(Node n){
+    System.out.print("Name:"+n.getNodeName()+" Value:"+n.getNodeValue());
+    System.out.println("Text:"+n.getTextContent());
+    System.out.print("Attrs: ");
+    for(int i=0; i<n.getAttributes().getLength(); i++){
+      System.out.print(n.getAttributes().item(i)+",");
+    }
+    System.out.print("Childs: ");
+    for(int i=0; i<n.getChildNodes().getLength(); i++){
+      System.out.print(n.getChildNodes().item(i).getNodeName()+",");
+    }
+    System.out.println("\n");
+    return;
   }
 }
