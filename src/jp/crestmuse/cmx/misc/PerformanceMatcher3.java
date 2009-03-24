@@ -23,7 +23,7 @@ public class PerformanceMatcher3 {
 
   private static int baseTempo = 120;
   private static final double BASE_DYNAMICS = 100.0;
-  private static final double ATTACK_LIMIT = 2.0;
+  private static final double ATTACK_LIMIT = 2000.0;
 
   private MusicXMLWrapper musicxml;
   private MIDIXMLWrapper midixml;
@@ -31,6 +31,7 @@ public class PerformanceMatcher3 {
     private String partid;
     private Measure[] measurelist;
     private Note[] scoreNotes, pfmNotes;
+    private List<NoteInSameTime> compressedScore;
     private Annotation[] barlines;
 
     //  private SCCXMLWrapper scoreSCC;
@@ -62,7 +63,8 @@ public class PerformanceMatcher3 {
     SCCXMLWrapper pfmSCC = pfm.toSCCXML();
     barlines = scoreSCC.getBarlineList();
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
-    pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(100);
+    pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);
+    initCompressedScore();
     scoreTicksPerBeat = scoreSCC.getDivision();
     pfmTicksPerBeat = pfmSCC.getDivision();
     HeaderElement[] h = pfmSCC.getHeaderElementList();
@@ -80,10 +82,11 @@ public class PerformanceMatcher3 {
     //    scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
     //    pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(100);
     //    barlines = scoreSCC.getBarlineList();
-    int[] path = getPath(dtw(500));
-    int[] indexlist = new int[path.length];
+    //int[] path = getPath(dtw(500));
+    //int[] indexlist = new int[path.length];
     List<Note> extraNotes = new ArrayList<Note>();
-    alignNotes(path, indexlist, extraNotes);
+    //alignNotes(path, indexlist, extraNotes);
+    int[] indexlist = getPath(dtw(500), extraNotes);
     ArrayList<TempoAndTime> tempolist = alignBeats(indexlist);
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
@@ -119,6 +122,57 @@ public class PerformanceMatcher3 {
     return pm.extractDeviation();
   }
 
+  private int[] getPath(DTWMatrix matrix, List<Note> extraNotes) {
+    int I = matrix.nrows;
+    int J = matrix.ncols;
+    NoteInSameTime[] com2pfm = new NoteInSameTime[compressedScore.size()];
+    for(int i=0; i<com2pfm.length; i++)
+      com2pfm[i] = new NoteInSameTime();
+    int i = I - 1, j = J - 1;
+    do {
+      /*
+      NoteInSameTime nist = compressedScore.get(i);
+      boolean match = false;
+      for(int k=0; k<nist.notes.size(); k++) {
+        if(pfmNotes[j].notenum() == nist.notes.get(k).notenum()) {
+          int index = nist.indexAtScore + k;
+          if(path[index] != -1)
+            extraNotes.add(pfmNotes[path[index]]);
+          path[index] = j;
+          match = true;
+          break;
+        }
+      }
+      if(!match) extraNotes.add(pfmNotes[j]);
+      */
+      com2pfm[i].addNote(pfmNotes[j], j);
+      DTWMatrix.DTWMatrixElement e = matrix.get(i, j);
+      i = e.targetX;
+      j = e.targetY;
+    } while (i >= 0 || j >= 0);
+    int[] indexlist = new int[scoreNotes.length];
+    Arrays.fill(indexlist, -1);
+    for(i=0; i<com2pfm.length; i++) {
+      NoteInSameTime snotes = compressedScore.get(i);
+      NoteInSameTime pnotes = com2pfm[i];
+      boolean[] matched = new boolean[pnotes.notes.size()];
+      for(j=0; j<snotes.notes.size(); j++) {
+        for(int k=0; k<pnotes.notes.size(); k++) {
+          if(snotes.notes.get(j).notenum() == pnotes.notes.get(k).notenum() && !matched[k]) {
+            indexlist[snotes.indexAtScore + j] = pnotes.indexAtScore + k;
+            matched[k] = true;
+            break;
+          }
+        }
+      }
+      for(j=0; j<matched.length; j++)
+        if(!matched[j])
+          extraNotes.add(pnotes.notes.get(j));
+    }
+    return indexlist;
+  }
+
+/*
   private static int[] getPath(DTWMatrix matrix) {
     int I = matrix.nrows;
     int J = matrix.ncols;
@@ -132,11 +186,13 @@ public class PerformanceMatcher3 {
     } while (i >= 0 || j >= 0);
     return path;
   }
-  
+*/
   private DTWMatrix dtw(int r) {
-    int I = scoreNotes.length;
+    //int I = scoreNotes.length;
+    int I = compressedScore.size();
     int J = pfmNotes.length;
-    int scoreTicks = scoreNotes[I-1].offset();
+    //int scoreTicks = scoreNotes[I-1].offset();
+    int scoreTicks = compressedScore.get(I - 1).notes.get(0).offset();
     int pfmTicks = pfmNotes[J-1].offset();
     //r = Math.max(0, Math.max(J-I, r));
     r = J;
@@ -144,10 +200,10 @@ public class PerformanceMatcher3 {
     matrix.set(-1, -1, 0, -1, -1);
     int colRisc=1;
     for (int i = 0; i < I; i++) {
-      //System.err.print(".");
       int rowRisc=1;
       for (int j = Math.max(0, i-r) ; j <= Math.min(i+r, J-1); j++) {
-        Note e1 = scoreNotes[i];
+        //Note e1 = scoreNotes[i];
+        NoteInSameTime e1 = compressedScore.get(i);
         Note e2 = pfmNotes[j];
         double d = dist(e1, e2, scoreTicks, pfmTicks);
         double c1 = matrix.getValue(i-1, j) + d + colRisc;
@@ -169,7 +225,17 @@ public class PerformanceMatcher3 {
     }
     return matrix;
   }
-  
+
+  private double dist(NoteInSameTime e1, Note e2, int scoreTicks, int pfmTicks){
+    double position = Math.abs((e1.notes.get(0).onset() / (double)scoreTicks - e2.onset() / (double)pfmTicks));
+    for(Note n : e1.notes)
+      if(n.notenum() == e2.notenum())
+        return position;
+    //else if(Math.abs(e1.notenum()-e2.notenum()) % 12 == 0) return 10 + position;
+    return 100;
+  }
+
+  /*
   private static double dist(Note e1, Note e2, int scoreTicks, int pfmTicks){
     int notenum = Math.abs(e1.notenum() - e2.notenum());
     double position = Math.abs((e1.onset() / (double)scoreTicks - e2.onset() / (double)pfmTicks));
@@ -177,8 +243,24 @@ public class PerformanceMatcher3 {
     else if(Math.abs(e1.notenum()-e2.notenum()) % 12 == 0) return 10 + position;
     return 100;
   }
+*/
+  private void initCompressedScore() {
+    compressedScore = new ArrayList<NoteInSameTime>();
+    Note prev = scoreNotes[0];
+    NoteInSameTime nist = new NoteInSameTime();
+    nist.addNote(prev, 0);
+    compressedScore.add(nist);
+    for(int i=1; i<scoreNotes.length; i++) {
+      if(scoreNotes[i].onset() != prev.onset()) {
+        nist = new NoteInSameTime();
+        compressedScore.add(nist);
+      }
+      nist.addNote(scoreNotes[i], i);
+      prev = scoreNotes[i];
+    }
+  }
 
-  private static class DTWMatrix {
+  private class DTWMatrix {
     private HashMap<IntPair,DTWMatrixElement> values;
     private int nrows, ncols;
     private final DTWMatrixElement DEFAULT_MATRIX_ELEMENT = 
@@ -249,6 +331,27 @@ public class PerformanceMatcher3 {
     private double beatLength() {
       return pfmTicksPerBeat * baseTempo / tempo;
     }
+    @Override
+    public String toString() {
+      return tempo + ", " + tickInScore + ", " + tickInPfm + ", " + timeInSec + ", " + measure + ", " + beat;
+    }
+  }
+
+  private class NoteInSameTime {
+    List<Note> notes;
+    int indexAtScore = Integer.MAX_VALUE;
+    NoteInSameTime() { notes = new LinkedList<Note>(); }
+    void addNote(Note n, int index) {
+      notes.add(n);
+      indexAtScore = Math.min(index, indexAtScore);
+    }
+    @Override
+    public String toString() {
+      String s = "";
+      for(Note n : notes)
+        s += n.notenum() + ", ";
+      return s;
+    }
   }
 
   private void alignNotes(int[] path, int[] indexlist, List<Note> extraNotes) {
@@ -293,7 +396,6 @@ public class PerformanceMatcher3 {
       indexlist[m] = n;
     else
       extraNotes.add(pfmNotes[n]);
-      
   }
 
   private void setNotewiseDeviations(DeviationDataSet dds, 
@@ -362,7 +464,7 @@ public class PerformanceMatcher3 {
                          attack, release, dynamics, dynamics);
   }
 
-  private static void addMissNote(DeviationDataSet dds, Note note) {
+  private void addMissNote(DeviationDataSet dds, Note note) {
     dds.addMissNote(note.getMusicXMLWrapperNote());
   }
 
@@ -395,7 +497,7 @@ public class PerformanceMatcher3 {
                      note.velocity() / BASE_DYNAMICS);
   }
 
-    private static boolean tickcmp(int tick1, int tick2, int threshold) {
+    private boolean tickcmp(int tick1, int tick2, int threshold) {
 	return (tick1 >= tick2 - threshold && tick1 <= tick2 + threshold);
     }
 
@@ -663,7 +765,7 @@ public class PerformanceMatcher3 {
   }
     */
 
-  private static void addTempoDeviations(DeviationDataSet dds, 
+  private void addTempoDeviations(DeviationDataSet dds, 
                                          ArrayList<TempoAndTime> tempolist, 
                                          double avgtempo) {
     int size = tempolist.size();
@@ -674,5 +776,8 @@ public class PerformanceMatcher3 {
     }
   }
 
+  public static void main(String[] args){
+    //
+  }
 }
   
