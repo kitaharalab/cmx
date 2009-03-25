@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.misc.ProgramBugException;
@@ -19,26 +21,27 @@ import jp.crestmuse.cmx.misc.XMLException;
 public class MusicApexWrapper extends CMXFileWrapper{
 
   public static final String TOP_TAG = "music-apex";
-  
+
   private MusicXMLWrapper targetMusicXML = null;
   private String targetMusicXMLFileName = null;
   private HashMap<String, Note> xpathNoteView = null;
-  
+
   private boolean inherited;
   private String aspect = "undefined";
   private ApexWrapedGroup toplevel = null;
-  
-  
+  private ArrayList<ApexWrapedGroup> depthFirstView = null;
+  private ArrayList<ApexWrapedGroup> breadthFirstView = null;
+
   public static MusicApexWrapper createMusicApexWrapperFor(MusicXMLWrapper musicxml){
-      try {
-        MusicApexWrapper apex = (MusicApexWrapper) createDocument(TOP_TAG);
-        apex.targetMusicXML = musicxml;
-        return apex;
-      } catch (InvalidFileTypeException e) {
-        throw new ProgramBugException(e.toString());
-      }
+    try {
+      MusicApexWrapper apex = (MusicApexWrapper) createDocument(TOP_TAG);
+      apex.targetMusicXML = musicxml;
+      return apex;
+    } catch (InvalidFileTypeException e) {
+      throw new ProgramBugException(e.toString());
+    }
   }
-  
+
   public MusicXMLWrapper getTargetMusicXML() throws IOException {
     if (targetMusicXML == null) {
       if (getParentPath() != null)
@@ -47,7 +50,7 @@ public class MusicApexWrapper extends CMXFileWrapper{
     }
     return targetMusicXML;
   }
-  
+
   public String getTargetMusicXMLFileName() {
     if (targetMusicXMLFileName == null) {
       File f = new File(getTopTagAttribute("target"));
@@ -57,7 +60,7 @@ public class MusicApexWrapper extends CMXFileWrapper{
     }
     return targetMusicXMLFileName;
   }
-  
+
   public HashMap<String, Note> getXPathNoteView(){
     try{
       this.xpathNoteView = new HashMap<String, Note>();
@@ -81,30 +84,98 @@ public class MusicApexWrapper extends CMXFileWrapper{
     return xpathNoteView;
   }
 
+  public String getAspect(){
+    return this.aspect;
+  }
+
   @Override
-  protected void analyze() throws IOException{
-    Node top = selectSingleNode("/music-apex");
-    if(NodeInterface.hasAttribute(top, "apex-inherited")){
-      this.inherited = (NodeInterface.getAttribute(top, "apex-inherited").equals("yes") ? true : false);
-    }
-    if(NodeInterface.hasAttribute(top, "aspect")){
-      this.aspect = NodeInterface.getAttribute(top, "aspect");
-    }
-    if(NodeInterface.hasAttribute(top, "target")){
-      this.targetMusicXMLFileName = NodeInterface.getAttribute(top, "target");
-    }
-    
+  protected void analyze() throws IOException{    
     try{
       addLinks("//note",getTargetMusicXML());
       addLinks("//apex",getTargetMusicXML());
+
+      Node top = selectSingleNode("/music-apex");
+      if(NodeInterface.hasAttribute(top, "apex-inherited")){
+        this.inherited = (NodeInterface.getAttribute(top, "apex-inherited").equals("yes") ? true : false);
+      }
+      if(NodeInterface.hasAttribute(top, "aspect")){
+        this.aspect = NodeInterface.getAttribute(top, "aspect");
+      }
+      if(NodeInterface.hasAttribute(top, "target")){
+        this.targetMusicXMLFileName = NodeInterface.getAttribute(top, "target");
+      }
+
+      this.toplevel = analyzeGroups((Element)selectSingleNode("/music-apex/group"), (ApexWrapedGroup)null);
     }
     catch(TransformerException e){
       e.printStackTrace();
     }
     return;
   }
-  
-  
+
+  private ApexWrapedGroup analyzeGroups(Element node, ApexWrapedGroup parent ){
+    if(!(node.getNodeName().equals("group"))) throw new RuntimeException("Node is not group Element");
+    if(xpathNoteView == null) xpathNoteView = getXPathNoteView();
+
+    ApexWrapedGroup g = new ApexWrapedGroup();
+
+    g.depth = Integer.parseInt(node.getAttribute("depth"));
+
+    String nodepath = getXPathPosition(node);
+
+    NodeList onlist = selectNodeList(nodepath+"/note");
+    for(int i=0; i<onlist.getLength(); i++){
+      g.ownnotes.add(xpathNoteView.get(cutXPath(onlist.item(i))));
+    }
+
+    NodeList unlist = selectNodeList(nodepath+"//note");
+    for(int i=0; i<unlist.getLength(); i++){
+      g.undernotes.add(xpathNoteView.get(cutXPath(unlist.item(i))));
+    }
+
+    Element apexn = (Element)selectSingleNode(nodepath+"/apex[1]");
+    if(apexn != null){
+      g.apex = xpathNoteView.get(cutXPath(apexn));
+      g.saliency = (apexn.hasAttribute("saliency") ? Double.parseDouble(apexn.getAttribute("saliency")) : Double.NaN); 
+    }
+
+    g.groupParent = parent;
+
+    NodeList subglist = selectNodeList(nodepath+"/group");
+    for(int i=0; i<subglist.getLength(); i++){
+      g.subGroups.add(analyzeGroups((Element)subglist.item(i),g));
+    }
+    return g;
+  }
+
+  private String cutXPath(Node el){
+    if(!(el instanceof Element)) throw new UnsupportedOperationException();
+    String path = ((Element)el).getAttribute("xlink:href");
+    if(path == null) throw new RuntimeException("This Element has no xpointer : " +el.toString());
+    path = path.substring(path.indexOf("(")+1, path.indexOf(")"));
+    return path;
+  }
+
+  private String getXPathPosition(Node n){
+    if(n.getParentNode() == null) return "";
+    else{
+      return getXPathPosition(n.getParentNode()) +
+      //getAttributeXPath(n.getParentNode()) +
+      "/" + n.getNodeName() + "["+getNodeSiblingPosition(n)+"]";
+    }
+  }
+  private int getNodeSiblingPosition(Node n){
+    int count = 1;
+    String name = n.getNodeName();
+    short type = n.getNodeType();
+    while(n.getPreviousSibling() != null){
+      if((n.getPreviousSibling().getNodeName().equals(name)
+          && n.getPreviousSibling().getNodeType() == type))count++;
+      n = n.getPreviousSibling();
+    }
+    return count;
+  }
+
   class ApexWrapedGroup implements NoteGroup{
 
     private int depth = -1;
@@ -114,33 +185,31 @@ public class MusicApexWrapper extends CMXFileWrapper{
     private NoteGroup groupParent = null;
     private Note apex = null;
     private double saliency = Double.NaN;
-    
-    public ApexWrapedGroup(Node node){
-      
-      
-      return;
+
+    public ApexWrapedGroup(){
+
     }
-    
+
     @Override
     public int depth() {
       return depth;
     }
-    
+
     @Override
     public boolean isApexInherited() {
       return inherited;
     }
-   
+
     @Override
     public double getApexSaliency() {
       return saliency;
     }
-    
+
     @Override
     public List<Note> getNotes() {
       return ownnotes;
     }
-    
+
     @Override
     public List<Note> getAllNotes() {
       return undernotes;
@@ -161,7 +230,7 @@ public class MusicApexWrapper extends CMXFileWrapper{
       throw new UnsupportedOperationException();
     }
 
-    
+
     @Override
     public void addSubgroup(NoteGroup g) {
       throw new UnsupportedOperationException();
@@ -181,15 +250,23 @@ public class MusicApexWrapper extends CMXFileWrapper{
     public void setApex(Note n, double value) {
       throw new UnsupportedOperationException();
     } 
-    
+
     public NoteGroup getParentGroup(){
       return groupParent;
     }
+
+    public void printGroupStat(){
+      System.out.println("toString:"+this.toString());
+      System.out.println("depth:"+this.depth()+" subgroups:"+this.subGroups.size());
+      System.out.println("notes:"+this.getNotes().size()+" parent:"+(this.groupParent != null ? this.groupParent.toString() : "null"));
+      System.out.println();
+    }
   }
-  
+
   public static void main(String[] args){
     try {
       MusicApexWrapper maw = (MusicApexWrapper)MusicApexWrapper.readfile("sampleapex.xml");
+      /*
       System.out.println(maw.inherited);
       System.out.println(maw.aspect);
       System.out.println(maw.getTargetMusicXMLFileName());
@@ -197,20 +274,43 @@ public class MusicApexWrapper extends CMXFileWrapper{
       printNodeStat(ap);
       Node mxmlnote = linkmanager.getNodeLinkedFrom(ap,"note");
       printNodeStat(mxmlnote);
-      
+
       printNodeStat(mxmlnote.getParentNode());
       System.out.println(((Element)mxmlnote.getParentNode()).getAttribute("number"));
-      
+
       String path = ((Element)ap).getAttribute("xlink:href");
       path = path.substring(path.indexOf("(")+1, path.indexOf(")"));
       System.out.println(maw.getXPathNoteView().get(path).toString());
-      
+
+
+      NodeList nl = maw.selectNodeList("/music-apex/group/note");
+
+      for(int i=0; i<nl.getLength(); i++){
+        System.out.println(nl.item(i).getNodeName());
+
+      }
+
+      System.out.println(nl.getLength());
+      System.out.println(maw.selectNodeList("/music-apex/group/group[2]/note").getLength());
+      System.out.println(maw.selectNodeList("/music-apex//group[@depth='2']").getLength());
+      String hoge = maw.getXPathPosition((Element)maw.selectSingleNode("/music-apex/group/group[2]"));
+      System.out.println(hoge);
+      //System.out.println(maw.selectNodeList("/music-apex[@apex-inherited='yes'][@aspect='hoge'][@target='sample.xml']/group[@depth='1']/group").getLength());
+      System.out.println(maw.selectNodeList(hoge).getLength());
+      System.out.println(maw.selectNodeList(hoge+"//note").getLength());
+       */
+
+      maw.toplevel.printGroupStat();
+      ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(0)).printGroupStat();
+      ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(1)).printGroupStat();
+      ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(1).getSubgroups().get(0)).printGroupStat();
+
     } catch (IOException e) {
       // TODO 自動生成された catch ブロック
       e.printStackTrace();
     }
   }
-  
+
   public static void printNodeStat(Node n){
     System.out.print("Name:"+n.getNodeName()+" Value:"+n.getNodeValue());
     System.out.println("Text:"+n.getTextContent());
