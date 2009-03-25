@@ -28,16 +28,16 @@ public class PerformanceMatcher3 {
   private MusicXMLWrapper musicxml;
   private MIDIXMLWrapper midixml;
 
-    private String partid;
-    private Measure[] measurelist;
-    private Note[] scoreNotes, pfmNotes;
-    private List<NoteInSameTime> compressedScore;
-    private Annotation[] barlines;
+  private String partid;
+  private Measure[] measurelist;
+  private Note[] scoreNotes, pfmNotes;
+  private List<NoteInSameTime> compressedScore;
+  private Annotation[] barlines;
 
-    //  private SCCXMLWrapper scoreSCC;
-    //  private SCCXMLWrapper pfmSCC;
+  //  private SCCXMLWrapper scoreSCC;
+  //  private SCCXMLWrapper pfmSCC;
 
-    private DeviationDataSet dds;
+  private DeviationDataSet dds;
 
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
@@ -76,7 +76,7 @@ public class PerformanceMatcher3 {
     throws ParserConfigurationException, SAXException, IOException, 
     TransformerException  {
     DeviationInstanceWrapper dev = 
-      DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
+        DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
     DeviationDataSet dds = dev.createDeviationDataSet();
     //    measurelist = musicxml
     //    scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
@@ -84,23 +84,19 @@ public class PerformanceMatcher3 {
     //    barlines = scoreSCC.getBarlineList();
     //int[] path = getPath(dtw(500));
     //int[] indexlist = new int[path.length];
-    List<Note> extraNotes = new ArrayList<Note>();
     //alignNotes(path, indexlist, extraNotes);
+    List<Note> extraNotes = new ArrayList<Note>();
     int[] indexlist = getPath(dtw(500), extraNotes);
+    //sortIndexList(indexlist);
     ArrayList<TempoAndTime> tempolist = alignBeats(indexlist);
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
     double initSil = tempolist.get(1).timeInSec;
     dds.setInitialSilence(initSil);
-    //    String partid = musicxml.getPartList()[0].id();
-    //    Measure[] measures = musicxml.getPartList()[0].getMeasureList();
-    //    setMeasureNumbers(measures, tempolist);
     int headMeasure = measurelist[0].number();
     dds.addNonPartwiseControl(headMeasure, 1, "tempo", avgtempo);
     addTempoDeviations(dds, tempolist, avgtempo);
     setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
-    //    setNotewiseDeviations(dds, scoreNotes, pfmNotes, indexlist, 
-    //                          extraNotes, partid, tempolist);
     dds.toWrapper();
     return dev;
   }
@@ -210,7 +206,7 @@ public class PerformanceMatcher3 {
           int diff = e2.onset() - pfmNotes[j - 1].onset();
           if(diff == 0) ioi = Double.POSITIVE_INFINITY;
           else ioi = 1.0 / diff;
-        }ioi = 0;
+        }
         double d = dist(e1, e2, scoreTicks, pfmTicks);
         double c1 = matrix.getValue(i-1, j) + d + colRisc;
         double c2 = matrix.getValue(i-1, j-1) + 2 * d + ioi;
@@ -263,6 +259,19 @@ public class PerformanceMatcher3 {
       }
       nist.addNote(scoreNotes[i], i);
       prev = scoreNotes[i];
+    }
+  }
+
+  private void sortIndexList(int[] indexlist) {
+    for(int i=0; i<indexlist.length - 1; i++) {
+      if(indexlist[i] > indexlist[i + 1] && indexlist[i + 1] != -1) {
+        Note tmp = pfmNotes[indexlist[i]];
+        pfmNotes[indexlist[i]] = pfmNotes[indexlist[i + 1]];
+        pfmNotes[indexlist[i + 1]] = tmp;
+        int tmpi = indexlist[i];
+        indexlist[i] = indexlist[i + 1];
+        indexlist[i + 1] = tmpi;
+      }
     }
   }
 
