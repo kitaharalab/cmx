@@ -205,9 +205,15 @@ public class PerformanceMatcher3 {
         //Note e1 = scoreNotes[i];
         NoteInSameTime e1 = compressedScore.get(i);
         Note e2 = pfmNotes[j];
+        double ioi = 0;
+        if(j > 0) {
+          int diff = e2.onset() - pfmNotes[j - 1].onset();
+          if(diff == 0) ioi = Double.POSITIVE_INFINITY;
+          else ioi = 1.0 / diff;
+        }ioi = 0;
         double d = dist(e1, e2, scoreTicks, pfmTicks);
         double c1 = matrix.getValue(i-1, j) + d + colRisc;
-        double c2 = matrix.getValue(i-1, j-1) + 2 * d;
+        double c2 = matrix.getValue(i-1, j-1) + 2 * d + ioi;
         double c3 = matrix.getValue(i, j-1) + d + rowRisc;
         double c_min = Math.min(c2, Math.min(c1, c3));
         if (c_min == c2){
