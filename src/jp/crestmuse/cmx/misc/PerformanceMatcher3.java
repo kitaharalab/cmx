@@ -133,7 +133,7 @@ public class PerformanceMatcher3 {
       for(j=0; j<snotes.notes.size(); j++) {
         for(int k=0; k<pnotes.notes.size(); k++) {
           if(snotes.notes.get(j).notenum() == pnotes.notes.get(k).notenum() && !matched[k]) {
-            indexlist[snotes.indexAtScore + j] = pnotes.indexAtScore + k;
+            indexlist[snotes.indexes.get(j)] = pnotes.indexes.get(k);
             matched[k] = true;
             break;
           }
@@ -329,11 +329,14 @@ public class PerformanceMatcher3 {
 
   private class NoteInSameTime {
     List<Note> notes;
-    int indexAtScore = Integer.MAX_VALUE;
-    NoteInSameTime() { notes = new LinkedList<Note>(); }
+    List<Integer> indexes;
+    NoteInSameTime() {
+      notes = new LinkedList<Note>();
+      indexes = new LinkedList<Integer>();
+    }
     void addNote(Note n, int index) {
       notes.add(n);
-      indexAtScore = Math.min(index, indexAtScore);
+      indexes.add(index);
     }
     @Override
     public String toString() {
