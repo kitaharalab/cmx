@@ -2,11 +2,11 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.xml.transform.TransformerException;
 
@@ -16,7 +16,6 @@ import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.misc.ProgramBugException;
-import jp.crestmuse.cmx.misc.XMLException;
 
 public class MusicApexWrapper extends CMXFileWrapper{
 
@@ -27,10 +26,10 @@ public class MusicApexWrapper extends CMXFileWrapper{
   private HashMap<String, Note> xpathNoteView = null;
 
   private boolean inherited;
-  private String aspect = "undefined";
+  private String aspect = null;
   private ApexWrapedGroup toplevel = null;
-  private ArrayList<ApexWrapedGroup> depthFirstView = null;
-  private ArrayList<ApexWrapedGroup> breadthFirstView = null;
+  private List<ApexWrapedGroup> depthFirstView = null;
+  private List<ApexWrapedGroup> breadthFirstView = null;
 
   public static MusicApexWrapper createMusicApexWrapperFor(MusicXMLWrapper musicxml){
     try {
@@ -61,29 +60,53 @@ public class MusicApexWrapper extends CMXFileWrapper{
     return targetMusicXMLFileName;
   }
 
-  public HashMap<String, Note> getXPathNoteView(){
-    try{
-      this.xpathNoteView = new HashMap<String, Note>();
-      MusicXMLWrapper musicxml = getTargetMusicXML();
-      MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
-      for (MusicXMLWrapper.Part part : partlist) {
-        MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
-        for (MusicXMLWrapper.Measure measure : measurelist) {
-          MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
-          for (MusicXMLWrapper.MusicData md : mdlist) { 
-            if(md instanceof MusicXMLWrapper.Note){
-              MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
-              this.xpathNoteView.put(note.getXPathExpression(), note);
-            }
-          }
-        }
-      }
-    }catch(IOException e){
-      e.printStackTrace();
+  /**
+   * 深さ優先探索でグループを格納したリストを返します。
+   * @return
+   */
+  public List<ApexWrapedGroup> getDepthFirstGroupView(){
+    if(depthFirstView == null){
+      depthFirstView = makeDepthFirst(toplevel);
     }
-    return xpathNoteView;
+    return depthFirstView;
   }
-
+  private List<ApexWrapedGroup> makeDepthFirst(ApexWrapedGroup wg){
+    List<ApexWrapedGroup> dest = new ArrayList<ApexWrapedGroup>();
+    dest.add(wg);
+    for(NoteGroup g : wg.getSubgroups()){
+      dest.addAll(makeDepthFirst((ApexWrapedGroup)g));
+    }
+    return dest;
+  }
+  
+  /**
+   * 幅優先探索でグループを格納したリストを返します。
+   * @return
+   */
+  public List<ApexWrapedGroup> getBreadthFirstView(){
+    if(breadthFirstView == null){
+      breadthFirstView = makeBreadthFirst(toplevel);
+    }
+    return breadthFirstView;
+  }
+  private List<ApexWrapedGroup> makeBreadthFirst(ApexWrapedGroup src){
+    List<ApexWrapedGroup> dest = new ArrayList<ApexWrapedGroup>();
+    Queue<ApexWrapedGroup> queue = new LinkedList<ApexWrapedGroup>();
+    queue.offer(src);
+    while(!queue.isEmpty()){
+      ApexWrapedGroup g = queue.poll();
+      dest.add(g);
+      for(NoteGroup subg : g.getSubgroups()){
+        queue.offer((ApexWrapedGroup)subg);
+      }
+    }
+    return dest;
+  }
+  
+  /**
+   * 何に注目した音楽構造かを返します。
+   * @return (未定義の時はnull)
+   */
   public String getAspect(){
     return this.aspect;
   }
@@ -113,6 +136,29 @@ public class MusicApexWrapper extends CMXFileWrapper{
     return;
   }
 
+  private HashMap<String, Note> getXPathNoteView(){
+    try{
+      this.xpathNoteView = new HashMap<String, Note>();
+      MusicXMLWrapper musicxml = getTargetMusicXML();
+      MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
+      for (MusicXMLWrapper.Part part : partlist) {
+        MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
+        for (MusicXMLWrapper.Measure measure : measurelist) {
+          MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
+          for (MusicXMLWrapper.MusicData md : mdlist) { 
+            if(md instanceof MusicXMLWrapper.Note){
+              MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
+              this.xpathNoteView.put(note.getXPathExpression(), note);
+            }
+          }
+        }
+      }
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+    return xpathNoteView;
+  }
+  
   private ApexWrapedGroup analyzeGroups(Element node, ApexWrapedGroup parent ){
     if(!(node.getNodeName().equals("group"))) throw new RuntimeException("Node is not group Element");
     if(xpathNoteView == null) xpathNoteView = getXPathNoteView();
@@ -186,10 +232,6 @@ public class MusicApexWrapper extends CMXFileWrapper{
     private Note apex = null;
     private double saliency = Double.NaN;
 
-    public ApexWrapedGroup(){
-
-    }
-
     @Override
     public int depth() {
       return depth;
@@ -254,7 +296,11 @@ public class MusicApexWrapper extends CMXFileWrapper{
     public NoteGroup getParentGroup(){
       return groupParent;
     }
-
+    
+    /**
+     * for debugging method
+     */
+    @Deprecated
     public void printGroupStat(){
       System.out.println("toString:"+this.toString());
       System.out.println("depth:"+this.depth()+" subgroups:"+this.subGroups.size());
@@ -298,19 +344,31 @@ public class MusicApexWrapper extends CMXFileWrapper{
       //System.out.println(maw.selectNodeList("/music-apex[@apex-inherited='yes'][@aspect='hoge'][@target='sample.xml']/group[@depth='1']/group").getLength());
       System.out.println(maw.selectNodeList(hoge).getLength());
       System.out.println(maw.selectNodeList(hoge+"//note").getLength());
-       */
+       
 
       maw.toplevel.printGroupStat();
       ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(0)).printGroupStat();
       ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(1)).printGroupStat();
       ((ApexWrapedGroup) maw.toplevel.getSubgroups().get(1).getSubgroups().get(0)).printGroupStat();
 
+      */
+      
+      for(NoteGroup g : maw.getDepthFirstGroupView()){
+        ((ApexWrapedGroup)g).printGroupStat();
+      }
+      
+      System.out.println(maw.getAspect());
+      
     } catch (IOException e) {
-      // TODO 自動生成された catch ブロック
       e.printStackTrace();
     }
   }
 
+  /**
+   * for debugging method
+   * @param n Note
+   */
+  @Deprecated
   public static void printNodeStat(Node n){
     System.out.print("Name:"+n.getNodeName()+" Value:"+n.getNodeValue());
     System.out.println("Text:"+n.getTextContent());

@@ -2,7 +2,11 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 
@@ -38,6 +42,7 @@ public class MusicApexDataSet {
   private String aspect = null;
   private ApexDataGroup toplevel = null;
 
+  private HashMap<Node, MusicXMLWrapper.Note> noteMap = new HashMap(); 
   private List<Note> allnotes;
   
   /**
@@ -89,6 +94,7 @@ public class MusicApexDataSet {
           if(md instanceof MusicXMLWrapper.Note){
             MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
             toplevel.addNote(note);
+            noteMap.put(note.node(), note);
             allnotes.add(note);
           }
         }
@@ -301,12 +307,8 @@ public class MusicApexDataSet {
       undernotes.add(n);
       return;
     }
-
     
     @Override
-    /**
-     * 
-     */
     public void addSubgroup(NoteGroup g) {
       if(g instanceof ApexDataGroup){
         ((ApexDataGroup)g).groupParent = this;
@@ -432,10 +434,24 @@ public class MusicApexDataSet {
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
        //ads.toWrapper().writefile(new File("sampleapex.xml"));
-      ads.toWrapper().write(System.out);
+
+      
+      NodeList nl = musicxml.selectNodeList("/score-partwise/part/measure[@number='1']/note");
+      for(int i=0; i<nl.getLength(); i++){
+        System.out.println(nl.item(i).getTextContent());
+        printNote(ads.noteMap.get(nl.item(i)));
+      }
+      
+      //ads.toWrapper().write(System.out);
        }
     catch (Exception e) {
       e.printStackTrace();
     }
+  }
+  
+  @Deprecated
+  public static void printNote(Note n){
+    System.out.println("Type:"+n.type()+" m:"+n.measure().number()+" b:"+n.beat()+" text:"+n.getText());
+    System.out.println(n.getText());
   }
 }
