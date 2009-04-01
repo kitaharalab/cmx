@@ -126,23 +126,24 @@ public class PerformanceMatcher3 {
     } while (i >= 0 || j >= 0);
     int[] indexlist = new int[scoreNotes.length];
     Arrays.fill(indexlist, -1);
+    boolean[] matched = new boolean[pfmNotes.length];
     for(i=0; i<com2pfm.length; i++) {
       NoteInSameTime snotes = compressedScore.get(i);
       NoteInSameTime pnotes = com2pfm[i];
-      boolean[] matched = new boolean[pnotes.notes.size()];
       for(j=0; j<snotes.notes.size(); j++) {
         for(int k=0; k<pnotes.notes.size(); k++) {
-          if(snotes.notes.get(j).notenum() == pnotes.notes.get(k).notenum() && !matched[k]) {
-            indexlist[snotes.indexes.get(j)] = pnotes.indexes.get(k);
-            matched[k] = true;
+          int pfmIndex = pnotes.indexes.get(k);
+          if(snotes.notes.get(j).notenum() == pnotes.notes.get(k).notenum() && !matched[pfmIndex]) {
+            indexlist[snotes.indexes.get(j)] = pfmIndex;
+            matched[pfmIndex] = true;
             break;
           }
         }
       }
-      for(j=0; j<matched.length; j++)
-        if(!matched[j])
-          extraNotes.add(pnotes.notes.get(j));
     }
+    for(j=0; j<matched.length; j++)
+      if(!matched[j])
+        extraNotes.add(pfmNotes[j]);
     return indexlist;
   }
 

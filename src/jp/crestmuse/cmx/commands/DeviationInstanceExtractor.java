@@ -3,15 +3,18 @@ package jp.crestmuse.cmx.commands;
 import java.io.*;
 
 import org.xml.sax.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
+
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 
-public class DeviationInstanceExtractor extends CMXCommand {
+public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, DeviationInstanceWrapper> {
 
-  private String targetMusicXMLFileName = null;
-  private boolean isSMF = false;
+  //private String targetMusicXMLFileName = null;
+  //private boolean isSMF = false;
+  private MIDIXMLWrapper midixml;
 
   private String scoreFileName = "score.mid";
   private String midiXmlFileName = "midi.xml";
@@ -25,9 +28,22 @@ public class DeviationInstanceExtractor extends CMXCommand {
     return super.getDestDir();
   }
 
-protected boolean setOptionsLocal(String option, String value) {
-    if (option.equals("-target")) {
-      targetMusicXMLFileName = value;
+  protected boolean setOptionsLocal(String option, String value) {
+    if (option.equals("-smf")){
+      try {
+        midixml = MIDIXMLWrapper.readSMF(value);
+      } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+      }
+      return true;
+    } else if(option.equals("-midixml")) {
+      try {
+        midixml = (MIDIXMLWrapper)CMXFileWrapper.readfile(value);
+      } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+      }
       return true;
     } else if (option.equals("-score")) {
       scoreFileName = value;
@@ -41,23 +57,18 @@ protected boolean setOptionsLocal(String option, String value) {
     } else if (option.equals("-division")) {
       division = Integer.parseInt(value);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   protected boolean setBoolOptionsLocal(String option) {
-    if (option.equals("-smf")) {
-      isSMF = true;
-      return true;
-    } else if (option.equals("-remakeSMF")) {
+    if (option.equals("-remakeSMF")) {
       remakeSMF = true;
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
-
+/*
   protected final FileWrapperCompatible readInputData(String filename) 
     throws IOException, ParserConfigurationException, SAXException, 
     TransformerException {
@@ -71,10 +82,10 @@ protected boolean setOptionsLocal(String option, String value) {
     if (targetMusicXMLFileName == null)
       throw new InvalidOptionException("'-target' is not specfied");
   }
-
-  protected void run() throws IOException,ParserConfigurationException,
+*/
+  protected DeviationInstanceWrapper run(MusicXMLWrapper musicxml) throws IOException,ParserConfigurationException,
     SAXException,TransformerException {
-    /* java DeviationInstanceExtractor -target (MusicXML) -smf (SMF)
+    /* java DeviationInstanceExtractor (MusicXML) -smf (SMF)
      * で実行．
      * 出力フォルダに注意．
      * 
@@ -84,36 +95,30 @@ protected boolean setOptionsLocal(String option, String value) {
      * ４．元の演奏データと比較
      * */
     String destdir = getDestDir();
-    MusicXMLWrapper musicxml = 
-      (MusicXMLWrapper)CMXFileWrapper.readfile(targetMusicXMLFileName);
-    MIDIXMLWrapper smf = (MIDIXMLWrapper)indata();
-    
- // 元の楽譜データをSMFとして出力
-    SCCXMLWrapper sccxml = musicxml.makeDeadpanSCCXML(smf.ticksPerBeat());
-    MIDIXMLWrapper midixml = 
-      (MIDIXMLWrapper) CMXFileWrapper.createDocument(MIDIXMLWrapper.TOP_TAG);
+    // 元の楽譜データをSMFとして出力
     if (remakeSMF) {
-      sccxml.toMIDIXML(midixml);
-      midixml.writefileAsSMF(new File(destdir, scoreFileName));
+      musicxml.makeDeadpanSCCXML(midixml.ticksPerBeat()).toMIDIXML().writefileAsSMF(new File(destdir, scoreFileName));
     }
-    
+
     DeviationInstanceWrapper diw; 
     if (division == 0)
-      diw = PerformanceMatcher3.extractDeviation(musicxml, smf);
+      diw = PerformanceMatcher3.extractDeviation(musicxml, midixml);
     else 
-      diw = PerformanceMatcher3.extractDeviation(musicxml, smf, division);
+      diw = PerformanceMatcher3.extractDeviation(musicxml, midixml, division);
     diw.finalizeDocument();
-    setOutputData(diw);
+    //setOutputData(diw);
 	
     if (remakeSMF) {
       // 出来たDeviationを元の楽譜データに適用して出来たMIDIをMIDIXMLとSMFで出力
-      SCCXMLWrapper sccxml2 = diw.toSCCXML(smf.ticksPerBeat());
+      SCCXMLWrapper sccxml2 = diw.toSCCXML(midixml.ticksPerBeat());
       //sccxml2.write(System.out);
       sccxml2.writefile(new File(destdir, sccXmlFileName));
       MIDIXMLWrapper midixml2 = sccxml2.toMIDIXML();
       midixml2.writefile(new File(destdir, midiXmlFileName));
       midixml2.writefileAsSMF(new File(destdir, remadeSmfFileName));
     }
+    
+    return diw;
   }
 
   public static void main(String[] args) {
