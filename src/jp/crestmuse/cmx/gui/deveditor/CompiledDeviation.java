@@ -37,7 +37,7 @@ import jp.crestmuse.cmx.misc.TreeView;
 public class CompiledDeviation {
 
   public static int TICKS_PER_BEAT = 480;
-  private int BASE_DYNAMICS = 100;
+  private int BASE_VELOCITY = 100;
   private int TEMPO = 72;
   private Sequence sequence;
   private ArrayList<DeviatedNote> deviatedNotes;
@@ -58,32 +58,35 @@ public class CompiledDeviation {
     calcMsecs();
 
     final HashMap<String, Track> part2track = new HashMap<String, Track>();
+    final HashMap<String, TreeMap<Integer, Double>> part2tbd = new HashMap<String, TreeMap<Integer,Double>>();
     deviation.getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise(){
-      
       private Track track;
-
+      private TreeMap<Integer, Double> tick2basedynamics;
       public void beginPart(Part part, MusicXMLWrapper wrapper) {
         track = sequence.createTrack();
         part2track.put(part.id(), track);
+        tick2basedynamics = getTick2BaseDynamics(deviation, part.id());
+        part2tbd.put(part.id(), tick2basedynamics);
       }
-
       public void beginMeasure(Measure measure, MusicXMLWrapper wrapper) {
       }
-
       public void endMeasure(Measure measure, MusicXMLWrapper wrapper) {
       }
-
       public void endPart(Part part, MusicXMLWrapper wrapper) {
       }
-
       public void processMusicData(MusicData md, MusicXMLWrapper wrapper) {
         if(!(md instanceof MusicXMLWrapper.Note)) return;
         MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
         if (note.rest() || "none".equals(note.notehead()) || note.containsTieType("stop"))
           return;
+        double baseDynamics = 1.0;
+        for(Entry<Integer, Double> e : tick2basedynamics.entrySet()) {
+          if(e.getKey() > note.onset(TICKS_PER_BEAT)) break;
+          baseDynamics = e.getValue();
+        }
         try {
           if(deviation.getMissNote(note) != null){
-            deviatedNotes.add(new DeviatedNote(note, true, track));
+            deviatedNotes.add(new DeviatedNote(note, true, track, baseDynamics));
             return;
           }
           double attack = 0.0; double release = 0.0; double dynamics = 1.0; double endDynamics = 1.0;
@@ -101,16 +104,15 @@ public class CompiledDeviation {
             dynamics *= cd.dynamics();
             endDynamics *= cd.endDynamics();
           }
-          deviatedNotes.add(new DeviatedNote(note, attack, release, dynamics, endDynamics, false, track));
+          deviatedNotes.add(new DeviatedNote(note, false, track, attack, release, dynamics, endDynamics, baseDynamics, nd.dynamicsType()));
         } catch (InvalidMidiDataException e) {
           e.printStackTrace();
         }
       }
-
     });
-    
+
     for(Entry<String, Track> e : part2track.entrySet())
-      processExtraNotes(deviation, e.getKey(), e.getValue());
+      processExtraNotes(deviation, e.getKey(), e.getValue(), part2tbd.get(e.getKey()));
 
   }
 
@@ -167,23 +169,48 @@ public class CompiledDeviation {
       prevTempo = e.getValue();
     }
   }
-  
-  private void processExtraNotes(DeviationInstanceWrapper dev, String partid, Track track){
+
+  private TreeMap<Integer, Double> getTick2BaseDynamics(DeviationInstanceWrapper deviation, String partid) {
+    TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
+    TreeView<Control> cv = deviation.getPartwiseControlView(partid);
+    cv.getRoot();
+    while(cv.hasElementsAtNextTime()) {
+      addBaseDynamics(cv.getFirstElementAtNextTime(), map);
+      while(cv.hasMoreElementsAtSameTime())
+        addBaseDynamics(cv.getNextElementAtSameTime(), map);
+    }
+    return map;
+  }
+
+  private void addBaseDynamics(Control c, TreeMap<Integer, Double> map) {
+    if(c == null || !c.type().equals("base-dynamics")) return;
+    try {
+      map.put(c.timestamp(TICKS_PER_BEAT), c.value());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  private void processExtraNotes(DeviationInstanceWrapper dev, String partid, Track track, TreeMap<Integer, Double> tick2basedynamics){
     TreeView<ExtraNote> tv = dev.getExtraNoteView(partid);
-    addExtraNote(tv.getRoot(), partid, track);
+    addExtraNote(tv.getRoot(), partid, track, tick2basedynamics);
     while (tv.hasElementsAtNextTime()) {
-      addExtraNote(tv.getFirstElementAtNextTime(), partid, track);
+      addExtraNote(tv.getFirstElementAtNextTime(), partid, track, tick2basedynamics);
       while (tv.hasMoreElementsAtSameTime())
-        addExtraNote(tv.getNextElementAtSameTime(), partid, track);
+        addExtraNote(tv.getNextElementAtSameTime(), partid, track, tick2basedynamics);
     }
   }
   
-  private void addExtraNote(ExtraNote en, String partid, Track track){
+  private void addExtraNote(ExtraNote en, String partid, Track track, TreeMap<Integer, Double> tick2basedynamics){
     if(en == null) return;
     try {
       int onset = en.timestamp(TICKS_PER_BEAT);
       int offset = onset + (int) (en.duration() * TICKS_PER_BEAT);
-      deviatedNotes.add(new DeviatedNote(null, onset, offset, en.notenum(), 0.0, 0.0, en.dynamics(), en.endDynamics(), false, partid, track));
+      double baseDynamics = 1.0;
+      for(Entry<Integer, Double> e : tick2basedynamics.entrySet()) {
+        if(e.getKey() > onset) break;
+        baseDynamics = e.getValue();
+      }
+      deviatedNotes.add(new DeviatedNote(null, false, track, onset, offset, en.notenum(), 0.0, 0.0, en.dynamics(), en.endDynamics(), partid, baseDynamics, "rate"));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -237,27 +264,31 @@ public class CompiledDeviation {
     private double dynamics;
     private double endDynamics;
     private boolean isMissNote;
+    private double baseDynamics;
+    private String dynamicsType;
     private String partid;
     private Track track;
     private MidiEvent noteOn;
     private MidiEvent noteOff;
 
-    private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track) throws InvalidMidiDataException{
-      this(note, 0.0, 0.0, 1.0, 1.0, isMissNote, track);
+    private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track, double baseDynamics) throws InvalidMidiDataException{
+      this(note, isMissNote, track, 0.0, 0.0, 1.0, 1.0, baseDynamics, "rate");
     }
 
-    private DeviatedNote(MusicXMLWrapper.Note note, double attack, double release, double dynamics, double endDynamics, boolean isMissNote, Track track) throws InvalidMidiDataException {
-      this(note, note.onset(TICKS_PER_BEAT), note.offset(TICKS_PER_BEAT), note.notenum(), attack, release, dynamics, endDynamics, isMissNote, null, track);
+    private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track, double attack, double release, double dynamics, double endDynamics, double baseDynamics, String dynamicsType) throws InvalidMidiDataException {
+      this(note, isMissNote, track, note.onset(TICKS_PER_BEAT), note.offset(TICKS_PER_BEAT), note.notenum(), attack, release, dynamics, endDynamics, null, baseDynamics, dynamicsType);
     }
 
-    private DeviatedNote(MusicXMLWrapper.Note note, int onset, int offset, int notenum, double attack, double release, double dynamics, double endDynamics, boolean isMissNote, String partid, Track track) throws InvalidMidiDataException {
-      super(onset, offset, notenum, BASE_DYNAMICS, BASE_DYNAMICS, TICKS_PER_BEAT);
+    private DeviatedNote(MusicXMLWrapper.Note note, boolean isMissNote, Track track, int onset, int offset, int notenum, double attack, double release, double dynamics, double endDynamics, String partid, double baseDynamics, String dynamicsType) throws InvalidMidiDataException {
+      super(onset, offset, notenum, BASE_VELOCITY, BASE_VELOCITY, TICKS_PER_BEAT);
       this.note = note;
       this.attack = attack;
       this.release = release;
       this.dynamics = dynamics;
       this.endDynamics = endDynamics;
       this.partid = partid;
+      this.baseDynamics = baseDynamics;
+      this.dynamicsType = dynamicsType;
       this.track = track;
       ShortMessage on = new ShortMessage();
       on.setMessage(ShortMessage.NOTE_ON, notenum(), velocity());
@@ -340,16 +371,26 @@ public class CompiledDeviation {
      */
     public int velocity() {
       if(isMissNote) return 0;
-      return Math.min((int)(super.velocity()*dynamics), 127);
+      int ret;
+      if(dynamicsType.equals("diff"))
+        ret = (int)(super.velocity() * (baseDynamics + dynamics));
+      else
+        ret = (int)(super.velocity() * baseDynamics * dynamics);
+      return Math.min(ret, 127);
     }
     
     /**
      * 表情付きoffVelocityを返す
      */
     public int offVelocity() {
-      return Math.min((int)(super.offVelocity()*endDynamics), 127);
+      int ret;
+      if(dynamicsType.equals("diff"))
+        ret = (int)(super.offVelocity() * (baseDynamics + dynamics));
+      else
+        ret = (int)(super.offVelocity() * baseDynamics * dynamics);
+      return Math.min(ret, 127);
     }
-    
+
     public MusicXMLWrapper.Note getNote(){
       return note;
     }
