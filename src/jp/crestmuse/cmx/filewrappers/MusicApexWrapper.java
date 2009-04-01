@@ -111,7 +111,6 @@ public class MusicApexWrapper extends CMXFileWrapper{
     return this.aspect;
   }
 
-  @Override
   protected void analyze() throws IOException{    
     try{
       addLinks("//note",getTargetMusicXML());
@@ -232,63 +231,50 @@ public class MusicApexWrapper extends CMXFileWrapper{
     private Note apex = null;
     private double saliency = Double.NaN;
 
-    @Override
     public int depth() {
       return depth;
     }
 
-    @Override
     public boolean isApexInherited() {
       return inherited;
     }
 
-    @Override
     public double getApexSaliency() {
       return saliency;
     }
 
-    @Override
     public List<Note> getNotes() {
       return ownnotes;
     }
 
-    @Override
     public List<Note> getAllNotes() {
       return undernotes;
     }
 
-    @Override
     public Note getApex() {
       return apex;
     }
 
-    @Override
     public List<NoteGroup> getSubgroups() {
       return subGroups;
     }
 
-    @Override
     public void addNote(Note n) throws UnsupportedOperationException{
       throw new UnsupportedOperationException();
     }
 
-
-    @Override
     public void addSubgroup(NoteGroup g) {
       throw new UnsupportedOperationException();
     }
 
-    @Override
     public void makeSubgroup(List<Note> notes) {
       throw new UnsupportedOperationException();
     }
 
-    @Override
     public void setApex(Note n) {
       throw new UnsupportedOperationException();
     }
 
-    @Override
     public void setApex(Note n, double value) {
       throw new UnsupportedOperationException();
     } 

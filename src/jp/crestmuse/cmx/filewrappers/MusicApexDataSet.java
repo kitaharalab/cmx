@@ -8,6 +8,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 
 /**
@@ -44,7 +45,7 @@ public class MusicApexDataSet {
 
   private HashMap<Node, MusicXMLWrapper.Note> noteMap = new HashMap(); 
   private List<Note> allnotes;
-  
+
   /**
    * MuscXMLを元に、MusicApexDataSetオブジェクトを作成します。
    * @param musicxml
@@ -52,7 +53,7 @@ public class MusicApexDataSet {
   public MusicApexDataSet(MusicXMLWrapper musicxml){
     this.musicxml = musicxml;
   }
-  
+
   /**
    * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
    * トップレベルグループ作成の時点でinheritedなグループかどうかを指定する必要があります。
@@ -67,7 +68,7 @@ public class MusicApexDataSet {
   public NoteGroup createTopLevelGroup(Boolean inherited){
     return createTopLevelGroup(inherited, null);
   }
-  
+
   /**
    * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
    * inheritedとaspectを指定する必要があります。
@@ -83,7 +84,7 @@ public class MusicApexDataSet {
     this.allnotes = new ArrayList<Note>();
     toplevel.depth = 1;
     toplevel.groupParent = null;
-    
+
     //MusicXMLのすべてのNote要素をグループに追加する
     MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
     for (MusicXMLWrapper.Part part : partlist) {
@@ -102,7 +103,7 @@ public class MusicApexDataSet {
     }
     return toplevel;
   }
-  
+
   /**
    * どこのグループにも属さない空のApexDataGroupオブジェクトを作成します。
    * @return
@@ -110,7 +111,7 @@ public class MusicApexDataSet {
   public NoteGroup createGroup(){
     return new ApexDataGroup();
   }
-  
+
   /**
    * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
    * @param notes このグループに含まれるNoteオブジェクトのリスト
@@ -119,7 +120,7 @@ public class MusicApexDataSet {
   public NoteGroup createGroup(List<Note> notes){
     return new ApexDataGroup(notes, null, Double.NaN);
   }
-  
+
   /**
    * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
    * @param notes このグループに含まれるNoteオブジェクトのリスト
@@ -129,7 +130,7 @@ public class MusicApexDataSet {
   public NoteGroup createGroup(List<Note> notes, Note apex){
     return new ApexDataGroup(notes, apex, Double.NaN);
   }
-  
+
   /**
    * どこのグループにも属さないApexDataGroupオブジェクトを作成します。
    * @param notes このグループに含まれるNoteオブジェクトのリスト
@@ -140,7 +141,7 @@ public class MusicApexDataSet {
   public NoteGroup createGroup(List<Note> notes, Note apex, double saliency){
     return new ApexDataGroup(notes, apex, saliency);
   }
-  
+
   /**
    * 作成するMusicApexDataSetクラスが何に着目した楽曲構造かをセットします。
    * 1つのMusiApexDataSetクラスは一つのaspectを持ちます。
@@ -150,7 +151,7 @@ public class MusicApexDataSet {
     this.aspect = aspect;
     return;
   }
-  
+
   /**
    * トップレベルグループのインスタンスを返します。
    * @return トップレベルのApexDataGroupオブジェクト
@@ -158,7 +159,7 @@ public class MusicApexDataSet {
   public ApexDataGroup topgroup(){
     return this.toplevel;
   }
-  
+
   /**
    * 作成したDataSetからXMLを作成し、MusicApexWrapperを生成して返します。
    * XMLテキスト上に出力されるグループの順番は、親グループに先に追加されたものが先に記述されます。
@@ -180,7 +181,7 @@ public class MusicApexDataSet {
 
     return mawxml;
   }
- 
+
   private void writeApexDataGroup(NoteGroup group){
     mawxml.addChild("group");
     if(group.depth() == -1) throw new RuntimeException("Invalid GroupDepth");
@@ -213,14 +214,14 @@ public class MusicApexDataSet {
           "#xpointer(" + 
           group.getApex().getXPathExpression() + ")");
       if(!(Double.isNaN(group.getApexSaliency()))){
-         mawxml.setAttribute("saliency", group.getApexSaliency());
+        mawxml.setAttribute("saliency", group.getApexSaliency());
       }
       mawxml.returnToParent();
     }
     mawxml.returnToParent();
     return;
   }
-  
+
   /**
    * MusicXMLに含まれるNoteのリストのindexが
    * start番目からend番目のNoteをListにして返します
@@ -235,7 +236,7 @@ public class MusicApexDataSet {
     }
     return dest;
   }
-  
+
   /**
    * MusicApexDataSetクラスで用いる、音楽構造グループ1つを表すクラスです。
    * 
@@ -253,11 +254,11 @@ public class MusicApexDataSet {
     private NoteGroup groupParent = null;
     private Note apex = null;
     private double saliency = Double.NaN;
-    
+
     public ApexDataGroup(){
       return;
     }
-    
+
     public ApexDataGroup(List<Note> notes, Note apex, double saliency){
       this.ownnotes.addAll(notes);
       this.undernotes.addAll(notes);
@@ -266,49 +267,40 @@ public class MusicApexDataSet {
       return;
     }
 
-    @Override
     public int depth() {
       return depth;
     }
-    
-    @Override
+
     public boolean isApexInherited() {
       return inherited;
     }
-   
-    @Override
+
     public double getApexSaliency() {
       return saliency;
     }
-    
-    @Override
+
     public List<Note> getNotes() {
       return ownnotes;
     }
-    
-    @Override
+
     public List<Note> getAllNotes() {
       return undernotes;
     }
 
-    @Override
     public Note getApex() {
       return apex;
     }
 
-    @Override
     public List<NoteGroup> getSubgroups() {
       return subGroups;
     }
 
-    @Override
     public void addNote(Note n) {
       ownnotes.add(n);
       undernotes.add(n);
       return;
     }
-    
-    @Override
+
     public void addSubgroup(NoteGroup g) {
       if(g instanceof ApexDataGroup){
         ((ApexDataGroup)g).groupParent = this;
@@ -322,12 +314,11 @@ public class MusicApexDataSet {
       return;
     }
 
-    @Override
     public void makeSubgroup(List<Note> notes) {
       makeSubgroup(notes, null);
       return;
     }
-    
+
     /**
      * このインスタンスから、子としてグループを作成し、追加します。
      * @param notes グループ化するNoteオブジェクトのリスト
@@ -338,7 +329,7 @@ public class MusicApexDataSet {
       makeSubgroup(notes, apex, Double.NaN);
       return;
     }
-    
+
     /**
      * このインスタンスから、子としてグループを作成し、追加します。
      * @param notes グループ化するNoteオブジェクトのリスト
@@ -366,7 +357,7 @@ public class MusicApexDataSet {
       g.ownnotes.addAll(notes);
       g.undernotes.addAll(notes);
       g.depth = this.depth + 1;
-      
+
       if(isApexInherited() == true && this.getApex() != null
           && g.ownnotes.contains(this.apex)){
         g.apex = this.apex;
@@ -382,7 +373,6 @@ public class MusicApexDataSet {
       return;
     }
 
-    @Override
     public void setApex(Note n) {
       if(this.apex != null) 
         throw new RuntimeException("This group already has Apex. : "+n.getXPathExpression());
@@ -390,7 +380,6 @@ public class MusicApexDataSet {
       return;
     }
 
-    @Override
     public void setApex(Note n, double value) {
       if(inherited) throw new RuntimeException("This Apex is inherited");
       this.apex = n;
@@ -410,7 +399,7 @@ public class MusicApexDataSet {
       }
       return;
     }
-    
+
     /**
      * このインスタンスの親のグループを返します。
      * @return 親のApexDataGroupオブジェクト(存在しないならnull)
@@ -419,7 +408,7 @@ public class MusicApexDataSet {
       return groupParent;
     }
   }
-  
+
   public static void main(String[] args){
     MusicXMLWrapper musicxml = new MusicXMLWrapper();
     try {
@@ -433,22 +422,28 @@ public class MusicApexDataSet {
       ((ApexDataGroup)ads.toplevel.subGroups.get(1)).makeSubgroup(ads.getNotesByRange(24, 28), ads.allnotes.get(28));
       //ApexDataGroup gp = (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
       //mad.grouptop.addSubgroup(gp);
-       //ads.toWrapper().writefile(new File("sampleapex.xml"));
+      //ads.toWrapper().writefile(new File("sampleapex.xml"));
 
-      
+
       NodeList nl = musicxml.selectNodeList("/score-partwise/part/measure[@number='1']/note");
       for(int i=0; i<nl.getLength(); i++){
         System.out.println(nl.item(i).getTextContent());
         printNote(ads.noteMap.get(nl.item(i)));
       }
-      
+
+      Note a = ads.allnotes.get(1);
+      Class c = Note.class;
+      System.out.println(a instanceof NodeInterface);
+      System.out.println(c.getName());
+      System.out.println(a);
+      System.out.println(a.getClass().equals(c));
       //ads.toWrapper().write(System.out);
-       }
+    }
     catch (Exception e) {
       e.printStackTrace();
     }
   }
-  
+
   @Deprecated
   public static void printNote(Note n){
     System.out.println("Type:"+n.type()+" m:"+n.measure().number()+" b:"+n.beat()+" text:"+n.getText());
