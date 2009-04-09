@@ -43,6 +43,7 @@ public class CompiledDeviation {
   private ArrayList<DeviatedNote> deviatedNotes;
   private TreeMap<Integer, Integer> ticks2tempo;
   private TreeMap<Integer, Integer> ticks2msec;
+  private final int linearDivision = 8;
 
   public CompiledDeviation(final DeviationInstanceWrapper deviation) throws IOException,
       InvalidMidiDataException {
@@ -104,7 +105,9 @@ public class CompiledDeviation {
             dynamics *= cd.dynamics();
             endDynamics *= cd.endDynamics();
           }
-          deviatedNotes.add(new DeviatedNote(note, false, track, attack, release, dynamics, endDynamics, baseDynamics, nd.dynamicsType()));
+          String dynamicsType = "rate";
+          if(nd != null) dynamicsType = nd.dynamicsType();
+          deviatedNotes.add(new DeviatedNote(note, false, track, attack, release, dynamics, endDynamics, baseDynamics, dynamicsType));
         } catch (InvalidMidiDataException e) {
           e.printStackTrace();
         }
@@ -119,16 +122,17 @@ public class CompiledDeviation {
   private void processNonPartwiseControls(DeviationInstanceWrapper deviation) {
     Track track = sequence.createTrack();
     setTempo(0, track, TEMPO);
+    int[] prevTempo = { TEMPO };
     TreeView<Control> tv = deviation.getNonPartwiseControlView();
-    int currentTempo = addTempo(tv.getRoot(), track, TEMPO);
+    int currentTempo = addTempo(tv.getRoot(), track, TEMPO, prevTempo);
     while (tv.hasElementsAtNextTime()) {
-      currentTempo = addTempo(tv.getFirstElementAtNextTime(), track, currentTempo);
+      currentTempo = addTempo(tv.getFirstElementAtNextTime(), track, currentTempo, prevTempo);
       while (tv.hasMoreElementsAtSameTime())
-        currentTempo = addTempo(tv.getNextElementAtSameTime(), track, currentTempo);
+        currentTempo = addTempo(tv.getNextElementAtSameTime(), track, currentTempo, prevTempo);
     }
   }
 
-  private int addTempo(Control c, Track track, int currentTempo) {
+  private int addTempo(Control c, Track track, int currentTempo, int[] prevTempo) {
     if (c == null)
       return currentTempo;
     int tempo;
@@ -137,6 +141,20 @@ public class CompiledDeviation {
       tempo = currentTempo;
     } else if (c.type().equals("tempo-deviation")) {
       tempo = (int) (currentTempo * c.value());
+      String curve = null;
+      if(c.containsAttributeInChild("curve"))
+        curve = c.getChildAttribute("curve");
+      if(curve != null && curve.equals("linear")){
+        double timeDiv = TICKS_PER_BEAT / (double)linearDivision;
+        double tempoDiv = (tempo - prevTempo[0]) / (double)linearDivision;
+        for(int i = linearDivision - 1; i >= 1; i--) {
+          try {
+            setTempo(c.timestamp(TICKS_PER_BEAT) - (int)(timeDiv * i), track, tempo - (int)(tempoDiv * i));
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
     } else
       return currentTempo;
     try {
@@ -144,6 +162,7 @@ public class CompiledDeviation {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    prevTempo[0] = tempo;
     return currentTempo;
   }
 
