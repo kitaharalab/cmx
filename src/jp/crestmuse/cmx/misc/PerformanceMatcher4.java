@@ -12,21 +12,17 @@ import javax.xml.transform.*;
   
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
-public class PerformanceMatcher3 {
+public class PerformanceMatcher4 {
 
   private static int baseTempo = 120;
   private static final double BASE_DYNAMICS = 100.0;
   private static final double ATTACK_LIMIT = 2000.0;
 
   private MusicXMLWrapper musicxml;
-  private MIDIXMLWrapper midixml;
+  //private MIDIXMLWrapper midixml;
 
   private String partid;
   private Measure[] measurelist;
@@ -37,25 +33,25 @@ public class PerformanceMatcher3 {
   //  private SCCXMLWrapper scoreSCC;
   //  private SCCXMLWrapper pfmSCC;
 
-  private DeviationDataSet dds;
+  //private DeviationDataSet dds;
 
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
 
-  public PerformanceMatcher3(MusicXMLWrapper score, 
+  public PerformanceMatcher4(MusicXMLWrapper score, 
                              MIDIXMLWrapper pfm) 
     throws ParserConfigurationException, SAXException, IOException,
     TransformerException {
     this(score, pfm, pfm.ticksPerBeat());
   }
 
-  public PerformanceMatcher3(MusicXMLWrapper score, 
+  public PerformanceMatcher4(MusicXMLWrapper score, 
                              MIDIXMLWrapper pfm, 
                              int ticksPerBeat) 
     throws ParserConfigurationException, SAXException, IOException, 
     TransformerException {
     this.musicxml = score;
-    this.midixml = pfm;
+    //this.midixml = pfm;
     Part part0 = musicxml.getPartList()[0];
     measurelist = part0.getMeasureList();
     partid = part0.id();
@@ -75,9 +71,9 @@ public class PerformanceMatcher3 {
   public DeviationInstanceWrapper extractDeviation() 
     throws ParserConfigurationException, SAXException, IOException, 
     TransformerException  {
-    DeviationInstanceWrapper dev = 
-        DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
-    DeviationDataSet dds = dev.createDeviationDataSet();
+    //DeviationInstanceWrapper dev =  DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
+    //DeviationDataSet dds = dev.createDeviationDataSet();
+    DeviationDataSet dds = new DeviationDataSet(musicxml);
     List<Note> extraNotes = new ArrayList<Note>();
     int[] indexlist = getPath(dtw(500), extraNotes);
     sortIndexList(indexlist);
@@ -90,8 +86,7 @@ public class PerformanceMatcher3 {
     dds.addNonPartwiseControl(headMeasure, 1, "tempo", avgtempo);
     addTempoDeviations(dds, tempolist, avgtempo);
     setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
-    dds.toWrapper();
-    return dev;
+    return dds.toWrapper();
   }
 
   public static DeviationInstanceWrapper extractDeviation
@@ -347,7 +342,7 @@ public class PerformanceMatcher3 {
       return s;
     }
   }
-
+/*
   private void alignNotes(int[] path, int[] indexlist, List<Note> extraNotes) {
     for (int m = 0; m < indexlist.length; m++)
       indexlist[m] = -1;
@@ -391,7 +386,7 @@ public class PerformanceMatcher3 {
     else
       extraNotes.add(pfmNotes[n]);
   }
-
+*/
   private void setNotewiseDeviations(DeviationDataSet dds, 
                                      int[] indexlist, 
                                      List<Note> extraNotes, 
@@ -422,7 +417,7 @@ public class PerformanceMatcher3 {
   private void addNoteDeviation(DeviationDataSet dds, Note noteS, 
                                 Note noteP, 
                                 ArrayList<TempoAndTime> tempolist){
-    int initticks = (int)(tempolist.get(0).tickInPfm);
+    //int initticks = (int)(tempolist.get(0).tickInPfm);
     TempoAndTime tnt = searchTnT(noteP.onset(), 
 				 //noteS.onset()/scoreTicksPerBeat, 
                                  tempolist);
