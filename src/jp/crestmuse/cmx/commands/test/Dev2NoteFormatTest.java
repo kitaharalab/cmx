@@ -20,140 +20,140 @@ public class Dev2NoteFormatTest {
 	boolean debug_mode = false; //デバッグモードのフラグ
 	FileWriter fw;
 	public Dev2NoteFormatTest(DeviationInstanceWrapper dev){
-		
-		//debug_modeでないならファイルに出力
-		if(!debug_mode){
-			try{
-				fw = new FileWriter(new File("output.txt"));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-			
-		
-		try{			
-			
-			//DeviationXMLに対応するMusicXML取得
-			MusicXMLWrapper mus = dev.getTargetMusicXML();
-			//ヘッダ作成&出力
-			NoteFormatElement header = new NoteFormatElement();
-			header = header.setHeaderInformation(mus);
-			output(header.getHeader() + System.getProperty("line.separator"));
-			
-			//パート取得
-			MusicXMLWrapper.Part[] partlist = mus.getPartList();
-			for (MusicXMLWrapper.Part part : partlist) {
-				String partID = part.getAttribute("id"); //partID パートの識別の他に、Note形式のIdentで用いる
-				MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
-				double currenttempo = measurelist[0].tempo(); //MusicXML上の初期テンポを取得
-				for (MusicXMLWrapper.Measure measure : measurelist) {
-					//小節内のMusicDataList(NoteやらAttributeやら)取得
-					MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
-					double starttime_buf = 0;
-					for (MusicXMLWrapper.MusicData md : mdlist) {
-						if(md instanceof MusicXMLWrapper.Note){
-							MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
-							
-							NoteFormatElement nf = new NoteFormatElement();
-							nf.starttime = (measure.number()-1)*header.beattype + note.beat();
-							nf.ident = partID;
-							nf.len = 4/header.beattype * note.actualDuration() ;
-							
-							
-							//Deviation partwise
-							//※PEDB 1.0に収録される楽曲にはペダルが使用されているものがないため，これらの要素は登場しない．
-							
-							if(note.rest()){ //休符の時
-								
-							}
-							else{
-								nf.pitch = (note.pitchStep() + note.pitchOctave());
-							
-								
-								//Deviation notewise
-								DeviationInstanceWrapper.NoteDeviation notedev = dev.getNoteDeviation((MusicXMLWrapper.Note)md);
-								if(notedev != null){
-									nf.vel = (int)(dev.getBaseDynamics() * notedev.dynamics());
-									nf.off_vel = (int)(dev.getBaseDynamics() * notedev.endDynamics());//CMXで未実装
-									nf.on_devi = header.beattype/4 * notedev.attack();
-									nf.off_devi = header.beattype/4 * notedev.release();
-								}
-								DeviationInstanceWrapper.ChordDeviation chorddev = dev.getChordDeviation((MusicXMLWrapper.Note)md);
-								if(chorddev != null){
-								//※PEDB 1.0のDeviationInstanceXMLドキュメントでは使用されていない
-								//  from http://www.crestmuse.jp/pedb/DeviationInstanceXML.txt
-								}
-								DeviationInstanceWrapper.MissNote missnote = dev.getMissNote((MusicXMLWrapper.Note)md);
-								boolean missed = false;
-								if(missnote != null){
-									if(missnote.hasAttribute("xlink:href")) missed = true;
-								}
-								
-								//Extra-Notes
-								for(ExtraNote enote : dev.getExtraNotesList(dev, partID)){
-									if(nf.starttime > (enote.measure()-1)*header.beattype + enote.beat()){
-										if(starttime_buf <= (enote.measure()-1)*header.beattype + enote.beat()){
-											NoteFormatElement enf = new NoteFormatElement();
-											enf.starttime = (enote.measure()-1)*header.beattype + enote.beat();
-											enf.ident = partID;
-											enf.len = 4/header.beattype * enote.duration();
-											enf.pitch = (enote.pitchStep() + enote.pitchOctave());
-											enf.vel = (int)(dev.getBaseDynamics() * enote.dynamics());
-											enf.off_vel = (int)(dev.getBaseDynamics() * enote.endDynamics()); //CMX未実装
-											enf.on_devi = 0.0; //仕様に無い
-											enf.off_devi = 0.0; //仕様に無い
-											output(enf.getFormedElement()+System.getProperty("line.separator"));
-										}
-									}
-									else break;
-								}
-								
-								//Deviation non-partwise
-								double tempo_dev = 1.0;
-								for (Control cont : dev.getNonPartwiseList(dev)) {									
-									if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
-										if(cont.type().equals("tempo")) currenttempo = cont.value();
-										else if(cont.type().equals("tempo-deviation"))tempo_dev = cont.value();
-										else break;
-									}
-									if(starttime_buf != nf.starttime){
-										output(nf.starttime+" BPM "+currenttempo*tempo_dev+" "+header.beattype + System.getProperty("line.separator"));
-										starttime_buf = nf.starttime;
-									}
-								}
-								
-								//Note情報を出力
-								if(!missed)
-									output(nf.getFormedElement() + System.getProperty("line.separator"));
-								
-								
-							}
-						}//END instance of Note
-						
-						
-					}//END foreach on MusicDataList
-				}//END foreach on MeasureList
-			}//END foreach on PartList
-			
-			output(NoteFormatElement.getEnd());
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
-		finally{
-			if(!debug_mode){
-				try{
-					fw.close();
-				}
-				catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		
-	}
+  	
+  	//debug_modeでないならファイルに出力
+  	if(!debug_mode){
+  		try{
+  			fw = new FileWriter(new File("output.txt"));
+  		}
+  		catch(Exception e){
+  			e.printStackTrace();
+  		}
+  	}
+  		
+  	
+  	try{			
+  		
+  		//DeviationXMLに対応するMusicXML取得
+  		MusicXMLWrapper mus = dev.getTargetMusicXML();
+  		//ヘッダ作成&出力
+  		NoteFormatElement header = new NoteFormatElement();
+  		header = header.setHeaderInformation(mus);
+  		output(header.getHeader() + System.getProperty("line.separator"));
+  		
+  		//パート取得
+  		MusicXMLWrapper.Part[] partlist = mus.getPartList();
+  		for (MusicXMLWrapper.Part part : partlist) {
+  			String partID = part.getAttribute("id"); //partID パートの識別の他に、Note形式のIdentで用いる
+  			MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
+  			double currenttempo = measurelist[0].tempo(); //MusicXML上の初期テンポを取得
+  			for (MusicXMLWrapper.Measure measure : measurelist) {
+  				//小節内のMusicDataList(NoteやらAttributeやら)取得
+  				MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
+  				double starttime_buf = 0;
+  				for (MusicXMLWrapper.MusicData md : mdlist) {
+  					if(md instanceof MusicXMLWrapper.Note){
+  						MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md; //Noteにダウンキャスト
+  						
+  						NoteFormatElement nf = new NoteFormatElement();
+  						nf.starttime = (measure.number()-1)*header.beattype + note.beat();
+  						nf.ident = partID;
+  						nf.len = 4/header.beattype * note.actualDuration() ;
+  						
+  						
+  						//Deviation partwise
+  						//※PEDB 1.0に収録される楽曲にはペダルが使用されているものがないため，これらの要素は登場しない．
+  						
+  						if(note.rest()){ //休符の時
+  							
+  						}
+  						else{
+  							nf.pitch = (note.pitchStep() + note.pitchOctave());
+  						
+  							
+  							//Deviation notewise
+  							DeviationInstanceWrapper.NoteDeviation notedev = dev.getNoteDeviation((MusicXMLWrapper.Note)md);
+  							if(notedev != null){
+  								nf.vel = (int)(dev.getBaseVelocity() * notedev.dynamics());
+  								nf.off_vel = (int)(dev.getBaseVelocity() * notedev.endDynamics());//CMXで未実装
+  								nf.on_devi = header.beattype/4 * notedev.attack();
+  								nf.off_devi = header.beattype/4 * notedev.release();
+  							}
+  							DeviationInstanceWrapper.ChordDeviation chorddev = dev.getChordDeviation((MusicXMLWrapper.Note)md);
+  							if(chorddev != null){
+  							//※PEDB 1.0のDeviationInstanceXMLドキュメントでは使用されていない
+  							//  from http://www.crestmuse.jp/pedb/DeviationInstanceXML.txt
+  							}
+  							DeviationInstanceWrapper.MissNote missnote = dev.getMissNote((MusicXMLWrapper.Note)md);
+  							boolean missed = false;
+  							if(missnote != null){
+  								if(missnote.hasAttribute("xlink:href")) missed = true;
+  							}
+  							
+  							//Extra-Notes
+  							for(ExtraNote enote : dev.getExtraNotesList(dev, partID)){
+  								if(nf.starttime > (enote.measure()-1)*header.beattype + enote.beat()){
+  									if(starttime_buf <= (enote.measure()-1)*header.beattype + enote.beat()){
+  										NoteFormatElement enf = new NoteFormatElement();
+  										enf.starttime = (enote.measure()-1)*header.beattype + enote.beat();
+  										enf.ident = partID;
+  										enf.len = 4/header.beattype * enote.duration();
+  										enf.pitch = (enote.pitchStep() + enote.pitchOctave());
+  										enf.vel = (int)(dev.getBaseVelocity() * enote.dynamics());
+  										enf.off_vel = (int)(dev.getBaseVelocity() * enote.endDynamics()); //CMX未実装
+  										enf.on_devi = 0.0; //仕様に無い
+  										enf.off_devi = 0.0; //仕様に無い
+  										output(enf.getFormedElement()+System.getProperty("line.separator"));
+  									}
+  								}
+  								else break;
+  							}
+  							
+  							//Deviation non-partwise
+  							double tempo_dev = 1.0;
+  							for (Control cont : dev.getNonPartwiseList(dev)) {									
+  								if(nf.starttime >= (cont.measure()-1)*header.beattype + cont.beat()){
+  									if(cont.type().equals("tempo")) currenttempo = cont.value();
+  									else if(cont.type().equals("tempo-deviation"))tempo_dev = cont.value();
+  									else break;
+  								}
+  								if(starttime_buf != nf.starttime){
+  									output(nf.starttime+" BPM "+currenttempo*tempo_dev+" "+header.beattype + System.getProperty("line.separator"));
+  									starttime_buf = nf.starttime;
+  								}
+  							}
+  							
+  							//Note情報を出力
+  							if(!missed)
+  								output(nf.getFormedElement() + System.getProperty("line.separator"));
+  							
+  							
+  						}
+  					}//END instance of Note
+  					
+  					
+  				}//END foreach on MusicDataList
+  			}//END foreach on MeasureList
+  		}//END foreach on PartList
+  		
+  		output(NoteFormatElement.getEnd());
+  	}
+  	catch(Exception e){
+  		e.printStackTrace();
+  	}
+  	finally{
+  		if(!debug_mode){
+  			try{
+  				fw.close();
+  			}
+  			catch(Exception e){
+  				e.printStackTrace();
+  			}
+  		}
+  	}
+  	
+  	
+  }
 	
 	/**
 	 * debug_modeの時は標準出力に、

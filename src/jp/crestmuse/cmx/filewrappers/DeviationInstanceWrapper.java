@@ -51,24 +51,15 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   // private boolean notewiseStarted = false;
 
   private int baseVelocity = 100;
-  private double baseDynamics = 1.0;
 
   private boolean alreadyAnalyzed = false;
-
-  public void setBaseDynamics(double dynamics) {
-    this.baseDynamics = dynamics;
-  }
-
-  public double getBaseDynamics() {
-    return baseDynamics;
-  }
 
   public void setBaseVelocity(int velocity) {
     this.baseVelocity = velocity;
   }
 
   public int getBaseVelocity() {
-    return baseVelocity;
+    return this.baseVelocity;
   }
 
   // protected void init() {
