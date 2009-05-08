@@ -249,7 +249,16 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       createNoteView();
     return slurredNoteView;
   }
-
+  
+  /**
+   * 
+   * @param <T>
+   * @return
+   */
+  public XPathView getXPathView(){
+    return new XPathView();
+  }
+  
   /**********************************************************************
    *<p>小節のattributeタグを取得します．</p>
    * @author Hashida
@@ -1948,5 +1957,55 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public String toString() {
       return getNodeName() + "[type=" + type() + ", number=" + number() + "]";
     }
+  }
+  
+  
+  public class XPathView{
+    private HashMap<Node, NodeInterface> n2ni = new HashMap<Node, NodeInterface>();
+
+    public XPathView(){
+      Part[] partlist = getPartList();
+      for (Part part : partlist) {
+        n2ni.put(part.node(), part);
+        Measure[] measurelist = part.getMeasureList();
+        for (Measure measure : measurelist) {
+          n2ni.put(measure.node(), measure);
+          MusicData[] mdlist = measure.getMusicDataList();
+          for (MusicData md : mdlist) {
+            n2ni.put(md.node(), md);
+          }
+        }
+      }
+    }
+    
+    public List<NodeInterface> get(String xpath){
+      List<NodeInterface> data = new ArrayList<NodeInterface>();
+      NodeList nl = selectNodeList(xpath);
+      NodeInterface n;
+      for(int i=0; i<nl.getLength(); i++){
+        n = n2ni.get(nl.item(i)); 
+        if(n != null) data.add(n);
+      }
+      return data;
+    }
+    
+    public List get(String xpath, Class... cls){
+      List data = new ArrayList();
+      NodeList nl = selectNodeList(xpath);
+      NodeInterface n;
+      for(int i=0; i<nl.getLength(); i++){
+        n = n2ni.get(nl.item(i));
+        Boolean flag = false;
+        for(Class c : cls){
+          if(c == n.getClass()){
+            flag = true;
+            break;
+          }
+        }
+        if(flag) data.add(n);
+      }
+      return data;
+    }
+
   }
 }
