@@ -1960,7 +1960,15 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   }
   
   
+  /**
+   * XML中のノード集合を表すXPath式を利用して、MusicXMLWrapperがラップするオブジェクトを取得するためのクラスです。
+   * XPathViewを用いて取り出されるオブジェクトは、NodeInterfaceを実装している必要があります。
+   * 09/05/08現在サポートされるクラスはPart,Measure,MusicDataおよびそれのサブクラスです。
+   * 
+   * @author Ryosuke Tokuami
+   */
   public class XPathView{
+    
     private HashMap<Node, NodeInterface> n2ni = new HashMap<Node, NodeInterface>();
 
     public XPathView(){
@@ -1978,8 +1986,16 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       }
     }
     
-    public List<NodeInterface> get(String xpath){
-      List<NodeInterface> data = new ArrayList<NodeInterface>();
+    /**
+     * XPath式をもとに、MusicXMLWrapperがラップするオブジェクトのリスト返します。
+     * リストに保存される順番は、XML文書中に出現する順番にならいます。
+     * ノードが存在しなければ空のリストが返ります。
+     * (存在しないパスを指定しても例外は発生しないので、タイプミス等注意して下さい。)
+     * @param xpath XPath式
+     * @return
+     */
+    public List get(String xpath){
+      List data = new ArrayList();
       NodeList nl = selectNodeList(xpath);
       NodeInterface n;
       for(int i=0; i<nl.getLength(); i++){
@@ -1989,6 +2005,15 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return data;
     }
     
+    /**
+     * XPath式をもとに、MusicXMLWrapperがラップする指定したクラスのオブジェクトのリストを返します。
+     * リストに保存される順番は、XML文書中に出現する順番にならいます。
+     * ノードが存在しなければ空のリストが返ります。
+     * (存在しないパスを指定しても例外は発生しないので、タイプミス等注意して下さい。)
+     * @param xpath XPath式
+     * @param cls クラスオブジェクト(可変長引数)
+     * @return
+     */
     public List get(String xpath, Class... cls){
       List data = new ArrayList();
       NodeList nl = selectNodeList(xpath);
