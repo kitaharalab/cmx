@@ -37,11 +37,18 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
+    /*
     int ch = winslider.getOutputChannels();
     System.err.println(ch);
     System.err.println(stft.getInputChannels());
     System.err.println(stft.getOutputChannels());
     System.err.println(peakext.getInputChannels());
+    */
+    int ch = winslider.getOutputClasses().length;
+    System.err.println(ch);
+    System.err.println(stft.getInputClasses().length);
+    System.err.println(stft.getOutputClasses().length);
+    System.err.println(peakext.getInputClasses().length);
     System.err.println(params);
     for (int i = 0; i < ch; i++) {
       exec.connect(winslider, i, stft, i);

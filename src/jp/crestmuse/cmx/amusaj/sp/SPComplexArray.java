@@ -45,4 +45,5 @@ public class SPComplexArray implements ComplexArray,SPElement {
   public boolean hasNext() {
     return hasNext;
   }
+
 }

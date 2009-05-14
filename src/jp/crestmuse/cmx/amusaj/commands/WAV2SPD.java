@@ -28,7 +28,8 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
-    int ch = winslider.getOutputChannels();
+    //int ch = winslider.getOutputChannels();
+    int ch = winslider.getOutputClasses().length;
     for (int i = 0; i < ch; i++) {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
@@ -36,7 +37,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
       exec.start();
 //      prepareOutputData(SPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible<PeakSet> peaks = 
-        (TimeSeriesCompatible<PeakSet>)exec.getResult(peakext).get(0);
+        (TimeSeriesCompatible)exec.getResult(peakext).get(0);
       AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
       dataset.add(peaks);
       return dataset;

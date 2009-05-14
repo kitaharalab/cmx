@@ -7,8 +7,10 @@ import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
 import java.util.*;
 
-public class HarmonicsExtractor<D extends SPElement>
-  extends SPModule<D, PeakSet> {
+//public class HarmonicsExtractor<D extends SPElement>
+//  extends SPModule<D, PeakSet> {
+public class HarmonicsExtractor<D extends SPElement> extends SPModule {
+
   private double f0range;
   private double freqRange;
   private double powerthrs;
@@ -32,7 +34,7 @@ public class HarmonicsExtractor<D extends SPElement>
     nHarmsForF0Calc = getParamInt("NUM_OF_HARMONICS_FOR_F0_CALC");
     setParams = true;
   }
-    
+/*
   public void execute(List<QueueReader<D>> src,
                       List<TimeSeriesCompatible<PeakSet>> dest)
     throws InterruptedException {
@@ -41,6 +43,15 @@ public class HarmonicsExtractor<D extends SPElement>
     SPDoubleArray f0array = (SPDoubleArray)src.get(1).take();
     double f0 = f0array.get(0);
     dest.get(0).add(extractHarmonics(peakset, f0, peakset.hasNext() && f0array.hasNext()));
+  }
+*/
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+      throws InterruptedException {
+    if (!setParams) setParams();
+    PeakSet peakset = (PeakSet)src[0];
+    SPDoubleArray f0array = (SPDoubleArray)src[1];
+    double f0 = f0array.get(0);
+    dest[0].add(extractHarmonics(peakset, f0, peakset.hasNext() && f0array.hasNext()));
   }
 
   private PeakSet extractHarmonics(PeakSet peakset, double f0, boolean hasNext) {
@@ -85,13 +96,21 @@ public class HarmonicsExtractor<D extends SPElement>
     }
     return accurateF0;
   }
-
+/*
   public int getInputChannels() {
     return 2;
   }
 
   public int getOutputChannels() {
     return 1;
+  }
+*/
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[]{ PeakSet.class, SPDoubleArray.class };
+  }
+
+  public Class<SPElement>[] getOutputClasses() {
+    return new Class[]{ PeakSet.class };
   }
 }
 

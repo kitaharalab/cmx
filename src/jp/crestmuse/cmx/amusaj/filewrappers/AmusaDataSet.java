@@ -133,7 +133,8 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         StringBuilder sb = new StringBuilder();
         SPElement elem = queue.take();
         sb.append(elem.encode());
-        while (elem.hasNext()) {
+        //while (elem.hasNext()) {
+        while (!(elem instanceof SPTerminator)) {
           elem = queue.take();
           sb.append("\n").append(elem.encode());
         }
@@ -207,7 +208,8 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         do {
           elem = queue.take();
           l.add(elem);
-        } while (elem.hasNext());
+        //} while (elem.hasNext());
+        } while (!(elem instanceof SPTerminator));
         StringBuilder sbAttr = new StringBuilder();
         d.setAttribute("frames", l.size());
         if (d.dim() > 0) d.setAttribute("dim", d.dim());
@@ -242,7 +244,8 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         do {
           elem = queue.take();
           l.add(elem);
-        } while (elem.hasNext());
+        //} while (elem.hasNext());
+        } while (!(elem instanceof SPTerminator));
         StringBuilder sbAttr = new StringBuilder();
         d.setAttribute("frames", l.size());
         if (d.dim() > 0) d.setAttribute("dim", d.dim());

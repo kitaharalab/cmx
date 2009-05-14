@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.QueueReader;
+
 import java.util.*;
 
 /************************************************************************
@@ -10,7 +11,7 @@ import java.util.*;
  *各モジュールには, 基本的には入力チャンネルと出力チャンネルが各々1つ以上あり, 
  *各チャンネルにキューが接続される形になります.  </p>
  ***********************************************************************/
-public interface ProducerConsumerCompatible<D extends SPElement, E extends SPElement> {
+public interface ProducerConsumerCompatible {
   public void setParams(Map<String,String> params);
 //  public boolean setOptionsLocal(String option, String value);
   /**********************************************************************
@@ -19,23 +20,25 @@ public interface ProducerConsumerCompatible<D extends SPElement, E extends SPEle
    *@param src 全入力チャンネルに対するQueueReaderオブジェクト
    *@param dest 全出力チャンネル
    **********************************************************************/
-  public void execute(List<QueueReader<D>> src, 
-                      List<TimeSeriesCompatible<E>> dest) 
+  public void execute(SPElement[] src, 
+                      TimeSeriesCompatible<SPElement>[] dest) 
     throws InterruptedException;
 //  public void execute(List<QueueReader<D>> src, 
 //                      List<E> dest) throws InterruptedException;
   /**
    * モジュールの処理が終了したときにSPExecutorから呼び出されます
    */
-  public void stop(List<QueueReader<D>> src, List<TimeSeriesCompatible<E>> dest);
+  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest);
   /**********************************************************************
    *入力チャンネル数を返します. 
    **********************************************************************/
-  public int getInputChannels();
+  //public int getInputChannels();
+  public Class<SPElement>[] getInputClasses();
   /**********************************************************************
    *出力チャンネル数を返します 
    **********************************************************************/
-  public int getOutputChannels();
+  //public int getOutputChannels();
+  public Class<SPElement>[] getOutputClasses();
   /**********************************************************************
    *
    **********************************************************************/

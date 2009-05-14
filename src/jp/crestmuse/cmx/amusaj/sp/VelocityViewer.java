@@ -17,8 +17,9 @@ import javax.sound.midi.ShortMessage;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
 
-public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObject> {
-  
+//public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObject> {
+public class VelocityViewer extends SPModule {
+
   private PrintWriter pw;
   private FileOutputStream fos;
   
@@ -26,7 +27,7 @@ public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObjec
     fos = new FileOutputStream(new File(fileName), true);
     pw = new PrintWriter(fos);
   }
-
+/*
   public void execute(List<QueueReader<MidiEventWithTicktime>> src,
       List<TimeSeriesCompatible<SPDummyObject>> dest)
       throws InterruptedException {
@@ -46,7 +47,27 @@ public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObjec
   public int getOutputChannels() {
     return 1;
   }
+*/
 
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+      throws InterruptedException {
+    MidiEventWithTicktime  me = (MidiEventWithTicktime)src[0];
+    ShortMessage sm = (ShortMessage)me.getMessage();
+    int num = sm.getData2();
+    if(num != 0){
+      System.out.println(sm.getData2());
+      pw.println(num);
+    }
+  }
+
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[]{ MidiEventWithTicktime.class };
+  }
+
+  public Class<SPElement>[] getOutputClasses() {
+    return new Class[0];
+  }
+/*
   @Override
   public void stop(List<QueueReader<MidiEventWithTicktime>> src,
       List<TimeSeriesCompatible<SPDummyObject>> dest) {
@@ -58,6 +79,17 @@ public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObjec
       e.printStackTrace();
     }
   }
+*/
+
+  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest) {
+    pw.println();
+    pw.close();
+    try {
+      fos.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  };
 
   public static void main(String[] args){
     try { 
@@ -110,4 +142,5 @@ public class VelocityViewer extends SPModule<MidiEventWithTicktime, SPDummyObjec
     }
     return device;
   }
+
 }

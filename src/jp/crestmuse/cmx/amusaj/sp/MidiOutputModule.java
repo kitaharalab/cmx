@@ -1,20 +1,13 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import java.util.List;
-
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
-import jp.crestmuse.cmx.misc.QueueReader;
 
-public class MidiOutputModule extends SPModule<MidiEventWithTicktime,SPDummyObject> {
+public class MidiOutputModule extends SPModule {
 
     private Receiver receiver;
     private Track recoder;
@@ -28,15 +21,15 @@ public class MidiOutputModule extends SPModule<MidiEventWithTicktime,SPDummyObje
       recoder = track;
     }
 
-    public void execute(List<QueueReader<MidiEventWithTicktime>> src,
-        List<TimeSeriesCompatible<SPDummyObject>> dest) throws InterruptedException {
-      MidiEventWithTicktime e = src.get(0).take();
+    public void execute(SPElement[] src,
+        TimeSeriesCompatible<SPElement>[] dest) throws InterruptedException {
+      MidiEventWithTicktime e = (MidiEventWithTicktime)src[0];
       receiver.send(e.getMessage(), 0);
       if(recoder != null){
         recoder.add(new MidiEvent(e.getMessage(), e.music_position));
       }
     }
-
+/*
     public int getInputChannels() {
       return 1;
     }
@@ -44,5 +37,13 @@ public class MidiOutputModule extends SPModule<MidiEventWithTicktime,SPDummyObje
     public int getOutputChannels() {
       return 0;
     }
+*/
 
+    public Class<SPElement>[] getInputClasses() {
+      return new Class[]{MidiEventWithTicktime.class};
+    }
+
+    public Class<SPElement>[] getOutputClasses() {
+      return new Class[0];
+    }
   }

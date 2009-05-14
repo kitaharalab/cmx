@@ -41,4 +41,5 @@ public class SPDoubleArray implements DoubleArray,SPElement {
   public boolean hasNext() {
     return hasNext;
   }
+
 }

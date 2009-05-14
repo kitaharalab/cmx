@@ -9,9 +9,9 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
-import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 
 public class SequencerManager implements TickTimer, Runnable {
@@ -19,19 +19,24 @@ public class SequencerManager implements TickTimer, Runnable {
   public static int TICKS_PER_BEAT = 480;
   private Sequencer sequencer;
   private int currentMeasure = 0;
-  private Track dummyTrack;
   private Track recordTrack;
   private List<SgWithTrack> generatables;
   private String outFileName;
+  private Receiver receiver;
+  private boolean finish = false;
 
   public SequencerManager() throws MidiUnavailableException,
       InvalidMidiDataException {
+    this(MidiSystem.getReceiver());
+  }
+
+  public SequencerManager(Receiver res) throws MidiUnavailableException,
+      InvalidMidiDataException {
     sequencer = MidiSystem.getSequencer(false);
-    sequencer.getTransmitter().setReceiver(MidiSystem.getReceiver());
+    sequencer.getTransmitter().setReceiver(res);
+    receiver = res;
     sequencer.open();
     Sequence sequence = new Sequence(Sequence.PPQ, TICKS_PER_BEAT);
-    dummyTrack = sequence.createTrack();
-    dummyTrack.add(new MidiEvent(new SysexMessage(), TICKS_PER_BEAT * 4));
     sequencer.setSequence(sequence);
     generatables = new LinkedList<SgWithTrack>();
   }
@@ -41,18 +46,25 @@ public class SequencerManager implements TickTimer, Runnable {
   }
 
   public void run() {
+    for (SgWithTrack c : generatables) {
+      c.sg.sendInitializingMessages(receiver);
+      c.sg.changeMeasure(c.track, 0);
+      currentMeasure = 1;
+      c.terminal.setTick(TICKS_PER_BEAT * 4);
+    }
     sequencer.start();
     boolean alive = true;
-    while (alive) {
+    while (alive && !finish) {
       if (sequencer.getTickPosition() >= currentMeasure * TICKS_PER_BEAT * 4
           - TICKS_PER_BEAT) {
         currentMeasure++;
         alive = false;
-        for (SgWithTrack c : generatables)
+        for (SgWithTrack c : generatables) {
           alive |= c.sg.changeMeasure(c.track, (currentMeasure - 1)
               * TICKS_PER_BEAT * 4);
-        dummyTrack.add(new MidiEvent(new SysexMessage(), (currentMeasure + 1)
-            * TICKS_PER_BEAT * 4));
+          if(c.terminal.getTick() < TICKS_PER_BEAT * 4 * currentMeasure)
+            c.terminal.setTick(TICKS_PER_BEAT * 4 * currentMeasure);
+        }
       }
       try {
         Thread.sleep(100);
@@ -62,7 +74,6 @@ public class SequencerManager implements TickTimer, Runnable {
     }
     sequencer.stop();
     if (outFileName != null) {
-      sequencer.getSequence().deleteTrack(dummyTrack);
       try {
         MidiSystem.write(sequencer.getSequence(), 1, new File(outFileName));
       } catch (IOException e) {
@@ -71,8 +82,10 @@ public class SequencerManager implements TickTimer, Runnable {
     }
     sequencer.close();
   }
-  
-  public Sequencer getSequencer() { return sequencer; }
+
+  public Sequencer getSequencer() {
+    return sequencer;
+  }
 
   public void addGeneratable(SequenceGeneratable sg) {
     generatables
@@ -105,13 +118,19 @@ public class SequencerManager implements TickTimer, Runnable {
     t.start();
   }
 
+  public void stop() {
+    finish = true;
+  }
+
   private class SgWithTrack {
     SequenceGeneratable sg;
     Track track;
+    MidiEvent terminal;
 
     SgWithTrack(SequenceGeneratable sg, Track track) {
       this.sg = sg;
       this.track = track;
+      this.terminal = track.get(0);
     }
   }
 

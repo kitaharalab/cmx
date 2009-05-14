@@ -6,8 +6,8 @@ import static jp.crestmuse.cmx.math.Operations.*;
 import static java.lang.Math.*;
 import java.util.*;
 
-public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
-
+//public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
+public class ChromaExtractor extends SPModule {
     private static final DoubleArrayFactory factory = DoubleArrayFactory.getFactory();
 
     private static final double Q = 60.0;
@@ -15,13 +15,20 @@ public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
   private double fL = 0.0;
   private double fH = Double.POSITIVE_INFINITY;
   private boolean paramSet = false;
-
+/*
     public void execute(List<QueueReader<PeakSet>> src, 
 			List<TimeSeriesCompatible<SPDoubleArray>> dest)
 	throws InterruptedException {
 	PeakSet peaks = src.get(0).take();
 	dest.get(0).add(new SPDoubleArray(calcChroma(peaks), peaks.hasNext()));
     }
+*/
+
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+      throws InterruptedException {
+    PeakSet peaks = (PeakSet)src[0];
+    dest[0].add(new SPDoubleArray(calcChroma(peaks), peaks.hasNext()));
+  }
 
   private void setParams() {
     if (containsParam("CHROMA_LOW_LIMIT_FREQ"))
@@ -54,13 +61,21 @@ public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
         divX(chroma, sum(chroma));
 	return chroma;
     }
-
+/*
     public int getInputChannels() {
 	return 1;
     }
 
     public int getOutputChannels() {
 	return 1;
+    }
+*/
+    public Class<SPElement>[] getInputClasses() {
+      return new Class[]{ PeakSet.class };
+    }
+
+    public Class<SPElement>[] getOutputClasses() {
+      return new Class[]{ SPDoubleArray.class };
     }
 
     private static int Hz2nn(double x) {

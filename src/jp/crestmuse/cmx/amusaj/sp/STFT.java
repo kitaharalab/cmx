@@ -12,7 +12,9 @@ import java.util.*;
  *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 
  *短時間フーリエ変換を行います. 
  *********************************************************************/
-public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
+//public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
+public class STFT extends SPModule {
+
   private int winsize = -1;
   private String wintype = null;
   private double[] window;
@@ -82,6 +84,28 @@ public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
    *@param src 常にnullを指定します(何を指定しても無視されます)
    *@param dest STFT実行結果格納用リスト
    *********************************************************************/
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  throws InterruptedException {
+    if (!paramSet) setParams();
+    SPDoubleArray signal = (SPDoubleArray)src[0];
+    if (winsize < 0 || winsize != signal.length())
+      changeWindow(wintype, signal.length());
+    SPComplexArray fftresult = 
+      new SPComplexArray(fft.executeR2C(signal, window), signal.hasNext());
+    dest[0].add(fftresult);
+    if (isStereo) {
+      dest[1].add(
+        new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window), 
+                           signal.hasNext()));
+      dest[2].add(
+        new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], window), 
+                           signal.hasNext()));
+    } else {
+      dest[1].add(fftresult);
+      dest[2].add(fftresult);
+    }
+  }
+/*
   public void execute(List<QueueReader<SPDoubleArray>> src, 
                       List<TimeSeriesCompatible<SPComplexArray>> dest) 
     throws InterruptedException {
@@ -115,6 +139,15 @@ public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
     return 3;
 //    if (!paramSet) setParams();
 //    return isStereo ? 3 : 1;
+  }
+*/
+
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
+  }
+
+  public Class<SPElement>[] getOutputClasses() {
+    return new Class[]{ SPComplexArray.class, SPComplexArray.class, SPComplexArray.class };
   }
 
 }

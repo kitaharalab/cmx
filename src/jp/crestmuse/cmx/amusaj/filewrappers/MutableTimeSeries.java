@@ -54,10 +54,13 @@ public class MutableTimeSeries<D extends SPElement> implements TimeSeriesCompati
     } else {
       queue.put(d);
     }
+    /*
     if (!d.hasNext())
       complete =true;
+    */
+    if(d instanceof SPTerminator) complete = true;
   }
-  
+
   public boolean isComplete() {
     return complete;
   }

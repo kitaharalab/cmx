@@ -52,7 +52,8 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
-    int ch = winslider.getOutputChannels();
+//    int ch = winslider.getOutputChannels();
+    int ch = winslider.getOutputClasses().length;
     for (int i = 0; i < ch; i++) {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
@@ -101,9 +102,11 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
 
   private static final int WINSIZE = 7;
 
-  private class MedianFilter extends SPModule<SPDoubleArray,SPDoubleArray> {
+  //private class MedianFilter extends SPModule<SPDoubleArray,SPDoubleArray> {
+  private class MedianFilter extends SPModule {
     private DoubleArray[] buff = null;
     private int t = 0;
+/*
     public void execute(List<QueueReader<SPDoubleArray>> src,
                         List<TimeSeriesCompatible<SPDoubleArray>> dest)
       throws InterruptedException {
@@ -130,12 +133,40 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     public int getOutputChannels() {
       return 1;
     }
+*/
 //    protected int getNumOfOutputFrames(int nFrames) {
 //      return nFrames - WINSIZE;
 //    }
+    public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+        throws InterruptedException {
+      SPDoubleArray a = (SPDoubleArray)src[0];
+      int dim = a.length();
+      if (buff == null) {
+        buff = new DoubleArray[dim];
+        for (int i = 0; i < dim; i++)
+          buff[i] = factory.createArray(WINSIZE);
+      }
+      for (int i = 0; i < dim; i++)
+        buff[i].set(t % WINSIZE, a.get(i));
+      if (t >= WINSIZE) {
+        DoubleArray b = factory.createArray(dim);
+        for (int i = 0; i < dim; i++)
+          b.set(i, jp.crestmuse.cmx.math.Operations.median(buff[i]));
+        dest[0].add(new SPDoubleArray(b, a.hasNext()));
+      }
+      t++;
+    }
+    public Class<SPElement>[] getInputClasses() {
+      return new Class[]{ SPDoubleArray.class };
+    }
+    public Class<SPElement>[] getOutputClasses() {
+      return new Class[]{ SPDoubleArray.class };
+    }
   }
 
-  private class F0Tracker extends SPModule<SPDoubleArray,SPDoubleArray> {
+  //private class F0Tracker extends SPModule<SPDoubleArray,SPDoubleArray> {
+  private class F0Tracker extends SPModule {
+
     private static final double THRS = 0;  // originally 0.1;
     private int t = 0;
     private double nnFrom, nnThru, step;
@@ -154,7 +185,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     }
 
     private double f0prev = 0;
-
+/*
     public void execute(List<QueueReader<SPDoubleArray>> src,
                         List<TimeSeriesCompatible<SPDoubleArray>> dest)
       throws InterruptedException {
@@ -189,16 +220,38 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       }
       dest.get(0).add(new SPDoubleArray(b, a.hasNext()));
     }
+
     public int getInputChannels() {
       return 1;
     }
     public int getOutputChannels() {
       return 1;
     }
+*/
 //    protected int getNumOfOutputFrames(int nFrames) {
 //      System.err.println(nFrames - WINSIZE);
 //      return nFrames - WINSIZE-1;
 //    }
+    public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+        throws InterruptedException {
+      if (!paramSet) setParams();
+      SPDoubleArray a = (SPDoubleArray)src[0];
+      MaxResult maxresult = max(a);
+      DoubleArray b = factory.createArray(1);  // originally 1;
+      if (maxresult.max > THRS) {
+        double f1 = nn2Hz(nnFrom + step * maxresult.argmax);
+        double f2 = nn2Hz(nnFrom + step * maxresult.argmax2nd);
+        double f3 = nn2Hz(nnFrom + step * maxresult.argmax3rd);
+        b.set(0, Math.min(f1, f2));
+      }
+      dest[0].add(new SPDoubleArray(b, a.hasNext()));
+    }
+    public Class<SPElement>[] getInputClasses() {
+      return new Class[]{ SPDoubleArray.class };
+    }
+    public Class<SPElement>[] getOutputClasses() {
+      return new Class[]{ SPDoubleArray.class };
+    }
   }
 
 /*

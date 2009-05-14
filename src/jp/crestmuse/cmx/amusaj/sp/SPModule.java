@@ -6,8 +6,8 @@ import jp.crestmuse.cmx.misc.QueueReader;
 
 import java.util.*;
 
-public abstract class SPModule<D extends SPElement, E extends SPElement> 
-  implements ProducerConsumerCompatible<D,E> {
+public abstract class SPModule 
+  implements ProducerConsumerCompatible {
 
   private Map<String,String> params = null;
 
@@ -78,6 +78,6 @@ public abstract class SPModule<D extends SPElement, E extends SPElement>
         setParam(key, config.getParam(namespace, category, key));
   }
   
-  public void stop(List<QueueReader<D>> src, List<TimeSeriesCompatible<E>> dest) {
+  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest) {
   }
 }

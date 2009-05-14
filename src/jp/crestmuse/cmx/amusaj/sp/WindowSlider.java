@@ -8,7 +8,8 @@ import static jp.crestmuse.cmx.math.Operations.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
 import java.util.*;
 
-public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
+//public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
+public class WindowSlider extends SPModule {
 
   private int winsize = 0;
   private double shift = Double.NaN;
@@ -98,7 +99,7 @@ public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
 //  public boolean isStereo() {
 //    return isStereo;
 //  }
-
+/*
   public int getInputChannels() {
     return 0;
   }
@@ -107,7 +108,7 @@ public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
     return 3;
 //    return isStereo ? 3 : 1;
   }
-
+*/
 /*
   public int getAvailableFrames() {
     return 
@@ -119,7 +120,7 @@ public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
   public int getTimeUnit() {
     return 1000 * shift_ / fs;
   }
-
+/*
   public void execute(List<QueueReader<SPDummyObject>> src,
                       List<TimeSeriesCompatible<SPDoubleArray>> dest)
     throws InterruptedException {
@@ -137,6 +138,37 @@ public class WindowSlider extends SPModule<SPDummyObject,SPDoubleArray> {
       dest.get(2).add(a);
     }
     t += shift_;
+  }
+*/
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+      throws InterruptedException {
+    boolean hasNext = (t + shift_ + winsize < wavM.length());
+    SPDoubleArray a = new SPDoubleArray(wavM.subarrayX(t, t + winsize), 
+                                        hasNext);
+    dest[0].add(a);
+    if (isStereo) {
+      dest[1].add(new SPDoubleArray(wavL.subarrayX(t, t + winsize), 
+                                        hasNext));
+      dest[2].add(new SPDoubleArray(wavR.subarrayX(t, t + winsize), 
+                                        hasNext));
+    } else {
+      dest[1].add(a);
+      dest[2].add(a);
+    }
+    if(!hasNext) {
+      dest[0].add(new SPTerminator());
+      dest[1].add(new SPTerminator());
+      dest[2].add(new SPTerminator());
+    }
+    t += shift_;
+  }
+
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[0];
+  }
+
+  public Class<SPElement>[] getOutputClasses() {
+    return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
   }
                     
 }

@@ -1,6 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,15 +10,10 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
-import jp.crestmuse.cmx.misc.QueueReader;
 import jp.crestmuse.cmx.sound.TickTimer;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
-public class MidiInputModule 
-  extends SPModule<SPDummyObject,MidiEventWithTicktime>
-  implements Receiver
-{
-
+public class MidiInputModule extends SPModule implements Receiver {
   private TickTimer tt;
   private Transmitter tm;
   private MidiDevice input_device;
@@ -59,7 +53,7 @@ public class MidiInputModule
     return new MidiEvents();
   }
 */
-
+/*
   public void execute(List<QueueReader<SPDummyObject>> src,
       List<TimeSeriesCompatible<MidiEventWithTicktime>> dest)
       throws InterruptedException {
@@ -73,7 +67,7 @@ public class MidiInputModule
   public int getOutputChannels() {
     return 1;
   }
-
+*/
   // Receiver
   public void close() {
     tm.close();
@@ -88,6 +82,19 @@ public class MidiInputModule
     MidiEventWithTicktime miwt = new MidiEventWithTicktime(message,
         timeStamp, position);
     src_queue.add(miwt);
+  }
+
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+      throws InterruptedException {
+    dest[0].add(src_queue.take());
+  }
+
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[0];
+  }
+
+  public Class<SPElement>[] getOutputClasses() {
+    return new Class[]{MidiEventWithTicktime.class};
   }
 
 /*
