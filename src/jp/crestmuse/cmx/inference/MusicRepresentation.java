@@ -103,9 +103,13 @@ public class MusicRepresentation {
     return name2layer.get(layer).getElement(index);
   }
 
-  public void setTiedLength(String layer, int tiedLength) {
-    name2layer.get(layer).setTiedLength(tiedLength);
+  public int getTiedLength(String layer) {
+    return name2layer.get(layer).getTiedLength();
   }
+
+//  public void setTiedLength(String layer, int tiedLength) {
+//    name2layer.get(layer).setTiedLength(tiedLength);
+//  }
 
   public void addCalculator(String layer, Calculator calc) {
     name2layer.get(layer).addCalculator(calc);
@@ -398,6 +402,10 @@ public class MusicRepresentation {
           return i;
       }
       return 0;
+    }
+
+    public int getProbLength() {
+      return prob.length;
     }
 
     public boolean set() {

@@ -55,25 +55,27 @@ public class QueueWrapper<E> {
 */
 
     public E take() throws InterruptedException {
-      PacketWithReadCount pwrc;
-      if (next < list.size() + removedNum) {
-        pwrc = list.get(next - removedNum);
-      } else {
-        E e;
-        if (queue instanceof BlockingQueue)
-          e = ((BlockingQueue<E>)queue).take();
-        else
-          e = queue.poll();
-        pwrc = new PacketWithReadCount(e);
-        list.add(pwrc);
+      synchronized (QueueWrapper.this) {
+        PacketWithReadCount pwrc;
+        if (next < list.size() + removedNum) {
+          pwrc = list.get(next - removedNum);
+        } else {
+          E e;
+          if (queue instanceof BlockingQueue)
+            e = ((BlockingQueue<E>)queue).take();
+          else
+            e = queue.poll();
+          pwrc = new PacketWithReadCount(e);
+          list.add(pwrc);
+        }
+        pwrc.readedCount++;
+        if (pwrc.readedCount >= nReaders){
+          list.remove(0);
+          removedNum++;
+        }
+        next++;
+        return pwrc.packet;
       }
-      pwrc.readedCount++;
-      if (pwrc.readedCount >= nReaders){
-        list.remove(0);
-        removedNum++;
-      }
-      next++;
-      return pwrc.packet;
     }
 
     public Iterator<E> iterator() {

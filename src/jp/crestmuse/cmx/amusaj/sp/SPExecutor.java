@@ -31,13 +31,15 @@ public class SPExecutor {
   private int timeunit;
   private long sleepTime = 0;
 
-  /**
-   * nFramesに0以下の値を指定すると、startを呼び出した際、stopを呼び出すまで処理を続けます．
-   * 
-   * @param params
-   * @param nFrames
-   * @param timeunit
-   */
+  public SPExecutor() {
+    this(null);
+  }
+
+  public SPExecutor(Map<String, String> params) {
+    this(params, 1);
+  }
+
+  @Deprecated
   public SPExecutor(Map<String, String> params, int timeunit) {
     // list = new LinkedList<SPThread>();
     // list = new ArrayList<SPModule>();

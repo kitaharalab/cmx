@@ -30,12 +30,12 @@ public interface ProducerConsumerCompatible {
    */
   public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest);
   /**********************************************************************
-   *入力チャンネル数を返します. 
+   *各入力チャンネルが受け付けるオブジェクトのクラスを配列で返します. 
    **********************************************************************/
   //public int getInputChannels();
   public Class<SPElement>[] getInputClasses();
   /**********************************************************************
-   *出力チャンネル数を返します 
+   *各出力チャンネルが出力するオブジェクトのクラスを配列で返します. 
    **********************************************************************/
   //public int getOutputChannels();
   public Class<SPElement>[] getOutputClasses();
