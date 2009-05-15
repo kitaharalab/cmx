@@ -4,20 +4,24 @@ import java.util.concurrent.*;
 
 public class QueueWrapper<E> {
   private java.util.Queue<E> queue;
-  private ArrayList<PacketWithReadCount> list;
+//  private ArrayList<PacketWithReadCount> list;
+  private List<PacketWithReadCount> list;
   private byte nReaders = (byte)0;
   int removedNum;
   
   public QueueWrapper(java.util.Queue<E> q){
     queue = q;
-    list = new ArrayList<PacketWithReadCount>();
+//    list = new ArrayList<PacketWithReadCount>();
+//    list = new Vector<PacketWithReadCount>();
+    list = Collections.synchronizedList(new ArrayList<PacketWithReadCount>());
     removedNum = 0;
   }
 
   @Deprecated
   public QueueWrapper(java.util.Queue<E> q, int size) {
     queue = q;
-    list = new ArrayList<PacketWithReadCount>();
+//    list = new ArrayList<PacketWithReadCount>();
+    list = Collections.synchronizedList(new ArrayList<PacketWithReadCount>());
     removedNum = 0;
   }
 
