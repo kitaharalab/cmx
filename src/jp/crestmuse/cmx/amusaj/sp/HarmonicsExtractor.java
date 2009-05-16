@@ -51,11 +51,11 @@ public class HarmonicsExtractor<D extends SPElement> extends SPModule {
     PeakSet peakset = (PeakSet)src[0];
     SPDoubleArray f0array = (SPDoubleArray)src[1];
     double f0 = f0array.get(0);
-    dest[0].add(extractHarmonics(peakset, f0, peakset.hasNext() && f0array.hasNext()));
+    dest[0].add(extractHarmonics(peakset, f0));
   }
 
-  private PeakSet extractHarmonics(PeakSet peakset, double f0, boolean hasNext) {
-    PeakSet harmonics = new PeakSet(nHarmonics, hasNext);
+  private PeakSet extractHarmonics(PeakSet peakset, double f0) {
+    PeakSet harmonics = new PeakSet(nHarmonics);
     DoubleArray ff = peakset.freq();
     DoubleArray pp = div(peakset.power(), sum(peakset.power()));
     double accurateF0 = calcAccurateF0(f0, ff, pp);

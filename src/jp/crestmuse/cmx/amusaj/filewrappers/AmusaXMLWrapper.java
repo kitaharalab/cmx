@@ -153,24 +153,25 @@ private class Header extends AbstractHeaderNodeInterface {
   }
 }
 
-  private class Data<E extends SPElement> extends NodeInterface implements TimeSeriesCompatible<E> {
+  private class Data extends NodeInterface implements TimeSeriesCompatible<SPElement> {
 
     private int dim = -1;
     private int nFrames;
     private int timeunit = -1;
-    private java.util.Queue<E> queue;
-    private QueueWrapper<E> qwrap;
+    private java.util.Queue<SPElement> queue;
+    private QueueWrapper<SPElement> qwrap;
 
     protected Data(Node node) {
       super(node);
       if (hasAttribute("dim")) dim = getAttributeInt("dim");
       if (hasAttribute("timeunit")) timeunit = getAttributeInt("timeunit");
       nFrames = getAttributeInt("frames");
-      queue = new LinkedList<E>();
-      qwrap = new QueueWrapper(queue, nFrames);
+      queue = new LinkedList<SPElement>();
+      qwrap = new QueueWrapper(queue);
       StringTokenizer st = new StringTokenizer(getText());
       for (int i = 0; i < nFrames; i++)
-        queue.add((E)decoder.decode(st, format, dim, i < nFrames-1));
+	  queue.add(decoder.decode(st, format, dim));
+      queue.add(SPTerminator.getInstance());
 //      interpretTextElement(getText(), queue);
     }
 
@@ -181,7 +182,7 @@ private class Header extends AbstractHeaderNodeInterface {
       return "data";
     }
 
-    public final QueueReader<E> getQueueReader() {
+    public final QueueReader<SPElement> getQueueReader() {
       return qwrap.createReader();
     }
 
@@ -201,7 +202,7 @@ private class Header extends AbstractHeaderNodeInterface {
       return true;
     }
 
-    public final void add(E e) {
+    public final void add(SPElement e) {
       throw new UnsupportedOperationException();
     }
 

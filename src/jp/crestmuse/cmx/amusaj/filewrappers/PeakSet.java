@@ -3,7 +3,7 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 
-public class PeakSet implements SPElement {
+public class PeakSet implements SPElementEncodable {
   private int nPeaks;
   private DoubleArray freq;
   private DoubleArray power;
@@ -11,30 +11,30 @@ public class PeakSet implements SPElement {
   private DoubleArray iid;
   private DoubleArray ipd;
 
-  private boolean hasNext = true;
+    //  private boolean hasNext = true;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
-  public PeakSet(int nPeaks, boolean hasNext) {
+  public PeakSet(int nPeaks) {
     this.nPeaks = nPeaks;
     freq = factory.createArray(nPeaks);
     power = factory.createArray(nPeaks);
     phase = factory.createArray(nPeaks);
     iid = factory.createArray(nPeaks);
     ipd = factory.createArray(nPeaks);
-    this.hasNext = hasNext;
+    //    this.hasNext = hasNext;
   }
 
   public PeakSet(DoubleArray freq, DoubleArray power, DoubleArray phase, 
-                 DoubleArray iid, DoubleArray ipd, boolean hasNext) {
+                 DoubleArray iid, DoubleArray ipd) {
     nPeaks = freq.length();
     this.freq = freq;
     this.power = power;
     this.phase = phase;
     this.iid = iid;
     this.ipd = ipd;
-    this.hasNext = hasNext;
+    //    this.hasNext = hasNext;
   }
 
   public void setPeak(int i, double freq, double power, double phase, 
@@ -135,9 +135,9 @@ public class PeakSet implements SPElement {
     return sb.toString();
   }
 
-  public boolean hasNext() {
-    return hasNext;
-  }
+    //  public boolean hasNext() {
+    //    return hasNext;
+    //  }
 
   public static class Filter {
     private boolean usesLCF, usesHCF;

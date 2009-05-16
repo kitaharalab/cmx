@@ -1,13 +1,13 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.math.*;
 
-public class SPComplexArray implements ComplexArray,SPElement {
+public class SPComplexArray implements ComplexArray,SPElementEncodable {
   private ComplexArray array;
-  private boolean hasNext;
+    //  private boolean hasNext;
 
-  public SPComplexArray(ComplexArray array, boolean hasNext) {
+  public SPComplexArray(ComplexArray array) {
     this.array = array;
-    this.hasNext = hasNext;
+    //    this.hasNext = hasNext;
   }
 
   public int length() {
@@ -42,8 +42,8 @@ public class SPComplexArray implements ComplexArray,SPElement {
     return jp.crestmuse.cmx.math.Utils.toString2(array);
   }
 
-  public boolean hasNext() {
-    return hasNext;
-  }
+    //  public boolean hasNext() {
+    //    return hasNext;
+    //  }
 
 }

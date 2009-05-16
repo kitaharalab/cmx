@@ -9,10 +9,10 @@ public class MidiEventWithTicktime extends MidiEvent implements SPElement {
     super(message, tick);
     music_position = position;
   }
-  public String encode() {
-    return null;
-  }
-  public boolean hasNext() {
-    return true;
-  }
+    //  public String encode() {
+    //      return throw UnsupportedOperationException();
+    //  }
+    //  public boolean hasNext() {
+    //    return true;
+    //  }
 }

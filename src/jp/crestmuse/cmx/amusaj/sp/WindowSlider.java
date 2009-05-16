@@ -142,23 +142,21 @@ public class WindowSlider extends SPModule {
 */
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
       throws InterruptedException {
-    boolean hasNext = (t + shift_ + winsize < wavM.length());
-    SPDoubleArray a = new SPDoubleArray(wavM.subarrayX(t, t + winsize), 
-                                        hasNext);
+      //    boolean hasNext = (t + winsize < wavM.length());
+      boolean hasNext = (t + shift_ + winsize < wavM.length());
+    SPDoubleArray a = new SPDoubleArray(wavM.subarrayX(t, t + winsize));
     dest[0].add(a);
     if (isStereo) {
-      dest[1].add(new SPDoubleArray(wavL.subarrayX(t, t + winsize), 
-                                        hasNext));
-      dest[2].add(new SPDoubleArray(wavR.subarrayX(t, t + winsize), 
-                                        hasNext));
+	dest[1].add(new SPDoubleArray(wavL.subarrayX(t, t + winsize)));
+	dest[2].add(new SPDoubleArray(wavR.subarrayX(t, t + winsize)));
     } else {
       dest[1].add(a);
       dest[2].add(a);
     }
     if(!hasNext) {
-      dest[0].add(new SPTerminator());
-      dest[1].add(new SPTerminator());
-      dest[2].add(new SPTerminator());
+	dest[0].add(SPTerminator.getInstance());
+	dest[1].add(SPTerminator.getInstance());
+	dest[2].add(SPTerminator.getInstance());
     }
     t += shift_;
   }

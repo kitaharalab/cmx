@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
 public interface SPElement {
-  String encode();
+    //  String encode();
   //boolean hasNext();
 }

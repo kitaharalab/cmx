@@ -131,13 +131,24 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         int nFrames = 0;
         QueueReader<? extends SPElement> queue = d.getQueueReader();
         StringBuilder sb = new StringBuilder();
-        SPElement elem = queue.take();
-        sb.append(elem.encode());
-        //while (elem.hasNext()) {
-        while (!(elem instanceof SPTerminator)) {
-          elem = queue.take();
-          sb.append("\n").append(elem.encode());
-        }
+	while (true) {
+	    SPElement elem = queue.take();
+	    if (elem instanceof SPTerminator) 
+		break;
+	    else if (elem instanceof SPElementEncodable) {
+		if (sb.length() > 0) sb.append("\n");
+		sb.append(((SPElementEncodable)elem).encode());
+		nFrames++;
+	    } else 
+		throw new UnsupportedOperationException("The objects should be SPElementEncodable to be written in an XML format.");
+	}
+	//        SPElement elem = queue.take();
+	//        sb.append(elem.encode());
+	//        //while (elem.hasNext()) {
+	//        while (!(elem instanceof SPTerminator)) {
+	//          elem = queue.take();
+	//          sb.append("\n").append(elem.encode());
+	//        }
         wrapper.addChild("data");
         Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
         while (it.hasNext()) {
@@ -176,15 +187,15 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
   }
 
   public void write(OutputStream out) throws IOException {
-      write(new PrintStream(out));
+      write(new PrintStreamWrapper(new PrintStream(out)));
   }
 
   public void write(Writer writer)throws IOException {
-    write(new PrintWriter(writer));
+      write(new PrintWriterWrapper(new PrintWriter(writer)));
   }
 
   public void writefile(File file) throws IOException {
-    write(new PrintStream(file));
+      write(new PrintStreamWrapper(new PrintStream(file)));
   }
 
   public void writeGZippedFile(File file) throws IOException {
@@ -192,7 +203,7 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
                                  new FileOutputStream(file))));
   }
 
-  private void write(PrintStream p) throws IOException {
+  private void write(Printable p) throws IOException {
     try {
       p.println("<amusaxml format=\"" + fmt + "\">");
       p.println("  <header>");
@@ -208,26 +219,30 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         do {
           elem = queue.take();
           l.add(elem);
-        //} while (elem.hasNext());
         } while (!(elem instanceof SPTerminator));
         StringBuilder sbAttr = new StringBuilder();
-        d.setAttribute("frames", l.size());
+        d.setAttribute("frames", l.size()-1);
         if (d.dim() > 0) d.setAttribute("dim", d.dim());
-//        if (d.timeunit() > 0) d.setAttribute("timeunit", d.timeunit());
         Iterator<Map.Entry<String,String>> it = d.getAttributeIterator();
         while (it.hasNext()) {
           Map.Entry<String,String> e = it.next();
           sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
         }
         p.println("  <data" + sbAttr.toString() + ">");
-        for (SPElement e : l)
-          p.println(e.encode());
+        for (SPElement e : l) 
+	    if (e instanceof SPTerminator)
+		break;
+	    else if (e instanceof SPElementEncodable)
+		p.println(((SPElementEncodable)e).encode());
+	    else
+		throw new UnsupportedOperationException("The objects should be SPElementEncodable to be written in an XML format.");
         p.println("  </data>");
       }
       p.println("</amusaxml>");
     } catch (InterruptedException e) {}
   }
 
+  /*
   private void write(PrintWriter p) throws IOException {
     try {
       p.println("<amusaxml format=\"" + fmt + "\">");
@@ -238,11 +253,11 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
                    + "\" content=\"" + e.getValue() + "\" />");
       p.println("  </header>");
       for (D d : data) {
-        QueueReader<? extends SPElement> queue = d.getQueueReader();
-        List<SPElement> l =new LinkedList<SPElement>();
-        SPElement elem;
+        QueueReader<? extends SPElementEncodable> queue = d.getQueueReader();
+        List<SPElementEncodable> l =new LinkedList<SPElementEncodable>();
+        SPElementEncodable elem;
         do {
-          elem = queue.take();
+	    elem = queue.take();
           l.add(elem);
         //} while (elem.hasNext());
         } while (!(elem instanceof SPTerminator));
@@ -256,14 +271,14 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
           sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
         }
         p.println("  <data" + sbAttr.toString() + ">");
-        for (SPElement e : l)
+        for (SPElementEncodable e : l)
           p.println(e.encode());
         p.println("  </data>");
       }
       p.println("</amusaxml>");
     } catch (InterruptedException e) {}
   }
-
+  */
 
 
 }

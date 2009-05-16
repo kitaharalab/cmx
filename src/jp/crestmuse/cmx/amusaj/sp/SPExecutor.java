@@ -257,7 +257,7 @@ public class SPExecutor {
             inputElements[i] = src[i].take();
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
             for (TimeSeriesCompatible<SPElement> tsc : dest)
-              tsc.add(new SPTerminator());
+		tsc.add(SPTerminator.getInstance());
             break;
           }
           module.execute(inputElements, dest);

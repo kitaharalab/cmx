@@ -17,16 +17,15 @@ public class AmusaDecoder {
     return decoder;
   }
 
-  public SPElement decode(StringTokenizer st, String format, int dim, 
-                       boolean hasNext) {
+    public SPElement decode(StringTokenizer st, String format, int dim) {
     if (format.equals("array")) {
       DoubleArray array = factory.createArray(dim);
       for (int i = 0; i < dim; i++)
         array.set(i, Double.parseDouble(st.nextToken()));
-      return new SPDoubleArray(array, hasNext);
+      return new SPDoubleArray(array);
     } else if (format.equals("peaks")) {
       int nPeaks = Integer.parseInt(st.nextToken());
-      PeakSet peakset = new PeakSet(nPeaks, hasNext);
+      PeakSet peakset = new PeakSet(nPeaks);
       for (int i = 0; i < nPeaks; i++)
         peakset.setPeak(i, Double.parseDouble(st.nextToken()), 
                         Double.parseDouble(st.nextToken()), 

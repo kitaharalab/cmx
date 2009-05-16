@@ -82,8 +82,7 @@ public class F0PDFCalculatorModule extends SPModule {
     if (!paramSet) setParams();
     PeakSet peaks = (PeakSet)src[0];
     if (filter != null) peaks.filter(filter);
-    dest[0].add(new SPDoubleArray(f0calc.calcWeights(peaks), 
-                                      peaks.hasNext()));
+    dest[0].add(new SPDoubleArray(f0calc.calcWeights(peaks)));
   }
 
   public Class<SPElement>[] getInputClasses() {

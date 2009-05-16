@@ -152,7 +152,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
         DoubleArray b = factory.createArray(dim);
         for (int i = 0; i < dim; i++)
           b.set(i, jp.crestmuse.cmx.math.Operations.median(buff[i]));
-        dest[0].add(new SPDoubleArray(b, a.hasNext()));
+        dest[0].add(new SPDoubleArray(b));
       }
       t++;
     }
@@ -244,7 +244,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
         double f3 = nn2Hz(nnFrom + step * maxresult.argmax3rd);
         b.set(0, Math.min(f1, f2));
       }
-      dest[0].add(new SPDoubleArray(b, a.hasNext()));
+      dest[0].add(new SPDoubleArray(b));
     }
     public Class<SPElement>[] getInputClasses() {
       return new Class[]{ SPDoubleArray.class };

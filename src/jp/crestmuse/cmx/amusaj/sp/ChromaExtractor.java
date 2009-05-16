@@ -27,7 +27,7 @@ public class ChromaExtractor extends SPModule {
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
       throws InterruptedException {
     PeakSet peaks = (PeakSet)src[0];
-    dest[0].add(new SPDoubleArray(calcChroma(peaks), peaks.hasNext()));
+    dest[0].add(new SPDoubleArray(calcChroma(peaks)));
   }
 
   private void setParams() {

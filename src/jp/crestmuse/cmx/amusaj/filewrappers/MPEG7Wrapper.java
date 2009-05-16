@@ -446,7 +446,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
        for (int n = 0; n < nFrames; n++) {
          DoubleArray array = factory.createArray(dim);
          array.set(0, Double.parseDouble(ss[n]));
-         queue.add(new SPDoubleArray(array, n < nFrames-1));
+         queue.add(new SPDoubleArray(array));
        }
      }
    }
@@ -466,7 +466,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 //        DoubleArray array = factory.createArray(dim);
 //        for (int i = 0; i < dim; i++)
 //          array.set(i, Double.parseDouble(sss[i]));
-        queue.add(new SPDoubleArray(array, n < nFrames - 1));
+        queue.add(new SPDoubleArray(array));
       }
     }
   }

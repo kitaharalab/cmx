@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
 
-public class SPString implements SPElement {
+public class SPString implements SPElementEncodable {
   
   private String data;
   

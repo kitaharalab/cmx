@@ -184,10 +184,12 @@ public class PeakExtractor extends SPModule {
         i++;
       }
     }
+    PeakSet ps;
     dest[0].add
-      (new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
+      (ps = new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
                    subarray(phase, 0, k), subarray(iid, 0, k), 
-                   subarray(ipd, 0, k), fftresult.hasNext()));
+                   subarray(ipd, 0, k)));
+    //    System.out.println(ps);
   }
                          
   public void setParams(Map<String,String> params) {

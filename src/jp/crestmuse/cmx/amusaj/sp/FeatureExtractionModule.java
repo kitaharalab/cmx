@@ -48,7 +48,7 @@ public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
   fe.extractFeatures(wav);
   for (int i = 0; i < n; i++) {
     TimeSeriesCompatible ts = dest[i];
-    ts.add(new SPDoubleArray(fe.getFeature(i), wav.hasNext()));
+    ts.add(new SPDoubleArray(fe.getFeature(i)));
     ts.setAttribute("type", fe.getFeatureType(i));
   }
   fe.nextFrame();

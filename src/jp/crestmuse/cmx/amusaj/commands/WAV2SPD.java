@@ -34,7 +34,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);
     }
-      exec.start();
+    exec.start();
 //      prepareOutputData(SPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible<PeakSet> peaks = 
         (TimeSeriesCompatible)exec.getResult(peakext).get(0);

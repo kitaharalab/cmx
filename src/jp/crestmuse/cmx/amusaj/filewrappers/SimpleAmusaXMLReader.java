@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.math.*;
 import java.io.*;
 import java.util.*;
@@ -98,12 +99,13 @@ public class SimpleAmusaXMLReader {
                            String qName) {
       if ("data".equals(currentTagName)) {
         StringTokenizer st = new StringTokenizer(sb.toString());
-        for (int i = 0; i < nFrames; i++) {
           try {
-            ts.add(decoder.decode(st, format, dim, i < nFrames-1));
+	      for (int i = 0; i < nFrames; i++)
+		  ts.add(decoder.decode(st, format, dim));
+	      ts.add(SPTerminator.getInstance());
           } catch (InterruptedException e) {
+	      e.printStackTrace();
           }
-        }
         dataset.add(ts);
         currentTagName = null;
       }

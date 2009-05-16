@@ -91,19 +91,17 @@ public class STFT extends SPModule {
     if (winsize < 0 || winsize != signal.length())
       changeWindow(wintype, signal.length());
     SPComplexArray fftresult = 
-      new SPComplexArray(fft.executeR2C(signal, window), signal.hasNext());
+      new SPComplexArray(fft.executeR2C(signal, window));
     dest[0].add(fftresult);
     if (isStereo) {
       dest[1].add(
-        new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window), 
-                           signal.hasNext()));
-      dest[2].add(
-        new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], window), 
-                           signal.hasNext()));
+		  new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window)));
+      dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], window)));
     } else {
       dest[1].add(fftresult);
       dest[2].add(fftresult);
     }
+    //    System.out.println(fftresult);
   }
 /*
   public void execute(List<QueueReader<SPDoubleArray>> src, 

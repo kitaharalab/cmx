@@ -5,7 +5,7 @@ public class SPDummyObject implements SPElement {
     return "";
   }
 
-  public boolean hasNext() {
-    return false;
-  }
+    //  public boolean hasNext() {
+    //    return false;
+    //  }
 }
