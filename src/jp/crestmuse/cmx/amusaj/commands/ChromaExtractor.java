@@ -12,6 +12,11 @@ import org.xml.sax.*;
 
 public class ChromaExtractor extends AbstractWAVAnalyzer {
 
+    static {
+	addOptionHelpMessage("-l <freq>", "lower bound frequency for analysis");
+	addOptionHelpMessage("-h <freq>", "upper bound frequency for analysis");
+    }
+    
   protected boolean setOptionsLocal(String option, String value) {
     if (super.setOptionsLocal(option, value)) {
       return true;
@@ -37,19 +42,7 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);
-    /*
-    int ch = winslider.getOutputChannels();
-    System.err.println(ch);
-    System.err.println(stft.getInputChannels());
-    System.err.println(stft.getOutputChannels());
-    System.err.println(peakext.getInputChannels());
-    */
     int ch = winslider.getOutputClasses().length;
-    System.err.println(ch);
-    System.err.println(stft.getInputClasses().length);
-    System.err.println(stft.getOutputClasses().length);
-    System.err.println(peakext.getInputClasses().length);
-    System.err.println(params);
     for (int i = 0; i < ch; i++) {
       exec.connect(winslider, i, stft, i);
       exec.connect(stft, i, peakext, i);

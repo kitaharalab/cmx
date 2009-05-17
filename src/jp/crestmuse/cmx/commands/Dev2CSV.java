@@ -16,6 +16,12 @@ public class Dev2CSV extends
   
   private int devisionPerMeasure = 4;
   private int windowPerMeasure = 4;
+
+  static {
+      addOptionHelpMessage("-dpm <value>", "devisions per measure");
+      addOptionHelpMessage("-wpm <value>", "window per measure");
+      addOptionHelpMessage("-targetdir <dir>", "directory including target MusicXML file");
+  }
   
   protected boolean setOptionsLocal(String option, String value) {
     if(option.equals("-dpm")){

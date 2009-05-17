@@ -82,7 +82,8 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
   private String dirDest = null;
   private String ext = null;
 
-  private StringBuffer helpMessage = new StringBuffer();
+  //  private static StringBuffer helpMessage = new StringBuffer();
+  private static StringBuilder optionHelpMsg = new StringBuilder();
 
   private boolean isStdOut = false;
   private boolean mkdir = false;
@@ -114,13 +115,17 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
         return outfilename;
     }
 
+    //    static {
+    //	appendDefaultHelpMessage();
+    //    }
+    
 
     
 /****** Constructor *************************************************/
 
   public CMXCommand() {
     filenames = new jp.crestmuse.cmx.misc.Queue<String>();
-    appendDefaultHelpMessage();
+    //    appendDefaultHelpMessage();
     //    resetAll();
   }
 
@@ -183,7 +188,7 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
    *プログラムのバージョンを返します. 
    ******************************************************************/
   protected String getVersion() {
-    return "0.32.000";
+    return "0.50.000";
   }
 
 /****** Methods (Read the command line) ******************************/
@@ -599,8 +604,8 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
     if (args.length < requiredFiles() || 
         (args.length >= 1 && (args[0].equals("-h") || 
         args[0].equals("-help")))) {
-      System.err.println(helpMessage);
-//      System.err.println(getHelpMessage());
+	//      System.err.println(helpMessage);
+	System.err.println(getHelpMessage());
       System.exit(1);
     }
   }
@@ -618,26 +623,34 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
    *(通常はユーザが呼び出す必要はありません.)
    *******************************************************************/
   protected String getHelpMessage() {
-    return helpMessage.toString();
+      return defaultHelpMessage().append(optionHelpMsg).toString();
   }
 
-  private void appendDefaultHelpMessage() {
-    appendHelpMessage("[" + getClass().getName() 
-                      + " version " + getVersion() + "]");
-    appendHelpMessage("Usage: ");
-    appendHelpMessage("java [<VM options>] " + getClass().getName() 
-                      + " [<options>] <filename>...");
-    appendHelpMessage("Options :");
-    appendHelpMessage("-h: show this help message");
-    appendHelpMessage("-d <dirname>: specify the output directory");
-    appendHelpMessage("-o <filename>: specioutput file name");
-    appendHelpMessage("-stdout: output the generated object to the standard output");
+  private StringBuilder defaultHelpMessage() {
+      StringBuilder s = new StringBuilder();
+    s.append("[" + getClass().getName() 
+                      + " version " + getVersion() + "]\n");
+    s.append("Usage: ");
+    s.append("java [<VM options>] " + getClass().getName() 
+                      + " [<options>] <filename>...\n");
+    s.append("Options :\n");
+    s.append("-h: show this help message\n");
+    s.append("-d <dirname>: specify the output directory\n");
+    s.append("-o <filename>: specioutput file name\n");
+    s.append("-stdout: output the generated object to the standard output\n");
+    s.append("-S <filelist>: specify target files from a file listing them instead of listing them on the command line\n");
+    return s;
   }
 
-  
+  protected static void addOptionHelpMessage(String option, String message) {
+      optionHelpMsg.append(option + ": " + message + "\n");
+  }
+
+
+  /** @deprecated */
   protected void appendHelpMessage(String s) {
-    helpMessage.append(s);
-    helpMessage.append("\n");
+    optionHelpMsg.append(s);
+    optionHelpMsg.append("\n");
   }
 
   /*******************************************************************

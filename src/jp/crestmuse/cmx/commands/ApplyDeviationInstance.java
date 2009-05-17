@@ -23,10 +23,15 @@ public class ApplyDeviationInstance extends CMXCommand {
     private String smffilename = null;
     private String targetMusicXMLFileName = null;
 
+    static {
+	addOptionHelpMessage("-smf <filename>", "standard MIDI file to be output");
+	addOptionHelpMessage("-target <filename>", "target MusicXML file");
+    }
+
   public ApplyDeviationInstance() {
     super();
-    appendHelpMessage("-smf <filename>: specify the name of the standard MIDI file");
-    appendHelpMessage("-target <filename>: specify the target MusicXML file");
+    //    appendHelpMessage("-smf <filename>: specify the name of the standard MIDI file");
+    //    appendHelpMessage("-target <filename>: specify the target MusicXML file");
   }
 
   /******************************************************************

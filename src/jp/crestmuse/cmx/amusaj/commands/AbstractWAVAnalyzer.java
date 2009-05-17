@@ -14,6 +14,13 @@ public abstract class AbstractWAVAnalyzer
   protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
 
+  static {
+      addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
+      addOptionHelpMessage("-wintype {hamming|hanning|gaussian}", "window type in STFT");
+      addOptionHelpMessage("-shift <value>", "shift size in STFT");
+      addOptionHelpMessage("-ch <nn>", "target channel");
+  }
+
   protected boolean setOptionsLocal(String option, String value) {
     if (option.equals("-winsize")) {
       params.put("WINDOW_SIZE", String.valueOf(value));

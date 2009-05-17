@@ -12,7 +12,7 @@ public class ChromaExtractor extends SPModule {
 
     private static final double Q = 60.0;
 
-  private double fL = 0.0;
+  private double fL = 20.0;
   private double fH = Double.POSITIVE_INFINITY;
   private boolean paramSet = false;
 /*
@@ -58,7 +58,8 @@ public class ChromaExtractor extends SPModule {
 	    w = exp(-df*df/(2*bw*bw));
 	    chroma.set((nn+1)%12, w * peakset.power(i));
 	}
-        divX(chroma, sum(chroma));
+	double sum = sum(chroma);
+	if (sum > 0) divX(chroma, sum);
 	return chroma;
     }
 /*

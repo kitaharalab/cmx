@@ -17,9 +17,9 @@ import jp.crestmuse.cmx.handlers.*;
 /*******************************************************************************
  * The <tt>DeviationInstanceWrapper</tt> class wraps a DeviationInstance
  * document. <br>
- * <tt>DeviationInstanceWrapper</tt>クラス(仮)は, 表情付けインスタンスを記述するXMLドキュメントをラップします.
+ * <tt>DeviationInstanceWrapper</tt>クラスは, 表情付けインスタンスを記述するXMLドキュメントをラップします.
  * 
- * @author Tetsuro Kitahara <kitahara@kuis.kyoto-u.ac.jp>
+ * @author Tetsuro Kitahara
  * @version 0.10.000
  ******************************************************************************/
 public class DeviationInstanceWrapper extends CMXFileWrapper {
@@ -138,6 +138,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   }
 */
 
+    /** @deprecated */
   public void setTargetMusicXMLFileName(String filename) {
     File f = new File(filename);
     if (f.getParent() != null)
@@ -169,7 +170,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   }
 */
 
-  /** obsolete */
+  /** @deprecated */
   public static void changeDefaultMusicXMLDirName(String dirname) {
     //tentative
     addPathFirst(dirname);
