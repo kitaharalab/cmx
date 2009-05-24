@@ -188,7 +188,7 @@ public class WAVPlayer implements MusicPlayer {
     return buff.array();
   }
 
-  public int getResolution() {
+  public int getTicksPerBeat() {
     throw new UnsupportedOperationException();
   }
 

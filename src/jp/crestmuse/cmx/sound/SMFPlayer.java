@@ -86,7 +86,7 @@ public class SMFPlayer implements MusicPlayer {
       sequencer.close();
   }
 
-  public int getResolution() {
+  public int getTicksPerBeat() {
     return sequence.getResolution();
   }
 
