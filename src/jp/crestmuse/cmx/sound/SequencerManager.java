@@ -41,6 +41,10 @@ public class SequencerManager implements TickTimer, Runnable {
     generatables = new LinkedList<SgWithTrack>();
   }
 
+  public int getResolution() {
+    return TICKS_PER_BEAT;
+  }
+
   public long getTickPosition() {
     return sequencer.getTickPosition();
   }

@@ -188,7 +188,12 @@ public class WAVPlayer implements MusicPlayer {
     return buff.array();
   }
 
+  public int getResolution() {
+    throw new UnsupportedOperationException();
+  }
+
   public long getTickPosition() {
     throw new UnsupportedOperationException();
   }
+
 } 
