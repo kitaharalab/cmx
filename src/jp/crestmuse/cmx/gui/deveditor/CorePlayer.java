@@ -49,6 +49,11 @@ public class CorePlayer implements MusicPlayer {
     return sequencer.getMicrosecondPosition();
   }
 
+  public int getTicksPerBeat() {
+    if(sequencer == null) return 0;
+    return sequencer.getSequence().getResolution();
+  }
+
   public long getTickPosition() {
     if(sequencer == null) return 0;
     return sequencer.getTickPosition();
