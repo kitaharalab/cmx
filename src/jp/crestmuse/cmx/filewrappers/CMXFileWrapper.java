@@ -511,7 +511,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
    *<p>現在のファイル名を返します, </p>
    *********************************************************************/
   public final String getFileName() {
-    return file.getName();
+    return file == null ? null : file.getName();
   }
 
   public final String getAbsolutePath() {
