@@ -110,6 +110,9 @@ public class TimeInSecForSMF {
 
   static boolean isOn1 = false;
   static boolean isOn2 = false;
+
+  static NoteEvent lastE1 = null;
+  static NoteEvent lastE2 = null;
   
 
     private static String makeString(NoteEvent e1, NoteEvent e2) {
@@ -128,6 +131,10 @@ public class TimeInSecForSMF {
         ;
       else if (e2 == null && !isOn1 && e1.msg.equals("NoteOff"))
         ;
+      else if (e1 == null && isOn1 && e2.msg.equals("NoteOff"))  // kari
+        ;
+      else if (e2 == null && e1.equals(lastE1))
+        ;
       else
         sbuff.append(" ==> diff");
       if (e1 != null && e1.msg.equals("NoteOn"))
@@ -138,6 +145,8 @@ public class TimeInSecForSMF {
         isOn2 = true;
       else if (e2 != null && e2.msg.equals("NoteOff"))
         isOn2 = false;
+      lastE1 = e1;
+      lastE2 = e2;
       return sbuff.toString();
     }
         
@@ -201,6 +210,11 @@ class NoteEvent implements Comparable<NoteEvent> {
   }
   public String toString() {
     return String.format("%7f", time) + " " + msg + " " + notenum + " " + vel;
+  }
+  public boolean equals(Object o) {
+    NoteEvent e = (NoteEvent)o;
+    return e != null && time == e.time && msg.equals(e.msg)
+      && notenum == e.notenum && vel == e.vel;
   }
   boolean approxEquals(NoteEvent e) {
     return e != null && Math.abs(time - e.time) < 0.02 && msg.equals(e.msg)

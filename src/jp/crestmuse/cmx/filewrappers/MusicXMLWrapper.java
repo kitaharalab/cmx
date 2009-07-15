@@ -96,7 +96,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   private boolean startsWithZerothMeasure;
   private boolean zerothMeasureChecked = false;
 
-  static final int INTERNAL_TICKS_PER_BEAT = 10080;
+  static final int INTERNAL_TICKS_PER_BEAT = 15360 * 7;
+  // static final int INTERNAL_TICKS_PER_BEAT = 10080;
   //  static final int INTERNAL_TICKS_PER_BEAT = 1920;
 
   //  private DeviationInstanceWrapper dev;
@@ -969,6 +970,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       return (double)duration() / (double)divisions;
     }
     public int actualDuration(int ticksPerBeat) {
+//      System.err.println(duration() + " " + ticksPerBeat + " / " + divisions + "  = " + ((float)(duration()*ticksPerBeat)/(float)divisions));
       return Math.round((float)(duration() * ticksPerBeat) 
           / (float)divisions);
     }

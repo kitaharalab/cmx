@@ -644,6 +644,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     dest.beginAnnotations();
     for (MusicXMLWrapper.Measure measure : measurelist)
       dest.addBarline(measure.cumulativeTicks(ticksPerBeat), "");
+    MusicXMLWrapper.Measure lastm = measurelist[measurelist.length-1];
+    dest.addBarline(lastm.cumulativeTicks(ticksPerBeat) 
+                    + lastm.duration(ticksPerBeat), "");
     dest.endAnnotations();
   }
 

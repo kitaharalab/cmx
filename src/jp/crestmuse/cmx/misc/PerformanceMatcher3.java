@@ -509,10 +509,11 @@ public class PerformanceMatcher3 {
     ArrayList<TempoAndTime> tempolist = new ArrayList<TempoAndTime>();
     tempolist.add(getZerothTempoAndTime());
     int i = 0;
-    for (int k = 0; k < barlines.length - 1; k++) {
-      int measure = getMeasureNumber(barlines[k].onset());
-      int beat = 1;
-      for (int currentTick = barlines[k].onset(); 
+    int measure = 0, beat = 1, currentTick = 0;
+    for (int k = 0; k < barlines.length - 2; k++) {
+      measure = getMeasureNumber(barlines[k].onset());
+      beat = 1;
+      for (currentTick = barlines[k].onset(); 
            currentTick < barlines[k+1].onset(); 
            currentTick += scoreTicksPerBeat) {
         i = addTempoAndTime(currentTick, measure, beat, i, 
@@ -520,18 +521,23 @@ public class PerformanceMatcher3 {
         beat++;
       }
     }
-    int currentTick = barlines[barlines.length-1].onset();
-    int measure = getMeasureNumber(currentTick);
-    int beat = 1;
+    currentTick = barlines[barlines.length-2].onset();
+    measure = getMeasureNumber(currentTick);
+    beat = 1;
     i = addTempoAndTime(currentTick, measure, beat, i, 
                         indexlist, tempolist);
+
     int lastOffset = currentTick;
-    for ( ; i < scoreNotes.length; i++)
+    for ( i = 0 ; i < scoreNotes.length; i++)
       if (scoreNotes[i].offset() > lastOffset)
         lastOffset = scoreNotes[i].offset();
+    // kari
+    int lasttick = max(lastOffset+4*scoreTicksPerBeat, barlines[barlines.length-1].onset());
     for (currentTick += scoreTicksPerBeat; 
-         currentTick <= lastOffset; 
+         currentTick <= lasttick; 
          currentTick += scoreTicksPerBeat) {
+      System.err.println("lastOffset: " + lastOffset);
+      System.err.println("currentTick: " + currentTick);
       TempoAndTime tnt = new TempoAndTime(currentTick);
       tnt.measure = measure;
       tnt.beat = ++beat;
@@ -541,6 +547,10 @@ public class PerformanceMatcher3 {
     return tempolist;
   }
   
+  private static int max(int a, int b) {
+    return a >= b ? a : b;
+  }
+
   private int addTempoAndTime(int currentTick, int measure, int beat, int i, 
                               int[] indexlist, 
                               ArrayList<TempoAndTime> tempolist) {

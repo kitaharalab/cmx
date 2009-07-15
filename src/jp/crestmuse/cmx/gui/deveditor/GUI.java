@@ -56,6 +56,8 @@ public class GUI implements MusicPlaySynchronized {
   private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
+  private static String filepath = null;
+
   private GUI() {
     corePlayer = new CorePlayer();
     synchronizer = new MusicPlaySynchronizer(corePlayer);
@@ -75,6 +77,10 @@ public class GUI implements MusicPlaySynchronized {
     setButtons(south);
     mainFrame.getContentPane().add(south, BorderLayout.SOUTH);
     mainFrame.setVisible(true);
+    if (filepath != null) {
+      mainFrame.setTitle(filepath + " - DeviationEditor");
+      open(filepath);
+    }
   }
   
   private void setMenuBar() {
@@ -86,7 +92,10 @@ public class GUI implements MusicPlaySynchronized {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
         if(fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
           openMenuItem.setEnabled(false);
-          open(fc.getSelectedFile().getAbsolutePath());
+          filepath = fc.getSelectedFile().getAbsolutePath();
+          mainFrame.setTitle(filepath + " - DeviationEditor");
+          open(filepath);
+//          open(fc.getSelectedFile().getAbsolutePath());
         }
       }
     });
@@ -338,9 +347,11 @@ public class GUI implements MusicPlaySynchronized {
     synchronize(corePlayer.getMicrosecondPosition()/1000000.0, corePlayer.getTickPosition(), null);
   }
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     SwingUtilities.invokeLater(new Runnable(){
       public void run() {
+        if (args.length >= 1)
+          filepath = args[0];
         GUI.instance = new GUI();
       }
     });
