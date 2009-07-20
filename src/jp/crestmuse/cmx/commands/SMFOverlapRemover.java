@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.commands;
 import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.*;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
+//import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.*;
 import jp.crestmuse.cmx.misc.*;
 import javax.xml.*;
 import javax.xml.parsers.*;
@@ -13,6 +14,7 @@ public class SMFOverlapRemover extends
 
   NoteCompatible[] noteary = new NoteCompatible[128];
   int div;
+  int nTracks = 1;
 
   protected MIDIXMLWrapper readInputData(String filename) 
     throws IOException, ParserConfigurationException, SAXException,
@@ -20,6 +22,31 @@ public class SMFOverlapRemover extends
     return MIDIXMLWrapper.readSMF(filename);
   }
 
+  protected MIDIXMLWrapper run(MIDIXMLWrapper indata)
+    throws ParserConfigurationException, SAXException, 
+    TransformerException, IOException {
+    MIDIXMLWrapper newmidi = 
+      (MIDIXMLWrapper)CMXFileWrapper.createDocument(MIDIXMLWrapper.TOP_TAG);
+    if (indata.format() == 0)
+      newmidi.addElementsFirstForFormat0(div = indata.ticksPerBeat());
+    else if (indata.format() == 1)
+      newmidi.addElementsFirstForFormat1(nTracks = indata.trackCount(),
+                                         div = indata.ticksPerBeat());
+    else 
+      throw new IllegalStateException("unsupported SMF");
+    Track[] tt = indata.getTrackList();
+    for (int i = 0; i < tt.length; i++) {
+      newmidi.newTrack(i);
+      MIDIEvent[] evts = tt[i].getMIDIEventList();
+      for (MIDIEvent e : evts) {
+        newmidi.addMIDIChannelMessage(
+      newmidi.endTrack();
+    }
+    return newmidi;
+  }
+
+
+/*
   protected MIDIXMLWrapper run(MIDIXMLWrapper indata) 
     throws ParserConfigurationException,SAXException,TransformerException,
     IOException {
@@ -49,6 +76,8 @@ public class SMFOverlapRemover extends
     newscc.finalizeDocument();
     return newscc.toMIDIXML();
   }
+*/
+
 
   public static void main(String[] args) {
     SMFOverlapRemover sor = new SMFOverlapRemover();
