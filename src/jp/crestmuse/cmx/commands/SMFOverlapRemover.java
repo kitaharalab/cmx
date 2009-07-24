@@ -62,6 +62,9 @@ public class SMFOverlapRemover extends
         MIDIEventWithTime et = new MIDIEventWithTime(e, currentTime);
         addMIDIEventWithTime(et, l);
       }
+      for (MIDIEventWithTime[] etary : last1)
+        for (MIDIEventWithTime et : etary)
+          if (et != null) l.add(et);
       Collections.sort(l);
       newmidi.newTrack(i);
       addMIDIEventsToMIDIXML(l, newmidi);
@@ -79,7 +82,9 @@ public class SMFOverlapRemover extends
         last1[nn][ch] = e;
       else if (isNoteOn(last1[nn][ch])) {
         l.add(last1[nn][ch]);
-        System.err.println(e.evt.value(0) + " " + e.evt.value(1));
+        System.err.println(e.time + " " + e.evt.value(0) + " " + e.evt.value(1));
+        System.err.println(last1[nn][ch].time+ " " + last1[nn][ch].evt.value(0) + " " + last1[nn][ch].evt.value(1));
+        System.err.println();
       } else if (isNoteOff(last1[nn][ch])) {
         l.add(last1[nn][ch]);
         last1[nn][ch] = e;
@@ -93,7 +98,9 @@ public class SMFOverlapRemover extends
         l.add(last1[nn][ch]);
         last1[nn][ch] = e;
       } else if (isNoteOff(last1[nn][ch])) {
-        System.err.println(e.evt.value(0) + " " + e.evt.value(1));
+        System.err.println(e.time+ " " + e.evt.value(0) + " " + e.evt.value(1));
+        System.err.println(last1[nn][ch].time + " " + last1[nn][ch].evt.value(0) + " " + last1[nn][ch].evt.value(1));
+        System.err.println();
         last1[nn][ch] = e;
       }
     } else {
