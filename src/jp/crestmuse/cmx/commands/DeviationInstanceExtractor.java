@@ -23,6 +23,9 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
   private boolean remakeSMF = false;
 
   private int division = 0;
+  private double rowRiscInc = -1;
+  private double colRiscInc = -1;
+  private double ioiWeight = -1;
 
   public String getDestDir() {
     return super.getDestDir();
@@ -56,6 +59,15 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
       return true;
     } else if (option.equals("-division")) {
       division = Integer.parseInt(value);
+      return true;
+    } else if(option.equals("-rowrisc")) {
+      rowRiscInc = Double.parseDouble(value);
+      return true;
+    } else if(option.equals("-colrisc")) {
+      colRiscInc = Double.parseDouble(value);
+      return true;
+    } else if(option.equals("-ioi")) {
+      ioiWeight = Double.parseDouble(value);
       return true;
     }
     return false;
@@ -100,6 +112,12 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
       musicxml.makeDeadpanSCCXML(midixml.ticksPerBeat()).toMIDIXML().writefileAsSMF(new File(destdir, scoreFileName));
     }
 
+    if(rowRiscInc != -1)
+      PerformanceMatcher3.setRowRiscInc(rowRiscInc);
+    if(colRiscInc != -1)
+      PerformanceMatcher3.setColRiscInc(colRiscInc);
+    if(ioiWeight != -1)
+      PerformanceMatcher3.setIoiWeight(ioiWeight);
     DeviationInstanceWrapper diw; 
     if (division == 0)
       diw = PerformanceMatcher3.extractDeviation(musicxml, midixml);

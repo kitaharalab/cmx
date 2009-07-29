@@ -12,11 +12,7 @@ import javax.xml.transform.*;
   
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 public class PerformanceMatcher3 {
@@ -24,6 +20,21 @@ public class PerformanceMatcher3 {
   private static int baseTempo = 120;
   private static final double BASE_DYNAMICS = 100.0;
   private static final double ATTACK_LIMIT = 2000.0;
+  private static double rowRiscInc = 1; // originally int
+  private static double colRiscInc = 0.2;   // originally int
+  private static double ioiWeight = 1;
+
+  public static void setRowRiscInc(double value) {
+    rowRiscInc = value;
+  }
+
+  public static void setColRiscInc(double value) {
+    colRiscInc = value;
+  }
+
+  public static void setIoiWeight(double value) {
+    ioiWeight = value;
+  }
 
   private MusicXMLWrapper musicxml;
   private MIDIXMLWrapper midixml;
@@ -163,9 +174,6 @@ public class PerformanceMatcher3 {
   }
 */
 
-  private static final double COL_RISC_INC = 1;   // originally int
-  private static final double ROW_RISC_INC = 0.2; // originally int
-
   private DTWMatrix dtw(int r) {
 //    for (Note n : pfmNotes)
 //      System.err.println(n.notenum());
@@ -183,9 +191,11 @@ public class PerformanceMatcher3 {
     r = J;
     DTWMatrix matrix = new DTWMatrix(I, J);
     matrix.set(-1, -1, 0, -1, -1);
-    double colRisc=COL_RISC_INC;   // originally int
+//    double colRisc=COL_RISC_INC;   // originally int
+    double[] rowRiscs = new double[I];
+    Arrays.fill(rowRiscs, colRiscInc);
     for (int i = 0; i < I; i++) {
-      double rowRisc=ROW_RISC_INC;   // originally int
+      double colRisc=rowRiscInc;   // originally int
       for (int j = Math.max(0, i-r) ; j <= Math.min(i+r, J-1); j++) {
         NoteInSameTime e1 = compressedScore.get(i);
         Note e2 = pfmNotes[j];
@@ -196,21 +206,22 @@ public class PerformanceMatcher3 {
           else ioi = 1.0 / diff;
         }
         double d = dist(e1, e2, scoreTicks, pfmTicks);
-        double c1 = matrix.getValue(i-1, j) + d + colRisc;
-        double c2 = matrix.getValue(i-1, j-1) + 2 * d + ioi;
-        double c3 = matrix.getValue(i, j-1) + d + rowRisc;
+        double c1 = matrix.getValue(i-1, j) + d + rowRiscs[i];
+        double c2 = matrix.getValue(i-1, j-1) + 2 * d + ioi * ioiWeight;
+        double c3 = matrix.getValue(i, j-1) + d + colRisc;
         double c_min = Math.min(c2, Math.min(c1, c3));
-//        System.err.println(i + " " + j + " " + e2.notenum() + " " + d + " " + c_min);
         if (c_min == c2){
           matrix.set(i, j, c_min, i-1, j-1);
-          colRisc = COL_RISC_INC;
-          rowRisc = ROW_RISC_INC;
+          rowRiscs[i] = colRiscInc;
+          colRisc = rowRiscInc;
         }else if (c_min == c3){
           matrix.set(i, j, c_min, i, j-1);
-          rowRisc += ROW_RISC_INC;
+          rowRiscs[i] = colRiscInc;
+          colRisc += rowRiscInc;
         }else{
           matrix.set(i, j, c_min, i-1, j);
-          colRisc += COL_RISC_INC;
+          rowRiscs[i] += colRiscInc;
+          colRisc = rowRiscInc;
         }
       }
     }
@@ -806,7 +817,14 @@ public class PerformanceMatcher3 {
   }
 
   public static void main(String[] args){
-    //
+    try {
+      MusicXMLWrapper score = (MusicXMLWrapper)CMXFileWrapper.readfile(args[0]);
+      MIDIXMLWrapper pfm = MIDIXMLWrapper.readSMF(args[1]);
+      PerformanceMatcher3.extractDeviation(score, pfm).writefile(args[2]);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }    
   }
+
 }
   
