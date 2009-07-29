@@ -14,6 +14,12 @@ import java.util.*;
 public class SMFOverlapRemover extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 
+  private static final double ON_ON = 0.1;
+  private static final double ON_OFF = 0.5;
+  private static final int OFF_ON = -1;
+  String outSMFFileName;
+  String outSCCFileName;
+
   MIDIEventWithTime[][] last1 = new MIDIEventWithTime[128][16];
   MIDIEventWithTime[][] last2 = new MIDIEventWithTime[128][16];
 
@@ -29,7 +35,18 @@ public class SMFOverlapRemover extends
     }
   }
 
-//  MIDIEvent[] ary = new MIDIEvent[128];
+  protected boolean setOptionsLocal(String option, String value) {
+    if(option.equals("-smf")) {
+      outSMFFileName = value;
+      return true;
+    } else if(option.equals("-scc")) {
+      outSCCFileName = value;
+      return true;
+    }
+    return false;
+  }
+
+  //  MIDIEvent[] ary = new MIDIEvent[128];
 //  NoteCompatible[] noteary = new NoteCompatible[128];
   int div;
   int nTracks = 1;
@@ -62,13 +79,22 @@ public class SMFOverlapRemover extends
         MIDIEventWithTime et = new MIDIEventWithTime(e, currentTime);
         addMIDIEventWithTime(et, l);
       }
-      for (MIDIEventWithTime[] etary : last1)
-        for (MIDIEventWithTime et : etary)
-          if (et != null) l.add(et);
+      System.err.println();
+//      for (MIDIEventWithTime[] etary : last1)
+//        for (MIDIEventWithTime et : etary)
+//          if (et != null) l.add(et);
       Collections.sort(l);
       newmidi.newTrack(i);
       addMIDIEventsToMIDIXML(l, newmidi);
       newmidi.endTrack(false);
+      System.err.println();
+    }
+    if(outSMFFileName != null) {
+      newmidi.finalizeDocument();
+      newmidi.writefileAsSMF(outSMFFileName);
+    } else if(outSCCFileName != null) {
+      newmidi.finalizeDocument();
+      newmidi.toSCCXML().writefile(outSCCFileName);
     }
     return newmidi;
   }
@@ -78,34 +104,28 @@ public class SMFOverlapRemover extends
     if (isNoteOn(e)) {
       int nn = e.evt.value(0);
       int ch = e.evt.channel();
-      if (last1[nn][ch] == null)
-        last1[nn][ch] = e;
-      else if (isNoteOn(last1[nn][ch])) {
-        l.add(last1[nn][ch]);
-        System.err.println(e.time + " " + e.evt.value(0) + " " + e.evt.value(1));
-        System.err.println(last1[nn][ch].time+ " " + last1[nn][ch].evt.value(0) + " " + last1[nn][ch].evt.value(1));
-        System.err.println();
-      } else if (isNoteOff(last1[nn][ch])) {
-        l.add(last1[nn][ch]);
-        last1[nn][ch] = e;
-      }
+      System.err.println("on\t" + e.time + "\t" + nn + "\t" + e.evt.value(1));
+      last2[nn][ch] = last1[nn][ch];
+      last1[nn][ch] = e;
     } else if (isNoteOff(e)) {
       int nn = e.evt.value(0);
       int ch = e.evt.channel();
-      if (last1[nn][ch] == null)
-        last1[nn][ch] = e;
-      else if (isNoteOn(last1[nn][ch])) {
-        l.add(last1[nn][ch]);
-        last1[nn][ch] = e;
-      } else if (isNoteOff(last1[nn][ch])) {
-        System.err.println(e.time+ " " + e.evt.value(0) + " " + e.evt.value(1));
-        System.err.println(last1[nn][ch].time + " " + last1[nn][ch].evt.value(0) + " " + last1[nn][ch].evt.value(1));
-        System.err.println();
+      System.err.println("off\t" + e.time + "\t" + nn + "\t" + e.evt.value(1));
+      if(last2[nn][ch] != null && last1[nn][ch] != null && isNoteOn(last2[nn][ch]) && isNoteOn(last1[nn][ch])) {
+//        System.out.println((last1[nn][ch].time - last2[nn][ch].time) +" "+ (e.time - last1[nn][ch].time));
+        if(last1[nn][ch].time - last2[nn][ch].time > div * ON_ON && e.time - last1[nn][ch].time < div * ON_OFF) {
+          e.time = last1[nn][ch].time + OFF_ON;
+          last2[nn][ch] = e;
+        } else {
+          last2[nn][ch] = last1[nn][ch];
+          last1[nn][ch] = e;
+        }
+      } else {
+        last2[nn][ch] = last1[nn][ch];
         last1[nn][ch] = e;
       }
-    } else {
-      l.add(e);
     }
+    l.add(e);
   }
   
   private boolean isNoteOn(MIDIEventWithTime e) {
@@ -123,6 +143,10 @@ public class SMFOverlapRemover extends
                                       MIDIXMLWrapper newmidi) {
     MIDIEventWithTime last = null;
     for (MIDIEventWithTime e : l) {
+      if(isNoteOn(e))
+        System.err.println("on\t" + e.time + "\t" + e.evt.value(0) + "\t" + e.evt.value(1));
+      else if(isNoteOff(e))
+        System.err.println("off\t" + e.time + "\t" + e.evt.value(0) + "\t" + e.evt.value(1));
       int deltaTime;
       if (last == null)
         deltaTime = e.time;

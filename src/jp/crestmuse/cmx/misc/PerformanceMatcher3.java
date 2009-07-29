@@ -21,8 +21,8 @@ public class PerformanceMatcher3 {
   private static final double BASE_DYNAMICS = 100.0;
   private static final double ATTACK_LIMIT = 2000.0;
   private static double rowRiscInc = 1; // originally int
-  private static double colRiscInc = 0.2;   // originally int
-  private static double ioiWeight = 1;
+  private static double colRiscInc = 0;   // originally int
+  private static double ioiWeight = 1.6;
 
   public static void setRowRiscInc(double value) {
     rowRiscInc = value;
@@ -177,12 +177,12 @@ public class PerformanceMatcher3 {
   private DTWMatrix dtw(int r) {
 //    for (Note n : pfmNotes)
 //      System.err.println(n.notenum());
-    for (NoteInSameTime nn : compressedScore) {
-      System.err.print(nn.notes.get(0).onset(48) + "\t");
-      for (Note n : nn.notes)
-        System.err.print(n.notenum() + " " );
-      System.err.println();
-    }
+//    for (NoteInSameTime nn : compressedScore) {
+//      System.err.print(nn.notes.get(0).onset(48) + "\t");
+//      for (Note n : nn.notes)
+//        System.err.print(n.notenum() + " " );
+//      System.err.println();
+//    }
     int I = compressedScore.size();
     int J = pfmNotes.length;
     int scoreTicks = compressedScore.get(I - 1).notes.get(0).offset();
@@ -195,15 +195,23 @@ public class PerformanceMatcher3 {
     double[] rowRiscs = new double[I];
     Arrays.fill(rowRiscs, colRiscInc);
     for (int i = 0; i < I; i++) {
-      double colRisc=rowRiscInc;   // originally int
+      double colRisc = rowRiscInc;   // originally int
       for (int j = Math.max(0, i-r) ; j <= Math.min(i+r, J-1); j++) {
         NoteInSameTime e1 = compressedScore.get(i);
         Note e2 = pfmNotes[j];
         double ioi = 0;
-        if(j > 0) {
-          int diff = e2.onset() - pfmNotes[j - 1].onset();
-          if(diff == 0) ioi = Double.POSITIVE_INFINITY;
-          else ioi = 1.0 / diff;
+//        if(j > 0) {
+//          int diff = e2.onset() - pfmNotes[j - 1].onset();
+//          if(diff == 0) ioi = Double.POSITIVE_INFINITY;
+//          else ioi = 1.0 / diff;
+//        }
+        if(i > 0 && j > 0) {
+          int scoreDiff = e1.notes.get(0).onset() - compressedScore.get(i - 1).notes.get(0).onset();
+          int pfmDiff = e2.onset() - pfmNotes[j - 1].onset();
+          if(pfmDiff == 0)
+            ioi = Double.POSITIVE_INFINITY;
+          else
+            ioi = scoreDiff / (double)pfmDiff;
         }
         double d = dist(e1, e2, scoreTicks, pfmTicks);
         double c1 = matrix.getValue(i-1, j) + d + rowRiscs[i];

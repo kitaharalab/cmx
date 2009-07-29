@@ -33,13 +33,13 @@ public class SMFOverlapChecker extends
 //  NoteCompatible[] noteary = new NoteCompatible[128];
   int div;
   int nTracks = 1;
-
+/*
   protected MIDIXMLWrapper readInputData(String filename) 
     throws IOException, ParserConfigurationException, SAXException,
     TransformerException {
     return MIDIXMLWrapper.readSMF(filename);
   }
-
+*/
   protected MIDIXMLWrapper run(MIDIXMLWrapper indata)
     throws ParserConfigurationException, SAXException, 
     TransformerException, IOException {
