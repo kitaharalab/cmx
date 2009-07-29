@@ -162,7 +162,19 @@ public class PerformanceMatcher3 {
     return path;
   }
 */
+
+  private static final double COL_RISC_INC = 1;   // originally int
+  private static final double ROW_RISC_INC = 0.2; // originally int
+
   private DTWMatrix dtw(int r) {
+//    for (Note n : pfmNotes)
+//      System.err.println(n.notenum());
+    for (NoteInSameTime nn : compressedScore) {
+      System.err.print(nn.notes.get(0).onset(48) + "\t");
+      for (Note n : nn.notes)
+        System.err.print(n.notenum() + " " );
+      System.err.println();
+    }
     int I = compressedScore.size();
     int J = pfmNotes.length;
     int scoreTicks = compressedScore.get(I - 1).notes.get(0).offset();
@@ -171,9 +183,9 @@ public class PerformanceMatcher3 {
     r = J;
     DTWMatrix matrix = new DTWMatrix(I, J);
     matrix.set(-1, -1, 0, -1, -1);
-    int colRisc=1;
+    double colRisc=COL_RISC_INC;   // originally int
     for (int i = 0; i < I; i++) {
-      int rowRisc=1;
+      double rowRisc=ROW_RISC_INC;   // originally int
       for (int j = Math.max(0, i-r) ; j <= Math.min(i+r, J-1); j++) {
         NoteInSameTime e1 = compressedScore.get(i);
         Note e2 = pfmNotes[j];
@@ -188,16 +200,17 @@ public class PerformanceMatcher3 {
         double c2 = matrix.getValue(i-1, j-1) + 2 * d + ioi;
         double c3 = matrix.getValue(i, j-1) + d + rowRisc;
         double c_min = Math.min(c2, Math.min(c1, c3));
+//        System.err.println(i + " " + j + " " + e2.notenum() + " " + d + " " + c_min);
         if (c_min == c2){
           matrix.set(i, j, c_min, i-1, j-1);
-          colRisc = 1;
-          rowRisc = 1;
+          colRisc = COL_RISC_INC;
+          rowRisc = ROW_RISC_INC;
         }else if (c_min == c3){
           matrix.set(i, j, c_min, i, j-1);
-          rowRisc += 1;
+          rowRisc += ROW_RISC_INC;
         }else{
           matrix.set(i, j, c_min, i-1, j);
-          colRisc += 1;
+          colRisc += COL_RISC_INC;
         }
       }
     }
@@ -206,9 +219,10 @@ public class PerformanceMatcher3 {
 
   private double dist(NoteInSameTime e1, Note e2, int scoreTicks, int pfmTicks){
     double position = Math.abs((e1.notes.get(0).onset() / (double)scoreTicks - e2.onset() / (double)pfmTicks));
-    for(Note n : e1.notes)
+    for(Note n : e1.notes) {
       if(n.notenum() == e2.notenum())
         return position;
+    }
     //else if(Math.abs(e1.notenum()-e2.notenum()) % 12 == 0) return 10 + position;
     return 100;
   }
@@ -324,7 +338,7 @@ public class PerformanceMatcher3 {
     }
     @Override
     public String toString() {
-      return tempo + ", " + tickInScore + ", " + tickInPfm + ", " + timeInSec + ", " + measure + ", " + beat;
+      return "\n" + tempo + ", " + tickInScore + ", " + tickInPfm + ", " + timeInSec + ", " + measure + ", " + beat;
     }
   }
 
@@ -528,16 +542,23 @@ public class PerformanceMatcher3 {
                         indexlist, tempolist);
 
     int lastOffset = currentTick;
-    for ( i = 0 ; i < scoreNotes.length; i++)
-      if (scoreNotes[i].offset() > lastOffset)
-        lastOffset = scoreNotes[i].offset();
-    // kari
-    int lasttick = max(lastOffset+4*scoreTicksPerBeat, barlines[barlines.length-1].onset());
-    for (currentTick += scoreTicksPerBeat; 
-         currentTick <= lasttick; 
+    for ( int ii = 0 ; ii < scoreNotes.length; ii++)
+      if (scoreNotes[ii].offset() > lastOffset)
+        lastOffset = scoreNotes[ii].offset();
+
+    for (currentTick += scoreTicksPerBeat;
+         currentTick < barlines[barlines.length-1].onset();
          currentTick += scoreTicksPerBeat) {
-      System.err.println("lastOffset: " + lastOffset);
-      System.err.println("currentTick: " + currentTick);
+      i = addTempoAndTime(currentTick, measure, ++beat, i,
+                          indexlist, tempolist);
+    }
+    // kari
+//    int lasttick = max(lastOffset+4*scoreTicksPerBeat, barlines[barlines.length-1].onset());
+    for (;
+         currentTick <= lastOffset+4*scoreTicksPerBeat; 
+         currentTick += scoreTicksPerBeat) {
+//      System.err.println("lastOffset: " + lastOffset);
+//      System.err.println("currentTick: " + currentTick);
       TempoAndTime tnt = new TempoAndTime(currentTick);
       tnt.measure = measure;
       tnt.beat = ++beat;
@@ -591,6 +612,11 @@ public class PerformanceMatcher3 {
       }
       i++;
     }
+    // kari
+    TempoAndTime tnt = new TempoAndTime(currentTick);
+    tnt.measure = measure;
+    tnt.beat = beat;
+    tempolist.add(tnt);
     return i;
   }
 
