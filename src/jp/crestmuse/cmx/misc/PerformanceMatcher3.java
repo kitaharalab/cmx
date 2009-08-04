@@ -12,7 +12,7 @@ import javax.xml.transform.*;
   
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class PerformanceMatcher3 {
@@ -23,6 +23,10 @@ public class PerformanceMatcher3 {
   private static double rowRiscInc = 1; // originally int
   private static double colRiscInc = 0;   // originally int
   private static double ioiWeight = 1.6;
+
+  public static String DTW_PATH_FILENAME = null;
+
+  public static double MISS_EXTRA_ONSET_DIFF = 0.4;
 
   public static void setRowRiscInc(double value) {
     rowRiscInc = value;
@@ -91,6 +95,8 @@ public class PerformanceMatcher3 {
     DeviationDataSet dds = dev.createDeviationDataSet();
     List<Note> extraNotes = new ArrayList<Note>();
     int[] indexlist = getPath(dtw(500), extraNotes);
+    if (DTW_PATH_FILENAME != null)
+      writePathToFile(indexlist, DTW_PATH_FILENAME);
     sortIndexList(indexlist);
     ArrayList<TempoAndTime> tempolist = alignBeats(indexlist);
     interpolateBeatTime(tempolist);
@@ -100,10 +106,66 @@ public class PerformanceMatcher3 {
     int headMeasure = measurelist[0].number();
     dds.addNonPartwiseControl(headMeasure, 1, "tempo", avgtempo);
     addTempoDeviations(dds, tempolist, avgtempo);
+    checkMissAndExtraNotes(indexlist, extraNotes, tempolist);
     setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
     dds.toWrapper();
     return dev;
   }
+
+  public DeviationInstanceWrapper extractDeviation(File file) 
+    throws ParserConfigurationException,SAXException,IOException,
+    TransformerException {
+    DeviationInstanceWrapper dev = 
+        DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
+    DeviationDataSet dds = dev.createDeviationDataSet();
+    List<Note> extraNotes = new ArrayList<Note>();
+    int[] indexlist = getPath(file, extraNotes);
+    sortIndexList(indexlist);
+    ArrayList<TempoAndTime> tempolist = alignBeats(indexlist);
+    interpolateBeatTime(tempolist);
+    double avgtempo = calcTempo(tempolist);
+    double initSil = tempolist.get(1).timeInSec;
+    dds.setInitialSilence(initSil);
+    int headMeasure = measurelist[0].number();
+    dds.addNonPartwiseControl(headMeasure, 1, "tempo", avgtempo);
+    addTempoDeviations(dds, tempolist, avgtempo);
+    checkMissAndExtraNotes(indexlist, extraNotes, tempolist);
+    setNotewiseDeviations(dds, indexlist, extraNotes, tempolist);
+    dds.toWrapper();
+    return dev;
+  }
+
+  private int[] getPath(File file, List<Note> extraNotes) throws IOException {
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    int length = Integer.parseInt(reader.readLine());
+    int[] indexlist = new int[length];
+    String line = null;
+    while ((line = reader.readLine()) != null) {
+      String[] data = line.split("\t");
+      indexlist[Integer.parseInt(data[0])] = Integer.parseInt(data[1]);
+    }
+    reader.close();
+    boolean[] matched = new boolean[pfmNotes.length];
+    for (int i = 0; i < indexlist.length; i++) 
+      if (indexlist[i]>=0) matched[indexlist[i]] = true;
+    for (int j = 0; j < matched.length; j++)
+      if (!matched[j])
+        extraNotes.add(pfmNotes[j]);
+    return indexlist;
+  }
+    
+
+  private void writePathToFile(int[] indexlist, String filename) 
+    throws IOException {
+    PrintWriter writer = new PrintWriter(new BufferedWriter(
+                                           new FileWriter(filename)));
+    writer.println(indexlist.length);
+    for (int i = 0; i < indexlist.length; i++)
+      writer.println(i + "\t" + indexlist[i] + "\t# " + scoreNotes[i] 
+                     +" | "+(indexlist[i]>=0?pfmNotes[indexlist[i]] : ""));
+    writer.close();
+  }
+                                         
 
   public static DeviationInstanceWrapper extractDeviation
   (MusicXMLWrapper score, MIDIXMLWrapper pfm)
@@ -114,12 +176,30 @@ public class PerformanceMatcher3 {
   }
 
   public static DeviationInstanceWrapper extractDeviation
+  (MusicXMLWrapper score, MIDIXMLWrapper pfm, File pathfile)
+    throws ParserConfigurationException, SAXException, IOException, 
+    TransformerException {
+    PerformanceMatcher3 pm = new PerformanceMatcher3(score, pfm);
+    return pm.extractDeviation(pathfile);
+  }
+
+  public static DeviationInstanceWrapper extractDeviation
   (MusicXMLWrapper score, MIDIXMLWrapper pfm, int ticksPerBeat)
     throws ParserConfigurationException, SAXException, IOException,
     TransformerException {
     PerformanceMatcher3 pm = new PerformanceMatcher3(score, pfm, 
                                                      ticksPerBeat);
     return pm.extractDeviation();
+  }
+
+  public static DeviationInstanceWrapper extractDeviation
+  (MusicXMLWrapper score, MIDIXMLWrapper pfm, int ticksPerBeat, 
+   File pathfile) 
+    throws ParserConfigurationException, SAXException, IOException, 
+    TransformerException {
+    PerformanceMatcher3 pm = new PerformanceMatcher3(score, pfm, 
+                                                     ticksPerBeat);
+    return pm.extractDeviation(pathfile);
   }
 
   private int[] getPath(DTWMatrix matrix, List<Note> extraNotes) {
@@ -430,15 +510,75 @@ public class PerformanceMatcher3 {
                                      List<Note> extraNotes, 
                                      ArrayList<TempoAndTime> tempolist) {
     for (int i = 0; i < indexlist.length; i++) {
-      if (indexlist[i] >= 0)
-        addNoteDeviation(dds, scoreNotes[i], pfmNotes[indexlist[i]], 
-                         tempolist);
-      else
+      int j = indexlist[i];
+      if (j >= 0) {
+        addNoteDeviation(dds, scoreNotes[i], pfmNotes[j], tempolist);
+      } else if (indexlist[i] < -1) {
+        if (extraNotes.get(-j-2) != null) {
+          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j-2), tempolist);
+          extraNotes.set(-j-2, null);
+        } else {
+          addMissNote(dds, scoreNotes[i]);
+        }
+      } else {
         addMissNote(dds, scoreNotes[i]);
+      }
     }
     for (Note note : extraNotes)
-      addExtraNote(dds, note, partid, tempolist);
+      if (note != null) addExtraNote(dds, note, partid, tempolist);
   }
+
+  private void checkMissAndExtraNotes(int[] indexlist,
+                                      List<Note> extraNotes,
+                                      ArrayList<TempoAndTime> tempolist) {
+    for (int i = 0; i < indexlist.length; i++) {
+      if (indexlist[i] >= 0) continue;
+      Note scoreNote = scoreNotes[i];
+      double scoreOnset = getSecFromScoreTick(scoreNote.onset(), tempolist);
+//      System.err.println(scoreOnset);
+      int scoreNN = scoreNote.notenum();
+      for (int j = 0; j < extraNotes.size(); j++) {
+        Note pfmNote = extraNotes.get(j);
+        int pfmNN = pfmNote.notenum();
+        if (scoreNN != pfmNN) continue;
+        double pfmOnset = getSecFromPfmTick(pfmNote.onset(), tempolist);
+//        System.err.println(pfmOnset);
+        if (scoreOnset - pfmOnset < MISS_EXTRA_ONSET_DIFF 
+            && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
+          indexlist[i] = -j-2;
+//          System.out.println(scoreOnset + " " + pfmOnset + " " + scoreNN + " " + pfmNN);
+        }
+      }
+//      System.err.println();
+    }
+  }
+        
+
+
+  // kari; redundant calculation
+  private double getSecFromScoreTick(int tick, 
+                                     List<TempoAndTime> tempolist) {
+    TempoAndTime last = tempolist.get(0);
+    for (TempoAndTime tnt : tempolist) {
+      if (tick < tnt.tickInScore) break;
+      last = tnt;
+    }
+    return last.timeInSec 
+      + (tick-last.tickInScore) * 60.0 / (scoreTicksPerBeat * last.tempo);
+  }
+
+  // kari; redundant calculation
+  private double getSecFromPfmTick(int tick,
+                                   List<TempoAndTime> tempolist) {
+    TempoAndTime last = tempolist.get(0);
+    for (TempoAndTime tnt : tempolist) {
+      if (tick < tnt.tickInPfm) break;
+      last = tnt;
+    }
+    return last.timeInSec
+      + (tick-last.tickInPfm) * 60.0 / (pfmTicksPerBeat * baseTempo);
+  }
+
 
   private int i = 0;
 

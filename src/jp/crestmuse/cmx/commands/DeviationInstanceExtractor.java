@@ -27,6 +27,8 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
   private double colRiscInc = -1;
   private double ioiWeight = -1;
 
+  private String pathFileName = null;
+
   public String getDestDir() {
     return super.getDestDir();
   }
@@ -69,8 +71,18 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
     } else if(option.equals("-ioi")) {
       ioiWeight = Double.parseDouble(value);
       return true;
+    } else if (option.equals("-miss")) {
+      PerformanceMatcher3.MISS_EXTRA_ONSET_DIFF = Double.parseDouble(value);
+      return true;
+    } else if (option.equals("-pathwrite")) {
+      PerformanceMatcher3.DTW_PATH_FILENAME = value;
+      return true;
+    } else if (option.equals("-pathread")) {
+      pathFileName = value;
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   protected boolean setBoolOptionsLocal(String option) {
@@ -119,10 +131,19 @@ public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, Devi
     if(ioiWeight != -1)
       PerformanceMatcher3.setIoiWeight(ioiWeight);
     DeviationInstanceWrapper diw; 
-    if (division == 0)
-      diw = PerformanceMatcher3.extractDeviation(musicxml, midixml);
-    else 
-      diw = PerformanceMatcher3.extractDeviation(musicxml, midixml, division);
+    if (pathFileName == null) {
+      if (division == 0)
+        diw = PerformanceMatcher3.extractDeviation(musicxml, midixml);
+      else 
+        diw = PerformanceMatcher3.extractDeviation(musicxml,midixml,division);
+    } else {
+      if (division == 0)
+        diw = PerformanceMatcher3.extractDeviation(musicxml, midixml, 
+                                                   new File(pathFileName));
+      else
+        diw = PerformanceMatcher3.extractDeviation(musicxml,midixml,division,
+                                                   new File(pathFileName));
+    }
     diw.finalizeDocument();
     //setOutputData(diw);
 	

@@ -954,6 +954,11 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         offVelocity == another.offVelocity;
     }
 
+    public String toString() {
+      return "Note[" + onset + ", " + offset + ", " + notenum + ", " 
+        + velocity + ", " + offVelocity + "]";
+    }
+
   }
 
   public class ControlChange extends Note {
