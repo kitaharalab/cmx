@@ -109,6 +109,8 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
         } catch (AWTException e1) {
           e1.printStackTrace();
         }
+        // TODO PerformanceMatcherデバッグ緊急用
+        System.out.println(d.getDeviatedNote().getIndex());
         break;
       }
     }
