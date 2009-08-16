@@ -1,7 +1,9 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.Color;
 import java.awt.Graphics;
+
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 
 public class PrintableNote {
 
@@ -9,7 +11,7 @@ public class PrintableNote {
   private int x, y, width, height;
   private int onset, offset, onsetInMSec, offsetInMSec;
   
-  public PrintableNote(CompiledDeviation.DeviatedNote dn, PianoRollPanel parent){
+  public PrintableNote(DeviatedPerformance.DeviatedNote dn, PianoRollPanel parent){
     this.parent = parent;
     onset = dn.onsetOriginal();
     offset = dn.offsetOriginal();
@@ -26,7 +28,7 @@ public class PrintableNote {
   }
   
   public void asTickTime(){
-    int ticksPerBeat = CompiledDeviation.TICKS_PER_BEAT;
+    int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
     x = (int)(onset / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
     width = (int)((offset - onset) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
   }

@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.Color;
 import java.awt.Dimension;

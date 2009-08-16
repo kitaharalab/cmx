@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -16,6 +16,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 public class NoteEditFrame extends JFrame {
 

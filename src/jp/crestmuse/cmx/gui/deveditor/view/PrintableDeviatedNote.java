@@ -1,9 +1,11 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.sound.midi.InvalidMidiDataException;
+
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 
 /**
  * PianoRollPanel上でDeviatedNoteを表示するするためのクラスです．
@@ -11,13 +13,13 @@ import javax.sound.midi.InvalidMidiDataException;
  */
 public class PrintableDeviatedNote {
 // TODO widthが負の数(onset > offset)のやつがいる
-  private CompiledDeviation.DeviatedNote deviatedNote;
+  private DeviatedPerformance.DeviatedNote deviatedNote;
   private PianoRollPanel parent;
   private int x, y, width, height;
   private Color fillColor;
   private Color roundColor;
 
-  public PrintableDeviatedNote(CompiledDeviation.DeviatedNote deviatedNote, PianoRollPanel parent) {
+  public PrintableDeviatedNote(DeviatedPerformance.DeviatedNote deviatedNote, PianoRollPanel parent) {
     this.deviatedNote = deviatedNote;
     this.parent = parent;
     asTickTime();
@@ -47,7 +49,7 @@ public class PrintableDeviatedNote {
     g.fillRect(x - 5, y - 5, width + 10, height + 10);
   }
   
-  public CompiledDeviation.DeviatedNote getDeviatedNote(){
+  public DeviatedPerformance.DeviatedNote getDeviatedNote(){
     return deviatedNote;
   }
   
@@ -55,7 +57,7 @@ public class PrintableDeviatedNote {
    * 楽譜時刻として位置と幅を更新する．
    */
   public void asTickTime(){
-    int ticksPerBeat = CompiledDeviation.TICKS_PER_BEAT;
+    int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
     x = (int)(deviatedNote.onset() / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
     width = (int)((deviatedNote.offset() - deviatedNote.onset()) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
   }
@@ -84,7 +86,7 @@ public class PrintableDeviatedNote {
   public boolean changeDeviation(double attack, double release, double dynamics, double endDynamics){
     try {
       if(deviatedNote.changeDeviation(attack, release, dynamics, endDynamics)){
-        if(GUI.Instance().getShowAsTickTime())
+        if(GUI.getInstance().getShowAsTickTime())
           asTickTime();
         else
           asRealTime();
@@ -140,7 +142,7 @@ public class PrintableDeviatedNote {
     }
     public void release(){
       try {
-        if(GUI.Instance().getShowAsTickTime()){
+        if(GUI.getInstance().getShowAsTickTime()){
           if(noteon)
             deviatedNote.changeDeviation((x - prevX)/(double)PianoRollPanel.WIDTH_PER_BEAT, 0);
           else

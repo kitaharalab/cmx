@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.AWTException;
 import java.awt.Color;
@@ -17,7 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import jp.crestmuse.cmx.gui.deveditor.PrintableDeviatedNote.NoteMoveHandle;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import jp.crestmuse.cmx.gui.deveditor.view.PrintableDeviatedNote.NoteMoveHandle;
 
 /**
  * このクラスはDeviationエディターで表示されるピアノロールを表します．
@@ -28,7 +29,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   public static int WIDTH_PER_BEAT = 32;
   public static int HEIGHT_PER_NOTE = 16;
   public static int COLUMN_HEADER_HEIGHT = 16;
-  private CompiledDeviation compiledDeviation;
+  private DeviatedPerformance compiledDeviation;
   private ArrayList<PrintableDeviatedNote> deviatedNotes;
   private ArrayList<PrintableNote> originalNotes;
   private PrintableDeviatedNote hoverNote;
@@ -39,25 +40,25 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   private JFrame tempoFrame;
   private NoteEditFrame noteEditFrame;
 
-  public PianoRollPanel(CompiledDeviation compiledDeviation) {
+  public PianoRollPanel(DeviatedPerformance compiledDeviation) {
     noteEditFrame = new NoteEditFrame(this);
     this.compiledDeviation = compiledDeviation;
     setTempoFrame();
     playingLine = 0;
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
     originalNotes = new ArrayList<PrintableNote>();
-    for(CompiledDeviation.DeviatedNote dn : compiledDeviation.getDeviatedNotes()){
+    for(DeviatedPerformance.DeviatedNote dn : compiledDeviation.getDeviatedNotes()){
       deviatedNotes.add(new PrintableDeviatedNote(dn, this));
       if(!dn.isExtraNote()) originalNotes.add(new PrintableNote(dn, this));
     }
     holdNote = null;
     int tickLength = (int)compiledDeviation.getSequence().getTickLength();
-    int width = WIDTH_PER_BEAT * tickLength / CompiledDeviation.TICKS_PER_BEAT;
+    int width = WIDTH_PER_BEAT * tickLength / DeviatedPerformance.TICKS_PER_BEAT;
     setPreferredSize(new Dimension(width, HEIGHT_PER_NOTE*128));
     addMouseListener(this);
     addMouseMotionListener(this);
     
-    int measures = tickLength/(CompiledDeviation.TICKS_PER_BEAT*4);
+    int measures = tickLength/(DeviatedPerformance.TICKS_PER_BEAT*4);
     int seconds = (int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
     columnHeader = new ColumnHeaderPanel(measures, WIDTH_PER_BEAT*4, seconds, width/seconds, width, COLUMN_HEADER_HEIGHT);
     rowHeader = new RowHeaderPanel();
@@ -77,10 +78,10 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   
   public void mouseClicked(MouseEvent e) {
     if(e.getClickCount() == 2 && hoverNote == null && holdNote == null){
-      if(GUI.Instance().getShowAsTickTime())
-        GUI.Instance().setPlayPosition(compiledDeviation.getSequence().getTickLength()*e.getX()/getPreferredSize().width);
+      if(GUI.getInstance().getShowAsTickTime())
+        GUI.getInstance().setPlayPosition(compiledDeviation.getSequence().getTickLength()*e.getX()/getPreferredSize().width);
       else
-        GUI.Instance().setPlayPosition(compiledDeviation.getSequence().getMicrosecondLength()*e.getX()/getPreferredSize().width);
+        GUI.getInstance().setPlayPosition(compiledDeviation.getSequence().getMicrosecondLength()*e.getX()/getPreferredSize().width);
     }else if(e.getButton() == MouseEvent.BUTTON3 && hoverNote != null){
       noteEditFrame.setNote(hoverNote);
       noteEditFrame.setLocation(MouseInfo.getPointerInfo().getLocation());
@@ -109,8 +110,6 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
         } catch (AWTException e1) {
           e1.printStackTrace();
         }
-        // TODO PerformanceMatcherデバッグ緊急用
-        System.out.println(d.getDeviatedNote().getIndex());
         break;
       }
     }
@@ -153,7 +152,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
 
     g.setColor(Color.BLACK);
     int span = WIDTH_PER_BEAT*4;
-    if(!GUI.Instance().getShowAsTickTime()) span = 2*this.getPreferredSize().width/(int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
+    if(!GUI.getInstance().getShowAsTickTime()) span = 2*this.getPreferredSize().width/(int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
     for(int i=0; i<getPreferredSize().width; i+=span)
       g.drawLine(i, 0, i, getHeight());
 
@@ -164,7 +163,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     g.fillRect(playingLine - 1, 0, 3, getHeight());
   }
   
-  public CompiledDeviation getCompiledDeviation() {
+  public DeviatedPerformance getCompiledDeviation() {
     return compiledDeviation;
   }
   
@@ -177,7 +176,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
    * @return
    */
   public int getPlayPointX(double currentTime, long currentTick){
-    if(GUI.Instance().getShowAsTickTime())
+    if(GUI.getInstance().getShowAsTickTime())
       playingLine = (int)(getPreferredSize().width*currentTick/compiledDeviation.getSequence().getTickLength());
     else
       playingLine = (int)(getPreferredSize().width*currentTime*1000000/compiledDeviation.getSequence().getMicrosecondLength());
@@ -195,7 +194,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
    */
   public void updateScale(){
     int tickLength = (int)compiledDeviation.getSequence().getTickLength();
-    int width = WIDTH_PER_BEAT * tickLength / CompiledDeviation.TICKS_PER_BEAT;
+    int width = WIDTH_PER_BEAT * tickLength / DeviatedPerformance.TICKS_PER_BEAT;
     setPreferredSize(new Dimension(width, HEIGHT_PER_NOTE*128));
     updateNotes();
     columnHeader.setPreferredSize(new Dimension(width, COLUMN_HEADER_HEIGHT));
@@ -208,7 +207,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
    * ノートの幅を更新する．
    */
   public void updateNotes(){
-    if(GUI.Instance().getShowAsTickTime()){
+    if(GUI.getInstance().getShowAsTickTime()){
       for(PrintableDeviatedNote n : deviatedNotes) n.asTickTime();
       for(PrintableNote n : originalNotes) n.asTickTime();
     }else{
@@ -232,7 +231,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     public void paint(Graphics g) {
       super.paint(g);
       g.setColor(Color.BLACK);
-      if(GUI.Instance().getShowAsTickTime()){
+      if(GUI.getInstance().getShowAsTickTime()){
         for(int i=0; i<measureNum; i++)
           g.drawString((i + 1) + "", i*widthPerMeasure, COLUMN_HEADER_HEIGHT);
       }else{

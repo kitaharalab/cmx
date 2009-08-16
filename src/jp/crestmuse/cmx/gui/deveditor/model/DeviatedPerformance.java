@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,14 +13,12 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-import javax.xml.transform.TransformerException;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.ChordDeviation;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.Control;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.ExtraNote;
@@ -36,7 +34,7 @@ import jp.crestmuse.cmx.misc.TreeView;
  * このクラスは一つのSequenceと複数のDeviatedNoteを保持し、DeviationEditorで扱う曲の一曲を表します．
  * @author ntotani
  */
-public class CompiledDeviation {
+public class DeviatedPerformance {
 
   public static int TICKS_PER_BEAT = 480;
   private int BASE_VELOCITY = 100;
@@ -46,23 +44,9 @@ public class CompiledDeviation {
   private TreeMap<Integer, Integer> ticks2tempo;
   private TreeMap<Integer, Integer> ticks2msec;
   private final int linearDivision = 8;
-  // TODO PerformanceMatcher緊急デバッグ用
-  private HashMap<String, Integer> note2index;
 
-  public CompiledDeviation(final DeviationInstanceWrapper deviation) throws IOException,
+  public DeviatedPerformance(final DeviationInstanceWrapper deviation) throws IOException,
       InvalidMidiDataException {
-    // TODO PerformanceMatcher緊急デバッグ用
-    try {
-      note2index = new HashMap<String, Integer>();
-      MusicXMLWrapper score = (MusicXMLWrapper)CMXFileWrapper.readfile(deviation.getTargetMusicXMLFileName());
-      SCCXMLWrapper scoreSCC = score.makeDeadpanSCCXML(480);
-      SCCXMLWrapper.Note[] scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
-      for(int i=0; i<scoreNotes.length; i++)
-        note2index.put(scoreNotes[i].getMusicXMLWrapperNote().toString(), i);
-    } catch (TransformerException e1) {
-      e1.printStackTrace();
-    }
-
     // TODO MusicXMLにTempoが指定してあった場合それを反映
     // TODO initSilenceに対応
     // TODO deviation読み込みを完全再現
@@ -291,12 +275,6 @@ public class CompiledDeviation {
    * @author ntotani
    */
   public class DeviatedNote extends MutableNote {
-    // TODO PerformanceMatcher緊急デバッグ用
-    public int getIndex() {
-      if(note == null) return -1;
-      return note2index.get(note.toString());
-    }
-
     private MusicXMLWrapper.Note note;
     private double attack;
     private double release;

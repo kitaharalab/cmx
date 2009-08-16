@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -28,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
@@ -41,10 +42,10 @@ public class GUI implements MusicPlaySynchronized {
   /**
    * GUIクラス唯一のインスタンス．
    */
-  public static GUI Instance() { return instance; }
-  private static GUI instance;
+  public static GUI getInstance() { return instance; }
+  private static GUI instance = new GUI();
 
-  private CorePlayer corePlayer;
+  private DeviatedPerformancePlayer corePlayer;
   private MusicPlaySynchronizer synchronizer;
   private boolean showAsTickTime;
   private JMenuItem openMenuItem;
@@ -56,31 +57,29 @@ public class GUI implements MusicPlaySynchronized {
   private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
-  private static String filepath = null;
-
   private GUI() {
-    corePlayer = new CorePlayer();
+    corePlayer = new DeviatedPerformancePlayer();
     synchronizer = new MusicPlaySynchronizer(corePlayer);
     synchronizer.addSynchronizedComponent(this);
     showAsTickTime = true;
     pianoRollPanels = new ArrayList<PianoRollPanel>();
 
-    mainFrame = new JFrame("DeviationEditor");
-    mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    mainFrame.setSize(640, 480);
-    mainFrame.getContentPane().setLayout(new BorderLayout());
-    setMenuBar();
-    setScrollPane();
-    JPanel south = new JPanel(new FlowLayout());
-    setList(south);
-    setSlider(south);
-    setButtons(south);
-    mainFrame.getContentPane().add(south, BorderLayout.SOUTH);
-    mainFrame.setVisible(true);
-    if (filepath != null) {
-      mainFrame.setTitle(filepath + " - DeviationEditor");
-      open(filepath);
-    }
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        mainFrame = new JFrame("DeviationEditor");
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setSize(640, 480);
+        mainFrame.getContentPane().setLayout(new BorderLayout());
+        setMenuBar();
+        setScrollPane();
+        JPanel south = new JPanel(new FlowLayout());
+        setList(south);
+        setSlider(south);
+        setButtons(south);
+        mainFrame.getContentPane().add(south, BorderLayout.SOUTH);
+        mainFrame.setVisible(true);
+      }
+    });
   }
   
   private void setMenuBar() {
@@ -92,10 +91,7 @@ public class GUI implements MusicPlaySynchronized {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
         if(fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
           openMenuItem.setEnabled(false);
-          filepath = fc.getSelectedFile().getAbsolutePath();
-          mainFrame.setTitle(filepath + " - DeviationEditor");
-          open(filepath);
-//          open(fc.getSelectedFile().getAbsolutePath());
+          open(fc.getSelectedFile().getAbsolutePath());
         }
       }
     });
@@ -164,8 +160,10 @@ public class GUI implements MusicPlaySynchronized {
             showingPanel.getTempoFrame().setVisible(false);
   
           // 新しいパネルに切り替える
+          // TODO comboBoxにする
           int index = ((JComboBox)e.getSource()).getSelectedIndex();
           corePlayer.changeDeviation(index);
+          mainFrame.setTitle(comboBox.getSelectedItem().toString() + " - DeviationEditor");
           showingPanel = pianoRollPanels.get(index);
           showingPanel.updateScale();
           showingPanel.setScrollPane(scrollPane);
@@ -298,7 +296,7 @@ public class GUI implements MusicPlaySynchronized {
       public void run() {
         try {
           CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
-          CompiledDeviation cd = corePlayer.open(wrapper);
+          DeviatedPerformance cd = corePlayer.open(wrapper);
           pianoRollPanels.add(new PianoRollPanel(cd));
           SwingUtilities.invokeLater(new Runnable(){
             public void run() {
@@ -345,16 +343,6 @@ public class GUI implements MusicPlaySynchronized {
     else
       corePlayer.setMicrosecondPosition(position);
     synchronize(corePlayer.getMicrosecondPosition()/1000000.0, corePlayer.getTickPosition(), null);
-  }
-
-  public static void main(final String[] args) {
-    SwingUtilities.invokeLater(new Runnable(){
-      public void run() {
-        if (args.length >= 1)
-          filepath = args[0];
-        GUI.instance = new GUI();
-      }
-    });
   }
 
 }

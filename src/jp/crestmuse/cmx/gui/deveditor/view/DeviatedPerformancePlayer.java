@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.gui.deveditor;
+package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,20 +16,21 @@ import org.xml.sax.SAXException;
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.sound.MusicPlayer;
 
 /**
  * このクラスは一つのSequencerと複数のCompiledDeviationを所持し、指定された曲を演奏するクラスです．
  * @author ntotani
  */
-public class CorePlayer implements MusicPlayer {
+public class DeviatedPerformancePlayer implements MusicPlayer {
 
-  private ArrayList<CompiledDeviation> compiledDeviations;
+  private ArrayList<DeviatedPerformance> compiledDeviations;
   private int playingIndex = -1;
   private Sequencer sequencer = null;
 
-  public CorePlayer(){
-    compiledDeviations = new ArrayList<CompiledDeviation>();
+  public DeviatedPerformancePlayer(){
+    compiledDeviations = new ArrayList<DeviatedPerformance>();
     try {
       sequencer = MidiSystem.getSequencer();
       sequencer.open();
@@ -92,7 +93,7 @@ public class CorePlayer implements MusicPlayer {
       sequencer.setMicrosecondPosition(microseconds);
   }
   
-  public CompiledDeviation open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
+  public DeviatedPerformance open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
     DeviationInstanceWrapper dev;
     try{
       dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper)wrapper);
@@ -104,7 +105,7 @@ public class CorePlayer implements MusicPlayer {
         throw new IllegalArgumentException("argument must be MusicXMLWrapper or DeviationInstanceWrapper");
       }
     }
-    CompiledDeviation cd = new CompiledDeviation(dev);
+    DeviatedPerformance cd = new DeviatedPerformance(dev);
     compiledDeviations.add(cd);
     return cd;
   }
