@@ -2,7 +2,6 @@ package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
@@ -13,9 +12,6 @@ import javax.swing.JOptionPane;
 
 import org.xml.sax.SAXException;
 
-import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
-import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.sound.MusicPlayer;
 
@@ -25,12 +21,13 @@ import jp.crestmuse.cmx.sound.MusicPlayer;
  */
 public class DeviatedPerformancePlayer implements MusicPlayer {
 
-  private ArrayList<DeviatedPerformance> compiledDeviations;
-  private int playingIndex = -1;
+//  private ArrayList<DeviatedPerformance> compiledDeviations;
+//  private int playingIndex = -1;
+  private DeviatedPerformance currentPerformance = null;
   private Sequencer sequencer = null;
 
   public DeviatedPerformancePlayer(){
-    compiledDeviations = new ArrayList<DeviatedPerformance>();
+//    compiledDeviations = new ArrayList<DeviatedPerformance>();
     try {
       sequencer = MidiSystem.getSequencer();
       sequencer.open();
@@ -93,39 +90,39 @@ public class DeviatedPerformancePlayer implements MusicPlayer {
       sequencer.setMicrosecondPosition(microseconds);
   }
   
-  public DeviatedPerformance open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
-    DeviationInstanceWrapper dev;
-    try{
-      dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper)wrapper);
-      dev.finalizeDocument();
-    }catch(ClassCastException e){
-      try{
-        dev = (DeviationInstanceWrapper)wrapper;
-      }catch(ClassCastException e1){
-        throw new IllegalArgumentException("argument must be MusicXMLWrapper or DeviationInstanceWrapper");
-      }
-    }
-    DeviatedPerformance cd = new DeviatedPerformance(dev);
-    compiledDeviations.add(cd);
-    return cd;
-  }
+//  public DeviatedPerformance open(CMXFileWrapper wrapper) throws IOException, InvalidMidiDataException{
+//    DeviationInstanceWrapper dev;
+//    try{
+//      dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper)wrapper);
+//      dev.finalizeDocument();
+//    }catch(ClassCastException e){
+//      try{
+//        dev = (DeviationInstanceWrapper)wrapper;
+//      }catch(ClassCastException e1){
+//        throw new IllegalArgumentException("argument must be MusicXMLWrapper or DeviationInstanceWrapper");
+//      }
+//    }
+//    DeviatedPerformance cd = new DeviatedPerformance(dev);
+//    compiledDeviations.add(cd);
+//    return cd;
+//  }
 
-  public void changeDeviation(int index) throws InvalidMidiDataException{
-    if(index == playingIndex) return;
+  public void changeDeviation(DeviatedPerformance newPerformance) throws InvalidMidiDataException{
+    if(newPerformance == currentPerformance) return;
     try {
       long tick = sequencer.getTickPosition();
-      sequencer.setSequence(compiledDeviations.get(index).getSequence());
+      sequencer.setSequence(newPerformance.getSequence());
       sequencer.setTickPosition(tick);
     } catch (NullPointerException e) {}
-    playingIndex = index;
+    currentPerformance = newPerformance;
   }
   
   public Sequence getCurrentSequence(){
-    return compiledDeviations.get(playingIndex).getSequence();
+    return currentPerformance.getSequence();
   }
   
   public void writeFile(OutputStream out) throws IOException, SAXException {
-    compiledDeviations.get(playingIndex).calcDeviation().write(out);
+    currentPerformance.calcDeviation().write(out);
   }
 
 }

@@ -27,8 +27,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
-import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
@@ -45,24 +43,27 @@ public class GUI implements MusicPlaySynchronized {
   public static GUI getInstance() { return instance; }
   private static GUI instance = new GUI();
 
-  private DeviatedPerformancePlayer corePlayer;
+  private DeviatedPerformancePlayer deviatedPerformancePlayer;
   private MusicPlaySynchronizer synchronizer;
   private boolean showAsTickTime;
   private JMenuItem openMenuItem;
   private JCheckBoxMenuItem tempoMenuItem;
   private JComboBox comboBox;
-  private ArrayList<PianoRollPanel> pianoRollPanels;
-  private PianoRollPanel showingPanel;
+//  private ArrayList<PianoRollPanel> pianoRollPanels;
+//  private PianoRollPanel showingPanel;
+  private ArrayList<DeviatedPerformanceView> performances;
+  private DeviatedPerformanceView currentPerformance;
   private JScrollPane scrollPane;
   private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
   private GUI() {
-    corePlayer = new DeviatedPerformancePlayer();
-    synchronizer = new MusicPlaySynchronizer(corePlayer);
+    deviatedPerformancePlayer = new DeviatedPerformancePlayer();
+    synchronizer = new MusicPlaySynchronizer(deviatedPerformancePlayer);
     synchronizer.addSynchronizedComponent(this);
     showAsTickTime = true;
-    pianoRollPanels = new ArrayList<PianoRollPanel>();
+//    pianoRollPanels = new ArrayList<PianoRollPanel>();
+    performances = new ArrayList<DeviatedPerformanceView>();
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
@@ -114,18 +115,18 @@ public class GUI implements MusicPlaySynchronized {
     file.add(save);
     file.add(quit);
     
-    JMenu show = new JMenu("show");
-    tempoMenuItem = new JCheckBoxMenuItem("tempo");
-    tempoMenuItem.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        if(showingPanel != null)
-          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
-      }
-    });
-    show.add(tempoMenuItem);
+//    JMenu show = new JMenu("show");
+//    tempoMenuItem = new JCheckBoxMenuItem("tempo");
+//    tempoMenuItem.addActionListener(new ActionListener(){
+//      public void actionPerformed(ActionEvent e) {
+//        if(showingPanel != null)
+//          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
+//      }
+//    });
+//    show.add(tempoMenuItem);
     
     menuBar.add(file);
-    menuBar.add(show);
+//    menuBar.add(show);
     mainFrame.setJMenuBar(menuBar);
   }
 
@@ -138,11 +139,12 @@ public class GUI implements MusicPlaySynchronized {
     scale.addChangeListener(new ChangeListener(){
       public void stateChanged(ChangeEvent e) {
         PianoRollPanel.WIDTH_PER_BEAT = ((JSlider)e.getSource()).getValue();
-        if(showingPanel != null)
-          showingPanel.updateScale();
+        if(currentPerformance != null)
+          currentPerformance.updateScale();
         scrollPane.repaint();
       }
     });
+    scrollPane.setRowHeaderView(new KeyBoardPanel());
     scrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
     scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
     scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
@@ -156,31 +158,34 @@ public class GUI implements MusicPlaySynchronized {
       public void actionPerformed(ActionEvent e) {
         try {
           // 表示中のテンポウィンドウがあれば隠す
-          if(showingPanel != null)
-            showingPanel.getTempoFrame().setVisible(false);
+//          if(showingPanel != null)
+//            showingPanel.getTempoFrame().setVisible(false);
   
           // 新しいパネルに切り替える
-          // TODO comboBoxにする
-          int index = ((JComboBox)e.getSource()).getSelectedIndex();
-          corePlayer.changeDeviation(index);
+          int index = comboBox.getSelectedIndex();
+          currentPerformance = performances.get(index);
+          deviatedPerformancePlayer.changeDeviation(currentPerformance.getDeviatedPerformance());
           mainFrame.setTitle(comboBox.getSelectedItem().toString() + " - DeviationEditor");
-          showingPanel = pianoRollPanels.get(index);
-          showingPanel.updateScale();
-          showingPanel.setScrollPane(scrollPane);
+//          showingPanel = pianoRollPanels.get(index);
+          currentPerformance.updateScale();
+//          showingPanel.setScrollPane(scrollPane);
+          PianoRollPanel prp = currentPerformance.getPianoRollPanel();
+          scrollPane.setViewportView(prp);
+          scrollPane.setColumnHeaderView(prp.getColumnHeader());
   
           // y座標を中央までずらす
           Point p = scrollPane.getViewport().getViewPosition();
-          p.y = (showingPanel.getPreferredSize().height - scrollPane.getHeight())/2;
+          p.y = (prp.getPreferredSize().height - scrollPane.getHeight())/2;
           scrollPane.getViewport().setViewPosition(p);
   
           // 再生位置スライダーを設定
           if(showAsTickTime)
-            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getTickLength());
+            currentPositionSlider.setMaximum((int)deviatedPerformancePlayer.getCurrentSequence().getTickLength());
           else
-            currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getMicrosecondLength());
+            currentPositionSlider.setMaximum((int)deviatedPerformancePlayer.getCurrentSequence().getMicrosecondLength());
   
           // テンポウィンドウを表示（非表示）
-          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
+//          showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
         } catch (InvalidMidiDataException e1) {
           e1.printStackTrace();
         }
@@ -202,7 +207,7 @@ public class GUI implements MusicPlaySynchronized {
       public void mousePressed(MouseEvent e) {
       }
       public void mouseReleased(MouseEvent e) {
-        if(showingPanel == null) return;
+        if(currentPerformance == null) return;
         setPlayPosition(currentPositionSlider.getValue());
       }
     });
@@ -237,16 +242,16 @@ public class GUI implements MusicPlaySynchronized {
     change.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         showAsTickTime = !showAsTickTime;
-        if(showingPanel != null){
-          showingPanel.updateNotes();
+        if(currentPerformance != null){
+          currentPerformance.updateNotes();
           mainFrame.repaint();
         }
         if(showAsTickTime){
-          currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getTickLength());
-          currentPositionSlider.setValue((int)corePlayer.getTickPosition());
+          currentPositionSlider.setMaximum((int)deviatedPerformancePlayer.getCurrentSequence().getTickLength());
+          currentPositionSlider.setValue((int)deviatedPerformancePlayer.getTickPosition());
         }else{
-          currentPositionSlider.setMaximum((int)corePlayer.getCurrentSequence().getMicrosecondLength());
-          currentPositionSlider.setValue((int)corePlayer.getMicrosecondPosition());
+          currentPositionSlider.setMaximum((int)deviatedPerformancePlayer.getCurrentSequence().getMicrosecondLength());
+          currentPositionSlider.setValue((int)deviatedPerformancePlayer.getMicrosecondPosition());
         }
       }
     });
@@ -260,7 +265,7 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   public void stop(MusicPlaySynchronizer wavsync) {
-    corePlayer.reset();
+    deviatedPerformancePlayer.reset();
     currentPositionSlider.setEnabled(true);
   }
 
@@ -268,9 +273,9 @@ public class GUI implements MusicPlaySynchronized {
     SwingUtilities.invokeLater(new Runnable(){
       public void run() {
         Point p = scrollPane.getViewport().getViewPosition();
-        p.x = showingPanel.getPlayPointX(currentTime, currentTick);
+        p.x = currentPerformance.getPianoRollPanel().getPlayPointX(currentTime, currentTick);
         int width = scrollPane.getViewport().getWidth();
-        p.x = Math.max(0, Math.min(showingPanel.getPreferredSize().width - width, p.x - width/2));
+        p.x = Math.max(0, Math.min(currentPerformance.getPianoRollPanel().getPreferredSize().width - width, p.x - width/2));
         scrollPane.getViewport().setViewPosition(p);
         if(showAsTickTime)
           currentPositionSlider.setValue((int)currentTick);
@@ -278,7 +283,7 @@ public class GUI implements MusicPlaySynchronized {
           currentPositionSlider.setValue((int)(currentTime*1000000));
       }
     });
-    showingPanel.repaint();
+    currentPerformance.getPianoRollPanel().repaint();
   }
   
   /**
@@ -295,9 +300,12 @@ public class GUI implements MusicPlaySynchronized {
     Thread th = new Thread(){
       public void run() {
         try {
-          CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
-          DeviatedPerformance cd = corePlayer.open(wrapper);
-          pianoRollPanels.add(new PianoRollPanel(cd));
+//          CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
+//          DeviatedPerformance cd = corePlayer.open(wrapper);
+//          pianoRollPanels.add(new PianoRollPanel(cd));
+          DeviatedPerformanceView dpv = new DeviatedPerformanceView(fileName);
+          performances.add(dpv);
+          deviatedPerformancePlayer.changeDeviation(dpv.getDeviatedPerformance());
           SwingUtilities.invokeLater(new Runnable(){
             public void run() {
               comboBox.addItem("dev" + comboBox.getItemCount());
@@ -324,7 +332,7 @@ public class GUI implements MusicPlaySynchronized {
     Thread t = new Thread(){
       public void run(){
         try {
-          corePlayer.writeFile(new FileOutputStream(file));
+          deviatedPerformancePlayer.writeFile(new FileOutputStream(file));
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -339,10 +347,10 @@ public class GUI implements MusicPlaySynchronized {
    */
   public void setPlayPosition(long position) {
     if(showAsTickTime)
-      corePlayer.setTickPosition(position);
+      deviatedPerformancePlayer.setTickPosition(position);
     else
-      corePlayer.setMicrosecondPosition(position);
-    synchronize(corePlayer.getMicrosecondPosition()/1000000.0, corePlayer.getTickPosition(), null);
+      deviatedPerformancePlayer.setMicrosecondPosition(position);
+    synchronize(deviatedPerformancePlayer.getMicrosecondPosition()/1000000.0, deviatedPerformancePlayer.getTickPosition(), null);
   }
 
 }

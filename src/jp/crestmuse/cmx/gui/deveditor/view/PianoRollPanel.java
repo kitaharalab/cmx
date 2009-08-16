@@ -29,40 +29,40 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   public static int WIDTH_PER_BEAT = 32;
   public static int HEIGHT_PER_NOTE = 16;
   public static int COLUMN_HEADER_HEIGHT = 16;
-  private DeviatedPerformance compiledDeviation;
+  private DeviatedPerformance deviatedPerformance;
   private ArrayList<PrintableDeviatedNote> deviatedNotes;
   private ArrayList<PrintableNote> originalNotes;
   private PrintableDeviatedNote hoverNote;
   private NoteMoveHandle holdNote;
   private ColumnHeaderPanel columnHeader;
-  private RowHeaderPanel rowHeader;
+//  private RowHeaderPanel rowHeader;
   private int playingLine;
   private JFrame tempoFrame;
   private NoteEditFrame noteEditFrame;
 
-  public PianoRollPanel(DeviatedPerformance compiledDeviation) {
+  public PianoRollPanel(DeviatedPerformance deviatedPerformance) {
     noteEditFrame = new NoteEditFrame(this);
-    this.compiledDeviation = compiledDeviation;
+    this.deviatedPerformance = deviatedPerformance;
     setTempoFrame();
     playingLine = 0;
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
     originalNotes = new ArrayList<PrintableNote>();
-    for(DeviatedPerformance.DeviatedNote dn : compiledDeviation.getDeviatedNotes()){
+    for(DeviatedPerformance.DeviatedNote dn : deviatedPerformance.getDeviatedNotes()){
       deviatedNotes.add(new PrintableDeviatedNote(dn, this));
       if(!dn.isExtraNote()) originalNotes.add(new PrintableNote(dn, this));
     }
     holdNote = null;
-    int tickLength = (int)compiledDeviation.getSequence().getTickLength();
+    int tickLength = (int)deviatedPerformance.getSequence().getTickLength();
     int width = WIDTH_PER_BEAT * tickLength / DeviatedPerformance.TICKS_PER_BEAT;
     setPreferredSize(new Dimension(width, HEIGHT_PER_NOTE*128));
     addMouseListener(this);
     addMouseMotionListener(this);
     
     int measures = tickLength/(DeviatedPerformance.TICKS_PER_BEAT*4);
-    int seconds = (int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
+    int seconds = (int)(deviatedPerformance.getSequence().getMicrosecondLength()/1000000);
     columnHeader = new ColumnHeaderPanel(measures, WIDTH_PER_BEAT*4, seconds, width/seconds, width, COLUMN_HEADER_HEIGHT);
-    rowHeader = new RowHeaderPanel();
-    rowHeader.setPreferredSize(new Dimension(64, HEIGHT_PER_NOTE*128));
+//    rowHeader = new RowHeaderPanel();
+//    rowHeader.setPreferredSize(new Dimension(64, HEIGHT_PER_NOTE*128));
   }
   
   private void setTempoFrame(){
@@ -70,7 +70,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     tempoFrame.setSize(320, 256);
     tempoFrame.setResizable(false);
     JScrollPane jsp = new JScrollPane();
-    TempoPanel tp = new TempoPanel((int)compiledDeviation.getSequence().getTickLength(), compiledDeviation.getTicks2Tempo());
+    TempoPanel tp = new TempoPanel((int)deviatedPerformance.getSequence().getTickLength(), deviatedPerformance.getTicks2Tempo());
     jsp.setViewportView(tp);
     jsp.setRowHeaderView(tp.getRowHeader());
     tempoFrame.getContentPane().add(jsp);
@@ -79,9 +79,9 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   public void mouseClicked(MouseEvent e) {
     if(e.getClickCount() == 2 && hoverNote == null && holdNote == null){
       if(GUI.getInstance().getShowAsTickTime())
-        GUI.getInstance().setPlayPosition(compiledDeviation.getSequence().getTickLength()*e.getX()/getPreferredSize().width);
+        GUI.getInstance().setPlayPosition(deviatedPerformance.getSequence().getTickLength()*e.getX()/getPreferredSize().width);
       else
-        GUI.getInstance().setPlayPosition(compiledDeviation.getSequence().getMicrosecondLength()*e.getX()/getPreferredSize().width);
+        GUI.getInstance().setPlayPosition(deviatedPerformance.getSequence().getMicrosecondLength()*e.getX()/getPreferredSize().width);
     }else if(e.getButton() == MouseEvent.BUTTON3 && hoverNote != null){
       noteEditFrame.setNote(hoverNote);
       noteEditFrame.setLocation(MouseInfo.getPointerInfo().getLocation());
@@ -152,7 +152,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
 
     g.setColor(Color.BLACK);
     int span = WIDTH_PER_BEAT*4;
-    if(!GUI.getInstance().getShowAsTickTime()) span = 2*this.getPreferredSize().width/(int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
+    if(!GUI.getInstance().getShowAsTickTime()) span = 2*this.getPreferredSize().width/(int)(deviatedPerformance.getSequence().getMicrosecondLength()/1000000);
     for(int i=0; i<getPreferredSize().width; i+=span)
       g.drawLine(i, 0, i, getHeight());
 
@@ -164,9 +164,13 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   }
   
   public DeviatedPerformance getCompiledDeviation() {
-    return compiledDeviation;
+    return deviatedPerformance;
   }
-  
+
+  public ColumnHeaderPanel getColumnHeader() {
+    return columnHeader;
+  }
+
   public JFrame getTempoFrame() { return tempoFrame; }
   
   /**
@@ -177,29 +181,29 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
    */
   public int getPlayPointX(double currentTime, long currentTick){
     if(GUI.getInstance().getShowAsTickTime())
-      playingLine = (int)(getPreferredSize().width*currentTick/compiledDeviation.getSequence().getTickLength());
+      playingLine = (int)(getPreferredSize().width*currentTick/deviatedPerformance.getSequence().getTickLength());
     else
-      playingLine = (int)(getPreferredSize().width*currentTime*1000000/compiledDeviation.getSequence().getMicrosecondLength());
+      playingLine = (int)(getPreferredSize().width*currentTime*1000000/deviatedPerformance.getSequence().getMicrosecondLength());
     return playingLine;
   }
   
-  public void setScrollPane(JScrollPane jsp){
-    jsp.setViewportView(this);
-    jsp.setColumnHeaderView(columnHeader);
-    jsp.setRowHeaderView(rowHeader);
-  }
+//  public void setScrollPane(JScrollPane jsp){
+//    jsp.setViewportView(this);
+//    jsp.setColumnHeaderView(columnHeader);
+//    jsp.setRowHeaderView(rowHeader);
+//  }
 
   /**
    * パネルの幅を更新する．
    */
   public void updateScale(){
-    int tickLength = (int)compiledDeviation.getSequence().getTickLength();
+    int tickLength = (int)deviatedPerformance.getSequence().getTickLength();
     int width = WIDTH_PER_BEAT * tickLength / DeviatedPerformance.TICKS_PER_BEAT;
     setPreferredSize(new Dimension(width, HEIGHT_PER_NOTE*128));
     updateNotes();
     columnHeader.setPreferredSize(new Dimension(width, COLUMN_HEADER_HEIGHT));
     columnHeader.widthPerMeasure = WIDTH_PER_BEAT*4;
-    int seconds = (int)(compiledDeviation.getSequence().getMicrosecondLength()/1000000);
+    int seconds = (int)(deviatedPerformance.getSequence().getMicrosecondLength()/1000000);
     columnHeader.widthPerSecond = width/seconds;
   }
 
@@ -242,19 +246,19 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     }
   }
   
-  private class RowHeaderPanel extends JPanel {
-    public void paint(Graphics g) {
-      super.paint(g);
-      g.setColor(Color.BLACK);
-      g.drawLine(getWidth() - 1, 0, getWidth() -1, getHeight());
-      for(int i=0; i<128; i++){
-        if(i%12==1 || i%12==3 || i%12==6 || i%12==8 || i%12==10){
-          g.drawLine(0, (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/2, getWidth(), (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/2);
-          g.fillRect(0, (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/4, getWidth()/2, HEIGHT_PER_NOTE/2);
-        }else if(i%12== 0 || i%12 == 5)
-          g.drawLine(0, (127 - i + 1)*HEIGHT_PER_NOTE, getWidth(), (127 - i + 1)*HEIGHT_PER_NOTE);
-      }
-    }
-  }
+//  private class RowHeaderPanel extends JPanel {
+//    public void paint(Graphics g) {
+//      super.paint(g);
+//      g.setColor(Color.BLACK);
+//      g.drawLine(getWidth() - 1, 0, getWidth() -1, getHeight());
+//      for(int i=0; i<128; i++){
+//        if(i%12==1 || i%12==3 || i%12==6 || i%12==8 || i%12==10){
+//          g.drawLine(0, (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/2, getWidth(), (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/2);
+//          g.fillRect(0, (127 - i)*HEIGHT_PER_NOTE + HEIGHT_PER_NOTE/4, getWidth()/2, HEIGHT_PER_NOTE/2);
+//        }else if(i%12== 0 || i%12 == 5)
+//          g.drawLine(0, (127 - i + 1)*HEIGHT_PER_NOTE, getWidth(), (127 - i + 1)*HEIGHT_PER_NOTE);
+//      }
+//    }
+//  }
 
 }
