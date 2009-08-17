@@ -13,9 +13,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.view.PrintableDeviatedNote.NoteMoveHandle;
@@ -37,13 +35,13 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
   private ColumnHeaderPanel columnHeader;
 //  private RowHeaderPanel rowHeader;
   private int playingLine;
-  private JFrame tempoFrame;
+//  private JFrame tempoFrame;
   private NoteEditFrame noteEditFrame;
 
   public PianoRollPanel(DeviatedPerformance deviatedPerformance) {
     noteEditFrame = new NoteEditFrame(this);
     this.deviatedPerformance = deviatedPerformance;
-    setTempoFrame();
+//    setTempoFrame();
     playingLine = 0;
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
     originalNotes = new ArrayList<PrintableNote>();
@@ -65,16 +63,16 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
 //    rowHeader.setPreferredSize(new Dimension(64, HEIGHT_PER_NOTE*128));
   }
   
-  private void setTempoFrame(){
-    tempoFrame = new JFrame();
-    tempoFrame.setSize(320, 256);
-    tempoFrame.setResizable(false);
-    JScrollPane jsp = new JScrollPane();
-    TempoPanel tp = new TempoPanel((int)deviatedPerformance.getSequence().getTickLength(), deviatedPerformance.getTicks2Tempo());
-    jsp.setViewportView(tp);
-    jsp.setRowHeaderView(tp.getRowHeader());
-    tempoFrame.getContentPane().add(jsp);
-  }
+//  private void setTempoFrame(){
+//    tempoFrame = new JFrame();
+//    tempoFrame.setSize(320, 256);
+//    tempoFrame.setResizable(false);
+//    JScrollPane jsp = new JScrollPane();
+//    TempoPanel tp = new TempoPanel((int)deviatedPerformance.getSequence().getTickLength(), deviatedPerformance.getTicks2Tempo());
+//    jsp.setViewportView(tp);
+//    jsp.setRowHeaderView(tp.getRowHeader());
+//    tempoFrame.getContentPane().add(jsp);
+//  }
   
   public void mouseClicked(MouseEvent e) {
     if(e.getClickCount() == 2 && hoverNote == null && holdNote == null){
@@ -171,7 +169,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
     return columnHeader;
   }
 
-  public JFrame getTempoFrame() { return tempoFrame; }
+//  public JFrame getTempoFrame() { return tempoFrame; }
   
   /**
    * 現在の再生位置のX座標を返します．
@@ -219,7 +217,7 @@ public class PianoRollPanel extends JPanel implements MouseListener, MouseMotion
       for(PrintableNote n : originalNotes) n.asRealTime();
     }
   }
-  
+
   private class ColumnHeaderPanel extends JPanel{
     private int measureNum;
     private int widthPerMeasure;

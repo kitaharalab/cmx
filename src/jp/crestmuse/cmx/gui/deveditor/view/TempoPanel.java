@@ -8,33 +8,45 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
+
 public class TempoPanel extends JPanel{
 
+  public static int PANEL_HEIGHT = 200;
   private int[] xPoints;
   private int[] yPoints;
   private int nPoints;
-  private double scale = 0.05;
-  private int WINDOW_HEIGHT = 200;
+  private double scale;
   private RowHeader rowHeader;
+  private DeviatedPerformance deviatedPerformance;
+  private PianoRollPanel pianoRollPanel;
 
-  public TempoPanel(int ticksLength, Map<Integer, Integer> ticks2tempo){
-    setPreferredSize(new Dimension((int)(ticksLength*scale), WINDOW_HEIGHT));
-    setPoints(ticks2tempo);
+  public TempoPanel(DeviatedPerformance deviatedPerformance, PianoRollPanel pianoRollPanel){
+    this.deviatedPerformance = deviatedPerformance;
+    this.pianoRollPanel = pianoRollPanel;
+//    setPreferredSize(new Dimension((int)(ticksLength*scale), WINDOW_HEIGHT));
+    updateScale();
     rowHeader = new RowHeader();
   }
-  
+
   public JPanel getRowHeader(){
     return rowHeader;
   }
 
-  public void setPoints(Map<Integer, Integer> ticks2tempo){
+  public void updateScale(){
+    int tickLength = (int)deviatedPerformance.getSequence().getTickLength();
+    int width = pianoRollPanel.getPreferredSize().width;
+    setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+    scale = width / (double)tickLength;
+    Map<Integer, Integer> ticks2tempo = deviatedPerformance.getTicks2Tempo();
     nPoints = ticks2tempo.size() * 2 - 1;
     xPoints = new int[nPoints];
     yPoints = new int[nPoints];
     Iterator<Map.Entry<Integer, Integer>> it = ticks2tempo.entrySet().iterator();
     Map.Entry<Integer, Integer> head = it.next();
     xPoints[0] = (int)(head.getKey() * scale);
-    yPoints[0] = WINDOW_HEIGHT - head.getValue();
+    yPoints[0] = PANEL_HEIGHT - head.getValue();
     int i = 2, x;
     while(it.hasNext()){
       Map.Entry<Integer, Integer> e = it.next();
@@ -42,7 +54,7 @@ public class TempoPanel extends JPanel{
       xPoints[i-1] = x;
       yPoints[i-1] = yPoints[i-2];
       xPoints[i] = x;
-      yPoints[i] = WINDOW_HEIGHT - e.getValue();
+      yPoints[i] = PANEL_HEIGHT - e.getValue();
       i += 2;
     }
   }
@@ -57,14 +69,14 @@ public class TempoPanel extends JPanel{
   private class RowHeader extends JPanel{
 
     private RowHeader(){
-      setPreferredSize(new Dimension(32, WINDOW_HEIGHT));
+      setPreferredSize(new Dimension(32, PANEL_HEIGHT));
     }
 
     public void paint(Graphics g) {
       super.paint(g);
       g.setColor(Color.BLACK);
-      for(int i=0; i<WINDOW_HEIGHT; i+=30){
-        g.drawString((WINDOW_HEIGHT - i) + "", 0, i);
+      for(int i=0; i<PANEL_HEIGHT; i+=30){
+        g.drawString((PANEL_HEIGHT - i) + "", 0, i);
       }
     }
 

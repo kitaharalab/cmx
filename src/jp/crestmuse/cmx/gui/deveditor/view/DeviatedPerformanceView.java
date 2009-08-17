@@ -1,8 +1,11 @@
 package jp.crestmuse.cmx.gui.deveditor.view;
 
+import java.awt.BorderLayout;
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.swing.JPanel;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
@@ -15,10 +18,17 @@ public class DeviatedPerformanceView {
   public static int ROW_HEADER_WIDTH = 64;
   private DeviatedPerformance deviatedPerformance;
   private PianoRollPanel pianoRollPanel;
+  private TempoPanel tempoPanel;
+  private VelocityPanel velocityPanel;
   private CommandInvoker commandInvoker;
+  private String fileName;
+  private static int ID_COUNTER = 0;
+  private int id;
 
   public DeviatedPerformanceView(String fileName) throws IOException, InvalidMidiDataException {
+//    this.fileName = fileName;
     CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
+    this.fileName = wrapper.getFileName();
     DeviationInstanceWrapper dev;
     try {
       dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper)wrapper);
@@ -32,7 +42,11 @@ public class DeviatedPerformanceView {
     }
     deviatedPerformance = new DeviatedPerformance(dev);
     pianoRollPanel = new PianoRollPanel(deviatedPerformance);
+    tempoPanel = new TempoPanel(deviatedPerformance, pianoRollPanel);
+    velocityPanel = new VelocityPanel(deviatedPerformance, pianoRollPanel);
     commandInvoker = new CommandInvoker();
+    id = ID_COUNTER;
+    ID_COUNTER++;
   }
 
   public DeviatedPerformance getDeviatedPerformance() {
@@ -43,12 +57,30 @@ public class DeviatedPerformanceView {
     return pianoRollPanel;
   }
 
+  public TempoPanel getTempoPanel() {
+    return tempoPanel;
+  }
+
+  public VelocityPanel getVelocityPanel() {
+    return velocityPanel;
+  }
+
   public void updateScale() {
     pianoRollPanel.updateScale();
+    tempoPanel.updateScale();
+    velocityPanel.updateScale();
   }
 
   public void updateNotes() {
     pianoRollPanel.updateNotes();
+  }
+
+  public String getID() {
+    return "dp" + id;
+  }
+
+  public String toString() {
+    return fileName;
   }
 
 }
