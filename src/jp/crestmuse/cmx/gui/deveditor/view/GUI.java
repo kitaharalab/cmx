@@ -2,7 +2,6 @@ package jp.crestmuse.cmx.gui.deveditor.view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -13,13 +12,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -29,6 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,17 +59,10 @@ public class GUI implements MusicPlaySynchronized {
   private boolean showAsTickTime;
 
   private JMenuItem openMenuItem;
-
-  private JCheckBoxMenuItem tempoMenuItem;
-
-  // private JComboBox comboBox;
-
-  // private ArrayList<DeviatedPerformanceView> performances;
-  //
+  
   private DeviatedPerformanceView currentPerformance;
 
-//  private DefaultListModel pfmms;
-  private JList pppfms;
+  private JList performances;
 
   private JScrollPane pianoRollScrollPane;
 
@@ -96,10 +86,8 @@ public class GUI implements MusicPlaySynchronized {
     deviatedPerformancePlayer = new DeviatedPerformancePlayer();
     synchronizer = new MusicPlaySynchronizer(deviatedPerformancePlayer);
     synchronizer.addSynchronizedComponent(this);
+    synchronizer.setSleepTime(16);
     showAsTickTime = true;
-    // pianoRollPanels = new ArrayList<PianoRollPanel>();
-    // performances = new ArrayList<DeviatedPerformanceView>();
-
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         mainFrame = new JFrame("DeviationEditor");
@@ -187,9 +175,10 @@ public class GUI implements MusicPlaySynchronized {
         curvesVelocityScrollPane.updateUI();
       }
     });
+    pianoRollScrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
     pianoRollScrollPane.setViewportView(pianoRollHolder);
     pianoRollScrollPane.setRowHeaderView(new KeyBoardPanel());
-    pianoRollScrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
+    curvesVelocityScrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
     pianoRollScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
     pianoRollScrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
     pianoRollScrollPane.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
@@ -251,14 +240,13 @@ public class GUI implements MusicPlaySynchronized {
      * catch (InvalidMidiDataException e1) { e1.printStackTrace(); } } });
      * parent.add(comboBox);
      */
-//    pfmms = new DefaultListModel();
-    pppfms = new JList(new DefaultListModel());
-    pppfms.addListSelectionListener(new ListSelectionListener() {
+    performances = new JList(new DefaultListModel());
+    performances.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         setPerformanceAsSelectedValue();
       }
     });
-    parent.add(pppfms);
+    parent.add(performances);
     scclistHolder = new JPanel(new CardLayout());
     parent.add(scclistHolder);
     noteHolder = new JPanel(new CardLayout());
@@ -266,7 +254,7 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   private void setPerformanceAsSelectedValue() {
-    currentPerformance = (DeviatedPerformanceView) pppfms.getSelectedValue();
+    currentPerformance = (DeviatedPerformanceView) performances.getSelectedValue();
     try {
       deviatedPerformancePlayer.changeDeviation(currentPerformance.getDeviatedPerformance());
     } catch (InvalidMidiDataException e1) {
@@ -290,6 +278,9 @@ public class GUI implements MusicPlaySynchronized {
     else
       currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
           .getCurrentSequence().getMicrosecondLength());
+    
+    // タイトルを変更
+    mainFrame.setTitle(currentPerformance.toString() + " - DeviationEditor");
   }
 
   private void setSlider(JPanel parent) {
@@ -388,13 +379,14 @@ public class GUI implements MusicPlaySynchronized {
             .getPreferredSize().width
             - width, p.x - width / 2));
         pianoRollScrollPane.getViewport().setViewPosition(p);
+        if(p.x <= 0 || p.x >= width - pianoRollScrollPane.getViewport().getWidth())
+          currentPerformance.getPianoRollPanel().repaint();
         if (showAsTickTime)
           currentPositionSlider.setValue((int) currentTick);
         else
           currentPositionSlider.setValue((int) (currentTime * 1000000));
       }
     });
-    // currentPerformance.getPianoRollPanel().repaint();
   }
 
   /**
@@ -415,23 +407,18 @@ public class GUI implements MusicPlaySynchronized {
     Thread th = new Thread() {
       public void run() {
         try {
-          // CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
-          // DeviatedPerformance cd = corePlayer.open(wrapper);
-          // pianoRollPanels.add(new PianoRollPanel(cd));
           final DeviatedPerformanceView dpv = new DeviatedPerformanceView(
               fileName);
-          // performances.add(dpv);
           SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-              // comboBox.addItem("dev" + comboBox.getItemCount());
-              ((DefaultListModel)pppfms.getModel()).addElement(dpv);
+              ((DefaultListModel)performances.getModel()).addElement(dpv);
               pianoRollHolder.add(dpv.getPianoRollPanel(), dpv.getID());
               curveHolder.add(dpv.getTempoPanel(), dpv.getID());
               velocityHolder.add(dpv.getVelocityPanel(), dpv.getID());
-              if(pppfms.isSelectionEmpty()) {
+              if(performances.isSelectionEmpty()) {
                 SwingUtilities.invokeLater(new Runnable() {
                   public void run() {
-                    pppfms.setSelectedIndex(0);
+                    performances.setSelectedIndex(0);
                     setPerformanceAsSelectedValue();
                   }
                 });
