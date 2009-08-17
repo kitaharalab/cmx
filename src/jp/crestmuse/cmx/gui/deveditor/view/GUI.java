@@ -51,35 +51,20 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   private static GUI instance = new GUI();
-
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
-
   private MusicPlaySynchronizer synchronizer;
-
   private boolean showAsTickTime;
-
   private JMenuItem openMenuItem;
-  
   private DeviatedPerformanceView currentPerformance;
-
   private JList performances;
-
   private JScrollPane pianoRollScrollPane;
-
   private JScrollPane curvesVelocityScrollPane;
-
   private JPanel pianoRollHolder;
-
   private JPanel curveHolder;
-
   private JPanel velocityHolder;
-
   private JPanel scclistHolder;
-
   private JPanel noteHolder;
-
   private JFrame mainFrame;
-
   private JSlider currentPositionSlider;
 
   private GUI() {
@@ -175,7 +160,8 @@ public class GUI implements MusicPlaySynchronized {
         curvesVelocityScrollPane.updateUI();
       }
     });
-    pianoRollScrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+    pianoRollScrollPane.getViewport().setScrollMode(
+        JViewport.SIMPLE_SCROLL_MODE);
     pianoRollScrollPane.setViewportView(pianoRollHolder);
     pianoRollScrollPane.setRowHeaderView(new KeyBoardPanel());
     curvesVelocityScrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
@@ -254,9 +240,11 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   private void setPerformanceAsSelectedValue() {
-    currentPerformance = (DeviatedPerformanceView) performances.getSelectedValue();
+    currentPerformance = (DeviatedPerformanceView) performances
+        .getSelectedValue();
     try {
-      deviatedPerformancePlayer.changeDeviation(currentPerformance.getDeviatedPerformance());
+      deviatedPerformancePlayer.changeDeviation(currentPerformance
+          .getDeviatedPerformance());
     } catch (InvalidMidiDataException e1) {
       e1.printStackTrace();
     }
@@ -278,7 +266,7 @@ public class GUI implements MusicPlaySynchronized {
     else
       currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
           .getCurrentSequence().getMicrosecondLength());
-    
+
     // タイトルを変更
     mainFrame.setTitle(currentPerformance.toString() + " - DeviationEditor");
   }
@@ -379,7 +367,8 @@ public class GUI implements MusicPlaySynchronized {
             .getPreferredSize().width
             - width, p.x - width / 2));
         pianoRollScrollPane.getViewport().setViewPosition(p);
-        if(p.x <= 0 || p.x >= width - pianoRollScrollPane.getViewport().getWidth())
+        if (p.x <= 0
+            || p.x >= width - pianoRollScrollPane.getViewport().getWidth())
           currentPerformance.getPianoRollPanel().repaint();
         if (showAsTickTime)
           currentPositionSlider.setValue((int) currentTick);
@@ -411,11 +400,11 @@ public class GUI implements MusicPlaySynchronized {
               fileName);
           SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-              ((DefaultListModel)performances.getModel()).addElement(dpv);
+              ((DefaultListModel) performances.getModel()).addElement(dpv);
               pianoRollHolder.add(dpv.getPianoRollPanel(), dpv.getID());
               curveHolder.add(dpv.getTempoPanel(), dpv.getID());
               velocityHolder.add(dpv.getVelocityPanel(), dpv.getID());
-              if(performances.isSelectionEmpty()) {
+              if (performances.isSelectionEmpty()) {
                 SwingUtilities.invokeLater(new Runnable() {
                   public void run() {
                     performances.setSelectedIndex(0);
