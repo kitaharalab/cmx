@@ -19,7 +19,7 @@ public class CurvesVelocityRowHeaderPanel extends JPanel {
     velocityPanel.add(new JLabel("velocity"));
     setLayout(new BorderLayout());
     setPreferredSize(new Dimension(DeviatedPerformanceView.ROW_HEADER_WIDTH,
-        TempoPanel.PANEL_HEIGHT + VelocityPanel.PANEL_HEIGTH));
+        CurvesPanel.PANEL_HEIGHT + VelocityPanel.PANEL_HEIGTH));
     add(curvesPanel, BorderLayout.CENTER);
     add(velocityPanel, BorderLayout.SOUTH);
   }

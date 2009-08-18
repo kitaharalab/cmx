@@ -6,12 +6,12 @@ import java.awt.Graphics;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
-import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
 
-public class TempoPanel extends JPanel{
+public class CurvesPanel extends JPanel{
 
   public static int PANEL_HEIGHT = 200;
   private int[] xPoints;
@@ -22,10 +22,9 @@ public class TempoPanel extends JPanel{
   private DeviatedPerformance deviatedPerformance;
   private PianoRollPanel pianoRollPanel;
 
-  public TempoPanel(DeviatedPerformance deviatedPerformance, PianoRollPanel pianoRollPanel){
+  public CurvesPanel(DeviatedPerformance deviatedPerformance, PianoRollPanel pianoRollPanel){
     this.deviatedPerformance = deviatedPerformance;
     this.pianoRollPanel = pianoRollPanel;
-//    setPreferredSize(new Dimension((int)(ticksLength*scale), WINDOW_HEIGHT));
     updateScale();
     rowHeader = new RowHeader();
   }
@@ -66,17 +65,19 @@ public class TempoPanel extends JPanel{
     g.drawLine(xPoints[nPoints-1], yPoints[nPoints-1], getWidth(), yPoints[nPoints-1]);
   }
   
-  private class RowHeader extends JPanel{
+  public static class RowHeader extends JPanel{
 
-    private RowHeader(){
-      setPreferredSize(new Dimension(32, PANEL_HEIGHT));
+    public RowHeader(){
+      setPreferredSize(new Dimension(DeviatedPerformanceView.ROW_HEADER_WIDTH, PANEL_HEIGHT));
+      add(new JLabel("tempo"));
+      add(new JLabel("dynamics"));
     }
 
     public void paint(Graphics g) {
       super.paint(g);
       g.setColor(Color.BLACK);
-      for(int i=0; i<PANEL_HEIGHT; i+=30){
-        g.drawString((PANEL_HEIGHT - i) + "", 0, i);
+      for(int i=0; i<getHeight(); i+=30){
+        g.drawString((getHeight() - i) + "", 0, i);
       }
     }
 

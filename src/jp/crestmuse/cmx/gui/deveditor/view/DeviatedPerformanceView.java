@@ -18,7 +18,7 @@ public class DeviatedPerformanceView {
   public static int ROW_HEADER_WIDTH = 64;
   private DeviatedPerformance deviatedPerformance;
   private PianoRollPanel pianoRollPanel;
-  private TempoPanel tempoPanel;
+  private CurvesPanel tempoPanel;
   private VelocityPanel velocityPanel;
   private CommandInvoker commandInvoker;
   private String fileName;
@@ -42,7 +42,7 @@ public class DeviatedPerformanceView {
     }
     deviatedPerformance = new DeviatedPerformance(dev);
     pianoRollPanel = new PianoRollPanel(deviatedPerformance);
-    tempoPanel = new TempoPanel(deviatedPerformance, pianoRollPanel);
+    tempoPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
     velocityPanel = new VelocityPanel(deviatedPerformance, pianoRollPanel);
     commandInvoker = new CommandInvoker();
     id = ID_COUNTER;
@@ -57,7 +57,7 @@ public class DeviatedPerformanceView {
     return pianoRollPanel;
   }
 
-  public TempoPanel getTempoPanel() {
+  public CurvesPanel getTempoPanel() {
     return tempoPanel;
   }
 

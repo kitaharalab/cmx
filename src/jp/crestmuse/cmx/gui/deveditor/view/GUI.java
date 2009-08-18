@@ -23,8 +23,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -51,6 +53,9 @@ public class GUI implements MusicPlaySynchronized {
   }
 
   private static GUI instance = new GUI();
+  private static Dimension PIANO_ROLL_DIM = new Dimension(640, 480);
+  private static Dimension CURVES_VELOCITY_DIM = new Dimension(640, 100);
+  private static Dimension LISTS_DIM = new Dimension(120, 1);
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
   private MusicPlaySynchronizer synchronizer;
   private boolean showAsTickTime;
@@ -58,7 +63,6 @@ public class GUI implements MusicPlaySynchronized {
   private DeviatedPerformanceView currentPerformance;
   private JList performances;
   private JScrollPane pianoRollScrollPane;
-  private JScrollPane curvesVelocityScrollPane;
   private JPanel pianoRollHolder;
   private JPanel curveHolder;
   private JPanel velocityHolder;
@@ -77,16 +81,17 @@ public class GUI implements MusicPlaySynchronized {
       public void run() {
         mainFrame = new JFrame("DeviationEditor");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // mainFrame.setSize(640, 480);
-        mainFrame.getContentPane().setPreferredSize(new Dimension(1024, 768));
+//        mainFrame.getContentPane().setPreferredSize(new Dimension(1024, 768));
         setMenuBar();
-        setScrollPane();
-        JPanel east = new JPanel(new GridLayout(3, 1));
-        setEastPanel(east);
-        mainFrame.add(east, BorderLayout.EAST);
+        JSplitPane left = setScrollPane();
+        JPanel right = setEastPanel();
         JPanel south = new JPanel(new FlowLayout());
         setSlider(south);
         setButtons(south);
+        JSplitPane center = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left,
+            right);
+        center.setOneTouchExpandable(true);
+        mainFrame.add(center, BorderLayout.CENTER);
         mainFrame.add(south, BorderLayout.SOUTH);
         mainFrame.pack();
         mainFrame.setVisible(true);
@@ -126,27 +131,19 @@ public class GUI implements MusicPlaySynchronized {
     file.add(save);
     file.add(quit);
 
-    // JMenu show = new JMenu("show");
-    // tempoMenuItem = new JCheckBoxMenuItem("tempo");
-    // tempoMenuItem.addActionListener(new ActionListener(){
-    // public void actionPerformed(ActionEvent e) {
-    // if(showingPanel != null)
-    // showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected());
-    // }
-    // });
-    // show.add(tempoMenuItem);
-
     menuBar.add(file);
-    // menuBar.add(show);
     mainFrame.setJMenuBar(menuBar);
   }
 
-  private void setScrollPane() {
+  private JSplitPane setScrollPane() {
+    // init
     pianoRollScrollPane = new JScrollPane();
     pianoRollHolder = new JPanel(new CardLayout());
-    curvesVelocityScrollPane = new JScrollPane();
+    JScrollPane curvesScrollPane = new JScrollPane();
     curveHolder = new JPanel(new CardLayout());
+    JScrollPane velocityScrollPane = new JScrollPane();
     velocityHolder = new JPanel(new CardLayout());
+    // TODO scaleの挙動おかしい
     JSlider scale = new JSlider();
     scale.setMinimum(PianoRollPanel.WIDTH_PER_BEAT / 2);
     scale.setValue(PianoRollPanel.WIDTH_PER_BEAT);
@@ -157,86 +154,66 @@ public class GUI implements MusicPlaySynchronized {
         if (currentPerformance != null)
           currentPerformance.updateScale();
         pianoRollScrollPane.updateUI();
-        curvesVelocityScrollPane.updateUI();
       }
     });
+
+    // piano roll
+    pianoRollScrollPane.setPreferredSize(PIANO_ROLL_DIM);
     pianoRollScrollPane.getViewport().setScrollMode(
         JViewport.SIMPLE_SCROLL_MODE);
     pianoRollScrollPane.setViewportView(pianoRollHolder);
     pianoRollScrollPane.setRowHeaderView(new KeyBoardPanel());
-    curvesVelocityScrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
     pianoRollScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
     pianoRollScrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
     pianoRollScrollPane.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
-    JPanel curvesVelocityPanel = new JPanel(new BorderLayout());
-    velocityHolder
-        .setPreferredSize(new Dimension(1, VelocityPanel.PANEL_HEIGTH));
-    curvesVelocityPanel.add(curveHolder, BorderLayout.CENTER);
-    curvesVelocityPanel.add(velocityHolder, BorderLayout.SOUTH);
-    curvesVelocityScrollPane.setViewportView(curvesVelocityPanel);
-    curvesVelocityScrollPane
-        .setRowHeaderView(new CurvesVelocityRowHeaderPanel());
-    curvesVelocityScrollPane.getViewport().setPreferredSize(
-        new Dimension(1, TempoPanel.PANEL_HEIGHT + VelocityPanel.PANEL_HEIGTH));
-    curvesVelocityScrollPane.setHorizontalScrollBar(pianoRollScrollPane
-        .getHorizontalScrollBar());
-    curvesVelocityScrollPane
+    pianoRollScrollPane
         .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    JPanel scrollsPanel = new JPanel();
-    scrollsPanel.setLayout(new BorderLayout());
-    scrollsPanel.add(pianoRollScrollPane, BorderLayout.CENTER);
-    scrollsPanel.add(curvesVelocityScrollPane, BorderLayout.SOUTH);
-    mainFrame.add(scrollsPanel, BorderLayout.CENTER);
+
+    // curves
+    curvesScrollPane.setPreferredSize(CURVES_VELOCITY_DIM);
+    curvesScrollPane.setViewportView(curveHolder);
+    curvesScrollPane.setRowHeaderView(new CurvesPanel.RowHeader());
+    curvesScrollPane
+        .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    JScrollBar scrollBar = pianoRollScrollPane.getHorizontalScrollBar();
+    curvesScrollPane.setHorizontalScrollBar(scrollBar);
+
+    // velocity
+    velocityScrollPane.setPreferredSize(CURVES_VELOCITY_DIM);
+    velocityScrollPane.setViewportView(velocityHolder);
+    velocityScrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, scale);
+    velocityScrollPane.setRowHeaderView(new VelocityPanel.RowHeader());
+    velocityScrollPane
+        .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    velocityScrollPane.setHorizontalScrollBar(scrollBar);
+
+    // split panes
+    JSplitPane bottom = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+        curvesScrollPane, velocityScrollPane);
+    bottom.setOneTouchExpandable(true);
+    JSplitPane top = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+        pianoRollScrollPane, bottom);
+    top.setOneTouchExpandable(true);
+    return top;
   }
 
-  private void setEastPanel(JPanel parent) {
-    /*
-     * comboBox = new JComboBox(); comboBox.addActionListener(new
-     * ActionListener() { public void actionPerformed(ActionEvent e) { try { //
-     * 表示中のテンポウィンドウがあれば隠す // if(showingPanel != null) //
-     * showingPanel.getTempoFrame().setVisible(false);
-     * 
-     * // 新しいパネルに切り替える int index = comboBox.getSelectedIndex();
-     * currentPerformance = performances.get(index);
-     * deviatedPerformancePlayer.changeDeviation(currentPerformance
-     * .getDeviatedPerformance());
-     * mainFrame.setTitle(comboBox.getSelectedItem().toString() +
-     * " - DeviationEditor"); // showingPanel = pianoRollPanels.get(index);
-     * currentPerformance.updateScale(); //
-     * showingPanel.setScrollPane(scrollPane); PianoRollPanel prp =
-     * currentPerformance.getPianoRollPanel();
-     * pianoRollScrollPane.setViewportView(prp);
-     * pianoRollScrollPane.setColumnHeaderView(prp.getColumnHeader());
-     * curvesVelocityScrollPane.setViewportView(currentPerformance
-     * .getCurvesVelocityPanel());
-     * 
-     * // y座標を中央までずらす Point p =
-     * pianoRollScrollPane.getViewport().getViewPosition(); p.y =
-     * (prp.getPreferredSize().height - pianoRollScrollPane .getHeight()) / 2;
-     * pianoRollScrollPane.getViewport().setViewPosition(p);
-     * 
-     * // 再生位置スライダーを設定 if (showAsTickTime)
-     * currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
-     * .getCurrentSequence().getTickLength()); else
-     * currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
-     * .getCurrentSequence().getMicrosecondLength());
-     * 
-     * // テンポウィンドウを表示（非表示） //
-     * showingPanel.getTempoFrame().setVisible(tempoMenuItem.isSelected()); }
-     * catch (InvalidMidiDataException e1) { e1.printStackTrace(); } } });
-     * parent.add(comboBox);
-     */
+  private JPanel setEastPanel() {
+    JPanel eastPanel = new JPanel(new GridLayout(3, 1));
     performances = new JList(new DefaultListModel());
     performances.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         setPerformanceAsSelectedValue();
       }
     });
-    parent.add(performances);
+    JScrollPane scroll = new JScrollPane();
+    scroll.setPreferredSize(LISTS_DIM);
+    scroll.setViewportView(performances);
+    eastPanel.add(scroll);
     scclistHolder = new JPanel(new CardLayout());
-    parent.add(scclistHolder);
+    eastPanel.add(scclistHolder);
     noteHolder = new JPanel(new CardLayout());
-    parent.add(noteHolder);
+    eastPanel.add(noteHolder);
+    return eastPanel;
   }
 
   private void setPerformanceAsSelectedValue() {
@@ -258,6 +235,7 @@ public class GUI implements MusicPlaySynchronized {
     p.y = (currentPerformance.getPianoRollPanel().getPreferredSize().height - pianoRollScrollPane
         .getHeight()) / 2;
     pianoRollScrollPane.getViewport().setViewPosition(p);
+    pianoRollScrollPane.updateUI();
 
     // 再生位置スライダーを設定
     if (showAsTickTime)
