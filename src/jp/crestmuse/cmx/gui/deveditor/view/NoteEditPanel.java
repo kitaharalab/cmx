@@ -16,7 +16,6 @@ import javax.swing.event.ChangeListener;
 
 public class NoteEditPanel extends JPanel {
 
-//  private PianoRollPanel parent;
   private PrintableDeviatedNote note;
   private JSpinner attackSpinner;
   private JSpinner releaseSpinner;

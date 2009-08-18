@@ -1,11 +1,8 @@
 package jp.crestmuse.cmx.gui.deveditor.view;
 
-import java.awt.BorderLayout;
-import java.io.File;
 import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
-import javax.swing.JPanel;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
