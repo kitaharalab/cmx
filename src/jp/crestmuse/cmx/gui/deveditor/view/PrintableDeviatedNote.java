@@ -12,7 +12,6 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
  * @author ntotani
  */
 public class PrintableDeviatedNote {
-// TODO widthが負の数(onset > offset)のやつがいる
   private DeviatedPerformance.DeviatedNote deviatedNote;
   private PianoRollPanel parent;
   private int x, y, width, height;
@@ -67,7 +66,7 @@ public class PrintableDeviatedNote {
    */
   public void asRealTime(){
     int panelWidth = parent.getPreferredSize().width;
-    int milSecLength = (int)(parent.getCompiledDeviation().getSequence().getMicrosecondLength()/1000);
+    int milSecLength = (int)(parent.getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
     x = (int)(panelWidth*deviatedNote.onsetInMSec()/milSecLength);
     width = (int)(panelWidth*(deviatedNote.offsetInMSec() - deviatedNote.onsetInMSec())/milSecLength);
   }
@@ -98,7 +97,7 @@ public class PrintableDeviatedNote {
     }
     return false;
   }
-  
+
   public void setMissNote(boolean missnote) {
     try {
       deviatedNote.setMissNote(missnote);
@@ -149,7 +148,7 @@ public class PrintableDeviatedNote {
             deviatedNote.changeDeviation(0, (width - prevWidth)/(double)PianoRollPanel.WIDTH_PER_BEAT);
           asTickTime();
         }else{
-          int msecLength = (int)(parent.getCompiledDeviation().getSequence().getMicrosecondLength()/1000);
+          int msecLength = (int)(parent.getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
           int panelWidth = parent.getPreferredSize().width;
           if(noteon)
             deviatedNote.changeAttackInMsec(x*msecLength/panelWidth);

@@ -43,7 +43,7 @@ import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
  * @author ntotani
  * 
  */
-public class GUI implements MusicPlaySynchronized {
+public class GUI extends JFrame implements MusicPlaySynchronized {
 
   /**
    * GUIクラス唯一のインスタンス．
@@ -63,12 +63,14 @@ public class GUI implements MusicPlaySynchronized {
   private DeviatedPerformanceView currentPerformance;
   private JList performances;
   private JScrollPane pianoRollScrollPane;
+  private JScrollPane curvesScrollPane;
+  private JScrollPane velocityScrollPane;
   private JPanel pianoRollHolder;
   private JPanel curveHolder;
   private JPanel velocityHolder;
-  private JPanel scclistHolder;
-  private JPanel noteHolder;
-  private JFrame mainFrame;
+  private JPanel notelistHolder;
+  private JPanel noteEditHolder;
+//  private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
   private GUI() {
@@ -79,9 +81,10 @@ public class GUI implements MusicPlaySynchronized {
     showAsTickTime = true;
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
-        mainFrame = new JFrame("DeviationEditor");
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        mainFrame.getContentPane().setPreferredSize(new Dimension(1024, 768));
+//        mainFrame = new JFrame("DeviationEditor");
+//        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("DeviationEditor");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMenuBar();
         JSplitPane left = setScrollPane();
         JPanel right = setEastPanel();
@@ -91,10 +94,10 @@ public class GUI implements MusicPlaySynchronized {
         JSplitPane center = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left,
             right);
         center.setOneTouchExpandable(true);
-        mainFrame.add(center, BorderLayout.CENTER);
-        mainFrame.add(south, BorderLayout.SOUTH);
-        mainFrame.pack();
-        mainFrame.setVisible(true);
+        add(center, BorderLayout.CENTER);
+        add(south, BorderLayout.SOUTH);
+        pack();
+        setVisible(true);
       }
     });
   }
@@ -106,7 +109,7 @@ public class GUI implements MusicPlaySynchronized {
     openMenuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if (fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showOpenDialog(GUI.this) == JFileChooser.APPROVE_OPTION) {
           openMenuItem.setEnabled(false);
           open(fc.getSelectedFile().getAbsolutePath());
         }
@@ -116,7 +119,7 @@ public class GUI implements MusicPlaySynchronized {
     save.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if (fc.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showSaveDialog(GUI.this) == JFileChooser.APPROVE_OPTION) {
           save(fc.getSelectedFile());
         }
       }
@@ -132,16 +135,16 @@ public class GUI implements MusicPlaySynchronized {
     file.add(quit);
 
     menuBar.add(file);
-    mainFrame.setJMenuBar(menuBar);
+    setJMenuBar(menuBar);
   }
 
   private JSplitPane setScrollPane() {
     // init
     pianoRollScrollPane = new JScrollPane();
     pianoRollHolder = new JPanel(new CardLayout());
-    JScrollPane curvesScrollPane = new JScrollPane();
+    curvesScrollPane = new JScrollPane();
     curveHolder = new JPanel(new CardLayout());
-    JScrollPane velocityScrollPane = new JScrollPane();
+    velocityScrollPane = new JScrollPane();
     velocityHolder = new JPanel(new CardLayout());
     // TODO scaleの挙動おかしい
     JSlider scale = new JSlider();
@@ -209,10 +212,16 @@ public class GUI implements MusicPlaySynchronized {
     scroll.setPreferredSize(LISTS_DIM);
     scroll.setViewportView(performances);
     eastPanel.add(scroll);
-    scclistHolder = new JPanel(new CardLayout());
-    eastPanel.add(scclistHolder);
-    noteHolder = new JPanel(new CardLayout());
-    eastPanel.add(noteHolder);
+
+    notelistHolder = new JPanel(new CardLayout());
+    scroll = new JScrollPane();
+    scroll.setViewportView(notelistHolder);
+    eastPanel.add(scroll);
+
+    noteEditHolder = new JPanel(new CardLayout());
+    scroll = new JScrollPane();
+    scroll.setViewportView(noteEditHolder);
+    eastPanel.add(scroll);
     return eastPanel;
   }
 
@@ -229,6 +238,8 @@ public class GUI implements MusicPlaySynchronized {
     ((CardLayout) pianoRollHolder.getLayout()).show(pianoRollHolder, id);
     ((CardLayout) curveHolder.getLayout()).show(curveHolder, id);
     ((CardLayout) velocityHolder.getLayout()).show(velocityHolder, id);
+    ((CardLayout) notelistHolder.getLayout()).show(notelistHolder, id);
+    ((CardLayout) noteEditHolder.getLayout()).show(noteEditHolder, id);
 
     // y座標を中央までずらす
     Point p = pianoRollScrollPane.getViewport().getViewPosition();
@@ -236,6 +247,10 @@ public class GUI implements MusicPlaySynchronized {
         .getHeight()) / 2;
     pianoRollScrollPane.getViewport().setViewPosition(p);
     pianoRollScrollPane.updateUI();
+    curvesScrollPane.updateUI();
+    velocityScrollPane.updateUI();
+    notelistHolder.updateUI();
+    noteEditHolder.updateUI();
 
     // 再生位置スライダーを設定
     if (showAsTickTime)
@@ -246,7 +261,7 @@ public class GUI implements MusicPlaySynchronized {
           .getCurrentSequence().getMicrosecondLength());
 
     // タイトルを変更
-    mainFrame.setTitle(currentPerformance.toString() + " - DeviationEditor");
+    setTitle(currentPerformance.toString() + " - DeviationEditor");
   }
 
   private void setSlider(JPanel parent) {
@@ -304,7 +319,7 @@ public class GUI implements MusicPlaySynchronized {
         showAsTickTime = !showAsTickTime;
         if (currentPerformance != null) {
           currentPerformance.updateNotes();
-          mainFrame.repaint();
+          GUI.this.repaint();
         }
         if (showAsTickTime) {
           currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
@@ -382,6 +397,8 @@ public class GUI implements MusicPlaySynchronized {
               pianoRollHolder.add(dpv.getPianoRollPanel(), dpv.getID());
               curveHolder.add(dpv.getTempoPanel(), dpv.getID());
               velocityHolder.add(dpv.getVelocityPanel(), dpv.getID());
+              notelistHolder.add(dpv.getNoteList(), dpv.getID());
+              noteEditHolder.add(dpv.getNoteEditPanel(), dpv.getID());
               if (performances.isSelectionEmpty()) {
                 SwingUtilities.invokeLater(new Runnable() {
                   public void run() {

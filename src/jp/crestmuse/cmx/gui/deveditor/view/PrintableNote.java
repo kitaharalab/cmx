@@ -35,7 +35,7 @@ public class PrintableNote {
   
   public void asRealTime(){
     int panelWidth = parent.getPreferredSize().width;
-    int milSecLength = (int)(parent.getCompiledDeviation().getSequence().getMicrosecondLength()/1000);
+    int milSecLength = (int)(parent.getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
     x = (int)(panelWidth*onsetInMSec/milSecLength);
     width = (int)(panelWidth*(offsetInMSec - onsetInMSec)/milSecLength);
   }

@@ -1,15 +1,11 @@
 package jp.crestmuse.cmx.gui.deveditor.view;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -18,9 +14,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
-public class NoteEditFrame extends JFrame {
+public class NoteEditPanel extends JPanel {
 
-  private PianoRollPanel parent;
+//  private PianoRollPanel parent;
   private PrintableDeviatedNote note;
   private JSpinner attackSpinner;
   private JSpinner releaseSpinner;
@@ -30,16 +26,16 @@ public class NoteEditFrame extends JFrame {
   private double prevAttack;
   private double prevRelease;
 
-  public NoteEditFrame(PianoRollPanel parentPanel){
-    this.parent = parentPanel;
-    setSize(new Dimension(256, 256));
-    addWindowFocusListener(new WindowFocusListener(){
-      public void windowGainedFocus(WindowEvent e) {
-      }
-      public void windowLostFocus(WindowEvent e) {
-        setVisible(false);
-      }
-    });
+  public NoteEditPanel(){
+//    this.parent = parentPanel;
+//    setSize(new Dimension(256, 256));
+//    addWindowFocusListener(new WindowFocusListener(){
+//      public void windowGainedFocus(WindowEvent e) {
+//      }
+//      public void windowLostFocus(WindowEvent e) {
+//        setVisible(false);
+//      }
+//    });
     
     setAttack();
     setRelease();
@@ -58,7 +54,7 @@ public class NoteEditFrame extends JFrame {
         missnote.setSelected(false);
         note.changeDeviation(0.0, 0.0, 1.0, 1.0);
         note.setMissNote(false);
-        parent.repaint();
+//        parent.repaint();
       }
     });
     
@@ -73,7 +69,7 @@ public class NoteEditFrame extends JFrame {
     spinners.add(endDynamicsSpinner);
     spinners.add(missnote);
     spinners.add(reset);
-    getContentPane().add(spinners);
+    add(spinners);
   }
   
   private void setAttack(){
@@ -88,7 +84,7 @@ public class NoteEditFrame extends JFrame {
           prevAttack = value;
         else
           attackSpinner.setValue(prevAttack);
-        parent.repaint();
+//        parent.repaint();
       }     
     });
   }
@@ -105,7 +101,7 @@ public class NoteEditFrame extends JFrame {
           prevRelease = value;
         else
           releaseSpinner.setValue(prevRelease);
-        parent.repaint();
+//        parent.repaint();
       }     
     });
   }
@@ -121,7 +117,7 @@ public class NoteEditFrame extends JFrame {
       public void stateChanged(ChangeEvent e) {
         double value = (Double)dynamicsSpinner.getValue();
         note.changeDeviation(0, 0, value, note.getDeviatedNote().getEndDynamics());
-        parent.repaint();
+//        parent.repaint();
       }
     });
   }
@@ -137,7 +133,7 @@ public class NoteEditFrame extends JFrame {
       public void stateChanged(ChangeEvent e) {
         double value = (Double)endDynamicsSpinner.getValue();
         note.changeDeviation(0, 0, note.getDeviatedNote().getDynamics(), value);
-        parent.repaint();
+//        parent.repaint();
       }
     });
   }
@@ -147,7 +143,7 @@ public class NoteEditFrame extends JFrame {
     missnote.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         note.setMissNote(missnote.isSelected());
-        parent.repaint();
+//        parent.repaint();
       }
     });
   }

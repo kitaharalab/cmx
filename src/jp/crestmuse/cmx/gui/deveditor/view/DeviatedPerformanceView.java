@@ -20,13 +20,14 @@ public class DeviatedPerformanceView {
   private PianoRollPanel pianoRollPanel;
   private CurvesPanel tempoPanel;
   private VelocityPanel velocityPanel;
+  private NoteList noteList;
+  private NoteEditPanel noteEditPanel;
   private CommandInvoker commandInvoker;
   private String fileName;
   private static int ID_COUNTER = 0;
   private int id;
 
   public DeviatedPerformanceView(String fileName) throws IOException, InvalidMidiDataException {
-//    this.fileName = fileName;
     CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
     this.fileName = wrapper.getFileName();
     DeviationInstanceWrapper dev;
@@ -44,6 +45,8 @@ public class DeviatedPerformanceView {
     pianoRollPanel = new PianoRollPanel(deviatedPerformance);
     tempoPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
     velocityPanel = new VelocityPanel(deviatedPerformance, pianoRollPanel);
+    noteList = new NoteList(deviatedPerformance);
+    noteEditPanel = new NoteEditPanel();
     commandInvoker = new CommandInvoker();
     id = ID_COUNTER;
     ID_COUNTER++;
@@ -63,6 +66,14 @@ public class DeviatedPerformanceView {
 
   public VelocityPanel getVelocityPanel() {
     return velocityPanel;
+  }
+
+  public NoteList getNoteList() {
+    return noteList;
+  }
+
+  public NoteEditPanel getNoteEditPanel() {
+    return noteEditPanel;
   }
 
   public void updateScale() {
