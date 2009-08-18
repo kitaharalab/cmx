@@ -43,16 +43,16 @@ import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
  * @author ntotani
  * 
  */
-public class GUI extends JFrame implements MusicPlaySynchronized {
+public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
   /**
    * GUIクラス唯一のインスタンス．
    */
-  public static GUI getInstance() {
+  public static MainFrame getInstance() {
     return instance;
   }
 
-  private static GUI instance = new GUI();
+  private static MainFrame instance = new MainFrame();
   private static Dimension PIANO_ROLL_DIM = new Dimension(640, 480);
   private static Dimension CURVES_VELOCITY_DIM = new Dimension(640, 100);
   private static Dimension LISTS_DIM = new Dimension(120, 1);
@@ -73,7 +73,7 @@ public class GUI extends JFrame implements MusicPlaySynchronized {
 //  private JFrame mainFrame;
   private JSlider currentPositionSlider;
 
-  private GUI() {
+  private MainFrame() {
     deviatedPerformancePlayer = new DeviatedPerformancePlayer();
     synchronizer = new MusicPlaySynchronizer(deviatedPerformancePlayer);
     synchronizer.addSynchronizedComponent(this);
@@ -109,7 +109,7 @@ public class GUI extends JFrame implements MusicPlaySynchronized {
     openMenuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if (fc.showOpenDialog(GUI.this) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
           openMenuItem.setEnabled(false);
           open(fc.getSelectedFile().getAbsolutePath());
         }
@@ -119,7 +119,7 @@ public class GUI extends JFrame implements MusicPlaySynchronized {
     save.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
-        if (fc.showSaveDialog(GUI.this) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
           save(fc.getSelectedFile());
         }
       }
@@ -319,7 +319,7 @@ public class GUI extends JFrame implements MusicPlaySynchronized {
         showAsTickTime = !showAsTickTime;
         if (currentPerformance != null) {
           currentPerformance.updateNotes();
-          GUI.this.repaint();
+          MainFrame.this.repaint();
         }
         if (showAsTickTime) {
           currentPositionSlider.setMaximum((int) deviatedPerformancePlayer

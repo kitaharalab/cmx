@@ -67,12 +67,12 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 
   public void mouseClicked(MouseEvent e) {
     if (e.getClickCount() == 2 && hoverNote == null && holdNote == null) {
-      if (GUI.getInstance().getShowAsTickTime())
-        GUI.getInstance().setPlayPosition(
+      if (MainFrame.getInstance().getShowAsTickTime())
+        MainFrame.getInstance().setPlayPosition(
             deviatedPerformance.getSequence().getTickLength() * e.getX()
                 / getPreferredSize().width);
       else
-        GUI.getInstance().setPlayPosition(
+        MainFrame.getInstance().setPlayPosition(
             deviatedPerformance.getSequence().getMicrosecondLength() * e.getX()
                 / getPreferredSize().width);
     } else if (e.getButton() == MouseEvent.BUTTON3 && hoverNote != null) {
@@ -146,7 +146,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
 
     g.setColor(Color.BLACK);
     int span = WIDTH_PER_BEAT * 4;
-    if (!GUI.getInstance().getShowAsTickTime())
+    if (!MainFrame.getInstance().getShowAsTickTime())
       span = 2
           * this.getPreferredSize().width
           / (int) (deviatedPerformance.getSequence().getMicrosecondLength() / 1000000);
@@ -181,7 +181,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
    * @return
    */
   public int getPlayPointX(double currentTime, long currentTick) {
-    if (GUI.getInstance().getShowAsTickTime())
+    if (MainFrame.getInstance().getShowAsTickTime())
       playingLine = (int) (getPreferredSize().width * currentTick / deviatedPerformance
           .getSequence().getTickLength());
     else
@@ -210,7 +210,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
    * ノートの幅を更新する．
    */
   public void updateNotes() {
-    if (GUI.getInstance().getShowAsTickTime()) {
+    if (MainFrame.getInstance().getShowAsTickTime()) {
       for (PrintableDeviatedNote n : deviatedNotes)
         n.asTickTime();
       for (PrintableNote n : originalNotes)
@@ -241,7 +241,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     public void paint(Graphics g) {
       super.paint(g);
       g.setColor(Color.BLACK);
-      if (GUI.getInstance().getShowAsTickTime()) {
+      if (MainFrame.getInstance().getShowAsTickTime()) {
         for (int i = 0; i < measureNum; i++)
           g.drawString((i + 1) + "", i * widthPerMeasure, COLUMN_HEADER_HEIGHT);
       } else {

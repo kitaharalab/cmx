@@ -85,7 +85,7 @@ public class PrintableDeviatedNote {
   public boolean changeDeviation(double attack, double release, double dynamics, double endDynamics){
     try {
       if(deviatedNote.changeDeviation(attack, release, dynamics, endDynamics)){
-        if(GUI.getInstance().getShowAsTickTime())
+        if(MainFrame.getInstance().getShowAsTickTime())
           asTickTime();
         else
           asRealTime();
@@ -141,7 +141,7 @@ public class PrintableDeviatedNote {
     }
     public void release(){
       try {
-        if(GUI.getInstance().getShowAsTickTime()){
+        if(MainFrame.getInstance().getShowAsTickTime()){
           if(noteon)
             deviatedNote.changeDeviation((x - prevX)/(double)PianoRollPanel.WIDTH_PER_BEAT, 0);
           else
