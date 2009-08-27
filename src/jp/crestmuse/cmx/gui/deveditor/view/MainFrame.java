@@ -53,7 +53,8 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   }
 
   private static MainFrame instance = new MainFrame();
-  private static Dimension PIANO_ROLL_DIM = new Dimension(640, 480);
+  // TODO ディスプレイに合わせて大きさ変える
+  private static Dimension PIANO_ROLL_DIM = new Dimension(640, 320);
   private static Dimension CURVES_VELOCITY_DIM = new Dimension(640, 100);
   private static Dimension LISTS_DIM = new Dimension(120, 1);
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
