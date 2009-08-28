@@ -45,7 +45,7 @@ public class VelocityPanel extends JPanel {
   private class NoteVelocity {
     DeviatedNote deviatedNote;
     int x1, x2, y;
-    String notenum;
+    String velocity;
 
     NoteVelocity(DeviatedNote dn) {
       deviatedNote = dn;
@@ -55,8 +55,8 @@ public class VelocityPanel extends JPanel {
     void updateScale() {
       x1 = deviatedNote.onset() * WIDTH_PER_BEAT / TICKS_PER_BEAT;
       x2 = deviatedNote.offset() * WIDTH_PER_BEAT / TICKS_PER_BEAT;
-      y = 127 - deviatedNote.notenum();
-      notenum = deviatedNote.notenum() + "";
+      y = 127 - deviatedNote.velocity();
+      velocity = deviatedNote.velocity() + "";
     }
 
     void paint(Graphics g) {
