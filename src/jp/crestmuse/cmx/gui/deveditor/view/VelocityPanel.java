@@ -6,13 +6,15 @@ import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 import static jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.*;
 import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
 
-public class VelocityPanel extends JPanel {
+public class VelocityPanel extends JPanel implements ChangeListener {
 
   public static int PANEL_HEIGTH = 100;
   private DeviatedPerformance deviatedPerformance;
@@ -36,6 +38,11 @@ public class VelocityPanel extends JPanel {
       nv.updateScale();
   }
 
+  public void stateChanged(ChangeEvent e) {
+    updateScale();
+    repaint();
+  }
+
   public void paint(Graphics g) {
     super.paint(g);
     for (NoteVelocity nv : velocities)
@@ -55,14 +62,14 @@ public class VelocityPanel extends JPanel {
     void updateScale() {
       x1 = deviatedNote.onset() * WIDTH_PER_BEAT / TICKS_PER_BEAT;
       x2 = deviatedNote.offset() * WIDTH_PER_BEAT / TICKS_PER_BEAT;
-      y = 127 - deviatedNote.velocity();
+      y = deviatedNote.velocity();
       velocity = deviatedNote.velocity() + "";
     }
 
     void paint(Graphics g) {
-      g.drawLine(x1, getHeight(), x1, y);
-      g.drawLine(x1, y, x2, y);
-      g.drawLine(x2, y, x2, getHeight());
+      g.drawLine(x1, getHeight(), x1, getHeight() - y);
+      g.drawLine(x1, getHeight() - y, x2, getHeight() - y);
+      g.drawLine(x2, getHeight() - y, x2, getHeight());
 //      g.drawString(notenum, x1, y);
     }
   }

@@ -13,10 +13,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
-import jp.crestmuse.cmx.gui.deveditor.view.PrintableDeviatedNote.NoteMoveHandle;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
 /**
  * このクラスはDeviationエディターで表示されるピアノロールを表します．
@@ -24,16 +27,17 @@ import jp.crestmuse.cmx.gui.deveditor.view.PrintableDeviatedNote.NoteMoveHandle;
  * @author ntotani
  */
 public class PianoRollPanel extends JPanel implements MouseListener,
-    MouseMotionListener {
+    MouseMotionListener, ChangeListener {
 
   public static int WIDTH_PER_BEAT = 32;
   public static int HEIGHT_PER_NOTE = 16;
   public static int COLUMN_HEADER_HEIGHT = 16;
   private DeviatedPerformance deviatedPerformance;
   private ArrayList<PrintableDeviatedNote> deviatedNotes;
-  private ArrayList<PrintableNote> originalNotes;
+//  private ArrayList<PrintableNote> originalNotes;
+  private ArrayList<PrintableNote> allNotes;
   private PrintableDeviatedNote hoverNote;
-  private NoteMoveHandle holdNote;
+  private PrintableDeviatedNote.NoteMoveHandle holdNote;
   private ColumnHeaderPanel columnHeader;
   private int playingLine;
 //  private NoteEditFrame noteEditFrame;
@@ -43,12 +47,17 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     this.deviatedPerformance = deviatedPerformance;
     playingLine = 0;
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
-    originalNotes = new ArrayList<PrintableNote>();
+//    originalNotes = new ArrayList<PrintableNote>();
+    allNotes = new ArrayList<PrintableNote>();
     for (DeviatedPerformance.DeviatedNote dn : deviatedPerformance
         .getDeviatedNotes()) {
-      deviatedNotes.add(new PrintableDeviatedNote(dn, this));
-      if (!dn.isExtraNote())
-        originalNotes.add(new PrintableNote(dn, this));
+      PrintableDeviatedNote pdn = new PrintableDeviatedNote(dn);
+      deviatedNotes.add(pdn);
+      allNotes.add(pdn);
+      if (!dn.isExtraNote()) {
+//        originalNotes.add(new PrintableNote(dn, this));
+        allNotes.add(new PrintableOriginalNote(dn));
+      }
     }
     holdNote = null;
     int tickLength = (int) deviatedPerformance.getSequence().getTickLength();
@@ -141,6 +150,11 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     }
   }
 
+  public void stateChanged(ChangeEvent e) {
+    updateScale();
+    repaint();
+  }
+
   public void paint(Graphics g) {
     super.paint(g);
 
@@ -153,10 +167,12 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     for (int i = 0; i < getPreferredSize().width; i += span)
       g.drawLine(i, 0, i, getHeight());
 
-    for (PrintableNote p : originalNotes)
-      p.paint(g);
-    for (PrintableDeviatedNote p : deviatedNotes)
-      p.print(g);
+//    for (PrintableNote p : originalNotes)
+//      p.paint(g);
+//    for (PrintableDeviatedNote p : deviatedNotes)
+//      p.print(g);
+    for(PrintableNote pn : allNotes)
+      pn.paint(g);
     if (hoverNote != null)
       hoverNote.printAsHover(g);
     g.setColor(Color.BLUE);
@@ -194,11 +210,14 @@ public class PianoRollPanel extends JPanel implements MouseListener,
    * パネルの幅を更新する．
    */
   public void updateScale() {
+    // TODO real time
     int tickLength = (int) deviatedPerformance.getSequence().getTickLength();
     int width = WIDTH_PER_BEAT * tickLength
         / DeviatedPerformance.TICKS_PER_BEAT;
     setPreferredSize(new Dimension(width, HEIGHT_PER_NOTE * 128));
-    updateNotes();
+//    updateNotes();
+    for(PrintableNote pn : allNotes)
+      pn.updateScale();
     columnHeader.setPreferredSize(new Dimension(width, COLUMN_HEADER_HEIGHT));
     columnHeader.widthPerMeasure = WIDTH_PER_BEAT * 4;
     int seconds = (int) (deviatedPerformance.getSequence()
@@ -209,18 +228,211 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   /**
    * ノートの幅を更新する．
    */
-  public void updateNotes() {
-    if (MainFrame.getInstance().getShowAsTickTime()) {
-      for (PrintableDeviatedNote n : deviatedNotes)
-        n.asTickTime();
-      for (PrintableNote n : originalNotes)
-        n.asTickTime();
-    } else {
-      for (PrintableDeviatedNote n : deviatedNotes)
-        n.asRealTime();
-      for (PrintableNote n : originalNotes)
-        n.asRealTime();
+//  public void updateNotes() {
+//    if (MainFrame.getInstance().getShowAsTickTime()) {
+//      for (PrintableDeviatedNote n : deviatedNotes)
+//        n.asTickTime();
+//      for (PrintableNote n : originalNotes)
+//        n.asTickTime();
+//    } else {
+//      for (PrintableDeviatedNote n : deviatedNotes)
+//        n.asRealTime();
+//      for (PrintableNote n : originalNotes)
+//        n.asRealTime();
+//    }
+//    for (PrintableDeviatedNote n : deviatedNotes)
+//      n.updateScale();
+//    for (PrintableNote n : originalNotes)
+//      n.updateScale();
+//    for(PN pn : allNotes)
+//      pn.updateScale();
+//  }
+
+  private abstract class PrintableNote {
+    int x, y, width, height;
+    abstract void updateScale();
+    abstract void paint(Graphics g);
+  }
+
+  private class PrintableOriginalNote extends PrintableNote {
+
+    private int onset, offset, onsetInMSec, offsetInMSec;
+
+    public PrintableOriginalNote(DeviatedNote dn){
+      onset = dn.onsetOriginal();
+      offset = dn.offsetOriginal();
+      onsetInMSec = dn.onsetOriginalInMSec();
+      offsetInMSec = dn.offsetOriginalInMSec();
+      y = HEIGHT_PER_NOTE*(127 - dn.notenum());
+      height = HEIGHT_PER_NOTE;
+      updateScale();
     }
+    
+    public void paint(Graphics g){
+      g.setColor(Color.BLACK);
+      g.drawRect(x, y, width - 1, height - 1);
+    }
+
+    void updateScale() {
+      if(MainFrame.getInstance().getShowAsTickTime()){
+        int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
+        x = (int)(onset / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+        width = (int)((offset - onset) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+      } else {
+        int panelWidth = getPreferredSize().width;
+        int milSecLength = (int)(getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
+        x = (int)(panelWidth*onsetInMSec/milSecLength);
+        width = (int)(panelWidth*(offsetInMSec - onsetInMSec)/milSecLength);
+      }
+    }
+
+  }
+
+  private class PrintableDeviatedNote extends PrintableNote {
+
+    private DeviatedNote deviatedNote;
+    private Color fillColor;
+    private Color roundColor;
+
+    public PrintableDeviatedNote(DeviatedNote deviatedNote) {
+      this.deviatedNote = deviatedNote;
+      updateScale();
+      y = HEIGHT_PER_NOTE*(127 - deviatedNote.notenum());
+      height = HEIGHT_PER_NOTE;
+      if(deviatedNote.isExtraNote()){
+        fillColor = new Color(255, 255, 0, deviatedNote.velocity()*2);
+        roundColor = Color.YELLOW;
+      }else if(deviatedNote.getNote().voice() == 1){
+        fillColor = new Color(255, 0, 0, deviatedNote.velocity()*2);
+        roundColor = Color.RED;
+      }else{
+        fillColor = new Color(255, 127, 0, deviatedNote.velocity()*2);
+        roundColor = Color.ORANGE;
+      }
+    }
+
+    public void paint(Graphics g){
+      g.setColor(fillColor);
+      g.fillRect(x, y, width, height);
+      g.setColor(roundColor);
+      g.drawRect(x + 1, y + 1, width - 3, height - 3);
+    }
+    
+    public void printAsHover(Graphics g){
+      g.setColor(roundColor);
+      g.fillRect(x - 5, y - 5, width + 10, height + 10);
+    }
+    
+    public DeviatedPerformance.DeviatedNote getDeviatedNote(){
+      return deviatedNote;
+    }
+
+    void updateScale() {
+      if(MainFrame.getInstance().getShowAsTickTime()){
+        int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
+        x = (int)(deviatedNote.onset() / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+        width = (int)((deviatedNote.offset() - deviatedNote.onset()) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+      } else {
+        int panelWidth = getPreferredSize().width;
+        int milSecLength = (int)(getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
+        x = (int)(panelWidth*deviatedNote.onsetInMSec()/milSecLength);
+        width = (int)(panelWidth*(deviatedNote.offsetInMSec() - deviatedNote.onsetInMSec())/milSecLength);
+      }
+    }
+
+    public boolean isMouseOver(int mouseX, int mouseY){
+      return mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height;
+    }
+    
+    public boolean isMouseOnRight(int mouseX, int mouseY){
+      return isMouseOver(mouseX, mouseY) && mouseX > x + width/2;
+    }
+    
+    /**
+     * DeviatedNoteのchangeDeviationを呼び出して位置と色を更新する．
+     */
+    public boolean changeDeviation(double attack, double release, double dynamics, double endDynamics){
+      try {
+        if(deviatedNote.changeDeviation(attack, release, dynamics, endDynamics)){
+//          if(MainFrame.getInstance().getShowAsTickTime())
+//            asTickTime();
+//          else
+//            asRealTime();
+          updateScale();
+          fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), deviatedNote.velocity()*2);
+          return true;
+        }
+      } catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+      return false;
+    }
+
+    public void setMissNote(boolean missnote) {
+      try {
+        deviatedNote.setMissNote(missnote);
+        fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), deviatedNote.velocity()*2);
+      } catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    public NoteMoveHandle getHandle(int mouseX, int mouseY){
+      if(isMouseOver(mouseX, mouseY)){
+        if(mouseX > x + width/2)
+          return new NoteMoveHandle(false, x, x, width);
+        else
+          return new NoteMoveHandle(true, x + width, x, width);
+      }
+      return null;
+    }
+
+    class NoteMoveHandle{
+      // TODO 実時刻表時のとき
+      private boolean noteon;
+      private int limit, prevX, prevWidth;
+      private NoteMoveHandle(boolean noteon, int limit, int prevX, int prevWidth){
+        this.noteon = noteon;
+        this.limit = limit;
+        this.prevX = prevX;
+        this.prevWidth = prevWidth;
+      }
+      public int press(int posX){
+        if(noteon) return prevX - posX;
+        return prevX + prevWidth - posX;
+      }
+      public void drag(int posX){
+        if(noteon){
+          x = Math.min(posX, limit - 1);
+          width = limit - x;
+        }else{
+          width = Math.max(posX - x, 1);
+        }
+      }
+      public void release(){
+        try {
+          if(MainFrame.getInstance().getShowAsTickTime()){
+            if(noteon)
+              deviatedNote.changeDeviation((x - prevX)/(double)PianoRollPanel.WIDTH_PER_BEAT, 0);
+            else
+              deviatedNote.changeDeviation(0, (width - prevWidth)/(double)PianoRollPanel.WIDTH_PER_BEAT);
+//            asTickTime();
+          }else{
+            int msecLength = (int)(getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
+            int panelWidth = getPreferredSize().width;
+            if(noteon)
+              deviatedNote.changeAttackInMsec(x*msecLength/panelWidth);
+            else
+              deviatedNote.changeReleaseInMsec((x + width)*msecLength/panelWidth);
+//            asRealTime();
+          }
+          updateScale();
+        } catch (InvalidMidiDataException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
   }
 
   private class ColumnHeaderPanel extends JPanel {

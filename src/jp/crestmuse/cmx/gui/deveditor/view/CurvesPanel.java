@@ -8,10 +8,12 @@ import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 
-public class CurvesPanel extends JPanel{
+public class CurvesPanel extends JPanel implements ChangeListener {
 
   public static int PANEL_HEIGHT = 200;
   private int[] xPoints;
@@ -27,6 +29,11 @@ public class CurvesPanel extends JPanel{
     this.pianoRollPanel = pianoRollPanel;
     updateScale();
     rowHeader = new RowHeader();
+  }
+
+  public void stateChanged(ChangeEvent e) {
+    updateScale();
+    repaint();
   }
 
   public JPanel getRowHeader(){

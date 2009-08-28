@@ -13,10 +13,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
+
 
 public class NoteEditPanel extends JPanel {
 
-  private PrintableDeviatedNote note;
+//  private PrintableDeviatedNote note;
   private JSpinner attackSpinner;
   private JSpinner releaseSpinner;
   private JSpinner dynamicsSpinner;
@@ -25,17 +27,7 @@ public class NoteEditPanel extends JPanel {
   private double prevAttack;
   private double prevRelease;
 
-  public NoteEditPanel(){
-//    this.parent = parentPanel;
-//    setSize(new Dimension(256, 256));
-//    addWindowFocusListener(new WindowFocusListener(){
-//      public void windowGainedFocus(WindowEvent e) {
-//      }
-//      public void windowLostFocus(WindowEvent e) {
-//        setVisible(false);
-//      }
-//    });
-    
+  public NoteEditPanel(){    
     setAttack();
     setRelease();
     setDynamics();
@@ -51,12 +43,10 @@ public class NoteEditPanel extends JPanel {
         prevAttack = 0.0;
         prevRelease = 0.0;
         missnote.setSelected(false);
-        note.changeDeviation(0.0, 0.0, 1.0, 1.0);
-        note.setMissNote(false);
-//        parent.repaint();
+//        note.changeDeviation(0.0, 0.0, 1.0, 1.0);
+//        note.setMissNote(false);
       }
     });
-    
     JPanel spinners = new JPanel(new GridLayout(0, 2));
     spinners.add(new JLabel("attack"));
     spinners.add(attackSpinner);
@@ -79,11 +69,10 @@ public class NoteEditPanel extends JPanel {
     attackSpinner.addChangeListener(new ChangeListener(){
       public void stateChanged(ChangeEvent e) {
         double value = (Double)attackSpinner.getValue();
-        if(note.changeDeviation(value - prevAttack, 0, note.getDeviatedNote().getDynamics(), note.getDeviatedNote().getEndDynamics()))
-          prevAttack = value;
-        else
-          attackSpinner.setValue(prevAttack);
-//        parent.repaint();
+//        if(note.changeDeviation(value - prevAttack, 0, note.getDeviatedNote().getDynamics(), note.getDeviatedNote().getEndDynamics()))
+//          prevAttack = value;
+//        else
+//          attackSpinner.setValue(prevAttack);
       }     
     });
   }
@@ -96,11 +85,10 @@ public class NoteEditPanel extends JPanel {
     releaseSpinner.addChangeListener(new ChangeListener(){
       public void stateChanged(ChangeEvent e) {
         double value = (Double)releaseSpinner.getValue();
-        if(note.changeDeviation(0, value - prevRelease, note.getDeviatedNote().getDynamics(), note.getDeviatedNote().getEndDynamics()))
-          prevRelease = value;
-        else
-          releaseSpinner.setValue(prevRelease);
-//        parent.repaint();
+//        if(note.changeDeviation(0, value - prevRelease, note.getDeviatedNote().getDynamics(), note.getDeviatedNote().getEndDynamics()))
+//          prevRelease = value;
+//        else
+//          releaseSpinner.setValue(prevRelease);
       }     
     });
   }
@@ -115,8 +103,7 @@ public class NoteEditPanel extends JPanel {
     dynamicsSpinner.addChangeListener(new ChangeListener(){
       public void stateChanged(ChangeEvent e) {
         double value = (Double)dynamicsSpinner.getValue();
-        note.changeDeviation(0, 0, value, note.getDeviatedNote().getEndDynamics());
-//        parent.repaint();
+//        note.changeDeviation(0, 0, value, note.getDeviatedNote().getEndDynamics());
       }
     });
   }
@@ -131,8 +118,7 @@ public class NoteEditPanel extends JPanel {
     endDynamicsSpinner.addChangeListener(new ChangeListener(){
       public void stateChanged(ChangeEvent e) {
         double value = (Double)endDynamicsSpinner.getValue();
-        note.changeDeviation(0, 0, note.getDeviatedNote().getDynamics(), value);
-//        parent.repaint();
+//        note.changeDeviation(0, 0, note.getDeviatedNote().getDynamics(), value);
       }
     });
   }
@@ -141,21 +127,20 @@ public class NoteEditPanel extends JPanel {
     missnote = new JCheckBox("missnote");
     missnote.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
-        note.setMissNote(missnote.isSelected());
-//        parent.repaint();
+//        note.setMissNote(missnote.isSelected());
       }
     });
   }
   
-  public void setNote(PrintableDeviatedNote note){
-    this.note = note;
-    prevAttack = note.getDeviatedNote().getAttack();
-    prevRelease = note.getDeviatedNote().getRelease();
-    attackSpinner.setValue(note.getDeviatedNote().getAttack());
-    releaseSpinner.setValue(note.getDeviatedNote().getRelease());
-    dynamicsSpinner.setValue(note.getDeviatedNote().getDynamics());
-    endDynamicsSpinner.setValue(note.getDeviatedNote().getEndDynamics());
-    missnote.setSelected(note.getDeviatedNote().getIsMissNote());
-  }
+//  public void setNote(PrintableDeviatedNote note){
+//    this.note = note;
+//    prevAttack = note.getDeviatedNote().getAttack();
+//    prevRelease = note.getDeviatedNote().getRelease();
+//    attackSpinner.setValue(note.getDeviatedNote().getAttack());
+//    releaseSpinner.setValue(note.getDeviatedNote().getRelease());
+//    dynamicsSpinner.setValue(note.getDeviatedNote().getDynamics());
+//    endDynamicsSpinner.setValue(note.getDeviatedNote().getEndDynamics());
+//    missnote.setSelected(note.getDeviatedNote().getIsMissNote());
+//  }
 
 }

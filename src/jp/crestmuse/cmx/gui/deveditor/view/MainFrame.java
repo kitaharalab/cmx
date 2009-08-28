@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -16,6 +18,7 @@ import java.io.FileOutputStream;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -28,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,16 +41,10 @@ import javax.swing.event.ListSelectionListener;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
-/**
- * このクラスは一つのCorePlayerと複数のPianoRollPanelを持つDeviationエディターのメインクラスです．
- * 
- * @author ntotani
- * 
- */
 public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
   /**
-   * GUIクラス唯一のインスタンス．
+   * MainFrameクラス唯一のインスタンス．
    */
   public static MainFrame getInstance() {
     return instance;
@@ -59,8 +57,9 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   private static Dimension LISTS_DIM = new Dimension(120, 1);
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
   private MusicPlaySynchronizer synchronizer;
-  private boolean showAsTickTime;
+//  private boolean showAsTickTime;
   private JMenuItem openMenuItem;
+  private JCheckBoxMenuItem showAsRealTime;
   private DeviatedPerformanceView currentPerformance;
   private JList performances;
   private JScrollPane pianoRollScrollPane;
@@ -73,13 +72,14 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   private JPanel noteEditHolder;
 //  private JFrame mainFrame;
   private JSlider currentPositionSlider;
+  private JSlider scale;
 
   private MainFrame() {
     deviatedPerformancePlayer = new DeviatedPerformancePlayer();
     synchronizer = new MusicPlaySynchronizer(deviatedPerformancePlayer);
     synchronizer.addSynchronizedComponent(this);
     synchronizer.setSleepTime(16);
-    showAsTickTime = true;
+//    showAsTickTime = true;
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
 //        mainFrame = new JFrame("DeviationEditor");
@@ -107,6 +107,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     JMenuBar menuBar = new JMenuBar();
     JMenu file = new JMenu("file");
     openMenuItem = new JMenuItem("open");
+    openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
     openMenuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
@@ -126,6 +127,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       }
     });
     JMenuItem quit = new JMenuItem("quit");
+    quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
     quit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         System.exit(0);
@@ -134,8 +136,12 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     file.add(openMenuItem);
     file.add(save);
     file.add(quit);
+    JMenu show = new JMenu("show");
+    showAsRealTime = new JCheckBoxMenuItem("show as real time");
+    show.add(showAsRealTime);
 
     menuBar.add(file);
+    menuBar.add(show);
     setJMenuBar(menuBar);
   }
 
@@ -148,16 +154,16 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     velocityScrollPane = new JScrollPane();
     velocityHolder = new JPanel(new CardLayout());
     // TODO scaleの挙動おかしい
-    JSlider scale = new JSlider();
+    scale = new JSlider();
     scale.setMinimum(PianoRollPanel.WIDTH_PER_BEAT / 2);
     scale.setValue(PianoRollPanel.WIDTH_PER_BEAT);
     scale.setMaximum(PianoRollPanel.WIDTH_PER_BEAT * 2);
     scale.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         PianoRollPanel.WIDTH_PER_BEAT = ((JSlider) e.getSource()).getValue();
-        if (currentPerformance != null)
-          currentPerformance.updateScale();
-        pianoRollScrollPane.updateUI();
+//        if (currentPerformance != null)
+//          currentPerformance.updateScale();
+//        pianoRollScrollPane.updateUI();
       }
     });
 
@@ -244,7 +250,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
     // y座標を中央までずらす
     Point p = pianoRollScrollPane.getViewport().getViewPosition();
-    p.y = (currentPerformance.getPianoRollPanel().getPreferredSize().height - pianoRollScrollPane
+    p.y = (PianoRollPanel.HEIGHT_PER_NOTE * 128 - pianoRollScrollPane
         .getHeight()) / 2;
     pianoRollScrollPane.getViewport().setViewPosition(p);
     pianoRollScrollPane.updateUI();
@@ -254,12 +260,12 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     noteEditHolder.updateUI();
 
     // 再生位置スライダーを設定
-    if (showAsTickTime)
-      currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
-          .getCurrentSequence().getTickLength());
-    else
+    if (showAsRealTime.isSelected())
       currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
           .getCurrentSequence().getMicrosecondLength());
+    else
+      currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
+          .getCurrentSequence().getTickLength());
 
     // タイトルを変更
     setTitle(currentPerformance.toString() + " - DeviationEditor");
@@ -314,15 +320,17 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         setPlayPosition(0);
       }
     });
+    // TODO remove this button
     JButton change = new JButton("change");
     change.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        showAsTickTime = !showAsTickTime;
+//        showAsTickTime = !showAsTickTime;
         if (currentPerformance != null) {
-          currentPerformance.updateNotes();
+//          currentPerformance.updateNotes();
+//          currentPerformance.updateScale();
           MainFrame.this.repaint();
         }
-        if (showAsTickTime) {
+        if (!showAsRealTime.isSelected()) {
           currentPositionSlider.setMaximum((int) deviatedPerformancePlayer
               .getCurrentSequence().getTickLength());
           currentPositionSlider.setValue((int) deviatedPerformancePlayer
@@ -364,7 +372,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         if (p.x <= 0
             || p.x >= width - pianoRollScrollPane.getViewport().getWidth())
           currentPerformance.getPianoRollPanel().repaint();
-        if (showAsTickTime)
+        if (showAsRealTime.isSelected())
           currentPositionSlider.setValue((int) currentTick);
         else
           currentPositionSlider.setValue((int) (currentTime * 1000000));
@@ -378,7 +386,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    * @return タイムラインの表示形式
    */
   public boolean getShowAsTickTime() {
-    return showAsTickTime;
+    return !showAsRealTime.isSelected();
   }
 
   /**
@@ -400,6 +408,9 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
               velocityHolder.add(dpv.getVelocityPanel(), dpv.getID());
               notelistHolder.add(dpv.getNoteList(), dpv.getID());
               noteEditHolder.add(dpv.getNoteEditPanel(), dpv.getID());
+              scale.addChangeListener(dpv.getPianoRollPanel());
+              scale.addChangeListener(dpv.getTempoPanel());
+              scale.addChangeListener(dpv.getVelocityPanel());
               if (performances.isSelectionEmpty()) {
                 SwingUtilities.invokeLater(new Runnable() {
                   public void run() {
@@ -448,7 +459,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    *          再生位置
    */
   public void setPlayPosition(long position) {
-    if (showAsTickTime)
+    if (!showAsRealTime.isSelected())
       deviatedPerformancePlayer.setTickPosition(position);
     else
       deviatedPerformancePlayer.setMicrosecondPosition(position);

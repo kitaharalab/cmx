@@ -9,13 +9,14 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.controller.CommandInvoker;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
 public class DeviatedPerformanceView {
 
   public static int ROW_HEADER_WIDTH = 64;
   private DeviatedPerformance deviatedPerformance;
   private PianoRollPanel pianoRollPanel;
-  private CurvesPanel tempoPanel;
+  private CurvesPanel curvesPanel;
   private VelocityPanel velocityPanel;
   private NoteList noteList;
   private NoteEditPanel noteEditPanel;
@@ -23,24 +24,27 @@ public class DeviatedPerformanceView {
   private String fileName;
   private static int ID_COUNTER = 0;
   private int id;
+  private DeviatedNote selectedNote = null;
 
-  public DeviatedPerformanceView(String fileName) throws IOException, InvalidMidiDataException {
+  public DeviatedPerformanceView(String fileName) throws IOException,
+      InvalidMidiDataException {
     CMXFileWrapper wrapper = CMXFileWrapper.readfile(fileName);
     this.fileName = wrapper.getFileName();
     DeviationInstanceWrapper dev;
     try {
-      dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper)wrapper);
+      dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper) wrapper);
       dev.finalizeDocument();
-    } catch(ClassCastException e) {
-      try{
-        dev = (DeviationInstanceWrapper)wrapper;
-      }catch(ClassCastException e1){
-        throw new IllegalArgumentException("argument must be MusicXMLWrapper or DeviationInstanceWrapper");
+    } catch (ClassCastException e) {
+      try {
+        dev = (DeviationInstanceWrapper) wrapper;
+      } catch (ClassCastException e1) {
+        throw new IllegalArgumentException(
+            "argument must be MusicXMLWrapper or DeviationInstanceWrapper");
       }
     }
     deviatedPerformance = new DeviatedPerformance(dev);
     pianoRollPanel = new PianoRollPanel(deviatedPerformance);
-    tempoPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
+    curvesPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
     velocityPanel = new VelocityPanel(deviatedPerformance, pianoRollPanel);
     noteList = new NoteList(deviatedPerformance);
     noteEditPanel = new NoteEditPanel();
@@ -58,7 +62,7 @@ public class DeviatedPerformanceView {
   }
 
   public CurvesPanel getTempoPanel() {
-    return tempoPanel;
+    return curvesPanel;
   }
 
   public VelocityPanel getVelocityPanel() {
@@ -75,13 +79,13 @@ public class DeviatedPerformanceView {
 
   public void updateScale() {
     pianoRollPanel.updateScale();
-    tempoPanel.updateScale();
+    curvesPanel.updateScale();
     velocityPanel.updateScale();
   }
 
-  public void updateNotes() {
-    pianoRollPanel.updateNotes();
-  }
+//  public void updateNotes() {
+//    pianoRollPanel.updateNotes();
+//  }
 
   public String getID() {
     return "dp" + id;
