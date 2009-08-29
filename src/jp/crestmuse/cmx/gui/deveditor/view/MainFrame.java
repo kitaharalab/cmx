@@ -359,18 +359,10 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       public void run() {
         try {
           performances.addPerformance(fileName);
-          SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              if (performances.isSelectionEmpty()) {
-                SwingUtilities.invokeLater(new Runnable() {
-                  public void run() {
-                    performances.setSelectedIndex(0);
-                    setPerformanceAsSelectedValue();
-                  }
-                });
-              }
-            }
-          });
+          if (performances.isSelectionEmpty()) {
+            performances.setSelectedIndex(0);
+            setPerformanceAsSelectedValue();
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
