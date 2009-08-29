@@ -50,7 +50,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   // TODO ディスプレイに合わせて大きさ変える
   private static Dimension PIANO_ROLL_DIM = new Dimension(640, 320);
   private static Dimension CURVES_VELOCITY_DIM = new Dimension(640, 100);
-  private static Dimension LISTS_DIM = new Dimension(120, 1);
+  private static Dimension LISTS_DIM = new Dimension(240, 1);
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
   private MusicPlaySynchronizer synchronizer;
   private JMenuItem openMenuItem;
@@ -358,7 +358,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     Thread th = new Thread() {
       public void run() {
         try {
-          performances.addPerformance(fileName);
+          performances.addPerformance(fileName, noteListScrollPane);
           if (performances.isSelectionEmpty()) {
             performances.setSelectedIndex(0);
             setPerformanceAsSelectedValue();

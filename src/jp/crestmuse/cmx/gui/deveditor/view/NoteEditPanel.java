@@ -13,12 +13,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
+public class NoteEditPanel extends JPanel implements DeviatedNoteListener {
 
-public class NoteEditPanel extends JPanel {
-
-//  private PrintableDeviatedNote note;
+  private DeviatedNote deviatedNote;
   private JSpinner attackSpinner;
   private JSpinner releaseSpinner;
   private JSpinner dynamicsSpinner;
@@ -27,7 +28,8 @@ public class NoteEditPanel extends JPanel {
   private double prevAttack;
   private double prevRelease;
 
-  public NoteEditPanel(){    
+  public NoteEditPanel(DeviatedNoteControler deviatedNoteControler){
+    deviatedNoteControler.addDeviatedNoteListener(this);
     setAttack();
     setRelease();
     setDynamics();
@@ -132,15 +134,22 @@ public class NoteEditPanel extends JPanel {
     });
   }
   
-//  public void setNote(PrintableDeviatedNote note){
-//    this.note = note;
-//    prevAttack = note.getDeviatedNote().getAttack();
-//    prevRelease = note.getDeviatedNote().getRelease();
-//    attackSpinner.setValue(note.getDeviatedNote().getAttack());
-//    releaseSpinner.setValue(note.getDeviatedNote().getRelease());
-//    dynamicsSpinner.setValue(note.getDeviatedNote().getDynamics());
-//    endDynamicsSpinner.setValue(note.getDeviatedNote().getEndDynamics());
-//    missnote.setSelected(note.getDeviatedNote().getIsMissNote());
-//  }
+  private void setNote(DeviatedNote deviatedNote){
+    this.deviatedNote = deviatedNote;
+    prevAttack = deviatedNote.getAttack();
+    prevRelease = deviatedNote.getRelease();
+    attackSpinner.setValue(deviatedNote.getAttack());
+    releaseSpinner.setValue(deviatedNote.getRelease());
+    dynamicsSpinner.setValue(deviatedNote.getDynamics());
+    endDynamicsSpinner.setValue(deviatedNote.getEndDynamics());
+    missnote.setSelected(deviatedNote.getIsMissNote());
+  }
+
+  public void noteSelected(DeviatedNote selectedNote) {
+    setNote(selectedNote);
+  }
+
+  public void noteUpdated(DeviatedNote updatedNote) {
+  }
 
 }
