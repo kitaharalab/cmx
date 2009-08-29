@@ -15,6 +15,7 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 
 public class CurvesPanel extends JPanel implements ChangeListener {
 
+  public static int ROW_HEADER_WIDTH = 64;
   public static int PANEL_HEIGHT = 200;
   private int[] xPoints;
   private int[] yPoints;
@@ -75,7 +76,7 @@ public class CurvesPanel extends JPanel implements ChangeListener {
   public static class RowHeader extends JPanel{
 
     public RowHeader(){
-      setPreferredSize(new Dimension(DeviatedPerformanceView.ROW_HEADER_WIDTH, PANEL_HEIGHT));
+      setPreferredSize(new Dimension(ROW_HEADER_WIDTH, PANEL_HEIGHT));
       add(new JLabel("tempo"));
       add(new JLabel("dynamics"));
     }

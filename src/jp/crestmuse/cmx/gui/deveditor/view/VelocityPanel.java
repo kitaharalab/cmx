@@ -76,7 +76,7 @@ public class VelocityPanel extends JPanel implements ChangeListener {
 
   public static class RowHeader extends JPanel {
     public RowHeader() {
-      setPreferredSize(new Dimension(DeviatedPerformanceView.ROW_HEADER_WIDTH,
+      setPreferredSize(new Dimension(CurvesPanel.ROW_HEADER_WIDTH,
           1));
       add(new JLabel("velocity"));
     }

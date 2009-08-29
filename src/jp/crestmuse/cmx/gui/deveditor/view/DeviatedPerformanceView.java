@@ -13,7 +13,7 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
 public class DeviatedPerformanceView {
 
-  public static int ROW_HEADER_WIDTH = 64;
+//  public static int ROW_HEADER_WIDTH = 64;
   private DeviatedPerformance deviatedPerformance;
   private PianoRollPanel pianoRollPanel;
   private CurvesPanel curvesPanel;

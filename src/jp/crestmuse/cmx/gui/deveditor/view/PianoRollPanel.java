@@ -276,8 +276,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     void updateScale() {
       if(MainFrame.getInstance().getShowAsTickTime()){
         int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
-        x = (int)(onset / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
-        width = (int)((offset - onset) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+        x = onset * WIDTH_PER_BEAT / ticksPerBeat;
+        width = (offset - onset) * WIDTH_PER_BEAT / ticksPerBeat;
       } else {
         int panelWidth = getPreferredSize().width;
         int milSecLength = (int)(getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);
@@ -330,8 +330,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     void updateScale() {
       if(MainFrame.getInstance().getShowAsTickTime()){
         int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
-        x = (int)(deviatedNote.onset() / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
-        width = (int)((deviatedNote.offset() - deviatedNote.onset()) / (double)ticksPerBeat * PianoRollPanel.WIDTH_PER_BEAT);
+        x = deviatedNote.onset() * WIDTH_PER_BEAT / ticksPerBeat;
+        width = (deviatedNote.offset() - deviatedNote.onset()) * WIDTH_PER_BEAT / ticksPerBeat;
       } else {
         int panelWidth = getPreferredSize().width;
         int milSecLength = (int)(getDeviatedPerformance().getSequence().getMicrosecondLength()/1000);

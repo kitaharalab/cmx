@@ -7,12 +7,11 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
-import static jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformanceView.*;
 
 public class KeyBoardPanel extends JPanel {
 
   public KeyBoardPanel() {
-    setPreferredSize(new Dimension(ROW_HEADER_WIDTH, HEIGHT_PER_NOTE*128));
+    setPreferredSize(new Dimension(CurvesPanel.ROW_HEADER_WIDTH, HEIGHT_PER_NOTE*128));
   }
 
   public void paint(Graphics g) {
