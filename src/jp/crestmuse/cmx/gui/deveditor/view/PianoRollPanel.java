@@ -19,8 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.gui.deveditor.controller.ChangeAttackInMSec;
+import jp.crestmuse.cmx.gui.deveditor.controller.ChangeDeviation;
+import jp.crestmuse.cmx.gui.deveditor.controller.ChangeReleaseInMSec;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
-import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteSelectListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
@@ -30,7 +34,7 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
  * @author ntotani
  */
 public class PianoRollPanel extends JPanel implements MouseListener,
-    MouseMotionListener, ChangeListener, DeviatedNoteListener {
+    MouseMotionListener, ChangeListener, DeviatedNoteSelectListener, DeviatedNoteUpdateListener {
 
   public static int WIDTH_PER_BEAT = 32;
   public static int HEIGHT_PER_NOTE = 16;
@@ -50,7 +54,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
       DeviatedNoteControler deviatedNoteControler) {
     this.deviatedPerformance = deviatedPerformance;
     this.deviatedNoteControler = deviatedNoteControler;
-    deviatedNoteControler.addDeviatedNoteListener(this);
+    deviatedNoteControler.addDeviatedNoteSelectListener(this);
     playingLine = 0;
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
     allNotes = new ArrayList<PrintableNote>();
@@ -103,6 +107,19 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   public void mousePressed(MouseEvent e) {
     if (e.getButton() != MouseEvent.BUTTON1)
       return;
+    if (selectedNote != null) {
+      holdNote = selectedNote.getHandle(e.getX(), e.getY());
+      if (holdNote != null) {
+        try {
+          Point p = MouseInfo.getPointerInfo().getLocation();
+          Robot r = new Robot();
+          r.mouseMove(p.x + holdNote.press(e.getX()), p.y);
+        } catch (AWTException e1) {
+          e1.printStackTrace();
+        }
+        return;
+      }
+    }
     for (PrintableDeviatedNote d : deviatedNotes) {
       // holdNote = d.getHandle(e.getX(), e.getY());
       // if (holdNote != null) {
@@ -168,6 +185,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   }
 
   public void noteUpdated(DeviatedNote updatedNote) {
+    dn2pdn.get(updatedNote).updateScale();
+    repaint();
   }
 
   public void paint(Graphics g) {
@@ -310,16 +329,6 @@ public class PianoRollPanel extends JPanel implements MouseListener,
       updateScale();
       y = HEIGHT_PER_NOTE * (127 - deviatedNote.notenum());
       height = HEIGHT_PER_NOTE;
-      if (deviatedNote.isExtraNote()) {
-        fillColor = new Color(255, 255, 0, deviatedNote.velocity() * 2);
-        roundColor = Color.YELLOW;
-      } else if (deviatedNote.getNote().voice() == 1) {
-        fillColor = new Color(255, 0, 0, deviatedNote.velocity() * 2);
-        roundColor = Color.RED;
-      } else {
-        fillColor = new Color(255, 127, 0, deviatedNote.velocity() * 2);
-        roundColor = Color.ORANGE;
-      }
     }
 
     public void paint(Graphics g) {
@@ -352,6 +361,16 @@ public class PianoRollPanel extends JPanel implements MouseListener,
         x = (int) (panelWidth * deviatedNote.onsetInMSec() / milSecLength);
         width = (int) (panelWidth
             * (deviatedNote.offsetInMSec() - deviatedNote.onsetInMSec()) / milSecLength);
+      }
+      if (deviatedNote.isExtraNote()) {
+        fillColor = new Color(255, 255, 0, deviatedNote.velocity() * 2);
+        roundColor = Color.YELLOW;
+      } else if (deviatedNote.getNote().voice() == 1) {
+        fillColor = new Color(255, 0, 0, deviatedNote.velocity() * 2);
+        roundColor = Color.RED;
+      } else {
+        fillColor = new Color(255, 127, 0, deviatedNote.velocity() * 2);
+        roundColor = Color.ORANGE;
       }
     }
 
@@ -434,28 +453,33 @@ public class PianoRollPanel extends JPanel implements MouseListener,
       }
 
       public void release() {
-        try {
-          if (MainFrame.getInstance().getShowAsTickTime()) {
-            if (noteon)
-              deviatedNote.changeDeviation((x - prevX)
-                  / (double) PianoRollPanel.WIDTH_PER_BEAT, 0);
-            else
-              deviatedNote.changeDeviation(0, (width - prevWidth)
-                  / (double) PianoRollPanel.WIDTH_PER_BEAT);
-            // asTickTime();
+        if (MainFrame.getInstance().getShowAsTickTime()) {
+          if (noteon) {
+            // deviatedNote.changeDeviation((x - prevX)
+            // / (double) PianoRollPanel.WIDTH_PER_BEAT, 0);
+            ChangeDeviation cd = new ChangeDeviation(deviatedNote, (x - prevX)
+                / (double) WIDTH_PER_BEAT, 0);
+            deviatedNoteControler.update(cd);
           } else {
-            int msecLength = (int) (getDeviatedPerformance().getSequence().getMicrosecondLength() / 1000);
-            int panelWidth = getPreferredSize().width;
-            if (noteon)
-              deviatedNote.changeAttackInMsec(x * msecLength / panelWidth);
-            else
-              deviatedNote.changeReleaseInMsec((x + width) * msecLength
-                  / panelWidth);
-            // asRealTime();
+            // deviatedNote.changeDeviation(0, (width - prevWidth)
+            // / (double) PianoRollPanel.WIDTH_PER_BEAT);
+            ChangeDeviation cd = new ChangeDeviation(deviatedNote, 0,
+                (width - prevWidth) / (double) WIDTH_PER_BEAT);
+            deviatedNoteControler.update(cd);
           }
-          updateScale();
-        } catch (InvalidMidiDataException e) {
-          e.printStackTrace();
+        } else {
+          int msecLength = (int) (getDeviatedPerformance().getSequence().getMicrosecondLength() / 1000);
+          int panelWidth = getPreferredSize().width;
+          if (noteon) {
+            // deviatedNote.changeAttackInMsec(x * msecLength / panelWidth);
+            deviatedNoteControler.update(new ChangeAttackInMSec(deviatedNote, x
+                * msecLength / panelWidth));
+          } else {
+            // deviatedNote.changeReleaseInMsec((x + width) * msecLength
+            // / panelWidth);
+            deviatedNoteControler.update(new ChangeReleaseInMSec(deviatedNote,
+                (x + width) * msecLength / panelWidth));
+          }
         }
       }
     }

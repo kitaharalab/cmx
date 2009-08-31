@@ -3,6 +3,8 @@ package jp.crestmuse.cmx.gui.deveditor.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -26,6 +28,7 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper.NoteDeviation;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
 import jp.crestmuse.cmx.misc.MutableNote;
 import jp.crestmuse.cmx.misc.TreeView;
@@ -44,6 +47,7 @@ public class DeviatedPerformance {
   private TreeMap<Integer, Integer> ticks2tempo;
   private TreeMap<Integer, Integer> ticks2msec;
   private final int linearDivision = 8;
+  private List<DeviatedNoteUpdateListener> listeners;
 
   public DeviatedPerformance(final DeviationInstanceWrapper deviation) throws IOException,
       InvalidMidiDataException {
@@ -54,6 +58,7 @@ public class DeviatedPerformance {
     deviatedNotes = new ArrayList<DeviatedNote>();
     ticks2tempo = new TreeMap<Integer, Integer>();
     ticks2msec = new TreeMap<Integer, Integer>();
+    listeners = new LinkedList<DeviatedNoteUpdateListener>();
 
     processNonPartwiseControls(deviation);
     calcMsecs();
@@ -245,7 +250,16 @@ public class DeviatedPerformance {
   public Map<Integer, Integer> getTicks2Tempo(){
     return ticks2tempo;
   }
-  
+
+  public void addListener(DeviatedNoteUpdateListener listener) {
+    listeners.add(listener);
+  }
+
+  private void notifyUpdate(DeviatedNote dn) {
+    for(DeviatedNoteUpdateListener l : listeners)
+      l.noteUpdated(dn);
+  }
+
   /**
    * DeviatedNoteへの変更を加えたDeviationInstanceWrapperを返す．
    * @return
@@ -429,6 +443,7 @@ public class DeviatedPerformance {
     public void setMissNote(boolean isMissNote) throws InvalidMidiDataException{
       this.isMissNote = isMissNote;
       updateMidiEvent();
+      notifyUpdate(this);
     }
 
     /**
@@ -463,6 +478,7 @@ public class DeviatedPerformance {
       this.dynamics = dynamics;
       this.endDynamics = endDynamics;
       updateMidiEvent();
+      notifyUpdate(this);
       return true;
     }
     
@@ -518,7 +534,7 @@ public class DeviatedPerformance {
       noteOn = meon;
       noteOff = meoff;
     }
-    
+
     /**
      * このノートをDeviationDataSetに書き出す．
      * @param dds

@@ -129,9 +129,29 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     JMenu show = new JMenu("show");
     showAsRealTime = new JCheckBoxMenuItem("show as real time");
     show.add(showAsRealTime);
+    JMenu edit = new JMenu("edit");
+    JMenuItem undo = new JMenuItem("undo");
+    undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+        InputEvent.CTRL_DOWN_MASK));
+    undo.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        performances.getSelectedValue().getCommandInvoker().undo();
+      }
+    });
+    JMenuItem redo = new JMenuItem("redo");
+    redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
+        InputEvent.CTRL_DOWN_MASK));
+    redo.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        performances.getSelectedValue().getCommandInvoker().redo();
+      }
+    });
+    edit.add(undo);
+    edit.add(redo);
 
     menuBar.add(file);
     menuBar.add(show);
+    menuBar.add(edit);
     setJMenuBar(menuBar);
   }
 

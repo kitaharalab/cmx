@@ -12,13 +12,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
-import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteSelectListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 import static jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.*;
 import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
 
-public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNoteListener {
+public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNoteSelectListener, DeviatedNoteUpdateListener {
 
   public static int PANEL_HEIGTH = 100;
   private PianoRollPanel pianoRollPanel;
@@ -31,7 +32,7 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
       PianoRollPanel pianoRollpanel, DeviatedNoteControler deviatedNoteControler) {
     this.pianoRollPanel = pianoRollpanel;
     this.deviatedNoteControler = deviatedNoteControler;
-    this.deviatedNoteControler.addDeviatedNoteListener(this);
+    this.deviatedNoteControler.addDeviatedNoteSelectListener(this);
     velocities = new ArrayList<NoteVelocity>();
     dn2nv = new HashMap<DeviatedNote, NoteVelocity>();
     for (DeviatedNote dn : deviatedPerformance.getDeviatedNotes()) {
@@ -60,6 +61,8 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
   }
 
   public void noteUpdated(DeviatedNote updatedNote) {
+    dn2nv.get(updatedNote).updateScale();
+    repaint();
   }
 
   public void paint(Graphics g) {

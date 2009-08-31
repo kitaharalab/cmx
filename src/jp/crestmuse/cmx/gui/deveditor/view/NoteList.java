@@ -7,15 +7,14 @@ import java.util.HashMap;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
-import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteSelectListener;
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
-public class NoteList extends JList implements MouseListener, DeviatedNoteListener {
+public class NoteList extends JList implements MouseListener, DeviatedNoteSelectListener, DeviatedNoteUpdateListener {
 
   private HashMap<DeviatedNote, Integer> dn2index;
   private JScrollPane parent;
@@ -25,7 +24,7 @@ public class NoteList extends JList implements MouseListener, DeviatedNoteListen
 
   public NoteList(DeviatedPerformance deviatedPerformance,
       DeviatedNoteControler deviatedNoteControler, JScrollPane parent) {
-    deviatedNoteControler.addDeviatedNoteListener(this);
+    deviatedNoteControler.addDeviatedNoteSelectListener(this);
     addMouseListener(this);
     this.deviatedNoteControler = deviatedNoteControler;
     this.parent = parent;
@@ -65,6 +64,7 @@ public class NoteList extends JList implements MouseListener, DeviatedNoteListen
   }
 
   public void noteUpdated(DeviatedNote updatedNote) {
+    repaint();
   }
 
   private class ListElement {

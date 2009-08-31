@@ -67,6 +67,11 @@ public class DeviatedPerformanceList extends JList {
       velocityPanel = new VelocityPanel(deviatedPerformance, pianoRollPanel, dnc);
       noteList = new NoteList(deviatedPerformance, dnc, notelistParent);
       noteEditPanel = new NoteEditPanel(dnc);
+
+      deviatedPerformance.addListener(pianoRollPanel);
+      deviatedPerformance.addListener(velocityPanel);
+      deviatedPerformance.addListener(noteList);
+      deviatedPerformance.addListener(noteEditPanel);
     }
 
     public String toString() {

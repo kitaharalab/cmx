@@ -8,26 +8,26 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 public class DeviatedNoteControler {
 
   private CommandInvoker commandInvoker;
-  private List<DeviatedNoteListener> listeners;
+  private List<DeviatedNoteSelectListener> listeners;
 
   public DeviatedNoteControler(CommandInvoker commandInvoker) {
     this.commandInvoker = commandInvoker;
-    listeners = new LinkedList<DeviatedNoteListener>();
+    listeners = new LinkedList<DeviatedNoteSelectListener>();
   }
 
-  public void addDeviatedNoteListener(DeviatedNoteListener listener) {
+  public void addDeviatedNoteSelectListener(DeviatedNoteSelectListener listener) {
     listeners.add(listener);
   }
 
   public void select(DeviatedNote selectedNote) {
-    for(DeviatedNoteListener l : listeners)
+    for(DeviatedNoteSelectListener l : listeners)
       l.noteSelected(selectedNote);
   }
 
   public void update(DeviatedNoteCommand command) {
     commandInvoker.invoke(command);
-    for(DeviatedNoteListener l : listeners)
-      l.noteUpdated(command.getDeviatedNote());
+//    for(DeviatedNoteSelectListener l : listeners)
+//      l.noteUpdated(command.getDeviatedNote());
   }
 
 }
