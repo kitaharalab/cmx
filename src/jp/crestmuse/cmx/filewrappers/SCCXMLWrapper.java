@@ -303,7 +303,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       content = data.length >= 3 ? data[2] : null;
     }
     protected String getSupportedNodeName() {
-      return "chord|barline";
+      return "chord|barline|lyrics";
     }
     public int onset(){ return onset; }
     public int offset(){ return offset; }
