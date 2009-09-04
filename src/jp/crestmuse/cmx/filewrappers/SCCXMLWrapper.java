@@ -146,12 +146,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
 
   public void newPart(int serial, int ch, int pn, int vol) {
+    newPart(serial, ch, pn, vol, null);
+  }
+  
+  public void newPart(int serial, int ch, int pn, int vol, String name){
     checkElementAddition(!partStarted);
     addChild("part");
     setAttribute("serial", serial);
     setAttribute("ch", ch);
     setAttribute("pn", pn);
     setAttribute("vol", vol);
+    if(name != null){
+      setAttribute("name", name);
+    }
     currentPart = serial;
     partStarted = true;
   }
