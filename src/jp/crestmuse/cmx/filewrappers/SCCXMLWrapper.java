@@ -236,6 +236,15 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     returnToParent();
   }
 
+  public void addNoteElementWithWord(String word, int onset, int offset,
+      int notenum, int velocity, int offVelocity){
+    checkElementAddition(partStarted);
+    addChild("note");
+    setAttribute("word", word);
+    addText(onset+" "+offset+" "+notenum+" "+ velocity+" "+offVelocity);
+    returnToParent();
+  }
+  
   private void putNoteMap(int onset, int offset, int notenum, int velocity,
                           int offVelocity, int ticksPerBeat, int partid, 
                           MusicXMLWrapper.Note note) {
