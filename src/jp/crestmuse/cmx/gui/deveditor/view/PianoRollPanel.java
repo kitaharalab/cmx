@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.controller.ChangeAttackInMSec;
 import jp.crestmuse.cmx.gui.deveditor.controller.ChangeDeviation;
 import jp.crestmuse.cmx.gui.deveditor.controller.ChangeReleaseInMSec;
@@ -34,7 +35,8 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
  * @author ntotani
  */
 public class PianoRollPanel extends JPanel implements MouseListener,
-    MouseMotionListener, ChangeListener, DeviatedNoteSelectListener, DeviatedNoteUpdateListener {
+    MouseMotionListener, ChangeListener, DeviatedNoteSelectListener,
+    DeviatedNoteUpdateListener {
 
   public static int WIDTH_PER_BEAT = 32;
   public static int HEIGHT_PER_NOTE = 16;
@@ -49,6 +51,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   private int playingLine;
   private HashMap<DeviatedNote, PrintableDeviatedNote> dn2pdn;
   private DeviatedNoteControler deviatedNoteControler;
+  private static short showVoice = 7;
 
   public PianoRollPanel(DeviatedPerformance deviatedPerformance,
       DeviatedNoteControler deviatedNoteControler) {
@@ -192,13 +195,20 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   public void paint(Graphics g) {
     super.paint(g);
     g.setColor(Color.BLACK);
-    int span = WIDTH_PER_BEAT * 4;
-    if (!MainFrame.getInstance().getShowAsTickTime())
-      span = 2
+    if (!MainFrame.getInstance().getShowAsTickTime()) {
+      int span = 2
           * this.getPreferredSize().width
           / (int) (deviatedPerformance.getSequence().getMicrosecondLength() / 1000000);
-    for (int i = 0; i < getPreferredSize().width; i += span)
-      g.drawLine(i, 0, i, getHeight());
+      for (int i = 0; i < getPreferredSize().width; i += span)
+        g.drawLine(i, 0, i, getHeight());
+    } else {
+      MusicXMLWrapper mus = deviatedPerformance.getMusicXML();
+      for (int i = 1; i < mus.getPartList()[0].getMeasureList().length; i++) {
+        int x = mus.getCumulativeTicks(i, DeviatedPerformance.TICKS_PER_BEAT);
+        x = x * WIDTH_PER_BEAT / DeviatedPerformance.TICKS_PER_BEAT;
+        g.drawLine(x, 0, x, getHeight());
+      }
+    }
 
     for (PrintableNote pn : allNotes)
       pn.paint(g);
@@ -253,28 +263,26 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     columnHeader.widthPerSecond = width / seconds;
   }
 
-  /**
-   * ノートの幅を更新する．
-   */
-  // public void updateNotes() {
-  // if (MainFrame.getInstance().getShowAsTickTime()) {
-  // for (PrintableDeviatedNote n : deviatedNotes)
-  // n.asTickTime();
-  // for (PrintableNote n : originalNotes)
-  // n.asTickTime();
-  // } else {
-  // for (PrintableDeviatedNote n : deviatedNotes)
-  // n.asRealTime();
-  // for (PrintableNote n : originalNotes)
-  // n.asRealTime();
-  // }
-  // for (PrintableDeviatedNote n : deviatedNotes)
-  // n.updateScale();
-  // for (PrintableNote n : originalNotes)
-  // n.updateScale();
-  // for(PN pn : allNotes)
-  // pn.updateScale();
-  // }
+  public static void toggleExtra(boolean b) {
+    if(b)
+      showVoice |= 1;
+    else
+      showVoice &= 6;
+  }
+
+  public static void toggleVoice1(boolean b) {
+    if(b)
+      showVoice |= 2;
+    else
+      showVoice &= 5;
+  }
+
+  public static void toggleVoice2(boolean b) {
+    if(b)
+      showVoice |= 4;
+    else
+      showVoice &= 3;
+  }
 
   private abstract class PrintableNote {
     int x, y, width, height;
@@ -323,6 +331,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     private DeviatedNote deviatedNote;
     private Color fillColor;
     private Color roundColor;
+    private short voice;
 
     public PrintableDeviatedNote(DeviatedNote deviatedNote) {
       this.deviatedNote = deviatedNote;
@@ -332,10 +341,12 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     }
 
     public void paint(Graphics g) {
-      g.setColor(fillColor);
-      g.fillRect(x, y, width, height);
-      g.setColor(roundColor);
-      g.drawRect(x + 1, y + 1, width - 3, height - 3);
+      if ((showVoice & voice) > 0) {
+        g.setColor(fillColor);
+        g.fillRect(x, y, width, height);
+        g.setColor(roundColor);
+        g.drawRect(x + 1, y + 1, width - 3, height - 3);
+      }
     }
 
     public void paintAsHover(Graphics g) {
@@ -363,12 +374,15 @@ public class PianoRollPanel extends JPanel implements MouseListener,
             * (deviatedNote.offsetInMSec() - deviatedNote.onsetInMSec()) / milSecLength);
       }
       if (deviatedNote.isExtraNote()) {
+        voice = 1;
         fillColor = new Color(255, 255, 0, deviatedNote.velocity() * 2);
         roundColor = Color.YELLOW;
       } else if (deviatedNote.getNote().voice() == 1) {
+        voice = 2;
         fillColor = new Color(255, 0, 0, deviatedNote.velocity() * 2);
         roundColor = Color.RED;
       } else {
+        voice = 4;
         fillColor = new Color(255, 127, 0, deviatedNote.velocity() * 2);
         roundColor = Color.ORANGE;
       }

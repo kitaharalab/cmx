@@ -30,6 +30,7 @@ import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
+import jp.crestmuse.cmx.misc.MutableMusicEvent;
 import jp.crestmuse.cmx.misc.MutableNote;
 import jp.crestmuse.cmx.misc.TreeView;
 
@@ -43,6 +44,7 @@ public class DeviatedPerformance {
   private int BASE_VELOCITY = 100;
   private int TEMPO = 72;
   private Sequence sequence;
+  private MusicXMLWrapper musicxml;
   private ArrayList<DeviatedNote> deviatedNotes;
   private TreeMap<Integer, Integer> ticks2tempo;
   private TreeMap<Integer, Integer> ticks2msec;
@@ -65,7 +67,8 @@ public class DeviatedPerformance {
 
     final HashMap<String, Track> part2track = new HashMap<String, Track>();
     final HashMap<String, TreeMap<Integer, Double>> part2tbd = new HashMap<String, TreeMap<Integer,Double>>();
-    deviation.getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise(){
+    musicxml = deviation.getTargetMusicXML();
+    musicxml.processNotePartwise(new NoteHandlerPartwise(){
       private Track track;
       private TreeMap<Integer, Double> tick2basedynamics;
       public void beginPart(Part part, MusicXMLWrapper wrapper) {
@@ -241,6 +244,10 @@ public class DeviatedPerformance {
 
   public Sequence getSequence() {
     return sequence;
+  }
+
+  public MusicXMLWrapper getMusicXML() {
+    return musicxml;
   }
 
   public ArrayList<DeviatedNote> getDeviatedNotes() {
@@ -551,7 +558,11 @@ public class DeviatedPerformance {
       else if(attack!=0.0 || release!=0.0 || dynamics!=1.0 || endDynamics!=1.0)
         dds.addNoteDeviation(note, attack, release, dynamics, endDynamics);
     }
-    
+
+    public int compareTo(MutableMusicEvent another) {
+      return onset() - another.onset();
+    }
+
     private abstract class TickHandler{
       abstract int tick();
     }

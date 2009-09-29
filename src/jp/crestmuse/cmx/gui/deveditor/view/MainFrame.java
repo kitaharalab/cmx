@@ -107,6 +107,8 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       }
     });
     JMenuItem save = new JMenuItem("save");
+    save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+        InputEvent.CTRL_DOWN_MASK));
     save.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
@@ -129,6 +131,44 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     JMenu show = new JMenu("show");
     showAsRealTime = new JCheckBoxMenuItem("show as real time");
     show.add(showAsRealTime);
+
+    JCheckBoxMenuItem extra = new JCheckBoxMenuItem("extra");
+    // extra.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3,
+    // InputEvent.CTRL_DOWN_MASK));
+    extra.setSelected(true);
+    extra.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleExtra(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
+    JCheckBoxMenuItem voice1 = new JCheckBoxMenuItem("voice1");
+    // voice1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1,
+    // InputEvent.CTRL_DOWN_MASK));
+    voice1.setSelected(true);
+    voice1.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleVoice1(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
+    JCheckBoxMenuItem voice2 = new JCheckBoxMenuItem("voice2");
+    // voice2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2,
+    // InputEvent.CTRL_DOWN_MASK));
+    voice2.setSelected(true);
+    voice2.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleVoice2(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
+    show.add(voice1);
+    show.add(voice2);
+    show.add(extra);
+
     JMenu edit = new JMenu("edit");
     JMenuItem undo = new JMenuItem("undo");
     undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
@@ -229,10 +269,12 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
   private void setPerformanceAsSelectedValue() {
     ListElement le = performances.getSelectedValue();
+    if(le.isLoading())
+      return;
     try {
       deviatedPerformancePlayer.changeDeviation(le.getDeviatedPerformance());
-    } catch (InvalidMidiDataException e1) {
-      e1.printStackTrace();
+    } catch (InvalidMidiDataException e) {
+      e.printStackTrace();
     }
     pianoRollScrollPane.setViewportView(le.getPianoRollPanel());
     curvesScrollPane.setViewportView(le.getCurvesPanel());
@@ -375,25 +417,21 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    * @param fileName
    */
   public void open(final String fileName) {
-    Thread th = new Thread() {
-      public void run() {
-        try {
-          performances.addPerformance(fileName, noteListScrollPane);
-          if (performances.isSelectionEmpty()) {
-            performances.setSelectedIndex(0);
-            setPerformanceAsSelectedValue();
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            openMenuItem.setEnabled(true);
+    performances.addPerformance(fileName, noteListScrollPane,
+        new DeviatedPerformanceList.ListElementLoadListener() {
+          public void listElementLoaded() {
+            if (performances.isSelectionEmpty()) {
+              performances.setSelectedIndex(0);
+              setPerformanceAsSelectedValue();
+            }
+            SwingUtilities.invokeLater(new Runnable() {
+              public void run() {
+                openMenuItem.setEnabled(true);
+              }
+            });
+            repaint();
           }
         });
-      }
-    };
-    th.start();
   }
 
   /**
