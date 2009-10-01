@@ -51,7 +51,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
   private int playingLine;
   private HashMap<DeviatedNote, PrintableDeviatedNote> dn2pdn;
   private DeviatedNoteControler deviatedNoteControler;
-  private static short showVoice = 7;
+  private static short showVoice = 63;
 
   public PianoRollPanel(DeviatedPerformance deviatedPerformance,
       DeviatedNoteControler deviatedNoteControler) {
@@ -267,21 +267,42 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     if(b)
       showVoice |= 1;
     else
-      showVoice &= 6;
+      showVoice &= 62;
   }
 
   public static void toggleVoice1(boolean b) {
     if(b)
       showVoice |= 2;
     else
-      showVoice &= 5;
+      showVoice &= 61;
   }
 
   public static void toggleVoice2(boolean b) {
     if(b)
       showVoice |= 4;
     else
-      showVoice &= 3;
+      showVoice &= 59;
+  }
+
+  public static void toggleVoice3(boolean b) {
+    if(b)
+      showVoice |= 8;
+    else
+      showVoice &= 55;
+  }
+
+  public static void toggleVoice4(boolean b) {
+    if(b)
+      showVoice |= 16;
+    else
+      showVoice &= 47;
+  }
+
+  public static void toggleVoiceOther(boolean b) {
+    if(b)
+      showVoice |= 32;
+    else
+      showVoice &= 31;
   }
 
   private abstract class PrintableNote {
@@ -381,10 +402,22 @@ public class PianoRollPanel extends JPanel implements MouseListener,
         voice = 2;
         fillColor = new Color(255, 0, 0, deviatedNote.velocity() * 2);
         roundColor = Color.RED;
-      } else {
+      } else if(deviatedNote.getNote().voice() == 2) {
         voice = 4;
         fillColor = new Color(255, 127, 0, deviatedNote.velocity() * 2);
         roundColor = Color.ORANGE;
+      } else if(deviatedNote.getNote().voice() == 3) {
+        voice = 8;
+        fillColor = new Color(255, 175, 175, deviatedNote.velocity() * 2);
+        roundColor = Color.PINK;
+      } else if(deviatedNote.getNote().voice() == 4) {
+        voice = 16;
+        fillColor = new Color(255, 0, 255, deviatedNote.velocity() * 2);
+        roundColor = Color.MAGENTA;
+      } else {
+        voice = 32;
+        fillColor = new Color(255, 0, 127, deviatedNote.velocity() * 2);
+        roundColor = new Color(255, 0, 127);
       }
     }
 

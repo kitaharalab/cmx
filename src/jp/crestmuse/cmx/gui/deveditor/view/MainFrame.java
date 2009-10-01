@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiUnavailableException;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -22,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -46,7 +49,14 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     return instance;
   }
 
-  private static MainFrame instance = new MainFrame();
+  private static MainFrame instance;
+  static {
+    try {
+      instance = new MainFrame();
+    } catch (MidiUnavailableException e) {
+      e.printStackTrace();
+    }
+  }
   // TODO ディスプレイに合わせて大きさ変える
   private static Dimension PIANO_ROLL_DIM = new Dimension(640, 320);
   private static Dimension CURVES_VELOCITY_DIM = new Dimension(640, 100);
@@ -65,7 +75,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
   // private JSlider scale;
 
-  private MainFrame() {
+  private MainFrame() throws MidiUnavailableException {
     deviatedPerformancePlayer = new DeviatedPerformancePlayer();
     synchronizer = new MusicPlaySynchronizer(deviatedPerformancePlayer);
     synchronizer.addSynchronizedComponent(this);
@@ -128,13 +138,12 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     file.add(openMenuItem);
     file.add(save);
     file.add(quit);
+
     JMenu show = new JMenu("show");
     showAsRealTime = new JCheckBoxMenuItem("show as real time");
     show.add(showAsRealTime);
 
     JCheckBoxMenuItem extra = new JCheckBoxMenuItem("extra");
-    // extra.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3,
-    // InputEvent.CTRL_DOWN_MASK));
     extra.setSelected(true);
     extra.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -144,8 +153,6 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     });
 
     JCheckBoxMenuItem voice1 = new JCheckBoxMenuItem("voice1");
-    // voice1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1,
-    // InputEvent.CTRL_DOWN_MASK));
     voice1.setSelected(true);
     voice1.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -155,8 +162,6 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     });
 
     JCheckBoxMenuItem voice2 = new JCheckBoxMenuItem("voice2");
-    // voice2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2,
-    // InputEvent.CTRL_DOWN_MASK));
     voice2.setSelected(true);
     voice2.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -165,8 +170,38 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       }
     });
 
+    JCheckBoxMenuItem voice3 = new JCheckBoxMenuItem("voice3");
+    voice3.setSelected(true);
+    voice3.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleVoice3(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
+    JCheckBoxMenuItem voice4 = new JCheckBoxMenuItem("voice4");
+    voice4.setSelected(true);
+    voice4.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleVoice4(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
+    JCheckBoxMenuItem voiceOther = new JCheckBoxMenuItem("voice other");
+    voiceOther.setSelected(true);
+    voiceOther.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        PianoRollPanel.toggleVoiceOther(((JCheckBoxMenuItem) e.getSource()).isSelected());
+        repaint();
+      }
+    });
+
     show.add(voice1);
     show.add(voice2);
+    show.add(voice3);
+    show.add(voice4);
+    show.add(voiceOther);
     show.add(extra);
 
     JMenu edit = new JMenu("edit");
@@ -186,8 +221,28 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         performances.getSelectedValue().getCommandInvoker().redo();
       }
     });
+    JMenuItem setRec = new JMenuItem("set midi receiver");
+    setRec.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        DeviatedPerformancePlayer.LabeledMidiDevice[] devices = deviatedPerformancePlayer.getReceivers();
+        Object ret = JOptionPane.showInputDialog(MainFrame.this,
+            "choose midi receiver", "", JOptionPane.INFORMATION_MESSAGE, null,
+            devices,
+            devices[deviatedPerformancePlayer.getCurrentReceiverIndex()]);
+        for (int i = 0; i < devices.length; i++)
+          if (ret == devices[i]) {
+            try {
+              deviatedPerformancePlayer.setReciever(i);
+            } catch (MidiUnavailableException e1) {
+              e1.printStackTrace();
+            }
+            break;
+          }
+      }
+    });
     edit.add(undo);
     edit.add(redo);
+    edit.add(setRec);
 
     menuBar.add(file);
     menuBar.add(show);
@@ -269,7 +324,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
   private void setPerformanceAsSelectedValue() {
     ListElement le = performances.getSelectedValue();
-    if(le.isLoading())
+    if (le.isLoading())
       return;
     try {
       deviatedPerformancePlayer.changeDeviation(le.getDeviatedPerformance());
@@ -395,9 +450,9 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
           prp.repaint();
         }
         if (showAsRealTime.isSelected())
-          currentPositionSlider.setValue((int) currentTick);
-        else
           currentPositionSlider.setValue((int) (currentTime * 1000000));
+        else
+          currentPositionSlider.setValue((int) currentTick);
       }
     });
   }
@@ -424,6 +479,15 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
               performances.setSelectedIndex(0);
               setPerformanceAsSelectedValue();
             }
+            SwingUtilities.invokeLater(new Runnable() {
+              public void run() {
+                openMenuItem.setEnabled(true);
+              }
+            });
+            repaint();
+          }
+
+          public void listElementLoadFailed() {
             SwingUtilities.invokeLater(new Runnable() {
               public void run() {
                 openMenuItem.setEnabled(true);

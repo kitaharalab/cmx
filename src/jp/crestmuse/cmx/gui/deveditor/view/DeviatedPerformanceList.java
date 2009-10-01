@@ -29,6 +29,10 @@ public class DeviatedPerformanceList extends JList {
     return (ListElement) super.getSelectedValue();
   }
 
+  private void removePerformance(ListElement le) {
+    model.removeElement(le);
+  }
+
   public class ListElement {
 
     private String fileName;
@@ -41,50 +45,89 @@ public class DeviatedPerformanceList extends JList {
     private NoteEditPanel noteEditPanel;
     private boolean loading;
 
-    private ListElement(final String filename,
-        final JScrollPane notelistParent, final ListElementLoadListener listener) {
-      Thread t = new Thread() {
-        public void run() {
-          try {
-            CMXFileWrapper wrapper = CMXFileWrapper.readfile(filename);
-            DeviationInstanceWrapper dev;
-            try {
-              dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper) wrapper);
-              dev.finalizeDocument();
-            } catch (ClassCastException e) {
-              try {
-                dev = (DeviationInstanceWrapper) wrapper;
-              } catch (ClassCastException e1) {
-                throw new IllegalArgumentException(
-                    "argument must be MusicXMLWrapper or DeviationInstanceWrapper");
-              }
-            }
-            fileName = wrapper.getFileName();
-            deviatedPerformance = new DeviatedPerformance(dev);
-            commandInvoker = new CommandInvoker();
-            DeviatedNoteControler dnc = new DeviatedNoteControler(
-                commandInvoker);
-            pianoRollPanel = new PianoRollPanel(deviatedPerformance, dnc);
-            curvesPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
-            velocityPanel = new VelocityPanel(deviatedPerformance,
-                pianoRollPanel, dnc);
-            noteList = new NoteList(deviatedPerformance, dnc, notelistParent);
-            noteEditPanel = new NoteEditPanel(dnc);
-
-            deviatedPerformance.addListener(pianoRollPanel);
-            deviatedPerformance.addListener(velocityPanel);
-            deviatedPerformance.addListener(noteList);
-            deviatedPerformance.addListener(noteEditPanel);
-            loading = false;
-            listener.listElementLoaded();
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      };
+    private ListElement(String filename, JScrollPane notelistParent,
+        ListElementLoadListener listener) {
+      Thread t = new LoadThread(filename, notelistParent, listener);
       t.start();
       fileName = "loading...";
       loading = true;
+    }
+
+    private class LoadThread extends Thread {
+
+      String filename;
+      JScrollPane notelistParent;
+      ListElementLoadListener listener;
+
+      LoadThread(String filename, JScrollPane notelistParent,
+          ListElementLoadListener listener) {
+        this.filename = filename;
+        this.notelistParent = notelistParent;
+        this.listener = listener;
+      }
+
+      public void run() {
+        Thread prog = new Thread() {
+          int c = 0, v = 1;
+          public void run() {
+            while (loading) {
+              c += v;
+              if (c > 10)
+                v = -1;
+              else if (c < 1)
+                v = 1;
+              fileName = "loading";
+              for (int i = 0; i < c; i++)
+                fileName += " ";
+              fileName += "...";
+              repaint();
+              try {
+                Thread.sleep(100);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            }
+          };
+        };
+        prog.start();
+        try {
+          CMXFileWrapper wrapper = CMXFileWrapper.readfile(filename);
+          DeviationInstanceWrapper dev;
+          try {
+            dev = DeviationInstanceWrapper.createDeviationInstanceFor((MusicXMLWrapper) wrapper);
+            dev.finalizeDocument();
+          } catch (ClassCastException e) {
+            try {
+              dev = (DeviationInstanceWrapper) wrapper;
+            } catch (ClassCastException e1) {
+              throw new IllegalArgumentException(
+                  "argument must be MusicXMLWrapper or DeviationInstanceWrapper");
+            }
+          }
+          deviatedPerformance = new DeviatedPerformance(dev);
+          commandInvoker = new CommandInvoker();
+          DeviatedNoteControler dnc = new DeviatedNoteControler(commandInvoker);
+          pianoRollPanel = new PianoRollPanel(deviatedPerformance, dnc);
+          curvesPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
+          velocityPanel = new VelocityPanel(deviatedPerformance,
+              pianoRollPanel, dnc);
+          noteList = new NoteList(deviatedPerformance, dnc, notelistParent);
+          noteEditPanel = new NoteEditPanel(dnc);
+
+          deviatedPerformance.addListener(pianoRollPanel);
+          deviatedPerformance.addListener(velocityPanel);
+          deviatedPerformance.addListener(noteList);
+          deviatedPerformance.addListener(noteEditPanel);
+          deviatedPerformance.addListener(curvesPanel);
+          loading = false;
+          fileName = wrapper.getFileName();
+          listener.listElementLoaded();
+        } catch (Exception e) {
+          e.printStackTrace();
+          removePerformance(ListElement.this);
+          listener.listElementLoadFailed();
+        }
+      }
     }
 
     public String toString() {
@@ -130,6 +173,7 @@ public class DeviatedPerformanceList extends JList {
 
   public interface ListElementLoadListener {
     public void listElementLoaded();
+    public void listElementLoadFailed();
   }
 
 }

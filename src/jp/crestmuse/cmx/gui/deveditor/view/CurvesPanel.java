@@ -11,10 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
-public class CurvesPanel extends JPanel implements ChangeListener {
+public class CurvesPanel extends JPanel implements DeviatedNoteUpdateListener {
 
   public static int ROW_HEADER_WIDTH = 64;
   public static int PANEL_HEIGHT = 200;
@@ -34,7 +35,7 @@ public class CurvesPanel extends JPanel implements ChangeListener {
     rowHeader = new RowHeader();
   }
 
-  public void stateChanged(ChangeEvent e) {
+  public void noteUpdated(DeviatedNote updatedNote) {
     updateScale();
     repaint();
   }
@@ -88,7 +89,7 @@ public class CurvesPanel extends JPanel implements ChangeListener {
       if (sum < 0)
         dynamics.yPoints[i + 1] = 0;
       else
-        dynamics.yPoints[i + 1] = (int) Math.log(sum);
+        dynamics.yPoints[i + 1] = (int) Math.round(Math.log(sum));
       i += 2;
     }
 
@@ -143,7 +144,11 @@ public class CurvesPanel extends JPanel implements ChangeListener {
       super.paint(g);
       g.setColor(Color.BLACK);
       for (int i = 0; i < getHeight(); i += 30)
-        g.drawString(i + "", 0, getHeight() - i - 0);
+        g.drawString(i + "", ROW_HEADER_WIDTH - 30, getHeight() - i - 0);
+      g.setColor(Color.GREEN);
+      g.drawString("tempo", 0, 20);
+      g.setColor(Color.BLUE);
+      g.drawString("dynamics", 0, 40);
     }
 
   }
