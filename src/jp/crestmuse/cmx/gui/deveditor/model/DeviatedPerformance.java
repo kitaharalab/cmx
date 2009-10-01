@@ -3,6 +3,7 @@ package jp.crestmuse.cmx.gui.deveditor.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.CSVWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
@@ -284,6 +286,22 @@ public class DeviatedPerformance {
     for(DeviatedNote dn : deviatedNotes) dn.write(dds);
     dds.toWrapper();
     return deviation;
+  }
+
+  public CSVWrapper toCSV(int division) {
+    CSVWrapper csv = new CSVWrapper();
+    csv.addRow();
+    csv.addValue(0, "ticks");
+    csv.addValue(0, "tempo");
+    Iterator<Entry<Integer, Integer>> t2t = ticks2tempo.entrySet().iterator();
+    Entry<Integer, Integer> tempoHead = t2t.next();
+    tempoHead = t2t.next();
+    int currentTempo = tempoHead.getValue();
+    for(int i=0; i<(int)(sequence.getTickLength() / division) + 1; i++) {
+      csv.addRow();
+      csv.addValue(i + 1, (i * division) + "");
+    }
+    return csv;
   }
 
   /**

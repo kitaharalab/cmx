@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;

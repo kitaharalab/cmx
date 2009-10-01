@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -26,6 +25,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -72,6 +72,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   private JScrollPane noteListScrollPane;
   private JScrollPane noteEditScrollPane;
   private JSlider currentPositionSlider;
+  private JProgressBar fileLoadingProgressBar;
 
   // private JSlider scale;
 
@@ -87,9 +88,13 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         setMenuBar();
         JSplitPane left = setScrollPane();
         JPanel right = setEastPanel();
-        JPanel south = new JPanel(new FlowLayout());
-        setSlider(south);
-        setButtons(south);
+        JPanel barButtons = new JPanel(new FlowLayout());
+        setSlider(barButtons);
+        setButtons(barButtons);
+        JPanel south = new JPanel(new BorderLayout());
+        fileLoadingProgressBar = new JProgressBar();
+        south.add(barButtons, BorderLayout.CENTER);
+        south.add(fileLoadingProgressBar, BorderLayout.SOUTH);
         JSplitPane center = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left,
             right);
         center.setOneTouchExpandable(true);
@@ -472,6 +477,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    * @param fileName
    */
   public void open(final String fileName) {
+    fileLoadingProgressBar.setIndeterminate(true);
     performances.addPerformance(fileName, noteListScrollPane,
         new DeviatedPerformanceList.ListElementLoadListener() {
           public void listElementLoaded() {
@@ -484,6 +490,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
                 openMenuItem.setEnabled(true);
               }
             });
+            fileLoadingProgressBar.setIndeterminate(false);
             repaint();
           }
 
@@ -493,6 +500,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
                 openMenuItem.setEnabled(true);
               }
             });
+            fileLoadingProgressBar.setIndeterminate(false);
             repaint();
           }
         });
