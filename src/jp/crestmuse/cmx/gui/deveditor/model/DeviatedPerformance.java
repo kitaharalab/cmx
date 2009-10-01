@@ -293,17 +293,50 @@ public class DeviatedPerformance {
     csv.addRow();
     csv.addValue(0, "ticks");
     csv.addValue(0, "tempo");
+    csv.addValue(0, "dynamics");
+
     Iterator<Entry<Integer, Integer>> t2t = ticks2tempo.entrySet().iterator();
     Entry<Integer, Integer> tempoHead = t2t.next();
-    tempoHead = t2t.next();
     int currentTempo = tempoHead.getValue();
+    if(t2t.hasNext())
+      tempoHead = t2t.next();
+
+    Iterator<Entry<Integer, Double>> t2d = getTicks2Dynamics().entrySet().iterator();
+    Entry<Integer, Double> dynamicsHead = t2d.next();
+    double currentDynamics = 0;
+
     for(int i=0; i<(int)(sequence.getTickLength() / division) + 1; i++) {
       csv.addRow();
       csv.addValue(i + 1, (i * division) + "");
+      if(i * division >= tempoHead.getKey() && t2t.hasNext()) {
+        tempoHead = t2t.next();
+        currentTempo = tempoHead.getValue();
+      }
+      csv.addValue(i + 1, currentTempo + "");
+      if(i * division >= dynamicsHead.getKey() && t2d.hasNext()) {
+        dynamicsHead = t2d.next();
+        currentDynamics += dynamicsHead.getValue();
+      }
+      csv.addValue(i + 1, currentDynamics + "");
     }
     return csv;
   }
-
+  
+  private TreeMap<Integer, Double> getTicks2Dynamics() {
+    TreeMap<Integer, Double> ticks2dyn = new TreeMap<Integer, Double>();
+    for (DeviatedNote dn : deviatedNotes) {
+      Double dyn = ticks2dyn.get(dn.onset());
+      if (dyn == null)
+        dyn = 0.0;
+      ticks2dyn.put(dn.onset(), dyn + Math.exp(dn.getDynamics() * 100));
+      dyn = ticks2dyn.get(dn.offset());
+      if (dyn == null)
+        dyn = 0.0;
+      ticks2dyn.put(dn.offset(), dyn - Math.exp(dn.getDynamics() * 100));
+    }
+    return ticks2dyn;
+  }
+  
   /**
    * このクラスは一つのノートを表します．
    * noteフィールドが元のMusicXMLのNote一つを表し、

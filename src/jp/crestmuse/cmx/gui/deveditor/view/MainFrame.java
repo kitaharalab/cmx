@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -20,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -36,6 +38,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.xml.sax.SAXException;
+
+import jp.crestmuse.cmx.filewrappers.CSVWrapper;
 import jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformanceList.ListElement;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
@@ -72,6 +77,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   private JScrollPane noteListScrollPane;
   private JScrollPane noteEditScrollPane;
   private JSlider currentPositionSlider;
+  private JLabel statusLabel;
   private JProgressBar fileLoadingProgressBar;
 
   // private JSlider scale;
@@ -92,9 +98,8 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         setSlider(barButtons);
         setButtons(barButtons);
         JPanel south = new JPanel(new BorderLayout());
-        fileLoadingProgressBar = new JProgressBar();
         south.add(barButtons, BorderLayout.CENTER);
-        south.add(fileLoadingProgressBar, BorderLayout.SOUTH);
+        south.add(setStatusBar(), BorderLayout.SOUTH);
         JSplitPane center = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left,
             right);
         center.setOneTouchExpandable(true);
@@ -132,6 +137,23 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         }
       }
     });
+    JMenuItem export = new JMenuItem("export");
+    export.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(performances.isSelectionEmpty()) return;
+        JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+        if (fc.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
+          CSVWrapper csv = performances.getSelectedValue().getDeviatedPerformance().toCSV(480);
+          try {
+            csv.writefile(fc.getSelectedFile());
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          } catch (SAXException e1) {
+            e1.printStackTrace();
+          }
+        }
+      }
+    });
     JMenuItem quit = new JMenuItem("quit");
     quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
         InputEvent.CTRL_DOWN_MASK));
@@ -142,6 +164,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     });
     file.add(openMenuItem);
     file.add(save);
+    file.add(export);
     file.add(quit);
 
     JMenu show = new JMenu("show");
@@ -431,6 +454,15 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     parent.add(change);
   }
 
+  private JPanel setStatusBar() {
+    JPanel p = new JPanel(new BorderLayout());
+    statusLabel = new JLabel();
+    fileLoadingProgressBar = new JProgressBar();
+    p.add(statusLabel, BorderLayout.WEST);
+    p.add(fileLoadingProgressBar, BorderLayout.EAST);
+    return p;
+  }
+
   public void start(MusicPlaySynchronizer wavsnyc) {
   }
 
@@ -477,6 +509,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    * @param fileName
    */
   public void open(final String fileName) {
+    statusLabel.setText("loading...");
     fileLoadingProgressBar.setIndeterminate(true);
     performances.addPerformance(fileName, noteListScrollPane,
         new DeviatedPerformanceList.ListElementLoadListener() {
@@ -490,6 +523,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
                 openMenuItem.setEnabled(true);
               }
             });
+            statusLabel.setText("");
             fileLoadingProgressBar.setIndeterminate(false);
             repaint();
           }
@@ -500,6 +534,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
                 openMenuItem.setEnabled(true);
               }
             });
+            statusLabel.setText("");
             fileLoadingProgressBar.setIndeterminate(false);
             repaint();
           }
