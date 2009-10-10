@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 import org.xml.sax.SAXException;
 
 import jp.crestmuse.cmx.filewrappers.CSVWrapper;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformanceList.ListElement;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
@@ -138,12 +139,26 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       }
     });
     JMenuItem export = new JMenuItem("export");
+    export.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
+        InputEvent.CTRL_DOWN_MASK));
     export.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if(performances.isSelectionEmpty()) return;
+        if (performances.isSelectionEmpty())
+          return;
+        String[] options = { "tempo base", "scc base" };
+        Object ret = JOptionPane.showInputDialog(MainFrame.this, "",
+            "export type", JOptionPane.INFORMATION_MESSAGE, null, options,
+            options[0]);
+        if (ret == null)
+          return;
         JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
         if (fc.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
-          CSVWrapper csv = performances.getSelectedValue().getDeviatedPerformance().toCSV(480);
+          DeviatedPerformance dp = performances.getSelectedValue().getDeviatedPerformance();
+          CSVWrapper csv;
+          if (ret.equals(options[0]))
+            csv = dp.toTempoBaseCSV(480);
+          else
+            csv = dp.toSccBaseCSV(480);
           try {
             csv.writefile(fc.getSelectedFile());
           } catch (IOException e1) {
