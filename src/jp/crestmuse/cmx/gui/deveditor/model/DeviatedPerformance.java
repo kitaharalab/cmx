@@ -565,6 +565,12 @@ public class DeviatedPerformance {
         ret = (int) (super.velocity() * baseDynamics * dynamics);
       return Math.min(ret, 127);
     }
+    
+    public double velocity2dynamics(int velocity) {
+      if(dynamicsType.equals("diff"))
+        return velocity / (double)super.velocity() - baseDynamics;
+      return velocity / (super.velocity() * baseDynamics);
+    }
 
     /**
      * 表情付きoffVelocityを返す

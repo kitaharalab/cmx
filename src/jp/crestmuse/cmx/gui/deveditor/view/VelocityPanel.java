@@ -3,6 +3,9 @@ package jp.crestmuse.cmx.gui.deveditor.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jp.crestmuse.cmx.gui.deveditor.controller.ChangeDeviation;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteSelectListener;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
@@ -19,7 +23,9 @@ import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 import static jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.*;
 import static jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.*;
 
-public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNoteSelectListener, DeviatedNoteUpdateListener {
+public class VelocityPanel extends JPanel implements ChangeListener,
+    DeviatedNoteSelectListener, DeviatedNoteUpdateListener, MouseListener,
+    MouseMotionListener {
 
   public static int PANEL_HEIGTH = 100;
   private PianoRollPanel pianoRollPanel;
@@ -27,6 +33,7 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
   private HashMap<DeviatedNote, NoteVelocity> dn2nv;
   private NoteVelocity selectedNoteVelocity;
   private DeviatedNoteControler deviatedNoteControler;
+  private boolean dragged = false;
 
   public VelocityPanel(DeviatedPerformance deviatedPerformance,
       PianoRollPanel pianoRollpanel, DeviatedNoteControler deviatedNoteControler) {
@@ -41,6 +48,8 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
       dn2nv.put(dn, nv);
     }
     updateScale();
+    addMouseListener(this);
+    addMouseMotionListener(this);
   }
 
   public void updateScale() {
@@ -65,21 +74,65 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
     repaint();
   }
 
+  public void mouseClicked(MouseEvent e) {
+  }
+
+  public void mouseEntered(MouseEvent e) {
+  }
+
+  public void mouseExited(MouseEvent e) {
+  }
+
+  public void mousePressed(MouseEvent e) {
+    for (NoteVelocity nv : velocities)
+      if (nv.x1 <= e.getX() && nv.x2 >= e.getX()
+          && getHeight() - nv.y <= e.getY()
+          && pianoRollPanel.isShowing(nv.deviatedNote)) {
+        deviatedNoteControler.select(nv.deviatedNote);
+        break;
+      }
+  }
+
+  public void mouseReleased(MouseEvent e) {
+    if (selectedNoteVelocity != null && dragged) {
+      dragged = false;
+      DeviatedNote dn = selectedNoteVelocity.deviatedNote;
+      double dynamics = dn.velocity2dynamics(selectedNoteVelocity.y);
+      ChangeDeviation cd = new ChangeDeviation(dn, 0, 0, dynamics, dynamics);
+      deviatedNoteControler.update(cd);
+    }
+  }
+
+  public void mouseDragged(MouseEvent e) {
+    if (selectedNoteVelocity != null) {
+      selectedNoteVelocity.y = Math.min(getHeight() - e.getY(), 127);
+      selectedNoteVelocity.velocity = selectedNoteVelocity.y + "";
+      dragged = true;
+      repaint();
+    }
+  }
+
+  public void mouseMoved(MouseEvent e) {
+  }
+
   public void paint(Graphics g) {
     super.paint(g);
     for (NoteVelocity nv : velocities)
       nv.paint(g);
-    if(selectedNoteVelocity != null)
+    if (selectedNoteVelocity != null)
       selectedNoteVelocity.paintAsSelected(g);
   }
 
   private class NoteVelocity {
+
     DeviatedNote deviatedNote;
     int x1, x2, y;
     String velocity;
+    Color color;
 
     NoteVelocity(DeviatedNote dn) {
       deviatedNote = dn;
+      color = pianoRollPanel.getNoteColor(dn);
       updateScale();
     }
 
@@ -91,25 +144,26 @@ public class VelocityPanel extends JPanel implements ChangeListener, DeviatedNot
     }
 
     void paint(Graphics g) {
-      g.setColor(Color.BLACK);
+      if (!pianoRollPanel.isShowing(deviatedNote))
+        return;
+      g.setColor(color);
       g.drawLine(x1, getHeight(), x1, getHeight() - y);
       g.drawLine(x1, getHeight() - y, x2, getHeight() - y);
       g.drawLine(x2, getHeight() - y, x2, getHeight());
     }
 
     void paintAsSelected(Graphics g) {
-      g.setColor(Color.RED);
+      g.setColor(Color.BLACK);
       g.drawLine(x1, getHeight(), x1, getHeight() - y);
       g.drawLine(x1, getHeight() - y, x2, getHeight() - y);
       g.drawLine(x2, getHeight() - y, x2, getHeight());
-      g.drawString(velocity, x1, getHeight() - y);      
+      g.drawString(velocity, x1, getHeight() - y);
     }
   }
 
   public static class RowHeader extends JPanel {
     public RowHeader() {
-      setPreferredSize(new Dimension(CurvesPanel.ROW_HEADER_WIDTH,
-          1));
+      setPreferredSize(new Dimension(CurvesPanel.ROW_HEADER_WIDTH, 1));
       add(new JLabel("velocity"));
     }
   }

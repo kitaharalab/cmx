@@ -14,7 +14,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -137,7 +136,8 @@ public class PianoRollPanel extends JPanel implements MouseListener,
       // break;
       // }
       if (!(e.getX() < d.x || e.getX() > d.x + d.width || e.getY() < d.y || e.getY() > d.y
-          + d.height)) {
+          + d.height)
+          && (d.voice & showVoice) > 0) {
         deviatedNoteControler.select(d.deviatedNote);
         break;
       }
@@ -162,7 +162,7 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     if (holdNote == null) {
       hoverNote = null;
       for (PrintableDeviatedNote p : deviatedNotes)
-        if (p.isMouseOver(e.getX(), e.getY())) {
+        if (p.isMouseOver(e.getX(), e.getY()) && (p.voice & showVoice) > 0) {
           hoverNote = p;
           if (p.isMouseOnRight(e.getX(), e.getY()))
             setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
@@ -263,43 +263,51 @@ public class PianoRollPanel extends JPanel implements MouseListener,
     columnHeader.widthPerSecond = width / seconds;
   }
 
+  public boolean isShowing(DeviatedNote dn) {
+    return (dn2pdn.get(dn).voice & showVoice) > 0;
+  }
+  
+  public Color getNoteColor(DeviatedNote dn) {
+    return dn2pdn.get(dn).roundColor;
+  }
+
   public static void toggleExtra(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 1;
     else
       showVoice &= 62;
   }
 
   public static void toggleVoice1(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 2;
     else
       showVoice &= 61;
   }
 
   public static void toggleVoice2(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 4;
     else
       showVoice &= 59;
   }
 
   public static void toggleVoice3(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 8;
     else
       showVoice &= 55;
   }
 
   public static void toggleVoice4(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 16;
     else
       showVoice &= 47;
   }
 
   public static void toggleVoiceOther(boolean b) {
-    if(b)
+    if (b)
       showVoice |= 32;
     else
       showVoice &= 31;
@@ -402,15 +410,15 @@ public class PianoRollPanel extends JPanel implements MouseListener,
         voice = 2;
         fillColor = new Color(255, 0, 0, deviatedNote.velocity() * 2);
         roundColor = Color.RED;
-      } else if(deviatedNote.getNote().voice() == 2) {
+      } else if (deviatedNote.getNote().voice() == 2) {
         voice = 4;
         fillColor = new Color(255, 127, 0, deviatedNote.velocity() * 2);
         roundColor = Color.ORANGE;
-      } else if(deviatedNote.getNote().voice() == 3) {
+      } else if (deviatedNote.getNote().voice() == 3) {
         voice = 8;
         fillColor = new Color(255, 175, 175, deviatedNote.velocity() * 2);
         roundColor = Color.PINK;
-      } else if(deviatedNote.getNote().voice() == 4) {
+      } else if (deviatedNote.getNote().voice() == 4) {
         voice = 16;
         fillColor = new Color(255, 0, 255, deviatedNote.velocity() * 2);
         roundColor = Color.MAGENTA;
@@ -430,37 +438,38 @@ public class PianoRollPanel extends JPanel implements MouseListener,
       return isMouseOver(mouseX, mouseY) && mouseX > x + width / 2;
     }
 
-    /**
-     * DeviatedNoteのchangeDeviationを呼び出して位置と色を更新する．
-     */
-    public boolean changeDeviation(double attack, double release,
-        double dynamics, double endDynamics) {
-      try {
-        if (deviatedNote.changeDeviation(attack, release, dynamics, endDynamics)) {
-          // if(MainFrame.getInstance().getShowAsTickTime())
-          // asTickTime();
-          // else
-          // asRealTime();
-          updateScale();
-          fillColor = new Color(fillColor.getRed(), fillColor.getGreen(),
-              fillColor.getBlue(), deviatedNote.velocity() * 2);
-          return true;
-        }
-      } catch (InvalidMidiDataException e) {
-        e.printStackTrace();
-      }
-      return false;
-    }
-
-    public void setMissNote(boolean missnote) {
-      try {
-        deviatedNote.setMissNote(missnote);
-        fillColor = new Color(fillColor.getRed(), fillColor.getGreen(),
-            fillColor.getBlue(), deviatedNote.velocity() * 2);
-      } catch (InvalidMidiDataException e) {
-        e.printStackTrace();
-      }
-    }
+    // /**
+    // * DeviatedNoteのchangeDeviationを呼び出して位置と色を更新する．
+    // */
+    // public boolean changeDeviation(double attack, double release,
+    // double dynamics, double endDynamics) {
+    // try {
+    // if (deviatedNote.changeDeviation(attack, release, dynamics, endDynamics))
+    // {
+    // // if(MainFrame.getInstance().getShowAsTickTime())
+    // // asTickTime();
+    // // else
+    // // asRealTime();
+    // updateScale();
+    // fillColor = new Color(fillColor.getRed(), fillColor.getGreen(),
+    // fillColor.getBlue(), deviatedNote.velocity() * 2);
+    // return true;
+    // }
+    // } catch (InvalidMidiDataException e) {
+    // e.printStackTrace();
+    // }
+    // return false;
+    // }
+    //
+    // public void setMissNote(boolean missnote) {
+    // try {
+    // deviatedNote.setMissNote(missnote);
+    // fillColor = new Color(fillColor.getRed(), fillColor.getGreen(),
+    // fillColor.getBlue(), deviatedNote.velocity() * 2);
+    // } catch (InvalidMidiDataException e) {
+    // e.printStackTrace();
+    // }
+    // }
 
     public NoteMoveHandle getHandle(int mouseX, int mouseY) {
       if (isMouseOver(mouseX, mouseY)) {
