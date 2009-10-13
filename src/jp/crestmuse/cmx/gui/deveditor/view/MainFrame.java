@@ -466,7 +466,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
 
     parent.add(start);
     parent.add(reset);
-    parent.add(change);
+//    parent.add(change);
   }
 
   private JPanel setStatusBar() {

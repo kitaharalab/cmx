@@ -338,12 +338,9 @@ public class DeviatedPerformance {
   public CSVWrapper toTempoBaseCSV(int division) {
     CSVWrapper csv = new CSVWrapper();
     csv.addRow();
-    csv.addValue(0, "ticks");
+    csv.addValue(0, "measure");
+    csv.addValue(0, "beat");
     csv.addValue(0, "tempo");
-    csv.addValue(0, "notenum");
-    csv.addValue(0, "noteon");
-    csv.addValue(0, "offset");
-    csv.addValue(0, "velocity");
 
     Iterator<Entry<Integer, Integer>> t2t = ticks2tempo.entrySet().iterator();
     Entry<Integer, Integer> tempoHead = t2t.next();
@@ -361,29 +358,44 @@ public class DeviatedPerformance {
     // Entry<Integer, Double> dynamicsHead = t2d.next();
     // double currentDynamics = 0;
 
+    int maxCol = 0;
     for (int i = 0; i < (int) (sequence.getTickLength() / division) + 1; i++) {
       csv.addRow();
-      csv.addValue(i + 1, (i * division) + "");
+      csv.addValue(i + 1, i / 4 + 1 + "");
+      csv.addValue(i + 1, i % 4 + 1 + "");
       if (i * division >= tempoHead.getKey() && t2t.hasNext()) {
         tempoHead = t2t.next();
         currentTempo = tempoHead.getValue();
       }
       csv.addValue(i + 1, currentTempo + "");
+      int col = 0;
       while (dnHead != null && (i + 1) * division > dnHead.onset(division)) {
+        csv.addValue(i + 1, dnHead.onsetOriginal() / (double)division + "");
+        csv.addValue(i + 1, dnHead.getAttack() + "");
+        csv.addValue(i + 1, dnHead.offsetOriginal() / (double)division + "");
+        csv.addValue(i + 1, dnHead.getRelease() + "");
         csv.addValue(i + 1, dnHead.notenum() + "");
-        csv.addValue(i + 1, dnHead.onset(division) + "");
-        csv.addValue(i + 1, dnHead.offset(division) + "");
         csv.addValue(i + 1, dnHead.velocity() + "");
         if (dn.hasNext())
           dnHead = dn.next();
         else
           dnHead = null;
+        col++;
       }
+      maxCol = Math.max(col, maxCol);
       // if(i * division >= dynamicsHead.getKey() && t2d.hasNext()) {
       // dynamicsHead = t2d.next();
       // currentDynamics += dynamicsHead.getValue();
       // }
       // csv.addValue(i + 1, currentDynamics + "");
+    }
+    for(int i=0; i<maxCol; i++) {
+      csv.addValue(0, "onset");
+      csv.addValue(0, "onset deviation");
+      csv.addValue(0, "offset");
+      csv.addValue(0, "offset deviation");
+      csv.addValue(0, "notenum");
+      csv.addValue(0, "velocity");
     }
     return csv;
   }
@@ -391,16 +403,25 @@ public class DeviatedPerformance {
   public CSVWrapper toSccBaseCSV(int division) {
     CSVWrapper csv = new CSVWrapper();
     csv.addRow();
-    csv.addValue(0, "notenum");
-    csv.addValue(0, "noteon");
+    csv.addValue(0, "measure");
+    csv.addValue(0, "beat");
+    csv.addValue(0, "onset");
+    csv.addValue(0, "onset deviation");
     csv.addValue(0, "offset");
+    csv.addValue(0, "offset deviation");
+    csv.addValue(0, "notenum");
     csv.addValue(0, "velocity");
     int i = 1;
     for (DeviatedNote dn : deviatedNotes) {
       csv.addRow();
+      int onset = dn.onset();
+      csv.addValue(i, (onset / (division * 4) + 1) + "");
+      csv.addValue(i, ((onset % (division * 4)) / division + 1) + "");
+      csv.addValue(i, dn.onsetOriginal() / (double)division + "");
+      csv.addValue(i, dn.getAttack() + "");
+      csv.addValue(i, dn.offsetOriginal() / (double)division + "");
+      csv.addValue(i, dn.getRelease() + "");
       csv.addValue(i, dn.notenum() + "");
-      csv.addValue(i, dn.onset(division) + "");
-      csv.addValue(i, dn.offset(division) + "");
       csv.addValue(i, dn.velocity() + "");
       i++;
     }
