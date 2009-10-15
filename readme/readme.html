@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <title>DevEditor</title>
+    <link rel="stylesheet" href="style.css" type="text/css" media="all">
+  </head>
+  <body>
+    <h1>DevEditor</h1>
+    <p>DevEditorは演奏の楽譜からの逸脱（演奏表情）を編集するためのツールです。このツールではデータフォーマットとして楽譜はMusicXML、演奏表情はDeviationInstanceXML形式を用います。読み込んだMusicXMLやDeviationInstanceXMLは演奏表情を編集して、DeviationInstanceXMLやCSVに出力することができます。</p>
+    <p><img src="img01.png" width="720" /></p>
+    <h2>①ピアノロール</h2>
+    <p>色のついた矩形がノート一つを表します。ノートはクリックで選択する事ができ、選択した状態で両端をドラッグするとそれぞれ発音時刻と消音時刻を編集することができます。色のついた矩形の下に表示されている黒線の枠は楽譜のノートを表しています。MusicXMLのノートにはvoiceという属性があり、番号が割り振られています。例えばピアノの楽譜だとメロディが１、伴奏が２など、主にパート分けのために用いられます。ピアノロール画面ではvoiceによってノートが色分けされています。<p>
+    <table>
+      <tr><td>extra note</td><td>黄</td></tr>
+      <tr><td>voice1</td><td>赤</td></tr>
+      <tr><td>voice2</td><td>オレンジ</td></tr>
+      <tr><td>voice3</td><td>ピンク</td></tr>
+      <tr><td>voice4</td><td>マゼンタ</td></tr>
+      <tr><td>other</td><td>薄いマゼンタ</td></tr>
+    </table>
+    <p>ここでextra noteとは楽譜上にはなく、演奏表情として余分に弾かれたノートのことを指します。ノートの矩形の色の濃さは音量を表し、薄ければ小さく濃ければ大きく音が鳴ります。miss note（楽譜上には存在するが演奏表情として弾かれなかったノート）は矩形が塗りつぶされておらず、枠の線だけを表示します。</p>
+    <h2>②テンポ</h2>
+    <p>テンポカーブを表示します。テンポカーブは四分音符単位で編集することができ、マウスオーバーでハイライトされる部分が動かせます。カーブをドラッグすると値を変える事ができます。</p>
+    <h2>③ベロシティー</h2>
+    <p>各ノートのベロシティーを表示します。ノートはクリックで選択することができ、選択したノートはドラッグで値を変えられます。</p>
+    <h2>④ファイルリスト</h2>
+    <p>開いたファイルを一覧表示します。新たにファイルを開くと追加され、選択すると対応する編集画面を表示します。</p>
+    <h2>⑤ノートリスト</h2>
+    <p>編集中ファイルのノートの一覧を表示します。それぞれonset,offset,notenumとして表示されます。リストを選択すると対応するノートが選択状態になります。</p>
+    <h2>⑥詳細情報</h2>
+    <p>選択中のノートの詳細情報を表示します。それぞれの値を数字で編集することができます。</p>
+    <h2>メニューバー</h2>
+    <h3>file</h3>
+    <ul>
+      <li>
+        <h4>open</h4>
+        <p>ファイルを開きます。MusicXMLかDeviationInstanceXMLを開くことができます。</p>
+      </li>
+      <li>
+        <h4>save</h4>
+        <p>ファイルを保存します。DeviationInstanceXMLとして保存されます。</p>
+      </li>
+      <li>
+        <h4>export</h4>
+        <p>ファイルをCSV形式で出力します。出力は二種類あり、tempo baseは四分音符ごとに1行出力し、列は順に小節、拍、テンポ、楽譜上での発音時刻、演奏と楽譜の発音時刻のずれ、楽譜上での消音時刻、演奏と楽譜の消音時刻のずれ、ノート番号、ヴェロシティを表します。ここで、時刻は全て四分音符を1.0とした少数で表されます。例えば次のようになります。</p>
+        <table>
+          <tr><td>measure</td><td>beat</td><td>tempo</td><td>onset</td><td>onset deviation</td><td>offset</td><td>offset deviation</td><td>notenum</td><td>velocity</td><td>onset</td><td>onset deviation</td><td>offset</td><td>offset deviation</td><td>notenum</td><td>velocity</td></tr>
+          <tr><td>1</td><td>1</td><td>72</td><td>0.25</td><td>0.05</td><td>0.5</td><td>0.13</td><td>60</td><td>32</td></tr>
+          <tr><td>1</td><td>2</td><td>78</td><td>1.0</td><td>0.0</td><td>1.25</td><td>-0.01</td><td>65</td><td>51</td><td>1.16</td><td>0.0</td><td>1.39</td><td>0.0</td><td>64</td><td>73</td></tr>
+          <tr><td>1</td><td>3</td><td>82</td><td>2.0</td><td>0.0</td><td>2.5</td><td>-0.26</td><td>67</td><td>59</td></tr>
+          <tr><td>1</td><td>4</td><td>61</td><td>3.0</td><td>-0.13</td><td>3.25</td><td>-0.21</td><td>53</td><td>32</td></tr>
+        </table>
+        <p>四分音符区間内に複数のノートがあった場合それらを列に追加していきます。１行目の列名は最も長い列数にあわせられます。</p>
+        <p>scc baseはノートごとに1行出力し、列はテンポ以外tempo baseと同じです。例えば次のようになります。</p>
+        <table>
+          <tr><td>measure</td><td>beat</td><td>onset</td><td>onset deviation</td><td>offset</td><td>offset deviation</td><td>notenum</td><td>velocity</td></tr>
+          <tr><td>1</td><td>1</td><td>0.25</td><td>0.05</td><td>0.5</td><td>0.13</td><td>60</td><td>32</td></tr>
+          <tr><td>1</td><td>1</td><td>0.5</td><td>0.06</td><td>0.75</td><td>0.09</td><td>62</td><td>50</td></tr>
+          <tr><td>1</td><td>1</td><td>0.75</td><td>0.03</td><td>1.0</td><td>0.07</td><td>64</td><td>54</td></tr>
+          <tr><td>1</td><td>2</td><td>1.0</td><td>0.0</td><td>1.25</td><td>-0.01</td><td>65</td><td>51</td></tr>
+        </table>
+      </li>
+      <li>
+        <h4>quit</h4>
+        <p>DevEditorを終了します。</p>
+      </li>
+    </ul>
+    <h3>show</h3>
+    <ul>
+      <li>
+        <h4>show as real time</h4>
+        <p>実時間で表示します。</p>
+      </li>
+      <li>
+        <h4>voice1, voice2, voice3, voice3, voice other, extra</h4>
+        <p>対応するノートの表示・非表示を切り替えます。</p>
+      </li>
+    </ul>
+    <h3>edit</h3>
+    <ul>
+      <li>
+        <h4>undo</h4>
+        <p>操作を一つやり直します。undoはメモリが許す限り行えます。</p>
+      </li>
+      <li>
+        <h4>redo</h4>
+        <p>やり直しを取り消します。</p>
+      </li>
+      <li>
+        <h4>set midi receiver</h4>
+        <p>MIDIシーケンサを指定します。</p>
+      </li>
+    </ul>
+  </body>
+</html>
