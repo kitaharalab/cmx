@@ -843,6 +843,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       byte ch = channel();
       MIDIEventList el = new MIDIEventList();
       Note[] notelist = getNoteList();
+      el.addEvent(0, MIDIConst.PROGRAM_CHANGE, ch, prognum(), 0);
+      el.addEvent(0, MIDIConst.CONTROL_CHANGE, ch, 7, volume());
       for (Note note : notelist) {
         if (note instanceof ControlChange) {
           el.addEvent(note.onset(), MIDIConst.CONTROL_CHANGE, ch, 
