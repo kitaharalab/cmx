@@ -118,15 +118,15 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
       addSibling(type);
       setAttribute("Channel", String.valueOf(channel));
       String[] attlist = getAttributeList(type);
-      if (attlist.length == attrs.length) 
-        for (int i = 0; i < attrs.length; i++)
+      //      if (attlist.length == attrs.length) 
+        for (int i = 0; i < attlist.length; i++)
           if (isOnOffMessage(type)) 
             setAttribute(attlist[i], 
                          onOffMsgByteToString((byte)attrs[i]));
           else
             setAttribute(attlist[i], attrs[i]);
-      else
-        throw new InvalidElementException("# of values is invalid");
+	//      else
+	//  throw new InvalidElementException("# of values is invalid");
     } else {
       throw new InvalidElementException
         ("Unsupported channel message: " + type);

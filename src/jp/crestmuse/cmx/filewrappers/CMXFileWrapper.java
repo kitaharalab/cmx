@@ -543,7 +543,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     fmt.setIndent(2);
     XMLSerializer serializer = new XMLSerializer(out, fmt);
     serializer.serialize(doc);
-    out.close();
+    //    out.close();
   }
 
   /**********************************************************************
@@ -558,7 +558,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     fmt.setIndent(2);
     XMLSerializer serializer = new XMLSerializer(writer, fmt);
     serializer.serialize(doc);
-    writer.close();
+    //    writer.close();
   }
 
   /**********************************************************************
@@ -571,12 +571,16 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
    *********************************************************************/
   public final void writefile(String filename) 
     throws IOException, SAXException {
-    write(new FileWriter(new File(filename)));
+      writefile(new File(filename));
+      //      write(new FileWriter(new File(filename)));
   }
 
   public final void writefile(File file)
     throws IOException, SAXException {
-    write(new FileWriter(file));
+      Writer w = new FileWriter(file);
+      write(w);
+      w.close();
+      //    write(new FileWriter(file));
   }
 
   public final void writeGZippedFile(String filename)
@@ -586,8 +590,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 
   public final void writeGZippedFile(File file)
     throws IOException, SAXException {
-    write(new GZIPOutputStream(new BufferedOutputStream(
-                                 new FileOutputStream(file))));
+      OutputStream out = new GZIPOutputStream(new BufferedOutputStream
+					      (new FileOutputStream(file)));
+      write(out);
+      out.close();
+    //    write(new GZIPOutputStream(new BufferedOutputStream(
+    //                                 new FileOutputStream(file))));
   }
 
   /**********************************************************************
