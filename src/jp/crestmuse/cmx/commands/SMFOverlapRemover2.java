@@ -11,17 +11,15 @@ import org.xml.sax.*;
 import java.io.*;
 import java.util.*;
 
-public class SMFOverlapRemover extends 
+public class SMFOverlapRemover2 extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 
-  private static final double ON_ON = 0.1;
-  private static final double ON_OFF = 0.5;
-  private static final int OFF_ON = -1;
+
   String outSMFFileName;
   String outSCCFileName;
 
   MIDIEventWithTime[][] last1 = new MIDIEventWithTime[128][16];
-  MIDIEventWithTime[][] last2 = new MIDIEventWithTime[128][16];
+  boolean[][] overlapped = new boolean[128][16];
 
   class MIDIEventWithTime implements Comparable {
     MIDIEvent evt;
@@ -33,6 +31,23 @@ public class SMFOverlapRemover extends
     public int compareTo(Object o) {
       return time - ((MIDIEventWithTime)o).time;
     }
+      public boolean equals(Object o) {
+	  if (o instanceof MIDIEventWithTime) {
+	      MIDIEventWithTime a = (MIDIEventWithTime)o;
+	      return time == a.time 
+		  && evt.messageType().equals(a.evt.messageType())
+		  && evt.channel() ==  a.evt.channel()
+		  && evt.value(0) == a.evt.value(0)
+		  && evt.value(1) == a.evt.value(1);
+	  } else {
+	      return false;
+	  }
+      }
+      public String toString() {
+	  return time + " " + evt.messageType() + " " 
+	      + evt.channel() + " " + evt.value(0) + " " 
+	      + evt.value(1);
+      }
   }
 
   protected boolean setOptionsLocal(String option, String value) {
@@ -46,8 +61,6 @@ public class SMFOverlapRemover extends
     return false;
   }
 
-  //  MIDIEvent[] ary = new MIDIEvent[128];
-//  NoteCompatible[] noteary = new NoteCompatible[128];
   int div;
   int nTracks = 1;
 
@@ -80,9 +93,6 @@ public class SMFOverlapRemover extends
         addMIDIEventWithTime(et, l);
       }
       System.err.println();
-//      for (MIDIEventWithTime[] etary : last1)
-//        for (MIDIEventWithTime et : etary)
-//          if (et != null) l.add(et);
       Collections.sort(l);
       newmidi.newTrack(i);
       addMIDIEventsToMIDIXML(l, newmidi);
@@ -104,27 +114,31 @@ public class SMFOverlapRemover extends
     if (isNoteOn(e)) {
       int nn = e.evt.value(0);
       int ch = e.evt.channel();
-      last2[nn][ch] = last1[nn][ch];
-      last1[nn][ch] = e;
+      if (last1[nn][ch] == null) {
+	  last1[nn][ch] = e;
+      } else {
+	  System.err.println(e);
+	  System.err.println(last1[nn][ch]);
+	  System.err.println(last1[nn][ch].equals(e));
+	  if (last1[nn][ch].equals(e)) {
+	      overlapped[nn][ch] = true;
+	      System.err.println("Overlapped: " + e.time + "\t" + nn + "\t" + e.evt.value(1));
+	      e = null;
+	  } else {
+	      last1[nn][ch] = e;
+	  }
+      }
     } else if (isNoteOff(e)) {
       int nn = e.evt.value(0);
       int ch = e.evt.channel();
-      if(last2[nn][ch] != null && last1[nn][ch] != null 
-	 && isNoteOn(last2[nn][ch]) && isNoteOn(last1[nn][ch])) {
-        if(last1[nn][ch].time - last2[nn][ch].time > div * ON_ON 
-	   && e.time - last1[nn][ch].time < div * ON_OFF) {
-          e.time = last1[nn][ch].time + OFF_ON;
-          last2[nn][ch] = e;
-        } else {
-          last2[nn][ch] = last1[nn][ch];
-          last1[nn][ch] = e;
-        }
-      } else {
-        last2[nn][ch] = last1[nn][ch];
-        last1[nn][ch] = e;
-      }
+	if (overlapped[nn][ch]) {
+	    e = null;
+	    overlapped[nn][ch] = false;
+	}
+	last1[nn][ch] = null;
     }
-    l.add(e);
+    if (e != null)
+	l.add(e);
   }
   
   private boolean isNoteOn(MIDIEventWithTime e) {
@@ -155,10 +169,10 @@ public class SMFOverlapRemover extends
       last = e;
     }
   }
-      
+
 
   public static void main(String[] args) {
-    SMFOverlapRemover sor = new SMFOverlapRemover();
+    SMFOverlapRemover2 sor = new SMFOverlapRemover2();
     try {
       sor.start(args);
     } catch (Exception e) {
