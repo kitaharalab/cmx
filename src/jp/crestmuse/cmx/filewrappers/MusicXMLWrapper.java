@@ -305,8 +305,26 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     }
   }
 
-  private long getCumulativeTicksLocal(int measure, int ticksPerBeat) {
-    if (measure >= 0) {
+    private long getCumulativeTicksLocal(int measure, int ticksPerBeat) {
+	if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
+	    return cumulativeTicksList.get(measure);
+	else
+	    return cumulativeTicksList.get(measure)
+		* ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
+    }
+
+    private long getCumulativeTicksLocal2(int measure, int ticksPerBeat) {
+	if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
+	    return cumulativeTicksList2.get(measure);
+	else
+	    return cumulativeTicksList2.get(measure);
+    }
+
+
+    /*
+    private long getCumulativeTicksLocal(int measure, boolean startsWithX, 
+					 int ticksPerBeat) {
+	if (!startsWithX) {
       if (ticksPerBeat == INTERNAL_TICKS_PER_BEAT)
         return cumulativeTicksList.get(measure);
       else
@@ -320,10 +338,21 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
         * ticksPerBeat / INTERNAL_TICKS_PER_BEAT;
     }
   }
+    */
 
-  public int getCumulativeTicks(int measure, int ticksPerBeat) {
-    return (int)getCumulativeTicksLocal(measure, ticksPerBeat);
+    public int getCumulativeTicks(int measure, boolean startsWithX, 
+				  int ticksPerBeat) {
+	if (startsWithX)
+	    return (int)getCumulativeTicksLocal2(measure, ticksPerBeat);
+	else
+	    return (int)getCumulativeTicksLocal(measure, ticksPerBeat);
+	//return (int)getCumulativeTicksLocal(measure, startsWithX, ticksPerBeat);
   }
+
+    public int getCumulativeTicks(int measure, int ticksPerBeat) {
+	return getCumulativeTicks(measure, false, ticksPerBeat);
+	//	return (int)getCumulativeTicksLocal(measure, false, ticksPerBeat);
+    }
 
   /*
   public int getCumulativeTicks(int measure, int ticksPerBeat) {
@@ -712,6 +741,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
   public class Measure extends NodeInterface {
     private Part part;
     private int number;
+      private int numberX;
     private String strNumber;
     private String xpath = null;
     private MusicData[] mdlist = null;
@@ -722,6 +752,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private int duration = -1;
     private Measure prevMeasure;
     private Note[] tiedNotes = null;
+      private double beat0 = 0;
+      private boolean startsWithX = false;
 
     private Measure(Node node, Measure prevMeasure, Part part) {
       super(node);
@@ -735,10 +767,22 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       try {
         number = Integer.parseInt(strNumber);
       } catch (NumberFormatException e) {
-        if (strNumber.startsWith("X"))
-          number =  - Integer.parseInt(strNumber.substring(1));
+	  if (strNumber.startsWith("X")) {
+	      startsWithX = true;
+	      numberX = Integer.parseInt(strNumber.substring(1));
+	      if (prevMeasure != null) {
+		  number = prevMeasure.number;
+		  beat0 = prevMeasure.beat0 
+		      + (double)prevMeasure.duration(INTERNAL_TICKS_PER_BEAT)
+		      / (double)INTERNAL_TICKS_PER_BEAT;
+	      } else {
+		  number = 0;
+	      }
+	  }
+	    //  number =  - Integer.parseInt(strNumber.substring(1));
       }
       sound = getChildByTagName("sound");
+      System.err.println("measure: " + number + " beat: " + beat0);
     }
     /**********************************************************************
      *<p>Returns "measure".</p>
@@ -750,18 +794,18 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
 
     // changed int -> long 20080609
     private void setCumulativeTicks(long cumulativeTicks) {
-      if (number >= 0) {
+      if (!startsWithX) {
         if (cumulativeTicksList.size() > number) {
           if (cumulativeTicksList.get(number) != cumulativeTicks)
             throw new InvalidElementException();
         } else 
           cumulativeTicksList.set(number, cumulativeTicks);
       } else {
-        if (cumulativeTicksList2.size() > -number) {
-          if (cumulativeTicksList2.get(-number) != cumulativeTicks)
+        if (cumulativeTicksList2.size() > numberX) {
+          if (cumulativeTicksList2.get(numberX) != cumulativeTicks)
             throw new InvalidElementException();
         } else
-          cumulativeTicksList2.set(-number, cumulativeTicks);
+          cumulativeTicksList2.set(numberX, cumulativeTicks);
       }
     }
 
@@ -860,6 +904,18 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     public final int number() {
       return number;
     }
+      public final boolean startsWithX() {
+	  return startsWithX;
+      }
+      public final int numberX() {
+	  return numberX;
+      }
+      public final String numberInString() {
+	  return strNumber;
+      }
+      public final double initialBeat() {
+	  return beat0;
+      }
     private MusicData getMusicDataNodeInterface(Node node) {
       String nodename = node.getNodeName();
       if (nodename.equals("note"))
@@ -944,9 +1000,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
       super(node);
       this.measure = measure;
       divisions = lastDivisions;
-      measureTick = 
-        getCumulativeTicksLocal(measure().number(),
-            INTERNAL_TICKS_PER_BEAT);
+      if (measure().startsWithX())
+	  measureTick = 
+	      getCumulativeTicksLocal2(measure().numberX(), 
+				      INTERNAL_TICKS_PER_BEAT);
+      else
+	  measureTick = 
+	      getCumulativeTicksLocal(measure().number(), 
+				       INTERNAL_TICKS_PER_BEAT);
       //  measureTick = measure().cumulativeTicks(INTERNAL_TICKS_PER_BEAT);
     }
     /**********************************************************************
