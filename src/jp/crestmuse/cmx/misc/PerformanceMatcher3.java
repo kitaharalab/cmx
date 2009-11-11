@@ -684,8 +684,11 @@ public class PerformanceMatcher3 {
     int i = 0;
     int measure = 0, beat = 1, currentTick = 0;
     for (int k = 0; k < barlines.length - 2; k++) {
-      measure = getMeasureNumber(barlines[k].onset());
-      beat = 1;
+      Measure m = getMeasure(barlines[k].onset());
+      measure = m.number();
+      beat = (int)m.initialBeat();
+//      measure = getMeasureNumber(barlines[k].onset());
+//      beat = 1;
       for (currentTick = barlines[k].onset(); 
            currentTick < barlines[k+1].onset(); 
            currentTick += scoreTicksPerBeat) {
@@ -695,8 +698,11 @@ public class PerformanceMatcher3 {
       }
     }
     currentTick = barlines[barlines.length-2].onset();
-    measure = getMeasureNumber(currentTick);
-    beat = 1;
+    Measure m = getMeasure(currentTick);
+    measure = m.number();
+    beat = (int)m.initialBeat();
+//    measure = getMeasureNumber(currentTick);
+//    beat = 1;
     i = addTempoAndTime(currentTick, measure, beat, i, 
                         indexlist, tempolist);
 
@@ -779,6 +785,24 @@ public class PerformanceMatcher3 {
     return i;
   }
 
+
+  private int lastMeasureIndex = 0;
+
+  private Measure getMeasure(int tick) {
+    int tick0 = 
+      measurelist[lastMeasureIndex].cumulativeTicks(scoreTicksPerBeat);
+    if (tick0 == tick) {
+      return measurelist[lastMeasureIndex];
+    }else if (tick0 > tick) {
+      lastMeasureIndex--;
+      return getMeasure(tick);
+    } else {
+      lastMeasureIndex++;
+      return getMeasure(tick);
+    }
+  }
+/*
+
   private int lastMeasureNumber = 0;
 
   private int getMeasureNumber(int tick) {
@@ -796,6 +820,8 @@ public class PerformanceMatcher3 {
     }
   }
   
+*/
+
 
 
 

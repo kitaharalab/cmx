@@ -752,7 +752,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements PianoRollCompatib
     private int duration = -1;
     private Measure prevMeasure;
     private Note[] tiedNotes = null;
-      private double beat0 = 0;
+      private double beat0 = 1.0;
       private boolean startsWithX = false;
 
     private Measure(Node node, Measure prevMeasure, Part part) {
