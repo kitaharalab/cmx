@@ -9,6 +9,7 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.controller.CommandInvoker;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
+import jp.crestmuse.cmx.gui.deveditor.controller.PrintableDeviatedNoteMoveController;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 
 public class DeviatedPerformanceList extends JList {
@@ -108,6 +109,9 @@ public class DeviatedPerformanceList extends JList {
           commandInvoker = new CommandInvoker();
           DeviatedNoteControler dnc = new DeviatedNoteControler(commandInvoker);
           pianoRollPanel = new PianoRollPanel(deviatedPerformance, dnc);
+          PrintableDeviatedNoteMoveController pdnmc = new PrintableDeviatedNoteMoveController(pianoRollPanel, dnc);
+          pianoRollPanel.addMouseListener(pdnmc);
+          pianoRollPanel.addMouseMotionListener(pdnmc);
           curvesPanel = new CurvesPanel(deviatedPerformance, pianoRollPanel);
           velocityPanel = new VelocityPanel(deviatedPerformance,
               pianoRollPanel, dnc);
