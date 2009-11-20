@@ -7,9 +7,7 @@ import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
 import java.util.*;
 
-//public class HarmonicsExtractor<D extends SPElement>
-//  extends SPModule<D, PeakSet> {
-public class HarmonicsExtractor<D extends SPElement> extends SPModule {
+public class HarmonicsExtractor  extends SPModule {
 
   private double f0range;
   private double freqRange;
