@@ -108,7 +108,8 @@ public class DeviatedPerformanceList extends JList {
           deviatedPerformance = new DeviatedPerformance(dev);
           commandInvoker = new CommandInvoker();
           DeviatedNoteControler dnc = new DeviatedNoteControler(commandInvoker);
-          pianoRollPanel = new PianoRollPanel(deviatedPerformance, dnc);
+          pianoRollPanel = new PianoRollPanel(deviatedPerformance);
+          dnc.addDeviatedNoteSelectListener(pianoRollPanel);
           PrintableDeviatedNoteMoveController pdnmc = new PrintableDeviatedNoteMoveController(pianoRollPanel, dnc);
           pianoRollPanel.addMouseListener(pdnmc);
           pianoRollPanel.addMouseMotionListener(pdnmc);

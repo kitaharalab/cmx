@@ -451,6 +451,7 @@ public class DeviatedPerformance {
    * @author ntotani
    */
   public class DeviatedNote extends MutableNote {
+
     private MusicXMLWrapper.Note note;
     private double attack;
     private double release;

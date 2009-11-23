@@ -40,6 +40,7 @@ public class PianoRollPanel extends JPanel implements
   public static int HEIGHT_PER_NOTE = 16;
   public static int COLUMN_HEADER_HEIGHT = 16;
   private DeviatedPerformance deviatedPerformance;
+  private ArrayList<PrintableOriginalNote> originalNotes;
   private ArrayList<PrintableDeviatedNote> deviatedNotes;
   private ArrayList<PrintableNote> allNotes;
   private PrintableDeviatedNote hoverNote;
@@ -48,15 +49,15 @@ public class PianoRollPanel extends JPanel implements
   private ColumnHeaderPanel columnHeader;
   private int playingLine;
   private HashMap<DeviatedNote, PrintableDeviatedNote> dn2pdn;
-//  private DeviatedNoteControler deviatedNoteControler;
+  // private DeviatedNoteControler deviatedNoteControler;
+  private boolean hideDeviatedNote = false;
   private static short showVoice = 63;
 
-  public PianoRollPanel(DeviatedPerformance deviatedPerformance,
-      DeviatedNoteControler deviatedNoteControler) {
+  public PianoRollPanel(DeviatedPerformance deviatedPerformance) {
     this.deviatedPerformance = deviatedPerformance;
-//    this.deviatedNoteControler = deviatedNoteControler;
-    deviatedNoteControler.addDeviatedNoteSelectListener(this);
+    // this.deviatedNoteControler = deviatedNoteControler;
     playingLine = 0;
+    originalNotes = new ArrayList<PrintableOriginalNote>();
     deviatedNotes = new ArrayList<PrintableDeviatedNote>();
     allNotes = new ArrayList<PrintableNote>();
     dn2pdn = new HashMap<DeviatedNote, PrintableDeviatedNote>();
@@ -64,10 +65,14 @@ public class PianoRollPanel extends JPanel implements
       PrintableDeviatedNote pdn = new PrintableDeviatedNote(dn);
       deviatedNotes.add(pdn);
       allNotes.add(pdn);
-      if (!dn.isExtraNote()) {
-        allNotes.add(new PrintableOriginalNote(dn));
-      }
       dn2pdn.put(dn, pdn);
+      if (!dn.isExtraNote()) {
+        PrintableOriginalNote on = new PrintableOriginalNote(dn);
+        originalNotes.add(on);
+        allNotes.add(on);
+        pdn.pair = on;
+        on.pair = pdn;
+      }
     }
     // holdNote = null;
     int tickLength = (int) deviatedPerformance.getSequence().getTickLength();
@@ -111,13 +116,17 @@ public class PianoRollPanel extends JPanel implements
         g.drawLine(x, 0, x, getHeight());
       }
     }
-
     for (PrintableNote pn : allNotes)
       pn.paint(g);
     if (hoverNote != null)
       hoverNote.paintAsHover(g);
-    if (selectedNote != null)
-      selectedNote.paintAsSelected(g);
+    if (selectedNote != null) {
+      if (hideDeviatedNote) {
+        if (selectedNote.pair != null)
+          selectedNote.pair.paintAsSelected(g);
+      } else
+        selectedNote.paintAsSelected(g);
+    }
     g.setColor(Color.BLUE);
     g.fillRect(playingLine - 1, 0, 3, getHeight());
   }
@@ -172,11 +181,11 @@ public class PianoRollPanel extends JPanel implements
   public boolean existHoverNote() {
     return hoverNote != null;
   }
-  
+
   public PrintableDeviatedNote getHoverNote() {
     return hoverNote;
   }
-  
+
   public void setHoverNote(PrintableDeviatedNote pd) {
     hoverNote = pd;
   }
@@ -193,8 +202,24 @@ public class PianoRollPanel extends JPanel implements
     return dn2pdn.get(dn).roundColor;
   }
 
+  public ArrayList<PrintableOriginalNote> getOriginalNotes() {
+    return originalNotes;
+  }
+
   public ArrayList<PrintableDeviatedNote> getDeviatedNotes() {
     return deviatedNotes;
+  }
+
+  public void setHideDeviateNote(boolean value) {
+    hideDeviatedNote = value;
+  }
+
+  public boolean getHideDeviatedNote() {
+    return hideDeviatedNote;
+  }
+  
+  public PrintableDeviatedNote getPrintableDeviatedNote(DeviatedNote deviatedNote) {
+    return dn2pdn.get(deviatedNote);
   }
 
   public static void toggleExtra(boolean b) {
@@ -242,14 +267,20 @@ public class PianoRollPanel extends JPanel implements
   private abstract class PrintableNote {
     int x, y, width, height;
 
+    public boolean isMouseOver(int mouseX, int mouseY) {
+      return mouseX > x && mouseX < x + width && mouseY > y
+          && mouseY < y + height;
+    }
+
     abstract void updateScale();
 
     abstract void paint(Graphics g);
   }
 
-  private class PrintableOriginalNote extends PrintableNote {
+  public class PrintableOriginalNote extends PrintableNote {
 
     private int onset, offset, onsetInMSec, offsetInMSec;
+    private PrintableDeviatedNote pair;
 
     public PrintableOriginalNote(DeviatedNote dn) {
       onset = dn.onsetOriginal();
@@ -261,9 +292,18 @@ public class PianoRollPanel extends JPanel implements
       updateScale();
     }
 
+    public PrintableDeviatedNote getPair() {
+      return pair;
+    }
+
     void paint(Graphics g) {
       g.setColor(Color.BLACK);
       g.drawRect(x, y, width - 1, height - 1);
+    }
+
+    void paintAsSelected(Graphics g) {
+      g.setColor(Color.BLACK);
+      g.fillRect(x, y, width - 1, height - 1);
     }
 
     void updateScale() {
@@ -283,6 +323,7 @@ public class PianoRollPanel extends JPanel implements
 
   public class PrintableDeviatedNote extends PrintableNote {
 
+    private PrintableOriginalNote pair;
     private DeviatedNote deviatedNote;
     private Color fillColor;
     private Color roundColor;
@@ -296,7 +337,7 @@ public class PianoRollPanel extends JPanel implements
     }
 
     void paint(Graphics g) {
-      if ((showVoice & voice) > 0) {
+      if ((showVoice & voice) > 0 && !hideDeviatedNote) {
         g.setColor(fillColor);
         g.fillRect(x, y, width, height);
         g.setColor(roundColor);
@@ -355,11 +396,6 @@ public class PianoRollPanel extends JPanel implements
       }
     }
 
-    public boolean isMouseOver(int mouseX, int mouseY) {
-      return mouseX > x && mouseX < x + width && mouseY > y
-          && mouseY < y + height;
-    }
-
     public boolean isMouseOnRight(int mouseX, int mouseY) {
       return isMouseOver(mouseX, mouseY) && mouseX > x + width / 2;
     }
@@ -371,7 +407,7 @@ public class PianoRollPanel extends JPanel implements
     public void setX(int x) {
       this.x = x;
     }
-    
+
     public int getY() {
       return y;
     }
@@ -383,15 +419,15 @@ public class PianoRollPanel extends JPanel implements
     public void setWidth(int width) {
       this.width = width;
     }
-    
+
     public int getHeight() {
       return height;
     }
-    
+
     public DeviatedNote getDeviatedNote() {
       return deviatedNote;
     }
-    
+
     public boolean show() {
       return (voice & showVoice) > 0;
     }
@@ -399,6 +435,7 @@ public class PianoRollPanel extends JPanel implements
   }
 
   private class ColumnHeaderPanel extends JPanel {
+
     private int measureNum;
     private int widthPerMeasure;
     private int seconds;

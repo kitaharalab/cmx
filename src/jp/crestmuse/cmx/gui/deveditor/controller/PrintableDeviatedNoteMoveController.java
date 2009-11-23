@@ -57,11 +57,12 @@ public class PrintableDeviatedNoteMoveController implements MouseListener,
     if (selectedNote != null) {
       if (selectedNote.isMouseOver(e.getX(), e.getY())) {
         if (e.getX() > selectedNote.getX() + selectedNote.getWidth() / 2) {
-          holdNote = new OffsetMoveHandle(selectedNote.getX(), selectedNote.getX(),
-              selectedNote.getWidth());
-        } else {
-          holdNote = new OnsetMoveHandle(selectedNote.getX() + selectedNote.getWidth(),
+          holdNote = new OffsetMoveHandle(selectedNote.getX(),
               selectedNote.getX(), selectedNote.getWidth());
+        } else {
+          holdNote = new OnsetMoveHandle(selectedNote.getX()
+              + selectedNote.getWidth(), selectedNote.getX(),
+              selectedNote.getWidth());
         }
         try {
           Point p = MouseInfo.getPointerInfo().getLocation();
@@ -75,9 +76,7 @@ public class PrintableDeviatedNoteMoveController implements MouseListener,
         holdNote = null;
     }
     for (PrintableDeviatedNote d : pianoRollPanel.getDeviatedNotes()) {
-      if (!(e.getX() < d.getX() || e.getX() > d.getX() + d.getWidth()
-          || e.getY() < d.getY() || e.getY() > d.getY() + d.getHeight())
-          && d.show()) {
+      if (d.show() && d.isMouseOver(e.getX(), e.getY())) {
         deviatedNoteController.select(d.getDeviatedNote());
         break;
       }
