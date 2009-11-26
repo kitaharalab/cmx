@@ -8,9 +8,13 @@ import java.util.*;
 public class FeatureExtractionModule extends SPModule {
 
   private FeatureExtractor<SPDoubleArray> fe;
+  private String[] types;
 
   public FeatureExtractionModule(FeatureExtractor<SPDoubleArray> fe) {
     this.fe = fe;
+    types = new String[fe.nFeatureTypes()];
+    for (int i = 0; i < types.length; i++)
+      types[i] = fe.getFeatureType(i);
   }
 
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
@@ -20,11 +24,22 @@ public class FeatureExtractionModule extends SPModule {
     fe.extractFeatures(wav);
     for (int i = 0; i < n; i++) {
       TimeSeriesCompatible ts = dest[i];
-      ts.add(new SPDoubleArray(fe.getFeature(i)));
-      ts.setAttribute("type", fe.getFeatureType(i));
+      DoubleArray feats = fe.getFeature(i);
+      if (feats != null) {
+        ts.add(new SPDoubleArray(feats));
+        ts.setAttribute("type", fe.getFeatureType(i));
+      }
     }
-    fe.nextFrame();
+//    fe.nextFrame();
   }
+
+  public String[] getFeatureTypes() {
+    return types;
+  }
+
+//  public FeatureExtractor<SPDoubleArray> getFeatureExtractor() {
+//    return fe;
+//  }
 
   public Class<SPElement>[] getInputClasses() {
     return new Class[]{ SPDoubleArray.class };

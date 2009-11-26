@@ -53,6 +53,7 @@ public class HarmonicsExtractor  extends SPModule {
   }
 
   private PeakSet extractHarmonics(PeakSet peakset, double f0) {
+    MaxResult maxresult = new Operations.MaxResult();
     PeakSet harmonics = new PeakSet(nHarmonics);
     DoubleArray ff = peakset.freq();
     DoubleArray pp = div(peakset.power(), sum(peakset.power()));
@@ -62,15 +63,17 @@ public class HarmonicsExtractor  extends SPModule {
         or(lessThan(ff, (i+1-freqRange)*accurateF0), 
            greaterThan(ff, (i+1+freqRange)*accurateF0));
       DoubleArray p = mask(pp, mask, 0.0);
-//      DoubleArray p = mask(pp, mask, Double.NEGATIVE_INFINITY);
-      MaxResult maxresult = max(p);
-//      System.err.println("   " + maxresult.max);
-//      System.err.println("      " + maxresult.argmax);
+      max(p, maxresult);
+//      MaxResult maxresult = max(p);
       if (maxresult.argmax > 0) {
         harmonics.setFreq(i, ff.get(maxresult.argmax));
         harmonics.setPower(i, maxresult.max);
       } else {
-        harmonics.setFreq(i, 0.0);
+//        harmonics.setFreq(i, 0.0);
+        if (i == 0)
+          harmonics.setFreq(i, accurateF0);
+        else
+          harmonics.setFreq(i, 0.0);
         harmonics.setPower(i, 0.0);
       }
       System.out.print(harmonics.power(i) + " ");
@@ -81,12 +84,14 @@ public class HarmonicsExtractor  extends SPModule {
 
   private double calcAccurateF0(double f0, DoubleArray freq, 
                                 DoubleArray power) {
+    MaxResult maxresult = new Operations.MaxResult();
     double accurateF0 = 0.0;
     for (int i = 1; i < nHarmsForF0Calc; i++) {
       BooleanArray mask = 
         or(lessThan(freq, i*f0/f0range), greaterThan(freq, i*f0*f0range));
       DoubleArray p = mask(power, mask, Double.NEGATIVE_INFINITY);
-      MaxResult maxresult = max(p);
+      max(p, maxresult);
+//      MaxResult maxresult = max(p);
       if (maxresult.max > powerthrs) {
         accurateF0 = freq.get(maxresult.argmax) / i;
         break;
