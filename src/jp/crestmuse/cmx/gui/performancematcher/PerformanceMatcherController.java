@@ -23,8 +23,8 @@ public class PerformanceMatcherController {
   }
 
   public void selectScore(PrintableOriginalNote selectedNote) {
-    if(selectedDeviatedNote.getDeviatedNote() == selectedNote.getPair().getDeviatedNote())
-      return;
+    System.out.println(selectedDeviatedNote.getDeviatedNote() == selectedNote.getPair().getDeviatedNote());
+//      return;
   }
 
 }
