@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 import org.xml.sax.SAXException;
 
 import jp.crestmuse.cmx.filewrappers.CSVWrapper;
+import static jp.crestmuse.cmx.gui.deveditor.model.Const.*;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformanceList.ListElement;
 import jp.crestmuse.cmx.sound.MusicPlaySynchronized;
@@ -70,7 +71,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
   private DeviatedPerformancePlayer deviatedPerformancePlayer;
   private MusicPlaySynchronizer synchronizer;
   private JMenuItem openMenuItem;
-  private JCheckBoxMenuItem showAsRealTime;
+//  private JCheckBoxMenuItem showAsRealTime;
   private DeviatedPerformanceList performances;
   private JScrollPane pianoRollScrollPane;
   private JScrollPane curvesScrollPane;
@@ -183,8 +184,12 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     file.add(quit);
 
     JMenu show = new JMenu("show");
-    showAsRealTime = new JCheckBoxMenuItem("show as real time");
-    show.add(showAsRealTime);
+    JCheckBoxMenuItem showAsRealTime = new JCheckBoxMenuItem("show as real time");
+    showAsRealTime.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        SHOW_AS_TICK_TIME = !((JCheckBoxMenuItem)e.getSource()).isSelected();
+      }
+    });
 
     JCheckBoxMenuItem extra = new JCheckBoxMenuItem("extra");
     extra.setSelected(true);
@@ -240,6 +245,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
       }
     });
 
+    show.add(showAsRealTime);
     show.add(voice1);
     show.add(voice2);
     show.add(voice3);
@@ -386,7 +392,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
     pianoRollScrollPane.getViewport().setViewPosition(p);
 
     // 再生位置スライダーを設定
-    if (showAsRealTime.isSelected())
+    if (!SHOW_AS_TICK_TIME)
       currentPositionSlider.setMaximum((int) deviatedPerformancePlayer.getCurrentSequence().getMicrosecondLength());
     else
       currentPositionSlider.setMaximum((int) deviatedPerformancePlayer.getCurrentSequence().getTickLength());
@@ -454,7 +460,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
         // currentPerformance.updateScale();
         // MainFrame.this.repaint();
         // }
-        if (!showAsRealTime.isSelected()) {
+        if (SHOW_AS_TICK_TIME) {
           currentPositionSlider.setMaximum((int) deviatedPerformancePlayer.getCurrentSequence().getTickLength());
           currentPositionSlider.setValue((int) deviatedPerformancePlayer.getTickPosition());
         } else {
@@ -501,7 +507,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
             || p.x >= width - pianoRollScrollPane.getViewport().getWidth()) {
           prp.repaint();
         }
-        if (showAsRealTime.isSelected())
+        if (!SHOW_AS_TICK_TIME)
           currentPositionSlider.setValue((int) (currentTime * 1000000));
         else
           currentPositionSlider.setValue((int) currentTick);
@@ -514,9 +520,9 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    * 
    * @return タイムラインの表示形式
    */
-  public boolean getShowAsTickTime() {
-    return !showAsRealTime.isSelected();
-  }
+//  public boolean getShowAsTickTime() {
+//    return !showAsRealTime.isSelected();
+//  }
 
   /**
    * ファイルを開く．MusicXMLかDeviationInstanceXML以外が指定されると無視される．
@@ -581,7 +587,7 @@ public class MainFrame extends JFrame implements MusicPlaySynchronized {
    *          再生位置
    */
   public void setPlayPosition(long position) {
-    if (!showAsRealTime.isSelected())
+    if (SHOW_AS_TICK_TIME)
       deviatedPerformancePlayer.setTickPosition(position);
     else
       deviatedPerformancePlayer.setMicrosecondPosition(position);

@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import static jp.crestmuse.cmx.gui.deveditor.model.Const.*;
 import jp.crestmuse.cmx.gui.deveditor.view.MainFrame;
 import jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel;
 import jp.crestmuse.cmx.gui.deveditor.view.PianoRollPanel.PrintableDeviatedNote;
@@ -29,7 +30,7 @@ public class PrintableDeviatedNoteMoveController implements MouseListener,
   public void mouseClicked(MouseEvent e) {
     if (e.getClickCount() == 2 && !pianoRollPanel.existHoverNote()
         && holdNote == null) {
-      if (MainFrame.getInstance().getShowAsTickTime())
+      if (SHOW_AS_TICK_TIME)
         MainFrame.getInstance().setPlayPosition(
             pianoRollPanel.getDeviatedPerformance().getSequence().getTickLength()
                 * e.getX() / pianoRollPanel.getPreferredSize().width);
@@ -150,7 +151,7 @@ public class PrintableDeviatedNoteMoveController implements MouseListener,
 
     void release() {
       PrintableDeviatedNote pd = pianoRollPanel.getSelectedNote();
-      if (MainFrame.getInstance().getShowAsTickTime()) {
+      if (SHOW_AS_TICK_TIME) {
         ChangeDeviation cd = new ChangeDeviation(pd.getDeviatedNote(),
             (pd.getX() - prevX) / (double) PianoRollPanel.WIDTH_PER_BEAT, 0);
         deviatedNoteController.update(cd);
@@ -180,7 +181,7 @@ public class PrintableDeviatedNoteMoveController implements MouseListener,
 
     void release() {
       PrintableDeviatedNote pd = pianoRollPanel.getSelectedNote();
-      if (MainFrame.getInstance().getShowAsTickTime()) {
+      if (SHOW_AS_TICK_TIME) {
         ChangeDeviation cd = new ChangeDeviation(pd.getDeviatedNote(), 0,
             (pd.getWidth() - prevWidth)
                 / (double) PianoRollPanel.WIDTH_PER_BEAT);

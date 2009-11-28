@@ -1,30 +1,17 @@
 package jp.crestmuse.cmx.gui.deveditor.view;
 
-import java.awt.AWTException;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Robot;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
-import jp.crestmuse.cmx.gui.deveditor.controller.ChangeAttackInMSec;
-import jp.crestmuse.cmx.gui.deveditor.controller.ChangeDeviation;
-import jp.crestmuse.cmx.gui.deveditor.controller.ChangeReleaseInMSec;
-import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteControler;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteSelectListener;
 import jp.crestmuse.cmx.gui.deveditor.controller.DeviatedNoteUpdateListener;
+import static jp.crestmuse.cmx.gui.deveditor.model.Const.*;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 
@@ -102,7 +89,7 @@ public class PianoRollPanel extends JPanel implements
   public void paint(Graphics g) {
     super.paint(g);
     g.setColor(Color.BLACK);
-    if (!MainFrame.getInstance().getShowAsTickTime()) {
+    if (!SHOW_AS_TICK_TIME) {
       int span = 2
           * this.getPreferredSize().width
           / (int) (deviatedPerformance.getSequence().getMicrosecondLength() / 1000000);
@@ -149,7 +136,7 @@ public class PianoRollPanel extends JPanel implements
    * @return
    */
   public int getPlayPointX(double currentTime, long currentTick) {
-    if (MainFrame.getInstance().getShowAsTickTime())
+    if (SHOW_AS_TICK_TIME)
       playingLine = (int) (getPreferredSize().width * currentTick / deviatedPerformance.getSequence().getTickLength());
     else
       playingLine = (int) (getPreferredSize().width * currentTime * 1000000 / deviatedPerformance.getSequence().getMicrosecondLength());
@@ -307,7 +294,7 @@ public class PianoRollPanel extends JPanel implements
     }
 
     void updateScale() {
-      if (MainFrame.getInstance().getShowAsTickTime()) {
+      if (SHOW_AS_TICK_TIME) {
         int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
         x = onset * WIDTH_PER_BEAT / ticksPerBeat;
         width = (offset - onset) * WIDTH_PER_BEAT / ticksPerBeat;
@@ -357,7 +344,7 @@ public class PianoRollPanel extends JPanel implements
     }
 
     void updateScale() {
-      if (MainFrame.getInstance().getShowAsTickTime()) {
+      if (SHOW_AS_TICK_TIME) {
         int ticksPerBeat = DeviatedPerformance.TICKS_PER_BEAT;
         x = deviatedNote.onset() * WIDTH_PER_BEAT / ticksPerBeat;
         width = (deviatedNote.offset() - deviatedNote.onset()) * WIDTH_PER_BEAT
@@ -453,7 +440,7 @@ public class PianoRollPanel extends JPanel implements
     public void paint(Graphics g) {
       super.paint(g);
       g.setColor(Color.BLACK);
-      if (MainFrame.getInstance().getShowAsTickTime()) {
+      if (SHOW_AS_TICK_TIME) {
         for (int i = 0; i < measureNum; i++)
           g.drawString((i + 1) + "", i * widthPerMeasure, COLUMN_HEADER_HEIGHT);
       } else {

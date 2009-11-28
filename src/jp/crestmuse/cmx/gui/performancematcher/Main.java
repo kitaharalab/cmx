@@ -11,7 +11,6 @@ import jp.crestmuse.cmx.gui.deveditor.view.MainFrame;
 public class Main {
 
   public static void main(final String[] args) {
-    MainFrame.getInstance();
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         try {
