@@ -28,7 +28,8 @@ public class PerformancePanelMouseListener implements MouseListener {
 
   public void mousePressed(MouseEvent e) {
     for (PrintableDeviatedNote d : performancePanel.getDeviatedNotes()) {
-      if (d.show() && d.isMouseOver(e.getX(), e.getY())) {
+      if (d.show() && !d.getDeviatedNote().getIsMissNote()
+          && d.isMouseOver(e.getX(), e.getY())) {
         controller.selectPerformance(d);
         break;
       }

@@ -109,8 +109,9 @@ public class PianoRollPanel extends JPanel implements
       hoverNote.paintAsHover(g);
     if (selectedNote != null) {
       if (hideDeviatedNote) {
-        if (selectedNote.pair != null)
+        if (selectedNote.pair != null){
           selectedNote.pair.paintAsSelected(g);
+        }
       } else
         selectedNote.paintAsSelected(g);
     }

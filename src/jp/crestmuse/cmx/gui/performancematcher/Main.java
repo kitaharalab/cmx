@@ -6,7 +6,6 @@ import javax.swing.SwingUtilities;
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
-import jp.crestmuse.cmx.gui.deveditor.view.MainFrame;
 
 public class Main {
 
