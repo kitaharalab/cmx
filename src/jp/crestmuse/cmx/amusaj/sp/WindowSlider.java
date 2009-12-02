@@ -54,32 +54,35 @@ public class WindowSlider extends SPModule {
 */
 
   public void setInputData(AudioDataCompatible audiodata) {
-    winsize = getParamInt("WINDOW_SIZE");
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    winsize = params.getParamInt("fft", "WINDOW_SIZE");
     int channels = audiodata.channels();
-    setParam("CHANNELS", channels);
+    params.setParam("fft", "CHANNELS", channels);
     fs = audiodata.sampleRate();
-    setParam("SAMPLE_RATE", fs);
-    shift = getParamDouble("SHIFT");
+    params.setParam("fft", "SAMPLE_RATE", fs);
+    shift = params.getParamDouble("fft", "SHIFT");
     if (shift < 1)
       shift = shift * fs;
     shift_ = (int)shift;
     DoubleArray[] w = audiodata.getDoubleArrayWaveform();
-    if (!containsParam("TARGET_CHANNEL")) {
-      if (channels == 2) setParam("TARGET_CHANNEL", "stereo");
-      else setParam("TARGET_CHANNEL", "0");
+    if (!params.containsParam("fft", "TARGET_CHANNEL")) {
+      if (channels == 2) params.setParam("fft", 
+                                         "TARGET_CHANNEL", "stereo");
+      else params.setParam("fft", "TARGET_CHANNEL", "0");
     }
-    if (channels == 2 && getParam("TARGET_CHANNEL").equalsIgnoreCase("mix")) {
+    if (channels == 2 && 
+        params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("mix")) {
       wavM = add(w[0], w[1]);
       divX(wavM, 2);
       setWaveform(wavM, null, null, false);
     } else if (channels == 2 
-               && getParam("TARGET_CHANNEL").equalsIgnoreCase("stereo")) {
+               && params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo")) {
       wavM = add(w[0], w[1]);
       divX(wavM, 2);
       setWaveform(wavM, w[0], w[1], true);
     } else {
       try {
-        setWaveform(w[getParamInt("TARGET_CHANNEL")], null, null, false);
+        setWaveform(w[params.getParamInt("fft", "TARGET_CHANNEL")], null, null, false);
       } catch (NumberFormatException e) {
         throw new IllegalStateException("TARGET_CHANNEL should be an integer, 'mix', or 'stereo'.");
       }

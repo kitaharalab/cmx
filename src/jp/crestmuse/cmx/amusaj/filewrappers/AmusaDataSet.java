@@ -8,36 +8,51 @@ import java.util.zip.*;
 
 public class AmusaDataSet<D extends TimeSeriesCompatible>
   implements AmusaDataSetCompatible<D> {
-  private Map<String,String> header;
+//  private Map<String,String> header;
+  private AmusaParameterSet params;
   private List<D> data;
 //  private AmusaXMLWrapper wrapper;
   String fmt;
 
   AmusaDataSet() {
-    header = new HashMap<String,String>();
-    data = new ArrayList<D>();
-  }
-  
-  public AmusaDataSet(String fmt) {
-//    this.wrapper = wrapper;
-    this.fmt = fmt;
-    header = new HashMap<String,String>();
+//    header = new HashMap<String,String>();
+    params = AmusaParameterSet.getInstance();
     data = new ArrayList<D>();
   }
 
+  public AmusaDataSet(String fmt) {
+//    this.wrapper = wrapper;
+    this.fmt = fmt;
+    params = AmusaParameterSet.getInstance();
+//    header = new HashMap<String,String>();
+    data = new ArrayList<D>();
+  }
+
+/*
+  public AmusaDataSet(String fmt, AmusaParameterSet params) {
+    this.fmt = fmt;
+    this.params = params;
+//    this.header = header;
+    data = new ArrayList<D>();
+  }
+*/
+
+/*
   public AmusaDataSet(String fmt, Map<String,String> header) {
     this.fmt = fmt;
     this.header = header;
     data = new ArrayList<D>();
   }
+*/
 
 /*********************************************************************
  *Returns the item corresponding to the specified key in the header. 
  *<br>
  *ヘッダ内の指定されたキーに対応する項目を返します. 
  *********************************************************************/
-  public String getHeader(String key) {
-    return header.get(key);
+  public String getHeader(String category, String key) {
+    return params.getParam(category, key);
+//    return header.get(category + ":" + key);
   }
 
 /*********************************************************************
@@ -45,8 +60,8 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
  *in the header. <br>
  *ヘッダ内の指定されたキーに対応する項目をinteger型で返します. 
  *********************************************************************/
-  public int getHeaderInt(String key) {
-    return Integer.parseInt(getHeader(key));
+  public int getHeaderInt(String category, String key) {
+    return Integer.parseInt(getHeader(category, key));
   }
 
 /*********************************************************************
@@ -54,42 +69,52 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
  *in the header. <br>
  *ヘッダ内の指定されたキーに対応する項目をdouble型で返します. 
  *********************************************************************/
-  public double getHeaderDouble(String key) {
-    return Double.parseDouble(getHeader(key));
+  public double getHeaderDouble(String category, String key) {
+    return Double.parseDouble(getHeader(category, key));
   }
 
 /*********************************************************************
  *Tests if the specified key is contained in the header. <br>
  *指定されたキーがヘッダに含まれているか調べます. 
  *********************************************************************/
-  public boolean containsHeaderKey(String key) {
-    return header.containsKey(key);
+  public boolean containsHeaderKey(String category, String key) {
+    return params.containsParam(category, key);
+//    return header.containsKey(key);
+  }
+
+  void setHeader(String key, String value) {
+    params.setParam(key, value);
+  }
+
+  
+/********************************************************************
+ *Maps the specfied key to the specifed value in the header. <br>
+ *ヘッダにおいて, 指定されたキーに指定された値をマッピングします. 
+ ********************************************************************/
+  public void setHeader(String category, String key, String value) {
+    params.setParam(category, key, value);
+//    header.put(category + ":" + key, value);
   }
 
 /********************************************************************
  *Maps the specfied key to the specifed value in the header. <br>
  *ヘッダにおいて, 指定されたキーに指定された値をマッピングします. 
  ********************************************************************/
-  public void setHeader(String key, String value) {
-    header.put(key, value);
+  public void setHeader(String category, String key, int value) {
+    setHeader(category, key, String.valueOf(value));
+//    header.put(key, String.valueOf(value));
   }
 
 /********************************************************************
  *Maps the specfied key to the specifed value in the header. <br>
  *ヘッダにおいて, 指定されたキーに指定された値をマッピングします. 
  ********************************************************************/
-  public void setHeader(String key, int value) {
-    header.put(key, String.valueOf(value));
+  public void setHeader(String category, String key, double value) {
+    setHeader(category, key, String.valueOf(value));
+//    header.put(key, String.valueOf(value));
   }
 
-/********************************************************************
- *Maps the specfied key to the specifed value in the header. <br>
- *ヘッダにおいて, 指定されたキーに指定された値をマッピングします. 
- ********************************************************************/
-  public void setHeader(String key, double value) {
-    header.put(key, String.valueOf(value));
-  }
-
+/*
   public void setHeaders(Map<String,Object> map) {
     Set<Map.Entry<String,Object>> entrySet = map.entrySet();
     for (Map.Entry<String,Object> e : entrySet)
@@ -100,6 +125,7 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
     for (String key : keys) 
       header.put(key, map.get(key).toString());
   }       
+*/
 
 /********************************************************************
  *Adds data. <br>
@@ -119,11 +145,12 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
         (AmusaXMLWrapper)CMXFileWrapper.createDocument("amusaxml");
       wrapper.setAttribute("format", fmt);
       wrapper.addChild("header");
-      Set<Map.Entry<String,String>> header = this.header.entrySet();
-      for (Map.Entry<String,String> e : header) {
+      Set<String> headerKeys = params.keySet();
+//      Set<Map.Entry<String,String>> header = this.header.entrySet();
+      for (String key : headerKeys) {
         wrapper.addChild("meta");
-        wrapper.setAttribute("name", e.getKey());
-        wrapper.setAttribute("content", e.getValue());
+        wrapper.setAttribute("name", key);
+        wrapper.setAttribute("content", params.getParam(key));
         wrapper.returnToParent();
       }
       wrapper.returnToParent();
@@ -207,10 +234,11 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
     try {
       p.println("<amusaxml format=\"" + fmt + "\">");
       p.println("  <header>");
-      Set<Map.Entry<String,String>> entrySet = header.entrySet();
-      for (Map.Entry<String,String> e : entrySet)
-        p.println("    <meta name=\"" + e.getKey() 
-                   + "\" content=\"" + e.getValue() + "\" />");
+//      Set<Map.Entry<String,String>> entrySet = header.entrySet();
+      Set<String> headerKeys = params.keySet();
+      for (String key : headerKeys)
+        p.println("    <meta name=\"" + key
+                  + "\" content=\"" + params.getParam(key) + "\" />");
       p.println("  </header>");
       for (D d : data) {
         QueueReader<? extends SPElement> queue = d.getQueueReader();

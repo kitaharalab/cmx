@@ -38,7 +38,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
 //      prepareOutputData(SPDXMLWrapper.TOP_TAG);
       TimeSeriesCompatible<PeakSet> peaks = 
         (TimeSeriesCompatible)exec.getResult(peakext).get(0);
-      AmusaDataSet dataset = new AmusaDataSet("peaks", exec.getParams());
+      AmusaDataSet dataset = new AmusaDataSet("peaks");
       dataset.add(peaks);
       return dataset;
 //      return dataset.toWrapper();

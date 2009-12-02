@@ -33,6 +33,10 @@ public class FeatureExtractionModule extends SPModule {
 //    fe.nextFrame();
   }
 
+  protected String getParamCategory() {
+    return "feature";
+  }
+
   public String[] getFeatureTypes() {
     return types;
   }

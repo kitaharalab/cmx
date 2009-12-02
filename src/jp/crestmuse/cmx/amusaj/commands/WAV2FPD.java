@@ -29,19 +29,20 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
 
 
   protected boolean setOptionsLocal(String option, String value) {
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
     if (super.setOptionsLocal(option, value)) {
       return true;
     } else if (option.equals("-from") || option.equals("-f")) {
-      params.put("NOTENUMBER_FROM", String.valueOf(value));
+      params.setParam("f0pdf", "NOTENUMBER_FROM", value);
       return true;
     } else if (option.equals("-thru") || option.equals("-t")) {
-      params.put("NOTENUMBER_THRU", String.valueOf(value));
+      params.setParam("f0pdf", "NOTENUMBER_THRU", value);
       return true;
     } else if (option.equals("-step")) {
-      params.put("STEP", String.valueOf(value));
+      params.setParam("f0pdf", "STEP", value);
       return true;
     } else if (option.equals("-filter")) {
-      params.put("FILTER_NAME", value);
+      params.setParam("f0pdf", "FILTER_NAME", value);
       return true;
     } else {
       return false;
@@ -70,7 +71,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     exec.start();
     TimeSeriesCompatible ts = 
 	(TimeSeriesCompatible)exec.getResult(f0calc).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
+    AmusaDataSet dataset = new AmusaDataSet("array");
     dataset.add(ts);
     return dataset;
   }

@@ -18,13 +18,14 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     }
     
   protected boolean setOptionsLocal(String option, String value) {
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
     if (super.setOptionsLocal(option, value)) {
       return true;
     } else if (option.startsWith("-l")) {
-      params.put("CHROMA_LOW_LIMIT_FREQ", value);
+      params.setParam("chroma", "CHROMA_LOW_LIMIT_FREQ", value);
       return true;
     } else if (option.startsWith("-h")) {
-      params.put("CHROMA_HIGH_LIMIT_FREQ", value);
+      params.setParam("chroma", "CHROMA_HIGH_LIMIT_FREQ", value);
       return true;
     } else {
       return false;
@@ -57,7 +58,7 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     exec.start();
     TimeSeriesCompatible ts = 
       (TimeSeriesCompatible)exec.getResult(chroma).get(0);
-    AmusaDataSet dataset = new AmusaDataSet("array", exec.getParams());
+    AmusaDataSet dataset = new AmusaDataSet("array");
     dataset.add(ts);
     return dataset;
 //    return dataset.toWrapper();

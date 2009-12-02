@@ -26,19 +26,28 @@ public class SPExecutor {
   // private SPThread lastThread = null;
   private List<SPExecutorModule> modules;
   private Map<ProducerConsumerCompatible, SPExecutorModule> map;
-  private Map<String, String> params;
+//  private Map<String, String> params;
   // private int nFrames;
-  private int timeunit;
+//  private int timeunit;
   private long sleepTime = 0;
 
+
+  public SPExecutor() {
+    modules = new LinkedList<SPExecutorModule>();
+    map = new HashMap<ProducerConsumerCompatible, SPExecutorModule>();
+  }
+
+/*
   public SPExecutor() {
     this(null);
   }
+*/
 
-  public SPExecutor(Map<String, String> params) {
-    this(params, 1);
-  }
+//  public SPExecutor(Map<String, String> params) {
+//    this(params, 1);
+//  }
 
+/*
   @Deprecated
   public SPExecutor(Map<String, String> params, int timeunit) {
     // list = new LinkedList<SPThread>();
@@ -49,6 +58,7 @@ public class SPExecutor {
     // this.nFrames = nFrames;
     this.timeunit = timeunit;
   }
+*/
 
   /*********************************************************************
    *データ処理モジュールオブジェクトを登録します.
@@ -56,7 +66,7 @@ public class SPExecutor {
   public void addSPModule(ProducerConsumerCompatible module) {
     // if (lastThread == null)
     // list.add(lastThread = new SPThread());
-    module.setParams(params);
+//    module.setParams(params);
     SPExecutorModule spm = new SPExecutorModule(module);
     /*
     spm.module = module;
@@ -173,9 +183,9 @@ public class SPExecutor {
     return Arrays.asList(map.get(module).dest);
   }
 
-  public Map<String, String> getParams() {
-    return params;
-  }
+//  public Map<String, String> getParams() {
+//    return params;
+//  }
 
   // public List<AmusaDataCompatible> getResult(int index) {
   // return list.get(index).dest;

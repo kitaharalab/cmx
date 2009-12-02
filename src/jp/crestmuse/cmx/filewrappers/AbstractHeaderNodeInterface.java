@@ -25,7 +25,7 @@ public abstract class AbstractHeaderNodeInterface extends NodeInterface {
       return map.get(name);
     } else {
       for (int i = 0; i < size; i++) {
-        if (getAttribute(nodelist.item(i), "name").equals(name)) {
+        if (name.equals(getAttribute(nodelist.item(i), "name"))) {
           String content = getAttribute(nodelist.item(i), "content");
           map.put(name, content);
           return content;
@@ -56,7 +56,7 @@ public abstract class AbstractHeaderNodeInterface extends NodeInterface {
       return true;
     } else {
       for (int i = 0; i < size; i++) {
-        if (getAttribute(nodelist.item(i), "name").equals(name)) {
+        if (name.equals(getAttribute(nodelist.item(i), "name"))) {
           String content = getAttribute(nodelist.item(i), "content");
           map.put(name, content);
           return true;

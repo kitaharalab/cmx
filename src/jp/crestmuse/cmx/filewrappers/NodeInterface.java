@@ -265,11 +265,10 @@ public abstract class NodeInterface {
   }
 
   protected static final String getAttribute(Node node, String attrkey) {
-    if (node != null) {
-      NamedNodeMap map = node.getAttributes();
-      return map.getNamedItem(attrkey).getNodeValue();
-    } else {
-      return null;
+    try {
+      return node.getAttributes().getNamedItem(attrkey).getNodeValue();
+    } catch (NullPointerException e) {
+      return null;                 
     }
   }
 

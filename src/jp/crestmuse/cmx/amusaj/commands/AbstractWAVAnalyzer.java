@@ -11,7 +11,7 @@ import org.xml.sax.*;
 
 public abstract class AbstractWAVAnalyzer 
   extends CMXCommand<WAVWrapper,AmusaDataSetCompatible> {
-  protected Map<String,String> params = new HashMap<String,String>();
+//  protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
 
   static {
@@ -22,21 +22,31 @@ public abstract class AbstractWAVAnalyzer
   }
 
   protected boolean setOptionsLocal(String option, String value) {
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
     if (option.equals("-winsize")) {
-      params.put("WINDOW_SIZE", String.valueOf(value));
+      params.setParam("fft", "WINDOW_SIZE", value);
+//      params.put("WINDOW_SIZE", String.valueOf(value));
       return true;
     } else if (option.equals("-wintype")) {
-      params.put("WINDOW_TYPE", String.valueOf(value));
+      params.setParam("fft", "WINDOW_TYPE", value);
+//      params.put("WINDOW_TYPE", String.valueOf(value));
       return true;
     } else if (option.equals("-shift")) {
-      params.put("SHIFT", String.valueOf(value));
+      params.setParam("fft", "SHIFT", value);
+//      params.put("SHIFT", String.valueOf(value));
       return true;
     } else if (option.equals("-ch")) {
-      params.put("TARGET_CHANNEL", value);
+      params.setParam("fft", "TARGET_CHANNEL", value);
+//      params.put("TARGET_CHANNEL", value);
       return true;
     } else {
       return false;
     }
+  }
+
+  protected int winsize() {
+    return AmusaParameterSet.getInstance().getParamInt("fft", "WINDOW_SIZE");
+//    return Integer.valueOf(params.get("WINDOW_SIZE"));
   }
 
   protected FileWrapperCompatible 
@@ -45,15 +55,20 @@ public abstract class AbstractWAVAnalyzer
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
+  protected void preproc() {
+    AmusaParameterSet.getInstance().setAnotherParameterSet(CMXCommand.getConfigXMLWrapper());
+  }
+
   protected AmusaDataSetCompatible run(WAVWrapper wav) 
     throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
     WindowSlider winslider = new WindowSlider();
-    winslider.setParams(params);
+//    winslider.setParams(params);
     winslider.setInputData(wav);
 //    int nFrames = winslider.getAvailableFrames();
-    int timeunit = winslider.getTimeUnit();
-    SPExecutor ex = new SPExecutor(params, timeunit);
+//    int timeunit = winslider.getTimeUnit();
+//    SPExecutor ex = new SPExecutor(params, timeunit);
+    SPExecutor ex = new SPExecutor();
     return analyzeWaveform(wav, winslider, ex);
   }
 

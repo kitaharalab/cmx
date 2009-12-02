@@ -16,6 +16,7 @@ import org.w3c.dom.*;
 public class AmusaXMLWrapper extends CMXFileWrapper 
   implements AmusaDataSetCompatible<TimeSeriesCompatible> {
   
+//  private Map<String,Header> headers = new HashMap<String,Header>();
   private Header header = null;
   private List<TimeSeriesCompatible> datalist = null;
 
@@ -73,6 +74,11 @@ public class AmusaXMLWrapper extends CMXFileWrapper
     NamedNodeMap map = getDocument().getDocumentElement().getAttributes();
     format = map.getNamedItem("format").getNodeValue();
     header = new Header(selectSingleNode("/" + TOP_TAG + "/" + HEADER_TAG));
+//    NodeList nl = selectNodeList("/" + TOP_TAG + "/" + HEADER_TAG + "/" 
+//                                 + "category");
+//    for (int i = 0; i < nl.getLength(); i++)
+//      headers.put(((Element)nl.item(i)).getAttribute("name"), 
+//                  new Header(nl.item(i)));
   }
 
   public String getFormat() {
@@ -85,35 +91,44 @@ public class AmusaXMLWrapper extends CMXFileWrapper
 //    return header;
 //  }
 
+/*
   public String[] getHeaderNameList() {
     return header.getHeaderNameList();
   }
+*/
 
-  public String getHeader(String key) {
-    return header.getHeaderElement(key);
+  public String getHeader(String category, String key) {
+    return header.getHeaderElement(category + ":" + key);
+//    return headers.get(category).getHeaderElement(key);
   }
 
-  public int getHeaderInt(String key) {
-    return header.getHeaderElementInt(key);
+  public int getHeaderInt(String category, String key) {
+    return Integer.parseInt(getHeader(category, key));
+//    return header.getHeaderElementInt(key);
   }
 
-  public double getHeaderDouble(String key) {
-    return header.getHeaderElementDouble(key);
+  public double getHeaderDouble(String category, String key) {
+    return Double.parseDouble(getHeader(category, key));
+//    return header.getHeaderElementDouble(key);
   }
 
-  public boolean containsHeaderKey(String key) {
-    return header.containsHeaderKey(key);
+  public boolean containsHeaderKey(String category, String key) {
+    return header.containsHeaderKey(category + ":" + key);
+//    if (headers.containsKey(category))
+//      return headers.get(category).containsHeaderKey(key);
+//    else
+//      return false;
   }
 
-  public void setHeader(String key, String value) {
+  public void setHeader(String category, String key, String value) {
     throw new UnsupportedOperationException();
   }
 
-  public void setHeader(String key, int value) {
+  public void setHeader(String category, String key, int value) {
     throw new UnsupportedOperationException();
   }
 
-  public void setHeader(String key, double value) {
+  public void setHeader(String category, String key, double value) {
     throw new UnsupportedOperationException();
   }
 
@@ -149,7 +164,8 @@ private class Header extends AbstractHeaderNodeInterface {
   }
 
   protected String getSupportedNodeName() {
-    return "header";
+    return "category";
+//    return "header";
   }
 }
 

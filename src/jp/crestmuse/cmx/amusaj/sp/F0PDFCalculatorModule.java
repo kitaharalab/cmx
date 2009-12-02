@@ -26,6 +26,7 @@ public class F0PDFCalculatorModule extends SPModule {
     return new String[]{"NOTENUMBER_FROM", "NOTENUMBER_THRU", "STEP"};
   }
 
+/*
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     copyParamsFromConfigXML("param", "f0pdf", 
@@ -39,19 +40,23 @@ public class F0PDFCalculatorModule extends SPModule {
                              "HIGH_CUT_TOP", "HIGH_CUT_BUTTOM");
     paramSet = false;
   }
+*/
 
   private void setParams() {
-    nnFrom = getParamDouble("NOTENUMBER_FROM");
-    nnThru = getParamDouble("NOTENUMBER_THRU");
-    step = getParamDouble("STEP");
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    nnFrom = params.getParamDouble("f0pdf", "NOTENUMBER_FROM");
+    nnThru = params.getParamDouble("f0pdf", "NOTENUMBER_THRU");
+    step = params.getParamDouble("f0pdf", "STEP");
     f0calc = factory.createCalculator(nnFrom, nnThru, step);
+    String filterName = params.getParam("f0pdf", "FILTER_NAME");
     if (filterName != null) 
-      filter = PeakSet.getFilter(getParam("LOW_CUT_FILTER").equals("on"), 
-                                 getParamDouble("LOW_CUT_BUTTOM"), 
-                                 getParamDouble("LOW_CUT_TOP"), 
-                                 getParam("HIGH_CUT_FILTER").equals("on"), 
-                                 getParamDouble("HIGH_CUT_TOP"), 
-                                 getParamDouble("HIGH_CUT_BUTTOM"));
+      filter = PeakSet.getFilter
+        (params.getFilterParam(filterName, "LOW_CUT_FILTER").equals("on"), 
+         params.getFilterParamDouble(filterName, "LOW_CUT_BUTTOM"), 
+         params.getFilterParamDouble(filterName, "LOW_CUT_TOP"), 
+         params.getFilterParam(filterName, "HIGH_CUT_FILTER").equals("on"), 
+         params.getFilterParamDouble(filterName, "HIGH_CUT_TOP"), 
+         params.getFilterParamDouble(filterName, "HIGH_CUT_BUTTOM"));
     paramSet = true;
   }
 

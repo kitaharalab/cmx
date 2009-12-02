@@ -31,10 +31,11 @@ public class ChromaExtractor extends SPModule {
   }
 
   private void setParams() {
-    if (containsParam("CHROMA_LOW_LIMIT_FREQ"))
-      fL = getParamDouble("CHROMA_LOW_LIMIT_FREQ");
-    if (containsParam("CHROMA_HIGH_LIMIT_FREQ"))
-      fH = getParamDouble("CHROMA_HIGH_LIMIT_FREQ");
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    if (params.containsParam("chroma", "CHROMA_LOW_LIMIT_FREQ"))
+      fL = params.getParamDouble("chroma", "CHROMA_LOW_LIMIT_FREQ");
+    if (params.containsParam("chroma", "CHROMA_HIGH_LIMIT_FREQ"))
+      fH = params.getParamDouble("chroma", "CHROMA_HIGH_LIMIT_FREQ");
     paramSet = true;
   }
     

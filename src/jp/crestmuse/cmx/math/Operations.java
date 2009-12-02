@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.math;
 import org.apache.commons.math.stat.descriptive.rank.*;
 import static java.lang.Math.*;
+import java.util.*;
 
 public class Operations {
 
@@ -65,6 +66,38 @@ public class Operations {
       x.set(i + from, x.get(i + from) + y.get(i));
   }
 
+  public static void addX(DoubleArray x, int i, double y) {
+    x.set(i, x.get(i) + y);
+  }
+
+  public static DoubleArray sub(DoubleArray x, DoubleArray y) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length);
+    for (int i = 0; i < length; i++)
+      z.set(i, x.get(i) - y.get(i));
+    return z;
+  }
+
+  public static void subX(DoubleArray x, double y) {
+    int length = x.length();
+    for (int i = 0; i < length; i++)
+      x.set(i, x.get(i) - y);
+  }
+
+  public static DoubleArray mul(DoubleArray x, DoubleArray y) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length);
+    for (int i = 0; i < length; i++)
+      z.set(i, x.get(i) * y.get(i));
+    return z;
+  }
+
+  public static void mulX(DoubleArray x, double y) {
+    int length = x.length();
+    for (int i = 0; i < length; i++)
+      x.set(i, x.get(i) * y);
+  }
+
   public static DoubleArray div(DoubleArray x, double y) {
     int length = x.length();
     DoubleArray z = factory.createArray(length);
@@ -79,12 +112,41 @@ public class Operations {
       x.set(i, x.get(i) / y);
   }
 
-  public static double sum(DoubleArray x) {
+  public static double sum(DoubleArray x, int from, int thru) {
     double sum = 0.0;
-    int length = x.length();
-    for (int i = 0; i < length; i++)
+    for (int i = from; i < thru; i++)
       sum += x.get(i);
     return sum;
+  }
+
+  public static double sum(DoubleArray x) {
+    return sum(x, 0, x.length());
+//    double sum = 0.0;
+//    int length = x.length();
+//    for (int i = 0; i < length; i++)
+//      sum += x.get(i);
+//    return sum;
+  }
+
+  public static double sumodd(DoubleArray x) {
+    double sum = 0.0;
+    int length = x.length();
+    for (int i = 1; i < length; i += 2)
+      sum += x.get(i);
+    return sum;
+  }
+
+  public static double sumeven(DoubleArray x) {
+    double sum = 0.0;
+    int length = x.length();
+    for (int i = 0; i < length; i += 2)
+      sum += x.get(i);
+    return sum;
+  }
+  
+
+  public static double min(DoubleArray x) {
+    return min(x, new MinResult());
   }
 
   public static class MinResult {
@@ -92,8 +154,8 @@ public class Operations {
     public int argmin;
   }
 
-  public static MinResult min(DoubleArray x) {
-    MinResult result = new MinResult();
+  public static double min(DoubleArray x, MinResult result) {
+//    MinResult result = new MinResult();
     result.min = Double.POSITIVE_INFINITY;
     int length = x.length();
     double value;
@@ -102,7 +164,7 @@ public class Operations {
         result.min = value;
         result.argmin = i;
       }
-    return result;
+    return result.min;
   }
 
 /*
@@ -126,8 +188,12 @@ public class Operations {
     public int argmax3rd;
   }
 
-  public static MaxResult max(DoubleArray x) {
-    MaxResult result = new MaxResult();
+  public static double max(DoubleArray x) {
+    return max(x, new MaxResult());
+  }
+
+  public static double max(DoubleArray x, MaxResult result) {
+//    MaxResult result = new MaxResult();
     result.max = Double.NEGATIVE_INFINITY;
     result.max2nd = Double.NEGATIVE_INFINITY;
     result.max3rd = Double.NEGATIVE_INFINITY;
@@ -150,9 +216,9 @@ public class Operations {
         result.max3rd = value;
         result.argmax3rd = i;
       }
-    return result;
+    return result.max;
   }
-        
+
 
 /*
   public static MaxResult max(DoubleArray x) {
@@ -244,6 +310,16 @@ public class Operations {
     return b;
   }
 
+  public static int nGreaterThan(DoubleArray x, double y) {
+    int length = x.length();
+    int n = 0;
+    for (int i = 0; i < length; i++)
+      if (x.get(i) > y)
+        n++;
+    return n;
+  }
+
+
   public static BooleanArray or(BooleanArray x, BooleanArray y) {
     int length = x.length();
     BooleanArray z = bfactory.createArray(length);
@@ -282,12 +358,136 @@ public class Operations {
     return z;
   }
   
-    public static final int Hz2nn(double x) {
-      return 57 + (int)(12 * log(x / 220.0) / log(2));
-    }
+  public static final int Hz2nn(double x) {
+    return 57 + (int)(12 * log(x / 220.0) / log(2));
+  }
+  
+  public static final double nn2Hz(double nn) {
+    return 220 * pow(2, (nn - 57.0) / 12.0);
+  }
 
-    public static final double nn2Hz(double nn) {
-      return 220 * pow(2, (nn - 57.0) / 12.0);
+
+  public static void logX(DoubleArray x, int a) {
+    int length = x.length();
+    double logA = log(a);
+    for (int i = 0; i < length; i++)
+      x.set(i, log(x.get(i)) / logA);
+  }
+
+  public static double ratioTrue(BooleanArray x) {
+    int nTrues = 0;
+    int length = x.length();
+    for (int i = 0; i < length; i++)
+      if (x.get(i))
+        nTrues++;
+    return (double)nTrues / (double)length;
+  }
+
+  public static DoubleArray diff(DoubleArray x) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length - 1);
+    for (int i = 0; i < length; i++) 
+      z.set(i, x.get(i+1) - x.get(i));
+    return z;
+  }
+
+
+  public static DoubleArray sdiff(DoubleArray x, int srange) {
+    int N = srange * (srange + 1) * (2 * srange + 1) / 3;
+    DoubleArray z = factory.createArray(x.length());
+    int shift;
+    for (int t = 0; t < x.length(); t++) {
+      z.set(t, 0.0);
+      for (int i = 1; i <= srange; i++) {
+        shift = Math.min(i, Math.min(
+                  Math.abs(t - 0), 
+                  Math.abs(x.length() - 1 - t)
+                ));
+        addX(z, t, (x.get(t + shift) - x.get(t - shift)) * (double)i);
+      }
     }
+    divX(z, N);
+    return z;
+  }
+
+
+  public static int nZeroCross(DoubleArray x) {
+    int n = 0; 
+    for (int i = 0; i < x.length() - 1; i++)
+      if (x.get(i) * x.get(i+1) < 0)
+        n++;
+    return n;
+  }
+
+  public static DoubleArray sort(DoubleArray x) {
+    double[] array = (double[])x.toArray().clone();
+    Arrays.sort(array);
+    return factory.createArray(array);
+  }
+
+  public static double iqr(DoubleArray x) {
+    DoubleArray xx = sort(x);
+    int idxL = (int)(0.25 * (double)xx.length());
+    int idxR = (int)(0.75 * (double)xx.length());
+    return xx.get(idxR) - xx.get(idxL);
+  }
+
+  public static DoubleArray sgsmooth(DoubleArray x, int srange) {
+    int N = (4 * srange * srange - 1) * (2 * srange + 3) / 3;
+    int weight;
+    int shift;
+    DoubleArray z = factory.createArray(x.length());
+    for (int t = 0; t < x.length(); t++) {
+      weight = 3 * srange * (srange + 1) - 1;
+      z.set(t, x.get(t) * (double)weight);
+      for (int i = 1; i <= srange; i++) {
+        weight = 3 * srange * (srange + 1) - 1 - 5 * i * i;
+        shift = Math.min(i, Math.min(
+                  Math.abs(t - 0), Math.abs(x.length() - 1 - t)
+                ));
+        addX(z, t, (x.get(t + shift) + x.get(t - shift)) * (double)weight);
+      }
+    }
+    divX(z, N);
+    return z;
+  }
+
+/*
+  // KARI
+  public static void sgsmoothX(DoubleArray x, int srange) {
+    int N = (4 * srange * srange - 1) * (2 * srange + 3) / 3;
+    int weight;
+    int shift;
+    DoubleArray clone = (DoubleArray)x.clone();
+    for (int t = 0; t < x.length(); t++) {
+      weight = 3 * srange * (srange + 1) - 1;
+      x.set(t, clone.get(t) * (double)weight);
+      for (int i = 1; i <= srange; i++) {
+        weight = 3 * srange * (srange + 1) - 1 - 5 * i * i;
+        shift = Math.min(i, Math.min(
+                  Math.abs(t - 0), Math.abs(clone.length() - 1 - t)
+                ));
+        addX(x, t, (clone.get(t+shift) + clone.get(t-shift)) * (double)weight);
+      }
+    }
+    divX(x, N);
+  }
+*/
+
+  public static DoubleArray concat(DoubleArray[] arrays) {
+    int length = 0;
+    for (int i = 0; i < arrays.length; i++) 
+      length += arrays[i].length();
+    double[] z = new double[length];
+    int idxNext = 0;
+    for (int i = 0; i < arrays.length; i++) {
+      int thislength = arrays[i].length();
+      System.arraycopy(arrays[i].toArray(), 0, z, idxNext, thislength);
+      idxNext += thislength;
+    }
+    return factory.createArray(z);
+  }
 
 }
+
+

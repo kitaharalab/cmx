@@ -8,6 +8,8 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
+/*
+
 public class WAVAnalyzer extends AbstractWAVAnalyzer {
   private String scriptName;
   private AmusaScriptWrapper script;
@@ -84,3 +86,6 @@ public class WAVAnalyzer extends AbstractWAVAnalyzer {
     }
   }
 }
+
+
+*/

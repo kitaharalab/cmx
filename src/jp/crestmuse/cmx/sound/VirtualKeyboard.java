@@ -161,7 +161,7 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
       VirtualKeyboard vk = new VirtualKeyboard();
       MidiInputModule mi = new MidiInputModule(vk);
       MidiOutputModule mo = new MidiOutputModule(MidiSystem.getReceiver());
-      SPExecutor sp = new SPExecutor(null, 1);
+      SPExecutor sp = new SPExecutor();
       sp.addSPModule(mi);
       sp.addSPModule(mo);
       sp.connect(mi, 0, mo, 0);

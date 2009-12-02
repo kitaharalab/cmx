@@ -15,8 +15,8 @@ public class PeakExtractor extends SPModule {
     private static double powerthrs = 0;
     private static double rpowerthrs = 0;
 
-    private int fs;
-    private int winsize;
+//    private int fs;
+//    private int winsize;
 
     private int size = 0;
     private double[] power0;
@@ -24,12 +24,13 @@ public class PeakExtractor extends SPModule {
     private int t;
 
   private DoubleArrayFactory factory = DoubleArrayFactory.getFactory();
-  private ConfigXMLWrapper config;
+//  private ConfigXMLWrapper config;
 
     public PeakExtractor() {
-      config = CMXCommand.getConfigXMLWrapper();
-      powerthrs = config.getParamDouble("param", "fft", "POWER_THRESHOLD");
-      rpowerthrs = config.getParamDouble("param", "fft", 
+//      config = CMXCommand.getConfigXMLWrapper();
+      AmusaParameterSet params = AmusaParameterSet.getInstance();
+      powerthrs = params.getParamDouble("fft", "POWER_THRESHOLD");
+      rpowerthrs = params.getParamDouble("fft", 
                                          "RELATIVE_POWER_THRESHOLD");
     }
 
@@ -130,6 +131,9 @@ public class PeakExtractor extends SPModule {
     SPComplexArray fftresult = (SPComplexArray)src[0];
     SPComplexArray fftresultL, fftresultR;
     boolean isStereo;
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    int fs = params.getParamInt("fft", "SAMPLE_RATE");
+    int winsize = params.getParamInt("fft", "WINDOW_SIZE");
     if (src.length > 1 && src[1] != null) {
       fftresultL = (SPComplexArray)src[1];
       fftresultR = (SPComplexArray)src[2];
@@ -191,11 +195,13 @@ public class PeakExtractor extends SPModule {
                    subarray(ipd, 0, k)));
     //    System.out.println(ps);
   }
-                         
+                        
+/* 
   public void setParams(Map<String,String> params) {
     super.setParams(params);
     fs = getParamInt("SAMPLE_RATE");
     winsize = getParamInt("WINDOW_SIZE");
   }
+*/
 
 }

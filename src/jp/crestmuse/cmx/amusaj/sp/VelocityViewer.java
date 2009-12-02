@@ -95,7 +95,7 @@ public class VelocityViewer extends SPModule {
     try { 
       String filename = "out.txt";
       if(args.length == 1) filename = args[0];
-      SPExecutor sp = new SPExecutor(null, 0);
+      SPExecutor sp = new SPExecutor();
       MidiInputModule mi = new MidiInputModule(getMidiDevice(true));
       VelocityViewer vv = new VelocityViewer(filename);
       sp.addSPModule(mi);

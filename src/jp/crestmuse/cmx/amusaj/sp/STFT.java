@@ -27,10 +27,11 @@ public class STFT extends SPModule {
   private boolean isStereo;
 
   public void changeWindow(String wintype, int winsize) {
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
     this.winsize = winsize;
-    setParam("WINDOW_SIZE", winsize);
+    params.setParam("fft", "WINDOW_SIZE", winsize);
     this.wintype = wintype;
-    setParam("WINDOW_TYPE", wintype);
+    params.setParam("fft", "WINDOW_TYPE", wintype);
     if (wintype.startsWith("ham"))
       window = hamming(winsize);
     else if (wintype.startsWith("han"))
@@ -60,8 +61,9 @@ public class STFT extends SPModule {
 */
 
   private void setParams() {
-    wintype = getParam("WINDOW_TYPE").toLowerCase();
-    isStereo = getParam("TARGET_CHANNEL").equalsIgnoreCase("stereo");
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    wintype = params.getParam("fft", "WINDOW_TYPE").toLowerCase();
+    isStereo = params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo");
 //    String stereo = getParam("STEREO");
 //    isStereo = 
 //      stereo != null 
@@ -94,8 +96,7 @@ public class STFT extends SPModule {
       new SPComplexArray(fft.executeR2C(signal, window));
     dest[0].add(fftresult);
     if (isStereo) {
-      dest[1].add(
-		  new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window)));
+      dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window)));
       dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], window)));
     } else {
       dest[1].add(fftresult);

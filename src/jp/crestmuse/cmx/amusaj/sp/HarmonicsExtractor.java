@@ -25,11 +25,12 @@ public class HarmonicsExtractor  extends SPModule {
                         "NUM_OF_HARMONICS_FOR_F0_CALC"};
   }
   private void setParams() {
-    f0range = getParamDouble("F0_SEARCH_RANGE");
-    freqRange = getParamDouble("HARMONICS_SEARCH_RANGE");
-    powerthrs = getParamDouble("POWER_THRESHOLD");
-    nHarmonics = getParamInt("NUM_OF_HARMONICS");
-    nHarmsForF0Calc = getParamInt("NUM_OF_HARMONICS_FOR_F0_CALC");
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    f0range = params.getParamDouble("harmonics", "F0_SEARCH_RANGE");
+    freqRange = params.getParamDouble("harmonics", "HARMONICS_SEARCH_RANGE");
+    powerthrs = params.getParamDouble("harmonics", "POWER_THRESHOLD");
+    nHarmonics = params.getParamInt("harmonics", "NUM_OF_HARMONICS");
+    nHarmsForF0Calc = params.getParamInt("harmonics", "NUM_OF_HARMONICS_FOR_F0_CALC");
     setParams = true;
   }
 /*

@@ -32,6 +32,7 @@ public abstract class SPModule
     return null;
   }
 
+/*
   public void setParams(Map<String,String> params) {
     this.params = params;
     String[] paramNames = getUsedParamNames();
@@ -77,7 +78,8 @@ public abstract class SPModule
       if (!containsParam(key))
         setParam(key, config.getParam(namespace, category, key));
   }
-  
+*/
+
   public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest) {
   }
 }

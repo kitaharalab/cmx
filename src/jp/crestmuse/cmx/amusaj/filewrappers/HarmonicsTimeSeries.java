@@ -111,6 +111,10 @@ public class HarmonicsTimeSeries implements SPElement {
     return lengths;
   }
 
+  public DoubleArray getF0Envelope() {
+    return new FreqDoubleArray(0, 0, peaks.length);
+  }
+
   private abstract class MyDoubleArray implements DoubleArray {
     int k, from, thru;
     MyDoubleArray(int k, int from, int thru) {
