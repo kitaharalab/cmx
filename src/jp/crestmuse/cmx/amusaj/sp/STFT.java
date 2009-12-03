@@ -12,7 +12,7 @@ import java.util.*;
  *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 
  *短時間フーリエ変換を行います. 
  *********************************************************************/
-//public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
+
 public class STFT extends SPModule {
 
   int winsize = -1;
@@ -24,7 +24,12 @@ public class STFT extends SPModule {
   private static final DoubleArrayFactory dfactory = 
     DoubleArrayFactory.getFactory();
 
-//  private boolean isStereo;
+  private boolean isStereo;
+
+  public STFT(boolean isStereo) {
+    super();
+    this.isStereo = isStereo;
+  }
 
   public void changeWindow(String wintype, int winsize) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
@@ -52,30 +57,13 @@ public class STFT extends SPModule {
     return new String[]{"WINDOW_TYPE"};
   }
 
-/*
-  public void setParams(Map<String, String> params) {
-    super.setParams(params);
-    copyParamsFromConfigXML("param", "fft", "WINDOW_TYPE");
-    paramSet = false;
-  }
-*/
-
   void setParams() {
     if (paramSet) return;
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     wintype = params.getParam("fft", "WINDOW_TYPE").toLowerCase();
-//    isStereo = params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo");
-//    String stereo = getParam("STEREO");
-//    isStereo = 
-//      stereo != null 
-//      && (stereo.startsWith("Y") || stereo.startsWith("y") 
-//          || stereo.startsWith("T") || stereo.startsWith("t"));
     paramSet = true;
   }
   
-//  public void setStereo(boolean b) {
-//    isStereo = b;
-//  }
 
   /*********************************************************************
    *（古い）あらかじめsetInputDataメソッドでセットしたwaveformに対してSTFTを実行します. 
@@ -96,52 +84,22 @@ public class STFT extends SPModule {
     SPComplexArray fftresult = 
       new SPComplexArray(fft.executeR2C(signal, window));
     dest[0].add(fftresult);
-    dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1],
-                                                  window)));
-    dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], 
-                                                  window)));
-  }
-                
-
-/*
-  public void execute(List<QueueReader<SPDoubleArray>> src, 
-                      List<TimeSeriesCompatible<SPComplexArray>> dest) 
-    throws InterruptedException {
-    if (!paramSet) setParams();
-    SPDoubleArray signal = src.get(0).take();
-    if (winsize < 0 || winsize != signal.length())
-      changeWindow(wintype, signal.length());
-    SPComplexArray fftresult = 
-      new SPComplexArray(fft.executeR2C(signal, window), signal.hasNext());
-    dest.get(0).add(fftresult);
     if (isStereo) {
-      dest.get(1).add(
-        new SPComplexArray(fft.executeR2C(src.get(1).take(), window), 
-                           signal.hasNext()));
-      dest.get(2).add(
-        new SPComplexArray(fft.executeR2C(src.get(2).take(), window), 
-                           signal.hasNext()));
+      dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1],
+                                                    window)));
+      dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], 
+                                                    window)));
     } else {
-      dest.get(1).add(fftresult);
-      dest.get(2).add(fftresult);
+      dest[1].add(fftresult);
+      dest[2].add(fftresult);
     }
   }
-
-  public int getInputChannels() {
-    return 3;
-//    if (!paramSet) setParams();
-//    return isStereo ? 3 : 1;
-  }
-
-  public int getOutputChannels() {
-    return 3;
-//    if (!paramSet) setParams();
-//    return isStereo ? 3 : 1;
-  }
-*/
-
+                
   public Class<SPElement>[] getInputClasses() {
-    return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
+    if (isStereo)
+      return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
+    else
+      return new Class[] { SPDoubleArray.class };
   }
 
   public Class<SPElement>[] getOutputClasses() {
