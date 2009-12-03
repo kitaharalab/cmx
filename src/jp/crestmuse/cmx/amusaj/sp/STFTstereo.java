@@ -15,16 +15,16 @@ import java.util.*;
 //public class STFT extends SPModule<SPDoubleArray,SPComplexArray> {
 public class STFT extends SPModule {
 
-  private int winsize = -1;
-  private String wintype = null;
-  private double[] window;
+  int winsize = -1;
+  String wintype = null;
+  double[] window;
   private boolean paramSet = false;
   private static final FFTFactory factory = FFTFactory.getFactory();
-  private FFT fft = factory.createFFT();
+  FFT fft = factory.createFFT();
   private static final DoubleArrayFactory dfactory = 
     DoubleArrayFactory.getFactory();
 
-  private boolean isStereo;
+//  private boolean isStereo;
 
   public void changeWindow(String wintype, int winsize) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
@@ -60,10 +60,11 @@ public class STFT extends SPModule {
   }
 */
 
-  private void setParams() {
+  void setParams() {
+    if (paramSet) return;
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     wintype = params.getParam("fft", "WINDOW_TYPE").toLowerCase();
-    isStereo = params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo");
+//    isStereo = params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo");
 //    String stereo = getParam("STEREO");
 //    isStereo = 
 //      stereo != null 
@@ -88,22 +89,20 @@ public class STFT extends SPModule {
    *********************************************************************/
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
   throws InterruptedException {
-    if (!paramSet) setParams();
+    setParams();
     SPDoubleArray signal = (SPDoubleArray)src[0];
     if (winsize < 0 || winsize != signal.length())
       changeWindow(wintype, signal.length());
     SPComplexArray fftresult = 
       new SPComplexArray(fft.executeR2C(signal, window));
     dest[0].add(fftresult);
-    if (isStereo) {
-      dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1], window)));
-      dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], window)));
-    } else {
-      dest[1].add(fftresult);
-      dest[2].add(fftresult);
-    }
-    //    System.out.println(fftresult);
+    dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1],
+                                                  window)));
+    dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], 
+                                                  window)));
   }
+                
+
 /*
   public void execute(List<QueueReader<SPDoubleArray>> src, 
                       List<TimeSeriesCompatible<SPComplexArray>> dest) 
