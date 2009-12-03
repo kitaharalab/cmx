@@ -28,7 +28,7 @@ public class AmusaParameterSet implements ParameterCompatible {
 
   public final void setAnotherParameterSet(ParameterCompatible pc) {
     params = pc;
-    System.err.println(params);
+//    System.err.println(params);
   }
 
   public final void setParam(String key, String value) {

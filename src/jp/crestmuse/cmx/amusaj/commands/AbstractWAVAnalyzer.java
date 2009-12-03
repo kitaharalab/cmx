@@ -18,7 +18,7 @@ public abstract class AbstractWAVAnalyzer
       addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
       addOptionHelpMessage("-wintype {hamming|hanning|gaussian}", "window type in STFT");
       addOptionHelpMessage("-shift <value>", "shift size in STFT");
-      addOptionHelpMessage("-ch <nn>", "target channel");
+//      addOptionHelpMessage("-ch <nn>", "target channel");
   }
 
   protected boolean setOptionsLocal(String option, String value) {
@@ -44,6 +44,10 @@ public abstract class AbstractWAVAnalyzer
     }
   }
 
+  protected boolean usesStereo() {
+    return false;
+  }
+
   protected int winsize() {
     return AmusaParameterSet.getInstance().getParamInt("fft", "WINDOW_SIZE");
 //    return Integer.valueOf(params.get("WINDOW_SIZE"));
@@ -62,7 +66,7 @@ public abstract class AbstractWAVAnalyzer
   protected AmusaDataSetCompatible run(WAVWrapper wav) 
     throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
-    WindowSlider winslider = new WindowSlider();
+    WindowSlider winslider = new WindowSlider(usesStereo());
 //    winslider.setParams(params);
     winslider.setInputData(wav);
 //    int nFrames = winslider.getAvailableFrames();

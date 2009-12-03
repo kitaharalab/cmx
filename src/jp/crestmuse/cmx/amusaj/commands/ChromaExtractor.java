@@ -39,7 +39,7 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
-    STFT stft = new STFT();
+    STFT stft = new STFT(usesStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();
     exec.addSPModule(peakext);

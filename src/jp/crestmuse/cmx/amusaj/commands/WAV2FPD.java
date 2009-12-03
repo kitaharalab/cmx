@@ -55,7 +55,7 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     throws IOException,
     ParserConfigurationException,SAXException,TransformerException {
     exec.addSPModule(winslider);
-    STFT stft = new STFT();
+    STFT stft = new STFT(usesStereo());
 //    stft.setStereo(winslider.isStereo());
     exec.addSPModule(stft);
     PeakExtractor peakext = new PeakExtractor();

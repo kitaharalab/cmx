@@ -270,6 +270,10 @@ public class Operations {
     return z;
   }
 
+  public static double nn2cent(double x) {
+    return x * 100 - 1200;
+  }
+
   public static void nn2centX(DoubleArray x) {
     int length = x.length();
     for (int i = 0; i < length; i++)
@@ -280,6 +284,10 @@ public class Operations {
     int length = x.length();
     for (int i = 0; i < length; i++)
       x.set(i, 1200 * log2(x.get(i) / 440 / 0.037162722343835));
+  }
+
+  public static double Hz2cent(double x) {
+    return 1200 * log2(x / 440 / 0.037162722343835);
   }
     
   public static DoubleArray Hz2cent(DoubleArray x) {
@@ -386,7 +394,7 @@ public class Operations {
   public static DoubleArray diff(DoubleArray x) {
     int length = x.length();
     DoubleArray z = factory.createArray(length - 1);
-    for (int i = 0; i < length; i++) 
+    for (int i = 0; i < length - 1; i++) 
       z.set(i, x.get(i+1) - x.get(i));
     return z;
   }
@@ -486,6 +494,21 @@ public class Operations {
       idxNext += thislength;
     }
     return factory.createArray(z);
+  }
+
+  public static DoubleArray sum(DoubleArray[] arrays) {
+    if (arrays.length == 1)
+      return arrays[0];
+    DoubleArray sum = add(arrays[0], arrays[1]);
+    for (int i = 2; i < arrays.length; i++)
+      addX(sum, arrays[i]);
+    return sum;
+  }
+
+  public static DoubleArray mean(DoubleArray[] arrays) {
+    DoubleArray sum = sum(arrays);
+    divX(sum, arrays.length);
+    return sum;
   }
 
 }

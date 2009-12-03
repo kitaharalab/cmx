@@ -36,6 +36,7 @@ implements ParameterCompatible {
   private boolean containsParam(String namespace, 
                                 String category, String key) {
     String c = namespace + ":" + category;
+//    System.err.println(c);
     ParamSet header;
     if (map.containsKey(c)) {
       header = map.get(c);

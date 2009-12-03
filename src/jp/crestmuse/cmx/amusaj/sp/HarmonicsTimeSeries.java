@@ -137,7 +137,10 @@ public class HarmonicsTimeSeries implements SPElement {
 //      throw new UnsupportedOperationException();
     }
     public DoubleArray subarrayX(int from, int thru) {
-      throw new UnsupportedOperationException();
+      this.from += from;
+      this.thru = this.from + thru;
+      return this;
+//      throw new UnsupportedOperationException();
     }
   }
 

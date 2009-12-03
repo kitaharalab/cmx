@@ -102,7 +102,8 @@ public class KitaharaFeatureExtractor
                                                  int from, int thru) 
     throws OptimizationException {
     PolynomialFitter f 
-      = new PolynomialFitter(1, new GaussNewtonOptimizer(true));
+//      = new PolynomialFitter(1, new GaussNewtonOptimizer(false));
+      = new PolynomialFitter(1, new LevenbergMarquardtOptimizer());
     for (int i = 0; i < thru - from; i++) 
       f.addObservedPoint(1.0, 1.0 + i, powerenv.get(from + i));
     PolynomialFunction pf = f.fit();
@@ -121,6 +122,8 @@ public class KitaharaFeatureExtractor
   
   private static double calcMedianOfDiffPower(DoubleArray powerenv, 
                                               int from, int thru) {
+//    System.err.println("powerenv: " + powerenv.length());
+//    System.err.println("from: " + from + " thru: " + thru);
     return median(diff(powerenv.subarrayX(from, thru)));
   }
 

@@ -17,4 +17,8 @@ public class HarmonicsExtractor2 extends HarmonicsExtractor {
     dest[0].add(extractHarmonics(peakset, f0));
   }
 
+  public Class<SPElement>[] getInputClasses() {
+    return new Class[] { PeakSet.class };
+  }
+
 }

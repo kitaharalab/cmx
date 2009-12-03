@@ -277,7 +277,7 @@ public class SPExecutor {
       while (!Thread.interrupted()) {
         try {
           for (int i = 0; i < inputChannelNum; i++) {
-            System.err.println(module + " " + i + " " + src[i]);
+//            System.err.println(module + " " + i + " " + src[i]);
             inputElements[i] = src[i].take();
           }
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
