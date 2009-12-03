@@ -110,10 +110,23 @@ public class SPExecutor {
    *********************************************************************/
   public void connect(ProducerConsumerCompatible output, int ch1,
       ProducerConsumerCompatible input, int ch2) {
-    if (output.getOutputClasses()[ch1] != input.getInputClasses()[ch2])
-      throw new SPIllegalConnectionException("can't connect "
-          + output.getOutputClasses()[ch1].getName() + " and "
-          + input.getInputClasses()[ch2].getName());
+    try {
+      output.getOutputClasses()[ch1].asSubclass
+        (input.getInputClasses()[ch2]);
+    } catch (ClassCastException e) {
+      try {
+        input.getInputClasses()[ch2].asSubclass
+          (output.getOutputClasses()[ch1]);
+      } catch (ClassCastException e2) {
+        throw new SPIllegalConnectionException
+          ("can't connect " + output.getOutputClasses()[ch1].getName() 
+           + " and " + input.getInputClasses()[ch2].getName());
+      }
+    }
+//    if (output.getOutputClasses()[ch1] != input.getInputClasses()[ch2])
+//      throw new SPIllegalConnectionException("can't connect "
+//          + output.getOutputClasses()[ch1].getName() + " and "
+//          + input.getInputClasses()[ch2].getName());
     SPExecutorModule spm1 = map.get(output);
     SPExecutorModule spm2 = map.get(input);
     /*
@@ -263,8 +276,10 @@ public class SPExecutor {
     public void run() {
       while (!Thread.interrupted()) {
         try {
-          for (int i = 0; i < inputChannelNum; i++)
+          for (int i = 0; i < inputChannelNum; i++) {
+            System.err.println(module + " " + i + " " + src[i]);
             inputElements[i] = src[i].take();
+          }
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
             for (TimeSeriesCompatible<SPElement> tsc : dest)
 		tsc.add(SPTerminator.getInstance());

@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.math.*;
 
-public abstract class AbstractInterpolationModule {
+abstract class AbstractInterpolationModule {
 
   private int idxFrom;
   private int idxThru;
@@ -12,11 +12,11 @@ public abstract class AbstractInterpolationModule {
   abstract double calcValue(int index, int leftindex, double leftvalue, 
                             int rightindex, double rightvalue);
 
-  public synchronized void run(DoubleArray x, int maxlength) {
+  synchronized void run(DoubleArray x, int maxlength) {
     run(x, 0, x.length(), maxlength);
   }
     
-  public synchronized void run(DoubleArray x, int leftbound, int rightbound, 
+  synchronized void run(DoubleArray x, int leftbound, int rightbound, 
                                int maxlength) {
     int i = leftbound;
     while (true) {

@@ -22,7 +22,7 @@ public class SPProgressDisplayModule extends SPModule {
 */
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
       throws InterruptedException {
-    System.err.println(".");
+    System.err.print(".");
     dest[0].add(src[0]);
   }
 

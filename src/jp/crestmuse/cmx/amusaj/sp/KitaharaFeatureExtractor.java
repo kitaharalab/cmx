@@ -15,7 +15,7 @@ public class KitaharaFeatureExtractor
   implements FeatureExtractor<HarmonicsTimeSeries> {
 
   int ndiv;
-  AbstractInterpolationModule interp;
+  AbstractInterpolationModule interp = ExpInterpolationModule.getInstance();
   int maxFramesForInterpolation;
   private static DoubleArrayFactory factory = DoubleArrayFactory.getFactory();
 
@@ -30,10 +30,10 @@ public class KitaharaFeatureExtractor
   DoubleArray featFM;                  // Nos. 27-28
 
   public KitaharaFeatureExtractor(int ndiv, 
-                                  AbstractInterpolationModule interp,
+//                                  AbstractInterpolationModule interp,
                                   int maxFramesForInterpolation) {
     this.ndiv = ndiv;
-    this.interp = interp;
+//    this.interp = interp;
     this.maxFramesForInterpolation = maxFramesForInterpolation;
   }
 

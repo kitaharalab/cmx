@@ -46,14 +46,14 @@ public class HarmonicsExtractor  extends SPModule {
 */
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
       throws InterruptedException {
-    if (!setParams) setParams();
     PeakSet peakset = (PeakSet)src[0];
     SPDoubleArray f0array = (SPDoubleArray)src[1];
     double f0 = f0array.get(0);
     dest[0].add(extractHarmonics(peakset, f0));
   }
 
-  private PeakSet extractHarmonics(PeakSet peakset, double f0) {
+  PeakSet extractHarmonics(PeakSet peakset, double f0) {
+    if (!setParams) setParams();
     MaxResult maxresult = new Operations.MaxResult();
     PeakSet harmonics = new PeakSet(nHarmonics);
     DoubleArray ff = peakset.freq();
