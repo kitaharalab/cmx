@@ -1,29 +1,23 @@
 package jp.crestmuse.cmx.gui.performancematcher;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import java.io.IOException;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.xml.sax.SAXException;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
-import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
-import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 
 public class Main {
 
-  public static void main(final String[] args) {
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        try {
-          DeviationInstanceWrapper deviation = (DeviationInstanceWrapper) CMXFileWrapper.readfile(args[0]);
-          DeviatedPerformance deviatedPerformance = new DeviatedPerformance(
-              deviation);
-          EditFrame f = new EditFrame(deviatedPerformance);
-          f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-          f.setVisible(true);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
+  public static void main(String[] args) throws IOException,
+      ParserConfigurationException, SAXException, TransformerException,
+      InvalidMidiDataException {
+    new FrameController(args[0], args[1]);
   }
 
 }

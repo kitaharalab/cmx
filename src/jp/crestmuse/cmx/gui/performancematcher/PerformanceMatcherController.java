@@ -11,12 +11,14 @@ public class PerformanceMatcherController {
 
   private PianoRollPanel performancePanel;
   private PianoRollPanel scorePanel;
+  private FrameController frameController;
   private PrintableDeviatedNote selectedDeviatedNote;
 
   public PerformanceMatcherController(PianoRollPanel performancePanel,
-      PianoRollPanel scorePanel) {
+      PianoRollPanel scorePanel, FrameController frameController) {
     this.performancePanel = performancePanel;
     this.scorePanel = scorePanel;
+    this.frameController = frameController;
   }
 
   public void selectPerformance(PrintableDeviatedNote selectedNote) {
@@ -31,6 +33,7 @@ public class PerformanceMatcherController {
     try {
       DeviatedNote srcDn = selectedDeviatedNote.getDeviatedNote();
       DeviatedNote dstDn = selectedNote.getPair().getDeviatedNote();
+      frameController.changePair(srcDn.getNote(), dstDn.getNote());
       dstDn.changeDeviation((srcDn.onset(480) - dstDn.onset(480)) / 480.0,
           (srcDn.offset(480) - dstDn.offset(480)) / 480.0);
       srcDn.setMissNote(true);

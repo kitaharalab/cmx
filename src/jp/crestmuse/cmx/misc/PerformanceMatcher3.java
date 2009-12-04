@@ -51,6 +51,7 @@ public class PerformanceMatcher3 {
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
   private int[] score2pfm;
+  private Map<MusicXMLWrapper.Note, Integer> musicxmlwrappernote2index;
 
   public PerformanceMatcher3(MusicXMLWrapper score, MIDIXMLWrapper pfm)
       throws ParserConfigurationException, SAXException, IOException,
@@ -70,6 +71,7 @@ public class PerformanceMatcher3 {
     SCCXMLWrapper pfmSCC = pfm.toSCCXML();
     barlines = scoreSCC.getBarlineList();
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
+    calcMusicXMLNote2Index();
     pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);
     initCompressedScore();
     scoreTicksPerBeat = scoreSCC.getDivision();
@@ -77,6 +79,12 @@ public class PerformanceMatcher3 {
     HeaderElement[] h = pfmSCC.getHeaderElementList();
     if (h.length >= 1 && h[0].name().equals("TEMPO"))
       baseTempo = Integer.parseInt(h[0].content());
+  }
+
+  private void calcMusicXMLNote2Index() {
+    musicxmlwrappernote2index = new HashMap<MusicXMLWrapper.Note, Integer>();
+    for (int i = 0; i < scoreNotes.length; i++)
+      musicxmlwrappernote2index.put(scoreNotes[i].getMusicXMLWrapperNote(), i);
   }
 
   public DeviationInstanceWrapper extractDeviation()
@@ -94,6 +102,12 @@ public class PerformanceMatcher3 {
       TransformerException {
     List<Note> extraNotes = new ArrayList<Note>();
     score2pfm = getPath(file, extraNotes);
+    return path2dev(extraNotes);
+  }
+
+  public DeviationInstanceWrapper extractDeviation(int[] indexlist) {
+    List<Note> extraNotes = new ArrayList<Note>();
+    score2pfm = getPath(indexlist, extraNotes);
     return path2dev(extraNotes);
   }
 
@@ -144,6 +158,17 @@ public class PerformanceMatcher3 {
       indexlist[Integer.parseInt(data[0])] = Integer.parseInt(data[1]);
     }
     reader.close();
+    boolean[] matched = new boolean[pfmNotes.length];
+    for (int i = 0; i < indexlist.length; i++)
+      if (indexlist[i] >= 0)
+        matched[indexlist[i]] = true;
+    for (int j = 0; j < matched.length; j++)
+      if (!matched[j])
+        extraNotes.add(pfmNotes[j]);
+    return indexlist;
+  }
+
+  private int[] getPath(int[] indexlist, List<Note> extraNotes) {
     boolean[] matched = new boolean[pfmNotes.length];
     for (int i = 0; i < indexlist.length; i++)
       if (indexlist[i] >= 0)
@@ -210,6 +235,14 @@ public class PerformanceMatcher3 {
       TransformerException {
     PerformanceMatcher3 pm = new PerformanceMatcher3(score, pfm, ticksPerBeat);
     return pm.extractDeviation(pathfile);
+  }
+
+  public int[] getScore2Pfm() {
+    return score2pfm;
+  }
+
+  public Map<MusicXMLWrapper.Note, Integer> getMusicxmlwrappernote2Index() {
+    return musicxmlwrappernote2index;
   }
 
   // private static int[] getPath(DTWMatrix matrix) {
@@ -530,7 +563,6 @@ public class PerformanceMatcher3 {
         continue;
       Note scoreNote = scoreNotes[i];
       double scoreOnset = getSecFromScoreTick(scoreNote.onset(), tempolist);
-      // System.err.println(scoreOnset);
       int scoreNN = scoreNote.notenum();
       for (int j = 0; j < extraNotes.size(); j++) {
         Note pfmNote = extraNotes.get(j);
@@ -538,15 +570,16 @@ public class PerformanceMatcher3 {
         if (scoreNN != pfmNN)
           continue;
         double pfmOnset = getSecFromPfmTick(pfmNote.onset(), tempolist);
-        // System.err.println(pfmOnset);
         if (scoreOnset - pfmOnset < MISS_EXTRA_ONSET_DIFF
             && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
-          score2pfm[i] = -j - 2;
-          // System.out.println(scoreOnset + " " + pfmOnset + " " + scoreNN +
-          // " " + pfmNN);
+//          score2pfm[i] = -j - 2;
+          for(int k=0; k<pfmNotes.length; k++)
+            if(pfmNotes[k] == pfmNote) {
+              score2pfm[i] = k;
+              break;
+            }
         }
       }
-      // System.err.println();
     }
   }
 
