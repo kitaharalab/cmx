@@ -31,6 +31,7 @@ public interface TimeSeriesCompatible<D extends SPElement>
   void setAttribute(String key, String value);
   void setAttribute(String key, int value);
   void setAttribute(String key, double value);
+//  void setAttributeNS(String namespaceURI, String key, String value);
   Iterator<Map.Entry<String,String>> getAttributeIterator();
 
   boolean isComplete();

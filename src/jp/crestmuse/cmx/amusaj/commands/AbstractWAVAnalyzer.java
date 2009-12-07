@@ -13,6 +13,7 @@ public abstract class AbstractWAVAnalyzer
   extends CMXCommand<WAVWrapper,AmusaDataSetCompatible> {
 //  protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
+  WindowSlider winslider = null;
 
   static {
       addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
@@ -44,14 +45,39 @@ public abstract class AbstractWAVAnalyzer
     }
   }
 
+  protected String getParam(String category, String key) {
+    return AmusaParameterSet.getInstance().getParam(category, key);
+  }
+
+  protected int getParamInt(String category, String key) {
+    return AmusaParameterSet.getInstance().getParamInt(category, key);
+  }
+
+  protected double getParamDouble(String category, String key) {
+    return AmusaParameterSet.getInstance().getParamDouble(category, key);
+  }
+
+  protected void setParam(String category, String key, String value) {
+    AmusaParameterSet.getInstance().setParam(category, key, value);
+  }
+
+  protected void setParam(String category, String key, int value) {
+    AmusaParameterSet.getInstance().setParam(category, key, value);
+  }
+
+  protected void setParam(String category, String key, double value) {
+    AmusaParameterSet.getInstance().setParam(category, key, value);
+  }
+
+
   protected boolean usesStereo() {
     return false;
   }
 
-  protected int winsize() {
-    return AmusaParameterSet.getInstance().getParamInt("fft", "WINDOW_SIZE");
-//    return Integer.valueOf(params.get("WINDOW_SIZE"));
-  }
+//  protected int winsize() {
+//    return AmusaParameterSet.getInstance().getParamInt("fft", "WINDOW_SIZE");
+////    return Integer.valueOf(params.get("WINDOW_SIZE"));
+//  }
 
   protected FileWrapperCompatible 
   readInputData(String filename) throws IOException{
@@ -59,27 +85,77 @@ public abstract class AbstractWAVAnalyzer
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
-  protected void preproc() {
+  protected void preproc() throws IOException {
     AmusaParameterSet.getInstance().setAnotherParameterSet(CMXCommand.getConfigXMLWrapper());
   }
 
   protected AmusaDataSetCompatible run(WAVWrapper wav) 
     throws IOException,ParserConfigurationException,
     TransformerException,SAXException {
-    WindowSlider winslider = new WindowSlider(usesStereo());
-//    winslider.setParams(params);
-    winslider.setInputData(wav);
-//    int nFrames = winslider.getAvailableFrames();
-//    int timeunit = winslider.getTimeUnit();
-//    SPExecutor ex = new SPExecutor(params, timeunit);
     SPExecutor ex = new SPExecutor();
-    return analyzeWaveform(wav, winslider, ex);
+    winslider = new WindowSlider(usesStereo());
+    winslider.setInputData(wav);
+    ex.addSPModule(winslider);
+    for (ProducerConsumerCompatible module : getUsedModules()) 
+      ex.addSPModule(module);
+    for (ModuleConnection mc : getModuleConnections())
+      ex.connect(mc.inModule, mc.inCh, mc.outModule, mc.outCh);
+    AmusaDataSet dataset = new AmusaDataSet(getAmusaXMLFormat());
+    for (OutputData outdata : getOutputData()) {
+      TimeSeriesCompatible ts = 
+        ex.getResult(outdata.module).get(outdata.ch);
+//      for (Map.Entry<String,String> entry : outdata.attrs.entrySet())
+//        ts.setAttribute(entry.getKey(), entry.getValue());
+      dataset.add(ts);
+    }
+    customSetting(ex, dataset);
+    ex.start();
+    return dataset;
+//    return analyzeWaveform(wav, winslider, ex);
   }
 
-  protected abstract AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
-                                          WindowSlider winslider, 
-                                          SPExecutor exec) 
-    throws IOException,ParserConfigurationException,
-    TransformerException,SAXException;
+  protected abstract ProducerConsumerCompatible[] getUsedModules();
+
+  protected abstract ModuleConnection[] getModuleConnections();
+
+  /** "array" or "peaks" */
+  protected abstract String getAmusaXMLFormat();
+
+  protected abstract OutputData[] getOutputData();
+
+  protected void customSetting(SPExecutor ex, AmusaDataSetCompatible dataset) {
+    // do nothing 
+  }
+
+  protected WindowSlider getWindowSlider() {
+    return winslider;
+  }
+
+//  protected abstract AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
+//                                          WindowSlider winslider, 
+//                                          SPExecutor exec) 
+//    throws IOException,ParserConfigurationException,
+//    TransformerException,SAXException;
+
+  protected class OutputData {
+    ProducerConsumerCompatible module;
+    int ch;
+//    Map<String,String> attrs;
+    protected OutputData(ProducerConsumerCompatible module, int ch) {
+      this.module = module;
+      this.ch = ch;
+//      attrs = new HashMap<String,String>();
+    }
+//    protected void setAttribute(String key, String value) {
+//      attrs.put(key, value);
+//    }
+//    protected void setAttribute(String key, int value) {
+//      attrs.put(key, String.valueOf(value));
+//    }
+//    protected void setAttribute(String key, double value) {
+//      attrs.put(key, String.valueOf(value));
+//    }
+  }
+
 
 }

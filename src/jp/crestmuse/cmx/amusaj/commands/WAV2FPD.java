@@ -13,19 +13,21 @@ import org.xml.sax.*;
 
 
 public class WAV2FPD extends AbstractWAVAnalyzer {
-  private double nnFrom = Double.NaN, nnThru = Double.NaN, step = Double.NaN;
-  private String filterName = null;
+//  private double nnFrom = Double.NaN, nnThru = Double.NaN, step = Double.NaN;
+//  private String filterName = null;
   private boolean paramSet = false;
 
-    private static final DoubleArrayFactory factory = 
+  private ProducerConsumerCompatible stft, peakext, f0calc;
+
+  private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
-    static {
-	addOptionHelpMessage("-f <nn>", "lower bound note number for analysis");
-	addOptionHelpMessage("-t <nn>", "uppper bound note number for analysis");
-	addOptionHelpMessage("-step <nn>", "");
-	addOptionHelpMessage("-filter <filter_name>", "filter used in calculating F0PDF");
-    }
+  static {
+    addOptionHelpMessage("-f <nn>", "lower bound note number for analysis");
+    addOptionHelpMessage("-t <nn>", "uppper bound note number for analysis");
+    addOptionHelpMessage("-step <nn>", "");
+    addOptionHelpMessage("-filter <filter_name>", "filter used in calculating F0PDF");
+  }
 
 
   protected boolean setOptionsLocal(String option, String value) {
@@ -48,7 +50,34 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       return false;
     }
   }
+  
+  protected ProducerConsumerCompatible[] getUsedModules() {
+    return new ProducerConsumerCompatible[] {
+      stft = new STFT(usesStereo()), 
+      peakext = new PeakExtractor(), 
+      f0calc = new F0PDFCalculatorModule()
+    }; 
+  }
 
+  protected ModuleConnection[] getModuleConnections() {
+    return new ModuleConnection[] {
+      new ModuleConnection(getWindowSlider(), 0, stft, 0), 
+      new ModuleConnection(stft, 0, peakext, 0), 
+      new ModuleConnection(peakext, 0, f0calc, 0)
+    };
+  }
+  
+  protected String getAmusaXMLFormat() {
+    return "array";
+  }
+
+  protected OutputData[] getOutputData() {
+    return new OutputData[] {
+      new OutputData(f0calc, 0)
+    };
+  }
+
+/*
   protected AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                             WindowSlider winslider, 
                                             SPExecutor exec)  
@@ -75,8 +104,10 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     dataset.add(ts);
     return dataset;
   }
+*/
 
-  private static final int WINSIZE = 7;
+
+//  private static final int WINSIZE = 7;
 
   public static void main(String[] args) {
     WAV2FPD wav2fpd = new WAV2FPD();

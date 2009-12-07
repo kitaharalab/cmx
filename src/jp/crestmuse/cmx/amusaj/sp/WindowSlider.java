@@ -49,6 +49,29 @@ public class WindowSlider extends SPModule {
     return new String[]{"WINDOW_SIZE", "SHIFT"};
   }
 
+  /** "from" and "thru" in milli sec. */
+  public void setInputData(AudioDataCompatible audiodata, int from, 
+                           int thru) {
+    AmusaParameterSet params = AmusaParameterSet.getInstance();
+    winsize = params.getParamInt("fft", "WINDOW_SIZE");
+    int channels = audiodata.channels();
+    params.setParam("fft", "CHANNELS", channels);
+    fs = audiodata.sampleRate();
+    params.setParam("fft", "SAMPLE_RATE", fs);
+    shift = params.getParamDouble("fft", "SHIFT");
+    if (shift < 1)
+      shift = shift * fs;
+    shift_ = (int)shift;
+    DoubleArray[] w = audiodata.getDoubleArrayWaveform();
+    for (int i = 0; i < chTarget.length; i++) {
+      if (chTarget[i] == -2)
+        wav[i] = mean(w, from*fs/1000, thru*fs/1000);
+      else
+        wav[i] = w[chTarget[i]].subarrayX(from*fs/1000, thru*fs/1000);
+    }
+    t = 0;
+  }
+
 
   public void setInputData(AudioDataCompatible audiodata) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();

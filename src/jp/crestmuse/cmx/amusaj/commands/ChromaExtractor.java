@@ -12,10 +12,12 @@ import org.xml.sax.*;
 
 public class ChromaExtractor extends AbstractWAVAnalyzer {
 
-    static {
-	addOptionHelpMessage("-l <freq>", "lower bound frequency for analysis");
-	addOptionHelpMessage("-h <freq>", "upper bound frequency for analysis");
-    }
+  private ProducerConsumerCompatible stft, peakext, chroma;
+
+  static {
+    addOptionHelpMessage("-l <freq>", "lower bound frequency for analysis");
+    addOptionHelpMessage("-h <freq>", "upper bound frequency for analysis");
+  }
     
   protected boolean setOptionsLocal(String option, String value) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
@@ -33,6 +35,33 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
   }
 
 
+  protected ProducerConsumerCompatible[] getUsedModules() {
+    return new ProducerConsumerCompatible[] {
+      stft = new STFT(usesStereo()), 
+      peakext = new PeakExtractor(), 
+      chroma = new jp.crestmuse.cmx.amusaj.sp.ChromaExtractor()
+    };
+  }
+
+  protected ModuleConnection[] getModuleConnections() {
+    return new ModuleConnection[] {
+      new ModuleConnection(getWindowSlider(), 0, stft, 0), 
+      new ModuleConnection(stft, 0, peakext, 0), 
+      new ModuleConnection(peakext, 0, chroma, 0)
+    };
+  }
+
+  protected String getAmusaXMLFormat() {
+    return "array";
+  }
+
+  protected OutputData[] getOutputData() {
+    return new OutputData[] {
+      new OutputData(chroma, 0)
+    };
+  }
+
+/*
   protected AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                             WindowSlider winslider, 
                                             SPExecutor exec)  
@@ -63,6 +92,8 @@ public class ChromaExtractor extends AbstractWAVAnalyzer {
     return dataset;
 //    return dataset.toWrapper();
   }
+*/
+
 
   public static void main(String[] args) {
     ChromaExtractor ce = new ChromaExtractor();

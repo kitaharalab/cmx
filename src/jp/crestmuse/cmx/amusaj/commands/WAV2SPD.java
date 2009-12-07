@@ -16,7 +16,41 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 
 public class WAV2SPD extends AbstractWAVAnalyzer {
+  private ProducerConsumerCompatible stft, peakext;
 
+  protected ProducerConsumerCompatible[] getUsedModules() {
+    return new ProducerConsumerCompatible[] {
+      stft = new STFT(usesStereo()), 
+      peakext = new PeakExtractor()
+    };
+  }
+
+  protected boolean usesStereo() {
+    return true;
+  }
+
+  protected ModuleConnection[] getModuleConnections() {
+    return new ModuleConnection[] {
+      new ModuleConnection(getWindowSlider(), 0, stft, 0), 
+      new ModuleConnection(getWindowSlider(), 1, stft, 1), 
+      new ModuleConnection(getWindowSlider(), 2, stft, 2), 
+      new ModuleConnection(stft, 0, peakext, 0), 
+      new ModuleConnection(stft, 1, peakext, 1), 
+      new ModuleConnection(stft, 2, peakext, 2)
+    }; 
+  }
+
+  protected String getAmusaXMLFormat() {
+    return "peaks";
+  }
+
+  protected OutputData[] getOutputData() {
+    return new OutputData[] {
+      new OutputData(peakext, 0)
+    };
+  }
+
+/*
   protected AmusaDataSetCompatible analyzeWaveform(AudioDataCompatible wav, 
                                             WindowSlider winslider, 
                                             SPExecutor exec)
@@ -44,7 +78,7 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
 //      return dataset.toWrapper();
 //      addOutputData(peaks);
   }
-
+*/
 
   public static void main(String[] args) {
     WAV2SPD wav2spd = new WAV2SPD();
