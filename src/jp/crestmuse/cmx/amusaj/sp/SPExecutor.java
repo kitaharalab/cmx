@@ -4,6 +4,7 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.misc.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 /************************************************************************
  *<p>
@@ -31,10 +32,19 @@ public class SPExecutor {
 //  private int timeunit;
   private long sleepTime = 0;
 
+  volatile private int nFinished = 0;
+
+//  static Executor ex = null;
+
+  private Thread intReceiver = null;
+
 
   public SPExecutor() {
     modules = new LinkedList<SPExecutorModule>();
     map = new HashMap<ProducerConsumerCompatible, SPExecutorModule>();
+//    if (ex == null)
+//    ex = new ThreadPoolExecutor(16, 4096, 100, TimeUnit.MILLISECONDS, 
+//                                        new LinkedBlockingQueue<Runnable>());
   }
 
 /*
@@ -147,6 +157,11 @@ public class SPExecutor {
   public void start() {
     // for (SPThread th : list)
     // th.start();
+////    Executor ex = new ScheduledThreadPoolExecutor(16);
+//    Executor ex = new ThreadPoolExecutor(4, modules.size(), 100, TimeUnit.MILLISECONDS, 
+//                                        new LinkedBlockingQueue<Runnable>());
+//    for (SPExecutorModule spm : modules)
+//      ex.execute(spm);
     for (SPExecutorModule spm : modules)
       spm.start();
   }
@@ -185,6 +200,15 @@ public class SPExecutor {
   public boolean finished(ProducerConsumerCompatible module) {
     // return map.get(module).finish;
     return !map.get(module).isAlive();
+  }
+
+  private synchronized void checkFinished() {
+    if (intReceiver != null && nFinished >= modules.size())
+      intReceiver.interrupt();      
+  }
+
+  public void setInterruptionReceiver(Thread th) {
+    intReceiver = th;
   }
 
   /*********************************************************************
@@ -277,7 +301,6 @@ public class SPExecutor {
       while (!Thread.interrupted()) {
         try {
           for (int i = 0; i < inputChannelNum; i++) {
-//            System.err.println(module + " " + i + " " + src[i]);
             inputElements[i] = src[i].take();
           }
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
@@ -290,11 +313,13 @@ public class SPExecutor {
             break;
           Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
-//          e.printStackTrace();
+          e.printStackTrace();
           break;
         }
       }
       module.stop(src, dest);
+      nFinished++;
+      checkFinished();
     }
   }
 

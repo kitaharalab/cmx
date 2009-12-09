@@ -505,8 +505,24 @@ public class Operations {
     return sum;
   }
 
+  public static DoubleArray sum(DoubleArray[] arrays, int from, int thru) {
+    if (arrays.length == 1)
+      return arrays[0].subarrayX(from, thru);
+    DoubleArray sum = add(arrays[0].subarrayX(from, thru), 
+                          arrays[1].subarrayX(from, thru));
+    for (int i = 2; i < arrays.length; i++)
+      addX(sum, arrays[i].subarrayX(from, thru));
+    return sum;
+  }
+
   public static DoubleArray mean(DoubleArray[] arrays) {
     DoubleArray sum = sum(arrays);
+    divX(sum, arrays.length);
+    return sum;
+  }
+
+  public static DoubleArray mean(DoubleArray[] arrays, int from, int thru) {
+    DoubleArray sum = sum(arrays, from, thru);
     divX(sum, arrays.length);
     return sum;
   }

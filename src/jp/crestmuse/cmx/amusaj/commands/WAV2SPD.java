@@ -25,15 +25,15 @@ public class WAV2SPD extends AbstractWAVAnalyzer {
     };
   }
 
-  protected boolean usesStereo() {
-    return true;
-  }
+//  protected boolean usesStereo() {
+//    return true;
+//  }
 
   protected ModuleConnection[] getModuleConnections() {
     return new ModuleConnection[] {
       new ModuleConnection(getWindowSlider(), 0, stft, 0), 
-      new ModuleConnection(getWindowSlider(), 1, stft, 1), 
-      new ModuleConnection(getWindowSlider(), 2, stft, 2), 
+//      new ModuleConnection(getWindowSlider(), 1, stft, 1), 
+//      new ModuleConnection(getWindowSlider(), 2, stft, 2), 
       new ModuleConnection(stft, 0, peakext, 0), 
       new ModuleConnection(stft, 1, peakext, 1), 
       new ModuleConnection(stft, 2, peakext, 2)

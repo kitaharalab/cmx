@@ -514,8 +514,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       NodeList nl = selectNodeList("/scc/part");
       int size = nl.getLength();
       partlist = new Part[size];
-      for (int i = 0; i < size; i++)
+      for (int i = 0; i < size; i++) {
         partlist[i] = new Part(nl.item(i));
+        partlist[i].xpath = "/scc/part[" + i + "]";
+      }       
     }
     return partlist;
   }
@@ -690,6 +692,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   public class Part extends NodeInterface {
     private Note[] notelist = null;
     private List<Note> noteonlylist = null;
+    private String xpath;
 
     private Part(Node node) {
       super(node);
@@ -711,13 +714,18 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         int size = nl.getLength();
         notelist = new Note[size];
         noteonlylist = new ArrayList<Note>();
+        int iNote = 0, iCC = 0;
         for (int i = 0; i < size; i++) {
           Node node = nl.item(i);
           if (node.getNodeName().equals("note")) {
             notelist[i] = new Note(node, this);
             noteonlylist.add(notelist[i]);
+            notelist[i].xpath = getXPathExpression() + "/note[" + iNote + "]";
+            iNote++;
           } else if (node.getNodeName().equals("control")) {
             notelist[i] = new ControlChange(node, this);
+            notelist[i].xpath = getXPathExpression() + "/control[" + iCC + "]";
+            iCC++;
           }
         }
       }
@@ -875,12 +883,17 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     public final int volume() {
       return getAttributeInt(node(), "vol");
     }
+
+    public final String getXPathExpression() {
+      return xpath;
+    }
   }
 
   public class Note extends NodeInterface implements NoteCompatible {
     private Part part;
     private int onset, offset, notenum, velocity, offVelocity;
     private int onsetInMSec, offsetInMSec;
+    private String xpath;
 
     private Note(Node node, Part part) {
       super(node);
@@ -947,11 +960,21 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return part;
     }
 
+    /** Obsolete. use onsetInMilliSec() instead. */
     public final int onsetInMSec() {
       return onsetInMSec;
     }
 
+    public final int onsetInMilliSec() {
+      return onsetInMSec;
+    }
+
+    /** Obsolete. use offsetInMilliSec() instead. */
     public final int offsetInMSec() {
+      return offsetInMSec;
+    }
+
+    public final int offsetInMilliSec() {
       return offsetInMSec;
     }
 
@@ -976,6 +999,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return "Note[" + onset + ", " + offset + ", " + notenum + ", " 
         + velocity + ", " + offVelocity + "]";
     }
+
+    public String getXPathExpression() {
+      return xpath;
+    } 
 
   }
 

@@ -63,6 +63,8 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     return new ModuleConnection[] {
       new ModuleConnection(getWindowSlider(), 0, stft, 0), 
       new ModuleConnection(stft, 0, peakext, 0), 
+      new ModuleConnection(stft, 1, peakext, 1), 
+      new ModuleConnection(stft, 2, peakext, 2), 
       new ModuleConnection(peakext, 0, f0calc, 0)
     };
   }

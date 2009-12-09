@@ -77,11 +77,13 @@ public class AmusaParameterSet implements ParameterCompatible {
   
   private String getParam(String namespace, String category, String key) {
     String c = namespace + ":" + category + ":" + key;
-    if (map.containsKey(c))
+    if (map.containsKey(c)) {
+      usedKeys.add(c);
       return map.get(c);
-    else if (params.containsParam(category, key))
+    } else if (params.containsParam(category, key)) {
+      usedKeys.add(c);
       return params.getParam(category, key);
-    else
+    } else
       return null;
   }
 

@@ -58,6 +58,7 @@ public class KitaharaFeatureExtractor
         = calcMedianOfDiffPower(logSmoothPowerEnv, from, thru, ndiv);
       featAM = calcModulation(logPowerEnv, from, thru);
       featFM = calcModulation(h.getF0Envelope(), from, thru);
+//      System.err.print(".");
     } catch (org.apache.commons.math.MathException e) {
       throw new SPException(e);
     }

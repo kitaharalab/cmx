@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.misc;
 import java.io.*;
+import java.util.*;
 
 public final class Misc {
     public static String readLineFromStdIn() {
@@ -42,6 +43,23 @@ public final class Misc {
 	    return inputYesNo(message);
 	}
     }
+
+
+  public static Object[] to1dimArray(Object[] array) {
+    List l = new ArrayList();
+    addElements(l, array);
+    return l.toArray();
+  }
+
+  private static void addElements(List l, Object[] array) {
+    for (Object o : array) 
+      if (o instanceof Object[])
+        addElements(l, (Object[])o);
+      else
+        l.add(o);
+  }
+    
+
 }
 
 	    

@@ -64,10 +64,12 @@ public class WindowSlider extends SPModule {
     shift_ = (int)shift;
     DoubleArray[] w = audiodata.getDoubleArrayWaveform();
     for (int i = 0; i < chTarget.length; i++) {
+      int idxFrom = (int)((long)from * (long)fs / 1000);
+      int idxThru = (int)((long)thru * (long)fs / 1000);
       if (chTarget[i] == -2)
-        wav[i] = mean(w, from*fs/1000, thru*fs/1000);
+        wav[i] = mean(w, idxFrom, idxThru);
       else
-        wav[i] = w[chTarget[i]].subarrayX(from*fs/1000, thru*fs/1000);
+        wav[i] = w[chTarget[i]].subarrayX(idxFrom, idxThru);
     }
     t = 0;
   }

@@ -49,11 +49,15 @@ public class HarmonicsExtractor  extends SPModule {
     PeakSet peakset = (PeakSet)src[0];
     SPDoubleArray f0array = (SPDoubleArray)src[1];
     double f0 = f0array.get(0);
-    dest[0].add(extractHarmonics(peakset, f0));
+    PeakSet result = extractHarmonics(peakset, f0);
+    dest[0].add(result != null ? result : new PeakSet(0));
+//    dest[0].add(extractHarmonics(peakset, f0));
   }
 
   PeakSet extractHarmonics(PeakSet peakset, double f0) {
     if (!setParams) setParams();
+    System.out.println(f0);
+    if (f0 == 0) return null;
     MaxResult maxresult = new Operations.MaxResult();
     PeakSet harmonics = new PeakSet(nHarmonics);
     DoubleArray ff = peakset.freq();
@@ -77,9 +81,10 @@ public class HarmonicsExtractor  extends SPModule {
           harmonics.setFreq(i, 0.0);
         harmonics.setPower(i, 0.0);
       }
-      System.out.print(harmonics.power(i) + " ");
+//      System.err.print(".");
+//      System.out.print(harmonics.power(i) + " ");
     }
-    System.out.println();
+//    System.out.println();
     return harmonics;
   }
 

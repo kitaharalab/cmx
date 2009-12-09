@@ -85,7 +85,7 @@ public abstract class AbstractWAVAnalyzer
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
-  protected void preproc() throws IOException {
+  protected void preproc() throws IOException, ParserConfigurationException, TransformerException, SAXException  {
     AmusaParameterSet.getInstance().setAnotherParameterSet(CMXCommand.getConfigXMLWrapper());
   }
 
