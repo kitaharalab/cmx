@@ -23,6 +23,17 @@ public abstract class AbstractWAVAnalyzer
   }
 
   protected boolean setOptionsLocal(String option, String value) {
+    if (super.setOptionsLocal(option, value)) {
+      return true;
+    } else if (OptionUtils.setFFTOptions(option, value)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+/*
+  protected boolean setOptionsLocal(String option, String value) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     if (option.equals("-winsize")) {
       params.setParam("fft", "WINDOW_SIZE", value);
@@ -44,6 +55,7 @@ public abstract class AbstractWAVAnalyzer
       return false;
     }
   }
+*/
 
   protected String getParam(String category, String key) {
     return AmusaParameterSet.getInstance().getParam(category, key);

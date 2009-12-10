@@ -48,13 +48,13 @@ public class AmusaParameterSet implements ParameterCompatible {
     setParam(category, key, String.valueOf(value));
   }
 
-  private boolean containsParam(String namespace, 
+  public boolean containsParam(String namespace, 
                                 String category, String key) {
     String c = namespace + ":" + category + ":" + key;
     if (map.containsKey(c)) {
       usedKeys.add(c);
       return true;
-    } else if (params.containsParam(category, key)) {
+    } else if (params.containsParam(namespace, category, key)) {
       usedKeys.add(c);
       return true;
     } else {
@@ -74,18 +74,30 @@ public class AmusaParameterSet implements ParameterCompatible {
     String[] ss = key.split(":");
     return getParam(ss[0], ss[1], ss[2]);
   }
-  
-  private String getParam(String namespace, String category, String key) {
+
+
+  public String getParam(String namespace, String category, String key) {
     String c = namespace + ":" + category + ":" + key;
     if (map.containsKey(c)) {
       usedKeys.add(c);
       return map.get(c);
-    } else if (params.containsParam(category, key)) {
+    } else if (params.containsParam(namespace, category, key)) {
       usedKeys.add(c);
-      return params.getParam(category, key);
+      return params.getParam(namespace, category, key);
     } else
       return null;
   }
+
+  public final int getParamInt(String namespace, String category, String key) {
+    return Integer.parseInt(getParam(namespace, category, key));
+  }
+
+  public final double getParamDouble(String namespace, 
+                                     String category, String key) {
+    return Double.parseDouble(getParam(namespace, category,  key));
+  }
+
+
 
   public final String getParam(String category, String key) {
     return getParam(PARAM_NAMESPACE, category, key);

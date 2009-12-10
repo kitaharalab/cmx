@@ -29,7 +29,17 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
     addOptionHelpMessage("-filter <filter_name>", "filter used in calculating F0PDF");
   }
 
+  protected boolean setOptionsLocal(String option, String value) {
+    if (super.setOptionsLocal(option, value)) {
+      return true;
+    } else if (OptionUtils.setF0PDFOptions(option, value)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
+/*
   protected boolean setOptionsLocal(String option, String value) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     if (super.setOptionsLocal(option, value)) {
@@ -50,7 +60,8 @@ public class WAV2FPD extends AbstractWAVAnalyzer {
       return false;
     }
   }
-  
+*/
+
   protected ProducerConsumerCompatible[] getUsedModules() {
     return new ProducerConsumerCompatible[] {
       stft = new STFT(usesStereo()), 

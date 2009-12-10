@@ -49,7 +49,9 @@ public class F0PDFCalculatorModule extends SPModule {
     step = params.getParamDouble("f0pdf", "STEP");
     f0calc = factory.createCalculator(nnFrom, nnThru, step);
     String filterName = params.getParam("f0pdf", "FILTER_NAME");
-    if (filterName != null) 
+    if (filterName != null) {
+      System.err.println(filterName);
+      System.err.println(params.getFilterParam(filterName, "LOW_CUT_FILTER"));
       filter = PeakSet.getFilter
         (params.getFilterParam(filterName, "LOW_CUT_FILTER").equals("on"), 
          params.getFilterParamDouble(filterName, "LOW_CUT_BUTTOM"), 
@@ -57,6 +59,7 @@ public class F0PDFCalculatorModule extends SPModule {
          params.getFilterParam(filterName, "HIGH_CUT_FILTER").equals("on"), 
          params.getFilterParamDouble(filterName, "HIGH_CUT_TOP"), 
          params.getFilterParamDouble(filterName, "HIGH_CUT_BUTTOM"));
+    }
     paramSet = true;
   }
 

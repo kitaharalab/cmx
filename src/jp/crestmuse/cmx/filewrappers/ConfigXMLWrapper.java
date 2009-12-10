@@ -7,7 +7,7 @@ public class ConfigXMLWrapper extends CMXFileWrapper
 implements ParameterCompatible {
   private Map<String,ParamSet> map = new HashMap<String,ParamSet>();
 
-  private String getParam(String namespace, String category,  String key) {
+  public String getParam(String namespace, String category,  String key) {
     String c = namespace + ":" + category;
     if (map.containsKey(c)) {
       return map.get(c).getHeaderElement(key);
@@ -25,15 +25,15 @@ implements ParameterCompatible {
     }
   }
 
-  public String getParam(String category, String key) {
-    return getParam(PARAM_NAMESPACE, category, key);
-  }
+//  public String getParam(String category, String key) {
+//    return getParam(PARAM_NAMESPACE, category, key);
+//  }
 
-  public String getFilterParam(String filter, String param) {
-    return getParam(FILTER_NAMESPACE, filter, param);
-  }
+//  public String getFilterParam(String filter, String param) {
+//    return getParam(FILTER_NAMESPACE, filter, param);
+//  }
 
-  private boolean containsParam(String namespace, 
+  public boolean containsParam(String namespace, 
                                 String category, String key) {
     String c = namespace + ":" + category;
 //    System.err.println(c);
@@ -49,13 +49,13 @@ implements ParameterCompatible {
     return header.containsHeaderKey(key);
   }
 
-  public boolean containsParam(String category, String key) {
-    return containsParam(PARAM_NAMESPACE, category, key);
-  }
+//  public boolean containsParam(String category, String key) {
+//    return containsParam(PARAM_NAMESPACE, category, key);
+//  }
 
-  public boolean containsFilterParam(String filter, String param) {
-    return containsParam(FILTER_NAMESPACE, filter, param);
-  }
+//  public boolean containsFilterParam(String filter, String param) {
+//    return containsParam(FILTER_NAMESPACE, filter, param);
+//  }
 
   private class ParamSet extends AbstractHeaderNodeInterface {
     protected ParamSet(Node node) {
@@ -66,21 +66,21 @@ implements ParameterCompatible {
     }
   }
 
-  public int getParamInt(String category, String key) {
-    return Integer.parseInt(getParam(category, key));
+  public int getParamInt(String namespace, String category, String key) {
+    return Integer.parseInt(getParam(namespace, category, key));
   }
 
-  public double getParamDouble(String category, String key) {
-    return Double.parseDouble(getParam(category, key));
+  public double getParamDouble(String namespace, String category, String key) {
+    return Double.parseDouble(getParam(namespace, category, key));
   }
                             
-  public int getFilterParamInt(String filter, String param) {
-    return Integer.parseInt(getFilterParam(filter, param));
-  }
+//  public int getFilterParamInt(String filter, String param) {
+//    return Integer.parseInt(getFilterParam(filter, param));
+//  }
 
-  public double getFilterParamDouble(String filter, String param) {
-    return Double.parseDouble(getFilterParam(filter, param));
-  }
+//  public double getFilterParamDouble(String filter, String param) {
+//    return Double.parseDouble(getFilterParam(filter, param));
+//  }
 
   
 /*
