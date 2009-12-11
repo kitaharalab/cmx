@@ -14,7 +14,7 @@ public class Operations {
 
   private static final Median median = new Median();
 
-  private Operations() { }
+  public Operations() { }
 
   public static DoubleArray subarray(DoubleArray x, int from, int thru) {
     int length = thru - from;
@@ -32,6 +32,14 @@ public class Operations {
     return z;
   }
 
+    public static void putAt(DoubleArray x, int i, double value) {
+	x.set(i, value);
+    }
+
+    public static double getAt(DoubleArray x, int i) {
+	return x.get(i);
+    }
+
   public static DoubleArray add(DoubleArray x, DoubleArray y) {
     int length = x.length();
     DoubleArray z = factory.createArray(length);
@@ -39,6 +47,10 @@ public class Operations {
       z.set(i, x.get(i) + y.get(i));
     return z;
   }
+
+    public static DoubleArray plus(DoubleArray x, DoubleArray y) {
+	return add(x, y);
+    }
 
   public static void addX(DoubleArray x, DoubleArray y) {
     int length = x.length();
@@ -53,6 +65,10 @@ public class Operations {
       z.set(i, x.get(i) + y);
     return z;
   }
+
+    public static DoubleArray plus(DoubleArray x, double y) {
+	return add(x, y);
+    }
 
   public static void addX(DoubleArray x, double y) {
     int length = x.length();
@@ -78,11 +94,27 @@ public class Operations {
     return z;
   }
 
+    public static DoubleArray minus(DoubleArray x, DoubleArray y) {
+	return sub(x, y);
+    }
+
   public static void subX(DoubleArray x, double y) {
     int length = x.length();
     for (int i = 0; i < length; i++)
       x.set(i, x.get(i) - y);
   }
+
+    public static DoubleArray mul(DoubleArray x, double y) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) * y);
+	return z;
+    }
+
+    public static DoubleArray multiply(DoubleArray x, double y) {
+	return mul(x, y);
+    }
 
   public static DoubleArray mul(DoubleArray x, DoubleArray y) {
     int length = x.length();
@@ -91,6 +123,10 @@ public class Operations {
       z.set(i, x.get(i) * y.get(i));
     return z;
   }
+
+    public static DoubleArray multiply(DoubleArray x, DoubleArray y) {
+	return multiply(x,y);
+    }
 
   public static void mulX(DoubleArray x, double y) {
     int length = x.length();
@@ -106,6 +142,22 @@ public class Operations {
     return z;
   }
 
+    public static DoubleArray divide(DoubleArray x, double y) {
+	return div(x, y);
+    }
+
+    public static DoubleArray div(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) / y.get(i));
+	return z;
+    }
+
+    public static DoubleArray divide(DoubleArray x, DoubleArray y) {
+	return div(x, y);
+    }
+    
   public static void divX(DoubleArray x, double y) {
     int length = x.length();
     for (int i = 0; i < length; i++)
@@ -149,6 +201,13 @@ public class Operations {
     return min(x, new MinResult());
   }
 
+    public static int argmin(DoubleArray x) {
+	MinResult result = new MinResult();
+	min(x, result);
+	return result.argmin;
+    }
+
+
   public static class MinResult {
     public double min;
     public int argmin;
@@ -191,6 +250,12 @@ public class Operations {
   public static double max(DoubleArray x) {
     return max(x, new MaxResult());
   }
+
+    public static int argmax(DoubleArray x) {
+	MaxResult result = new MaxResult();
+	max(x, result);
+	return result.argmax;
+    }
 
   public static double max(DoubleArray x, MaxResult result) {
 //    MaxResult result = new MaxResult();

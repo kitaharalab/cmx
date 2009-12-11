@@ -54,5 +54,18 @@ public class Utils {
     return gaussian(size, size / 6.0);
   }
 
+    public static final SPDoubleArray createDoubleArray(int length) {
+	return new SPDoubleArray(factory.createArray(length));
+    }
+
+    public static final SPDoubleArray createDoubleArray(double[] x) {
+	return new SPDoubleArray(factory.createArray(x));
+    }
+
+    public static final SPDoubleArray create1dimDoubleArray(double x) {
+	DoubleArray array = factory.createArray(1);
+	array.set(0, x);
+	return new SPDoubleArray(array);
+    }
 
 }

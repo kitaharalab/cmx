@@ -185,11 +185,12 @@ public abstract class AbstractWAVAnalyzer
 //    throws IOException,ParserConfigurationException,
 //    TransformerException,SAXException;
 
-  protected class OutputData {
+/*
+  public class OutputData {
     ProducerConsumerCompatible module;
     int ch;
 //    Map<String,String> attrs;
-    protected OutputData(ProducerConsumerCompatible module, int ch) {
+    public OutputData(ProducerConsumerCompatible module, int ch) {
       this.module = module;
       this.ch = ch;
 //      attrs = new HashMap<String,String>();
@@ -204,6 +205,6 @@ public abstract class AbstractWAVAnalyzer
 //      attrs.put(key, String.valueOf(value));
 //    }
   }
-
+*/
 
 }
