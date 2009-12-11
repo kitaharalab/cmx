@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.amusaj.filewrappers;
+package jp.crestmuse.cmx.sound;
 import jp.crestmuse.cmx.math.*;
 import javax.sound.sampled.*;
 
@@ -8,4 +8,7 @@ public interface AudioDataCompatible {
   DoubleArray[] getDoubleArrayWaveform();
   byte[] getByteArrayWaveform();
   AudioFormat getAudioFormat();
+  double[] next();
+  boolean hasNext();
+  boolean supportsWholeWaveformGetter();
 }

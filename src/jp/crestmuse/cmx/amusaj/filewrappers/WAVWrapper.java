@@ -43,6 +43,10 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     return fmt.samplesPerSec;
   }
 
+  public boolean supportsWholeWaveformGetter() {
+    return true;
+  }
+
   /*******************************************************************
    *Returns the waveform.
    *******************************************************************/
@@ -60,6 +64,20 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
 
   public AudioFormat getAudioFormat() {
     return fmt.getAudioFormat();
+  }
+
+  private int next = 0;
+  
+  public double[] next() {
+    double[] array = new double[channels()];
+    for (int i = 0; i < array.length; i++)
+      array[i] = data.getWaveform()[i].get(next);
+    next++;
+    return array;
+  }
+
+  public boolean hasNext() {
+    return next < data.getWaveform()[0].length();
   }
 
 /*
