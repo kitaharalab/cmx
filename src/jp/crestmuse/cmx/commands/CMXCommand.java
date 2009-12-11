@@ -313,7 +313,11 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
    }
 
   protected boolean loopEnabled() {
-    return true;
+      if (requiredFiles() > 0)
+	  return true;
+      else 
+	  return false;
+      //    return true;
   }
 
   protected int requiredFiles() {

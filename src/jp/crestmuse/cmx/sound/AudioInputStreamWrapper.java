@@ -70,9 +70,11 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
       cache = new double[CACHE_SIZE];
       audioin.read(buff, 0, sampleSize * channels);
       for (int i = 0; i < sampleSize; i++) {
-        for (int ch = 0; ch < channels; ch++) {
-          cache[next + i * channels + ch] 
-            = (double)(buff[i * channels + ch] + 128) / 128.0;
+	  for (int ch = 0; ch < channels; ch++) {
+	      int b = buff[i * channels + ch] + 128;
+	      if (b >= 128) b -= 256;
+	      cache[next + i * channels + ch] = (double)b/256;
+		  //= (double)(buff[i * channels + ch] ) ;
           array[ch].set(i, cache[next + i * channels + ch]);
         }
       }
@@ -88,8 +90,10 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
       audioin.read(buff, 0, n * channels);
       for (int i = 0; i < n; i++) {
         for (int ch = 0; ch < channels; ch++) {
-          cache[next + i * channels + ch] 
-            = (double)(buff[i * channels + ch] + 128) / 128.0;
+	    int b = buff[i * channels + ch] + 128;
+	    if (b >= 128) b -= 256;
+	    cache[next + i * channels + ch] = (double)b / 256;
+	      //  = (double)(buff[i * channels + ch] ) ;
           array[ch].set(nOverlap + i, cache[next + i * channels + ch]);
         }
       }

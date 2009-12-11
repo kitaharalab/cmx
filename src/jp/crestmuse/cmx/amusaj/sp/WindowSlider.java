@@ -132,7 +132,7 @@ public class WindowSlider extends SPModule {
 
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
     throws InterruptedException {
-    if (audiodata.hasNext(winsize)) {
+      if (audiodata.hasNext(winsize)) {
       try {
         DoubleArray[] wav = audiodata.readNext(winsize, winsize - shift_);
         for (int i = 0; i < chTarget.length; i++) {

@@ -123,11 +123,13 @@ public abstract class AbstractWAVAnalyzer
     TransformerException,SAXException {
     SPExecutor ex = new SPExecutor();
     winslider = new WindowSlider(usesStereo());
+    AudioInputStreamWrapper audioin;
     if (wav != null) {
       winslider.setInputData(wav);
+      audioin = null;
     } else {
       try {    // kari
-        AudioInputStreamWrapper audioin = AudioInputStreamWrapper.createWrapper8(16000);
+        audioin = AudioInputStreamWrapper.createWrapper8(16000);
         winslider.setInputData(audioin);
         audioin.getLine().start();
       } catch (LineUnavailableException e) {
@@ -149,6 +151,13 @@ public abstract class AbstractWAVAnalyzer
     }
     customSetting(ex, dataset);
     ex.start();
+    if (audioin != null) {//kari
+	System.in.read();
+	TargetDataLine line = audioin.getLine();
+	line.stop();
+	line.drain();
+	line.close();
+    }
     return dataset;
 //    return analyzeWaveform(wav, winslider, ex);
   }
