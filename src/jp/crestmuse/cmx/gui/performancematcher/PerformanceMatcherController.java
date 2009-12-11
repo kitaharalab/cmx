@@ -28,17 +28,24 @@ public class PerformanceMatcherController {
   }
 
   public void selectScore(PrintableOriginalNote selectedNote) {
-    if (selectedDeviatedNote.getDeviatedNote() == selectedNote.getPair().getDeviatedNote())
+    if (selectedDeviatedNote.getDeviatedNote() == selectedNote.getPair().getDeviatedNote()) {
+      DeviatedNote srcDn = selectedDeviatedNote.getDeviatedNote();
+      frameController.toExtraNote(srcDn);
+      srcDn.setExtraNote();
+      performancePanel.updateScale();
+      performancePanel.repaint();
       return;
+    }
     try {
       DeviatedNote srcDn = selectedDeviatedNote.getDeviatedNote();
       DeviatedNote dstDn = selectedNote.getPair().getDeviatedNote();
-      frameController.changePair(srcDn.getNote(), dstDn.getNote());
+      frameController.changePair(srcDn, dstDn);
       dstDn.changeDeviation((srcDn.onset(480) - dstDn.onset(480)) / 480.0,
           (srcDn.offset(480) - dstDn.offset(480)) / 480.0);
       srcDn.setMissNote(true);
       performancePanel.updateScale();
       performancePanel.repaint();
+      scorePanel.noteSelected(selectedNote.getPair().getDeviatedNote());
     } catch (InvalidMidiDataException e) {
       e.printStackTrace();
     }

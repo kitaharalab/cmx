@@ -326,6 +326,8 @@ public class DeviatedPerformance {
       baseTempo += t;
     baseTempo /= ticks2tempo.size();
     dds.addNonPartwiseControl(1, 1.0, "tempo", baseTempo);
+    // TODO 3拍子にも対応するようにする
+    // cumlative tick使う
     for (Entry<Integer, Integer> e : ticks2tempo.entrySet())
       dds.addNonPartwiseControl(e.getKey() / (TICKS_PER_BEAT * 4) + 1,
           (double) (e.getKey() % (TICKS_PER_BEAT * 4)) / TICKS_PER_BEAT + 1,
@@ -638,6 +640,10 @@ public class DeviatedPerformance {
       this.isMissNote = isMissNote;
       updateMidiEvent();
       notifyUpdate(this);
+    }
+    
+    public void setExtraNote() {
+      note = null;
     }
 
     /**

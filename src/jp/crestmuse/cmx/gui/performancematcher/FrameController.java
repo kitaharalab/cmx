@@ -1,6 +1,8 @@
 package jp.crestmuse.cmx.gui.performancematcher;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.JFrame;
@@ -12,14 +14,18 @@ import org.xml.sax.SAXException;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
 import jp.crestmuse.cmx.misc.PerformanceMatcher3;
 
 public class FrameController implements Runnable {
 
+  public static final int LIMIT = 10;
   private String scoreFilename;
   private String pfmFilename;
   private PerformanceMatcher3 pm3;
@@ -54,10 +60,28 @@ public class FrameController implements Runnable {
     }
   }
 
-  public void changePair(Note src, Note dst) {
-    int srcIndex = pm3.getMusicxmlwrappernote2Index().get(src);
-    int dstIndex = pm3.getMusicxmlwrappernote2Index().get(dst);
+  public void changePair(DeviatedNote src, DeviatedNote dst) {
+    if (src.getNote() == null) {
+      int tpb = 480;
+      for (Entry<SCCXMLWrapper.Note, Integer> e : pm3.getExtraNoteMap().entrySet()) {
+        if (Math.abs(e.getKey().onset(tpb) - src.onset(tpb)) < LIMIT
+            && Math.abs(e.getKey().offset(tpb) - src.offset(tpb)) < LIMIT
+            && e.getKey().notenum() == src.notenum()) {
+          int dstIndex = pm3.getMusicxmlwrappernote2Index().get(dst.getNote());
+          score2pfm[dstIndex] = e.getValue();
+          break;
+        }
+      }
+      return;
+    }
+    int srcIndex = pm3.getMusicxmlwrappernote2Index().get(src.getNote());
+    int dstIndex = pm3.getMusicxmlwrappernote2Index().get(dst.getNote());
     score2pfm[dstIndex] = score2pfm[srcIndex];
+    score2pfm[srcIndex] = -1;
+  }
+  
+  public void toExtraNote(DeviatedNote src) {
+    int srcIndex = pm3.getMusicxmlwrappernote2Index().get(src.getNote());
     score2pfm[srcIndex] = -1;
   }
 
@@ -71,6 +95,11 @@ public class FrameController implements Runnable {
     dev.finalizeDocument();
     deviatedPerformance = new DeviatedPerformance(dev);
     SwingUtilities.invokeLater(this);
+  }
+
+  public void export(String filename) throws InvalidFileTypeException,
+      IOException, SAXException {
+    deviatedPerformance.calcDeviation().writefile(filename);
   }
 
 }

@@ -52,6 +52,7 @@ public class PerformanceMatcher3 {
   private int pfmTicksPerBeat;
   private int[] score2pfm;
   private Map<MusicXMLWrapper.Note, Integer> musicxmlwrappernote2index;
+  private Map<SCCXMLWrapper.Note, Integer> extraNoteMap;
 
   public PerformanceMatcher3(MusicXMLWrapper score, MIDIXMLWrapper pfm)
       throws ParserConfigurationException, SAXException, IOException,
@@ -79,6 +80,7 @@ public class PerformanceMatcher3 {
     HeaderElement[] h = pfmSCC.getHeaderElementList();
     if (h.length >= 1 && h[0].name().equals("TEMPO"))
       baseTempo = Integer.parseInt(h[0].content());
+    extraNoteMap = new HashMap<Note, Integer>();
   }
 
   private void calcMusicXMLNote2Index() {
@@ -143,8 +145,10 @@ public class PerformanceMatcher3 {
       }
     }
     for (j = 0; j < matched.length; j++)
-      if (!matched[j])
+      if (!matched[j]) {
         extraNotes.add(pfmNotes[j]);
+        extraNoteMap.put(pfmNotes[j], j);
+      }
     return indexlist;
   }
 
@@ -163,8 +167,10 @@ public class PerformanceMatcher3 {
       if (indexlist[i] >= 0)
         matched[indexlist[i]] = true;
     for (int j = 0; j < matched.length; j++)
-      if (!matched[j])
+      if (!matched[j]) {
         extraNotes.add(pfmNotes[j]);
+        extraNoteMap.put(pfmNotes[j], j);
+      }
     return indexlist;
   }
 
@@ -174,8 +180,10 @@ public class PerformanceMatcher3 {
       if (indexlist[i] >= 0)
         matched[indexlist[i]] = true;
     for (int j = 0; j < matched.length; j++)
-      if (!matched[j])
+      if (!matched[j]) {
         extraNotes.add(pfmNotes[j]);
+        extraNoteMap.put(pfmNotes[j], j);
+      }
     return indexlist;
   }
 
@@ -243,6 +251,10 @@ public class PerformanceMatcher3 {
 
   public Map<MusicXMLWrapper.Note, Integer> getMusicxmlwrappernote2Index() {
     return musicxmlwrappernote2index;
+  }
+  
+  public Map<SCCXMLWrapper.Note, Integer> getExtraNoteMap() {
+    return extraNoteMap;
   }
 
   // private static int[] getPath(DTWMatrix matrix) {
@@ -572,9 +584,10 @@ public class PerformanceMatcher3 {
         double pfmOnset = getSecFromPfmTick(pfmNote.onset(), tempolist);
         if (scoreOnset - pfmOnset < MISS_EXTRA_ONSET_DIFF
             && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
-//          score2pfm[i] = -j - 2;
-          for(int k=0; k<pfmNotes.length; k++)
-            if(pfmNotes[k] == pfmNote) {
+          // TODO ?
+          // score2pfm[i] = -j - 2;
+          for (int k = 0; k < pfmNotes.length; k++)
+            if (pfmNotes[k] == pfmNote) {
               score2pfm[i] = k;
               break;
             }
