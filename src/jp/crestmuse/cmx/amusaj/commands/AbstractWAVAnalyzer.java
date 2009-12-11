@@ -126,7 +126,7 @@ public abstract class AbstractWAVAnalyzer
     if (wav != null) {
       winslider.setInputData(wav);
     } else {
-      try {
+      try {    // kari
         AudioInputStreamWrapper audioin = AudioInputStreamWrapper.createWrapper8(16000);
         winslider.setInputData(audioin);
         audioin.getLine().start();

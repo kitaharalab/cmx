@@ -424,9 +424,11 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
 //    ini = new INIWrapper(Misc.getFullPath(inifilename, "ini"));
 //    ini.readfile();
     int nFiles = requiredFiles();
-    if (loopEnabled() && filenames.size() % nFiles != 0)
+    if (nFiles > 0 && loopEnabled() && filenames.size() % nFiles != 0)
       throw new InvalidNumberOfFilesException();
-    if (!loopEnabled() && filenames.size() != nFiles)
+    if (nFiles > 0 && !loopEnabled() && filenames.size() != nFiles)
+      throw new InvalidNumberOfFilesException();
+    if (nFiles == 0 && filenames.size() > 0)
       throw new InvalidNumberOfFilesException();
     preproc();
     F1[] files = (F1[])new FileWrapperCompatible[nFiles];
@@ -437,7 +439,8 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
           System.err.println("[" + filename + "]");
           files[i] = (F1)readInputData(filename);
         }
-        this.filename = files[0].getFileName();  // kari
+        if (files.length == 1)
+          this.filename = files[0].getFileName();  // kari
 	outdata = null;
         String destdir = getDestDir();
         if (mkdir && (destdir != null)) {
