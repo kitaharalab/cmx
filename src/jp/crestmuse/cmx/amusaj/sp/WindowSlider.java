@@ -4,9 +4,12 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.sound.*;
 import static jp.crestmuse.cmx.math.Operations.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.sound.Utils.*;
 import java.util.*;
+import java.io.*;
 
 public class WindowSlider extends SPModule {
 
@@ -17,28 +20,29 @@ public class WindowSlider extends SPModule {
 
   private double[] buff;
   private int fs;
-  private DoubleArray[] wav;
+  private AudioDataCompatible audiodata;
+//  private DoubleArray[] wav;
 //  private DoubleArray wavM = null, wavL = null, wavR = null;
 //  private boolean isStereo;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
-  private int t = 0;
+//  private int t = 0;
 
   public WindowSlider(boolean isStereo) {
     if (isStereo) {
       chTarget = new int[]{-2, 0, 1}; // -2 means the mixture of all channels
-      wav = new DoubleArray[3];
+//      wav = new DoubleArray[3];
     } else {
       chTarget = new int[]{-2};
-      wav = new DoubleArray[1];
+//      wav = new DoubleArray[1];
     }
   }
 
   public WindowSlider(int[] chTarget) {
     this.chTarget = chTarget;
-    wav = new DoubleArray[chTarget.length];
+//    wav = new DoubleArray[chTarget.length];
   }
   
   protected String getParamCategory() {
@@ -50,8 +54,18 @@ public class WindowSlider extends SPModule {
   }
 
   /** "from" and "thru" in milli sec. */
-  public void setInputData(AudioDataCompatible audiodata, int from, 
+  public void setInputData(AudioDataCompatible audiodata, 
+                           int from, int thru) {
+    long fs = audiodata.sampleRate();
+    setInputData(excerpt(audiodata, 
+                         (int)((long)from * fs / 1000), 
+                         (int)((long)thru * fs / 1000)));
+  }
+  
+/*public void setInputData(AudioDataCompatible audiodata, int from, 
                            int thru) {
+    if (!audio.supportsWholeWaveformGetter())
+      throw new IllegalStateException();
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     winsize = params.getParamInt("fft", "WINDOW_SIZE");
     int channels = audiodata.channels();
@@ -62,6 +76,7 @@ public class WindowSlider extends SPModule {
     if (shift < 1)
       shift = shift * fs;
     shift_ = (int)shift;
+    this.audiodata = audiodata;
     DoubleArray[] w = audiodata.getDoubleArrayWaveform();
     for (int i = 0; i < chTarget.length; i++) {
       int idxFrom = (int)((long)from * (long)fs / 1000);
@@ -73,7 +88,7 @@ public class WindowSlider extends SPModule {
     }
     t = 0;
   }
-
+*/
 
   public void setInputData(AudioDataCompatible audiodata) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
@@ -86,36 +101,20 @@ public class WindowSlider extends SPModule {
     if (shift < 1)
       shift = shift * fs;
     shift_ = (int)shift;
-    DoubleArray[] w = audiodata.getDoubleArrayWaveform();
-    for (int i = 0; i < chTarget.length; i++) {
-      if (chTarget[i] == -2)
-        wav[i] = mean(w);
-      else
-        wav[i] = w[chTarget[i]];
-    }
-//    if (!params.containsParam("fft", "TARGET_CHANNEL")) {
-//      if (channels == 2) params.setParam("fft", 
-//                                         "TARGET_CHANNEL", "stereo");
-//      else params.setParam("fft", "TARGET_CHANNEL", "0");
-//    }
-//    if (channels == 2 && 
-//        params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("mix")) {
-//      wavM = add(w[0], w[1]);
-//      divX(wavM, 2);
-//      setWaveform(wavM, null, null, false);
-//    } else if (channels == 2 
-//               && params.getParam("fft", "TARGET_CHANNEL").equalsIgnoreCase("stereo")) {
-//      wavM = add(w[0], w[1]);
-//      divX(wavM, 2);
-//      setWaveform(wavM, w[0], w[1], true);
-//    } else {
-//      try {
-//        setWaveform(w[params.getParamInt("fft", "TARGET_CHANNEL")], null, null, false);
-//      } catch (NumberFormatException e) {
-//        throw new IllegalStateException("TARGET_CHANNEL should be an integer, 'mix', or 'stereo'.");
+    this.audiodata = audiodata;
+//    if (audiodata.supportsWholeWaveformGetter()) {
+//      DoubleArray[] w = audiodata.getDoubleArrayWaveform();
+//      for (int i = 0; i < chTarget.length; i++) {
+//        if (chTarget[i] == -2)
+//          wav[i] = mean(w);
+//        else
+//          wav[i] = w[chTarget[i]];
 //      }
+//    } else {
+////      for (int i = 0; i < chTarget.length; i++)
+////        wav[i] = factory.createArray(60 * fs);
 //    }
-    t = 0;
+//    t = 0;
   }
         
 //  private void setWaveform(DoubleArray wM, DoubleArray wL, DoubleArray wR, 
@@ -133,12 +132,38 @@ public class WindowSlider extends SPModule {
 
   public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
     throws InterruptedException {
-    //    boolean hasNext = (t + winsize < wavM.length());
-    boolean hasNext = (t + shift_ + winsize < wav[0].length());
-    for (int i = 0; i < wav.length; i++) {
-      SPDoubleArray a = new SPDoubleArray(wav[i].subarrayX(t, t + winsize));
-      dest[i].add(a);
+    if (audiodata.hasNext(winsize)) {
+      try {
+        DoubleArray[] wav = audiodata.readNext(winsize, winsize - shift_);
+        for (int i = 0; i < chTarget.length; i++) {
+          DoubleArray w;
+          if (chTarget[i] == -2)
+            w = mean(wav);
+          else
+            w = wav[chTarget[i]];
+          dest[i].add(new SPDoubleArray(w));
+        }
+      } catch (IOException e) {
+        throw new SPException(e);
+      }
+    } else {
+      for (int i = 0; i < chTarget.length; i++)
+        dest[i].add(SPTerminator.getInstance());
     }
+  }
+  
+/*
+  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+    throws InterruptedException {
+    boolean hasNext = (t + shift_ + winsize < wav[0].length());
+    if (audiodata.supportsWholeWaveformGetter()) {
+      for (int i = 0; i < wav.length; i++) {
+        SPDoubleArray a = new SPDoubleArray(wav[i].subarrayX(t, t + winsize));
+        dest[i].add(a);
+      }
+    } else {
+      for (int i = 0; i < chTarget.length; i++) {
+        audiodata.next(winsize
 //    SPDoubleArray a = new SPDoubleArray(wavM.subarrayX(t, t + winsize));
 //    dest[0].add(a);
 //    if (isStereo) {
@@ -157,6 +182,8 @@ public class WindowSlider extends SPModule {
     }
     t += shift_;
   }
+*/
+
 
   public Class<SPElement>[] getInputClasses() {
     return new Class[0];

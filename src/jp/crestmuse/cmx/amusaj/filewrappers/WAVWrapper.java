@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.sound.*;
 import java.io.*;
 import java.nio.*;
 import javax.sound.sampled.*;
@@ -9,7 +10,7 @@ import javax.sound.sampled.*;
  *The <tt>WAVWrapper</tt> class wraps a WAV file.
  *********************************************************************/
 public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
-
+ 
   private long filesize;
   private FmtChunk fmt;
   private DataChunk data;
@@ -67,18 +68,59 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
   }
 
   private int next = 0;
-  
-  public double[] next() {
-    double[] array = new double[channels()];
+
+  public DoubleArray[] readNext(int sampleSize, int nOverlap) {
+    DoubleArray[] array = new DoubleArray[channels()];
     for (int i = 0; i < array.length; i++)
-      array[i] = data.getWaveform()[i].get(next);
-    next++;
+      array[i] = getDoubleArrayWaveform()[i].subarrayX(next, next + sampleSize);
+    next += sampleSize - nOverlap;
     return array;
   }
 
-  public boolean hasNext() {
-    return next < data.getWaveform()[0].length();
+  public boolean hasNext(int sampleSize) {
+    return next + sampleSize <= getDoubleArrayWaveform()[0].length();
   }
+
+/*  
+  public DoubleArray[] readNext(int sampleSize) {
+    DoubleArray[] array = new DoubleArray[channels()];
+    for (int i = 0; i < array.length; i++)
+      array[i] = data.getWaveform()[i].subarrayX(next, next + sampleSize);
+    next += sampleSize;
+    return array;
+//    double[] array = new double[channels()];
+//    for (int i = 0; i < array.length; i++)
+//      array[i] = data.getWaveform()[i].get(next);
+//    next++;
+//    return array;
+  }
+
+  public void readNext(int sampleSize, DoubleArray[] x, int index) {
+    DoubleArray[] w = data.getWaveform();
+    for (int ch = 0; ch < x.length; ch++) 
+      for (int t = 0; t < sampleSize; t++) 
+        x[ch].set(t + index, w[ch].get(t + next));
+  }
+
+  public boolean hasNext(int sampleSize) {
+    return next + sampleSize <= data.getWaveform()[0].length();
+  }
+
+  public DoubleArray[] getLast(int sampleSize) {
+    DoubleArray[] array = new DoubleArray[channels()];
+    for (int i = 0; i < array.length; i++)
+      array[i] = data.getWaveform()[i].subarrayX(next - sampleSize, next);
+    return array;
+  }
+
+  public void getLast(int sampleSize, DoubleArray[] x, int index) {
+    DoubleArray[] w = data.getWaveform();
+    for (int ch = 0; ch < x.length; ch++)
+      for (int t = 0; t < sampleSize; t++)
+        x[ch].set(t + index, w[ch].get(t + next - sampleSize));
+  }
+*/
+
 
 /*
   public AmusaDoubleArray getDoubleArrayWaveform(int ch) {
