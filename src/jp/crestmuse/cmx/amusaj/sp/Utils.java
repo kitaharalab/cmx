@@ -2,6 +2,9 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
+import static jp.crestmuse.cmx.math.Utils.*;
+import java.math.*;
+import java.util.*;
 
 public class Utils {
   
@@ -54,15 +57,19 @@ public class Utils {
     return gaussian(size, size / 6.0);
   }
 
-    public static final SPDoubleArray createDoubleArray(int length) {
+    public static final SPDoubleArray createSPDoubleArray(int length) {
 	return new SPDoubleArray(factory.createArray(length));
     }
 
-    public static final SPDoubleArray createDoubleArray(double[] x) {
+    public static final SPDoubleArray createSPDoubleArray(double[] x) {
 	return new SPDoubleArray(factory.createArray(x));
     }
 
-    public static final SPDoubleArray create1dimDoubleArray(double x) {
+    public static final SPDoubleArray createSPDoubleArray(List<BigDecimal> x) {
+	return new SPDoubleArray(createDoubleArray(x));
+    }
+
+    public static final SPDoubleArray create1dimSPDoubleArray(double x) {
 	DoubleArray array = factory.createArray(1);
 	array.set(0, x);
 	return new SPDoubleArray(array);

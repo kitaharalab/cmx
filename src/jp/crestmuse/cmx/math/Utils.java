@@ -1,4 +1,6 @@
 package jp.crestmuse.cmx.math;
+import java.util.*;
+import java.math.*;
 
 public class Utils {
   private static final DoubleArrayFactory factory = 
@@ -8,7 +10,7 @@ public class Utils {
   private static final DoubleMatrixFactory mfactory = 
     DoubleMatrixFactory.getFactory();
 
-  private Utils() { }
+  public Utils() { }
 
   public static DoubleArray cloneArray(DoubleArray x) {
     try {
@@ -37,6 +39,10 @@ public class Utils {
     sb.append(right);
     return sb.toString();
   }
+
+    public static String toString(DoubleArray x) {
+	return toString1(x);
+    }
 
   public static String toString1(DoubleArray x) {
     return toString(x, ", ", "{", "}");
@@ -140,4 +146,27 @@ public class Utils {
   public static DoubleMatrix parseMatrix(String text) {
     return parseMatrix(text, " ", "\n");
   }
+
+    public static final DoubleArray createDoubleArray(int length) {
+	return factory.createArray(length);
+    }
+
+    public static final DoubleArray createDoubleArray(double[] x) {
+    	return factory.createArray(x);
+    }
+
+    public static final DoubleArray createDoubleArray(List<BigDecimal> x) {
+	int length = x.size();
+	DoubleArray array = createDoubleArray(length);
+	for (int i = 0; i < length; i++)
+	    array.set(i, x.get(i).doubleValue());
+	return array;
+    }
+
+    public static final DoubleArray create1dimDoubleArray(double x) {
+	DoubleArray array = factory.createArray(1);
+	array.set(0, x);
+	return array;
+    }
+
 }
