@@ -1,12 +1,14 @@
 package jp.crestmuse.cmx.amusaj.commands;
 import jp.crestmuse.cmx.commands.*;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.sound.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import java.util.*;
 import java.io.*;
 import javax.xml.transform.*;
 import javax.xml.parsers.*;
+import javax.sound.sampled.*;
 import org.xml.sax.*;
 
 public abstract class AbstractWAVAnalyzer 
@@ -14,6 +16,7 @@ public abstract class AbstractWAVAnalyzer
 //  protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
   WindowSlider winslider = null;
+  private boolean fromMic = false;
 
   static {
       addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
@@ -57,6 +60,17 @@ public abstract class AbstractWAVAnalyzer
   }
 */
 
+  protected boolean setBoolOptionsLocal(String option) {
+    if (super.setBoolOptionsLocal(option)) {
+      return true;
+    } else if (option.equals("-mic")) {
+      fromMic = true;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   protected String getParam(String category, String key) {
     return AmusaParameterSet.getInstance().getParam(category, key);
   }
@@ -81,6 +95,9 @@ public abstract class AbstractWAVAnalyzer
     AmusaParameterSet.getInstance().setParam(category, key, value);
   }
 
+  protected int requiredFiles() {
+    return fromMic ? 0 : 1;
+  }
 
   protected boolean usesStereo() {
     return false;
@@ -106,7 +123,17 @@ public abstract class AbstractWAVAnalyzer
     TransformerException,SAXException {
     SPExecutor ex = new SPExecutor();
     winslider = new WindowSlider(usesStereo());
-    winslider.setInputData(wav);
+    if (wav != null) {
+      winslider.setInputData(wav);
+    } else {
+      try {
+        AudioInputStreamWrapper audioin = AudioInputStreamWrapper.createWrapper8(16000);
+        winslider.setInputData(audioin);
+        audioin.getLine().start();
+      } catch (LineUnavailableException e) {
+        throw new IOException();
+      }
+    }
     ex.addSPModule(winslider);
     for (ProducerConsumerCompatible module : getUsedModules()) 
       ex.addSPModule(module);

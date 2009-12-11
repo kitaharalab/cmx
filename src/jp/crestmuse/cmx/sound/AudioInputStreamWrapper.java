@@ -107,7 +107,7 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
   }
 
 
-  public static AudioInputStreamWrapper createInstance(int fs) 
+  public static AudioInputStreamWrapper createWrapper8(int fs) 
     throws LineUnavailableException {
     AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED, 
                                       (float)fs, 8, 1, 1, (float)fs, true);

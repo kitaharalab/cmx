@@ -6,7 +6,7 @@ public class AudioInputStreamWrapperTest {
   public static void main(String[] args) {
     try {
       AudioInputStreamWrapper wrapper = 
-        AudioInputStreamWrapper.createInstance(16000);
+        AudioInputStreamWrapper.createWrapper8(16000);
       TargetDataLine line = wrapper.getLine();
       line.start();
 //      while (true)
