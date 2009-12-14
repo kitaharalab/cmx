@@ -83,6 +83,7 @@ public class FrameController implements Runnable {
   public void toExtraNote(DeviatedNote src) {
     int srcIndex = pm3.getMusicxmlwrappernote2Index().get(src.getNote());
     score2pfm[srcIndex] = -1;
+    System.err.println("set as miss note " + srcIndex);
   }
 
   public void reGenerateDeviation() throws ParserConfigurationException,

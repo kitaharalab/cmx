@@ -30,6 +30,8 @@ public class PerformanceMatcherController {
   public void selectScore(PrintableOriginalNote selectedNote) {
     if (selectedDeviatedNote.getDeviatedNote() == selectedNote.getPair().getDeviatedNote()) {
       DeviatedNote srcDn = selectedDeviatedNote.getDeviatedNote();
+      if(srcDn.getNote() == null)
+        return;
       frameController.toExtraNote(srcDn);
       srcDn.setExtraNote();
       performancePanel.updateScale();
