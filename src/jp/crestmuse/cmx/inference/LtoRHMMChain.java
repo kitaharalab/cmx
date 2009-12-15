@@ -19,6 +19,10 @@ public class LtoRHMMChain<O extends Observation> {
     
   }
 
+  public int nHMMs() {
+      return hmms.length;
+  }
+
   public double[][] calcLogLikelihood(O o, double[][] prevLogLik) {
     double[][] ll = new double[hmms.length][];
     for (int k = 0; k < hmms.length; k++) {

@@ -1,6 +1,8 @@
 package jp.crestmuse.cmx.sound;
 import jp.crestmuse.cmx.math.*;
 import javax.sound.sampled.*;
+import javax.sound.midi.*;
+import java.io.*;
 
 public class Utils {
   public static AudioDataCompatible excerpt(AudioDataCompatible audiodata,int from,int thru){
@@ -53,6 +55,39 @@ public class Utils {
       return true;
 //      return org.supportsWholeWaveformGetter();
     }
+  }
+
+
+  public static MidiDevice getMidiDevice(boolean trans) {
+    MidiDevice.Info[] info = MidiSystem.getMidiDeviceInfo();
+    MidiDevice device = null;
+
+    for (int i = 0; i < info.length; i++) {
+      try {
+        device = MidiSystem.getMidiDevice(info[i]);
+        if(trans && device.getMaxTransmitters() == 0) continue;
+        if(!trans && device.getMaxReceivers() == 0) continue;
+        System.err.println("*** " + i + " ***");
+        System.err.println("  Description:" + info[i].getDescription());
+        System.err.println("  Name:" + info[i].getName());
+        System.err.println("  Vendor:" + info[i].getVendor());
+        System.err.println();
+      } catch (MidiUnavailableException e) {
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      BufferedReader r = new BufferedReader(new InputStreamReader(System.in), 1)
+;
+      if(trans) System.err.print("Using Input Device Number: ");
+      else System.err.print("Using Output Device Number: ");
+      String s = r.readLine();
+      device = MidiSystem.getMidiDevice(info[Integer.parseInt(s)]);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return device;
   }
   
 }

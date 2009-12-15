@@ -17,6 +17,7 @@ public abstract class AbstractWAVAnalyzer
   private AmusaDataSet dataset = null;
   WindowSlider winslider = null;
   private boolean fromMic = false;
+  private int fs = 16000;
 
   static {
       addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
@@ -30,6 +31,9 @@ public abstract class AbstractWAVAnalyzer
       return true;
     } else if (OptionUtils.setFFTOptions(option, value)) {
       return true;
+    } else if (option.equals("-fs")) {
+	fs = Integer.valueOf(value);
+	return true;
     } else {
       return false;
     }
@@ -129,7 +133,7 @@ public abstract class AbstractWAVAnalyzer
       audioin = null;
     } else {
       try {    // kari
-        audioin = AudioInputStreamWrapper.createWrapper8(16000);
+        audioin = AudioInputStreamWrapper.createWrapper8(fs);
         winslider.setInputData(audioin);
         audioin.getLine().start();
       } catch (LineUnavailableException e) {

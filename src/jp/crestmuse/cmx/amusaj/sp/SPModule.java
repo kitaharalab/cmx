@@ -9,7 +9,7 @@ import java.util.*;
 public abstract class SPModule 
   implements ProducerConsumerCompatible {
 
-  private Map<String,String> params = null;
+    //private Map<String,String> params = null;
 
 //  public TimeSeriesCompatible<E> createOutputInstance
 //  (int nFrames, int timeunit) {
@@ -20,6 +20,7 @@ public abstract class SPModule
 //    return nInputFrames;
 //  }
 
+/*
   protected String getParamNameSpace() {
     return "param";
   }
@@ -31,6 +32,8 @@ public abstract class SPModule
   protected String[] getUsedParamNames() {
     return null;
   }
+*/
+
 
 /*
   public void setParams(Map<String,String> params) {
