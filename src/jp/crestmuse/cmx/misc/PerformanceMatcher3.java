@@ -199,7 +199,7 @@ public class PerformanceMatcher3 {
 
   private DeviationInstanceWrapper path2dev(List<Note> extraNotes) {
     DeviationDataSet dds = new DeviationDataSet(musicxml);
-    sortIndexList();
+//    sortIndexList();
     ArrayList<TempoAndTime> tempolist = alignBeats();
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
