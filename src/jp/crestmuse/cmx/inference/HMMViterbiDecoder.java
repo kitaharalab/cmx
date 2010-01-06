@@ -11,7 +11,7 @@ public class HMMViterbiDecoder extends SPModule {
     private List<ObservationVector> l 
 	= new ArrayList<ObservationVector>();
     
-    public HMMViterbiDecoder(Hmm<ObservationVector> hmmchain) {
+    public HMMViterbiDecoder(Hmm<ObservationVector> hmm) {
 	this.hmm = hmm;
     }
 
