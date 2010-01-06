@@ -162,6 +162,20 @@ public final class MIDIConst {
 	return ATTLIST.get(evtname);
     }
 
+    public static boolean msbFirst(String msgname) {
+	if (msgname.equals("PitchBendChange"))
+	    return false;
+	else
+	    return true;
+    }
+
+    public static boolean msgFirst(short msgType) {
+	if (msgType == PITCH_BEND_CHANGE)
+	    return false;
+	else
+	    return true;
+    }
+
     public static byte getByteLength(String msgname) {
 	if (msgname.equals("PitchBendChange"))
 	    return (byte)2;

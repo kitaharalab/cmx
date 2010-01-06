@@ -189,6 +189,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 */
 
 
+    public void addPitchBend(int onset, int offset, int value) {
+	checkElementAddition(partStarted);
+	addChild("pitch-bend");
+	addText(onset + " " + offset + " " + value);
+	returnToParent();
+    }
+	
+
   public void addControlChange(int onset, int offset, 
                                int ctrlnum, int value) {
     checkElementAddition(partStarted);
@@ -714,7 +722,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         int size = nl.getLength();
         notelist = new Note[size];
         noteonlylist = new ArrayList<Note>();
-        int iNote = 0, iCC = 0;
+        int iNote = 0, iCC = 0, iPB = 0;
         for (int i = 0; i < size; i++) {
           Node node = nl.item(i);
           if (node.getNodeName().equals("note")) {
@@ -726,7 +734,11 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
             notelist[i] = new ControlChange(node, this);
             notelist[i].xpath = getXPathExpression() + "/control[" + iCC + "]";
             iCC++;
-          }
+          } else if (node.getNodeName().equals("pitch-bend")) {
+	      notelist[i] = new PitchBend(node, this);
+	      notelist[i].xpath = getXPathExpression()+"/pitch-bend["+iPB+"]";
+	      iPB++;
+	  }
         }
       }
       return notelist;
@@ -858,7 +870,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
           el.addEvent(note.onset(), MIDIConst.CONTROL_CHANGE, ch, 
                       ((ControlChange)note).ctrlnum(), 
                       ((ControlChange)note).value());
-        } else {
+        } else if (note instanceof PitchBend) {
+	    el.addEvent(note.onset(), MIDIConst.PITCH_BEND_CHANGE, ch, 
+			((PitchBend)note).value(), 0);
+	}else{
           el.addEvent(note.onset(), MIDIConst.NOTE_ON, ch, 
                       note.notenum(), note.velocity());
           el.addEvent(note.offset(), MIDIConst.NOTE_OFF, ch, 
@@ -902,7 +917,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       onset = Integer.parseInt(data[0]);
       offset = Integer.parseInt(data[1]);
       notenum = Integer.parseInt(data[2]);
-      velocity = Integer.parseInt(data[3]);
+      if (data.length >= 4)
+	  velocity = Integer.parseInt(data[3]);
       if (data.length >= 5)
         offVelocity = Integer.parseInt(data[4]);
       else
@@ -1020,6 +1036,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return velocity();
     }
   }
+
+    public class PitchBend extends Note {
+	private PitchBend(Node node, Part part) {
+	    super(node, part);
+	}
+	protected String getSupportedNodeName() {
+	    return "pitch-bend";
+	}
+	public final int value() {
+	    return notenum();
+	}
+    }
+       
 
   private class NumberedNote extends MutableNote {
     private int partid;

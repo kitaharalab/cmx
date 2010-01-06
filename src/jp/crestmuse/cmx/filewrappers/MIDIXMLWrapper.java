@@ -323,11 +323,22 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     for (int i = 0; i < attlist.length; i++) {
       values[i] = 0;
       for (byte j = 0; j < length; j++) 
-        values[i] = values[i] * 128 + (buff.get() & 0x7F);
+	  if (msbFirst(msgtype))
+	      values[i] = values[i] * 128 + (buff.get() & 0x7F);
+	  else
+	      values[i] = values[i] + pow(128, j) * (buff.get() & 0x7F);
     }
     addMIDIChannelMessage(msgtype, delta + ignoredDelta, ch, values);
     ignoredDelta = 0;
   }
+
+    private static final int pow(int a, int b) {
+	int x = 1;
+	for (int i = 0; i < b; i++)
+	    x *= a;
+	return x;
+    }
+	    
 
 //  public Track getTrackNodeInterface(int number) {
 //    return new Track
@@ -452,17 +463,24 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
               new MutableControlChange(totalTime, midiEvent.value(0), 
                                   midiEvent.value(1), ticksPerBeat());
             addControlChange(c, midiEvent, channelToNotes);
-          }
-        }
-        private void addControlChange(MutableControlChange c, 
-                                      MIDIEvent e, 
-                                      Map<Byte,ArrayList<MutableMusicEvent>> 
-                                      chnlwiseNotes) {
-          if (!chnlwiseNotes.containsKey(e.channel()))
-            chnlwiseNotes.put(e.channel(), new ArrayList<MutableMusicEvent>());
-          chnlwiseNotes.get(e.channel()).add(c);
-        }
-        private void addNote(MutableNote note, MIDIEvent event, 
+          } else if (statusNo == PITCH_BEND_CHANGE) {
+	      MutablePitchBend c = 
+		  new MutablePitchBend(totalTime, 
+				       midiEvent.value(0),				       
+				       //				       midiEvent.value(0)+128*midiEvent.value(1),				       
+				       ticksPerBeat());
+	      addControlChange(c, midiEvent, channelToNotes);
+	  }
+	}
+	    private void addControlChange(MutableMusicEvent c, 
+					  MIDIEvent e, 
+					  Map<Byte,ArrayList<MutableMusicEvent>> 					  chnlwiseNotes) {
+		if (!chnlwiseNotes.containsKey(e.channel()))
+		    chnlwiseNotes.put(e.channel(), new ArrayList<MutableMusicEvent>());
+		chnlwiseNotes.get(e.channel()).add(c);
+	    }
+
+	    private void addNote(MutableNote note, MIDIEvent event, 
                      Map<Byte,ArrayList<MutableMusicEvent>> chnlwiseNotes,
                      MutableNote[] onNotes) {
           int notenum = note.notenum();
@@ -520,7 +538,10 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
           MutableControlChange cc = (MutableControlChange)e;
           dest.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), 
                                 cc.value());
-        }
+        } else if (e instanceof MutablePitchBend) {
+	    MutablePitchBend pb = (MutablePitchBend)e;
+	    dest.addPitchBend(pb.onset(), pb.offset(), pb.value());
+	}
       }
       dest.endPart();
     }
@@ -745,6 +766,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
 		}
 		for (int i = 0; i < values.length; i++) {
 		    byte len = getByteLength(msgType);
+		    System.err.println(msgType + " " + len);
 		    if (len == (byte)1) {
 			data[counter] = (byte)values[i];
 			counter++;

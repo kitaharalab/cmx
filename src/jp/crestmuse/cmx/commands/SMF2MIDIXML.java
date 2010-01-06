@@ -1,0 +1,31 @@
+package jp.crestmuse.cmx.commands;
+import java.io.*;
+import org.xml.sax.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import jp.crestmuse.cmx.filewrappers.*;
+
+public class SMF2MIDIXML extends CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
+
+  protected final MIDIXMLWrapper readInputData(String filename) 
+    throws IOException, ParserConfigurationException, SAXException, 
+    TransformerException {
+      return MIDIXMLWrapper.readSMF(filename);
+  }
+
+    protected MIDIXMLWrapper run(MIDIXMLWrapper indata) 
+	throws IOException, ParserConfigurationException, 
+	       TransformerException, SAXException, InvalidFileTypeException {
+	return indata;
+    }
+
+    public static void main(String[] args) {
+      SMF2MIDIXML s2m = new SMF2MIDIXML();
+      try {
+        s2m.start(args);
+      } catch (Exception e) {
+        s2m.showErrorMessage(e);
+        System.exit(1);
+      }
+    }
+}

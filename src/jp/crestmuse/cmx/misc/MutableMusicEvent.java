@@ -6,7 +6,7 @@ public abstract class MutableMusicEvent
   int onset, offset, value1, value2, value3;
   int ticksPerBeat;
   Type type;
-  enum Type {NOTE, CONTROL_CHANGE} 
+  enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND} 
 
   MutableMusicEvent(Type type, int onset, int offset, int ticksPerBeat) {
     this.type = type;
