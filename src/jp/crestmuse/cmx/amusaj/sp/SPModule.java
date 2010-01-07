@@ -83,6 +83,11 @@ public abstract class SPModule
   }
 */
 
-  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest) {
+  public void terminated(TimeSeriesCompatible[] dest) {
+  }
+
+  public final void stop(QueueReader[] src, TimeSeriesCompatible[] dest) {}
+
+  public void stop() {
   }
 }

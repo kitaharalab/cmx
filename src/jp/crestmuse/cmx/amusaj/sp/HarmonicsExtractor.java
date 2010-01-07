@@ -44,10 +44,10 @@ public class HarmonicsExtractor  extends SPModule {
     dest.get(0).add(extractHarmonics(peakset, f0, peakset.hasNext() && f0array.hasNext()));
   }
 */
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     PeakSet peakset = (PeakSet)src[0];
-    SPDoubleArray f0array = (SPDoubleArray)src[1];
+    DoubleArray f0array = (DoubleArray)src[1];
     double f0 = f0array.get(0);
     PeakSet result = extractHarmonics(peakset, f0);
     dest[0].add(result != null ? result : new PeakSet(0));
@@ -56,7 +56,7 @@ public class HarmonicsExtractor  extends SPModule {
 
   PeakSet extractHarmonics(PeakSet peakset, double f0) {
     if (!setParams) setParams();
-    System.out.println(f0);
+//    System.out.println(f0);
     if (f0 == 0) return null;
     MaxResult maxresult = new Operations.MaxResult();
     PeakSet harmonics = new PeakSet(nHarmonics);
@@ -114,11 +114,11 @@ public class HarmonicsExtractor  extends SPModule {
     return 1;
   }
 */
-  public Class<SPElement>[] getInputClasses() {
-    return new Class[]{ PeakSet.class, SPDoubleArray.class };
+  public Class[] getInputClasses() {
+    return new Class[]{ PeakSet.class, DoubleArray.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return new Class[]{ PeakSet.class };
   }
 }

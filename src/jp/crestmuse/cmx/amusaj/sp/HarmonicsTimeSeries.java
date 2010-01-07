@@ -6,7 +6,7 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import static jp.crestmuse.cmx.math.Operations.*;
 import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
 
-public class HarmonicsTimeSeries implements SPElement {
+public class HarmonicsTimeSeries {
   private PeakSet[] peaks;
   private int nHarmonics;
 //  private DoubleArray f0env;
@@ -141,6 +141,9 @@ public class HarmonicsTimeSeries implements SPElement {
       this.thru = this.from + thru;
       return this;
 //      throw new UnsupportedOperationException();
+    }
+    public String encode() {
+      return jp.crestmuse.cmx.math.Utils.toString2(this);
     }
   }
 

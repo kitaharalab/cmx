@@ -75,35 +75,32 @@ public class STFT extends SPModule {
    *@param src 常にnullを指定します(何を指定しても無視されます)
    *@param dest STFT実行結果格納用リスト
    *********************************************************************/
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
   throws InterruptedException {
     setParams();
-    SPDoubleArray signal = (SPDoubleArray)src[0];
+    DoubleArray signal = (DoubleArray)src[0];
     if (winsize < 0 || winsize != signal.length())
       changeWindow(wintype, signal.length());
-    SPComplexArray fftresult = 
-      new SPComplexArray(fft.executeR2C(signal, window));
+    ComplexArray fftresult = fft.executeR2C(signal, window);
     dest[0].add(fftresult);
     if (isStereo) {
-      dest[1].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[1],
-                                                    window)));
-      dest[2].add(new SPComplexArray(fft.executeR2C((SPDoubleArray)src[2], 
-                                                    window)));
+      dest[1].add(fft.executeR2C((DoubleArray)src[1], window));
+      dest[2].add(fft.executeR2C((DoubleArray)src[2], window));
     } else {
       dest[1].add(fftresult);
       dest[2].add(fftresult);
     }
   }
                 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     if (isStereo)
-      return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
+      return new Class[]{ DoubleArray.class, DoubleArray.class, DoubleArray.class };
     else
-      return new Class[] { SPDoubleArray.class };
+      return new Class[] { DoubleArray.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
-    return new Class[]{ SPComplexArray.class, SPComplexArray.class, SPComplexArray.class };
+  public Class [] getOutputClasses() {
+    return new Class[]{ ComplexArray.class, ComplexArray.class, ComplexArray.class };
   }
 
 }

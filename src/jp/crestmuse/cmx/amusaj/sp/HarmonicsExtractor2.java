@@ -10,14 +10,13 @@ public class HarmonicsExtractor2 extends HarmonicsExtractor {
     this.f0 = f0;
   }
 
-  public void execute(SPElement[] src, 
-                      TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
     PeakSet peakset = (PeakSet)src[0];
     dest[0].add(extractHarmonics(peakset, f0));
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[] { PeakSet.class };
   }
 

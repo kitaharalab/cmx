@@ -39,5 +39,14 @@ public class OptionUtils {
       return false;
     }
   }
-  
+ 
+  public static boolean setHMMOptions(String option, String value) {
+    if (option.equals("-hmm")) {
+      params.setParam("hmm", "HMM_FILENAME", value);
+      return true;
+    } else {
+      return false;
+    }
+  }
+ 
 }

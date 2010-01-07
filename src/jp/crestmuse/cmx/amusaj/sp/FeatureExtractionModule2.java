@@ -13,7 +13,7 @@ public class FeatureExtractionModule2 extends SPModule {
     this.fe = fe;
   }
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
     HarmonicsTimeSeries h = (HarmonicsTimeSeries)src[0];
 //    System.err.println(h);
@@ -21,19 +21,19 @@ public class FeatureExtractionModule2 extends SPModule {
     fe.extractFeatures(h);
     for (int i = 0; i < n; i++) {
       TimeSeriesCompatible ts = dest[i];
-      ts.add(new SPDoubleArray(fe.getFeature(i)));
+      ts.add(fe.getFeature(i));
       ts.setAttribute("type", fe.getFeatureType(i));
     }
 //    fe.nextFrame();
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[]{ HarmonicsTimeSeries.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     Class[] ret = new Class[fe.nFeatureTypes()];
-    Arrays.fill(ret, SPDoubleArray.class);
+    Arrays.fill(ret, DoubleArray.class);
     return ret;
   }
 

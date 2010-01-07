@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.math.Utils.*;
 
 public class DoubleArraySpreadModule extends SPModule {
     private int dim;
@@ -10,21 +10,20 @@ public class DoubleArraySpreadModule extends SPModule {
 	this.dim = dim;
 	destClasses = new Class[dim];
 	for (int i = 0; i < dim; i++)
-	    destClasses[i] = SPDoubleArray.class;
+	    destClasses[i] = DoubleArray.class;
     }
-    public void execute(SPElement[]src, 
-			TimeSeriesCompatible<SPElement>[] dest) 
+    public void execute(Object[]src, TimeSeriesCompatible[] dest) 
 	throws InterruptedException {
-	SPDoubleArray array = (SPDoubleArray)src[0];
+	DoubleArray array = (DoubleArray)src[0];
 	for (int i = 0; i < dim; i++)
-	    dest[i].add(create1dimSPDoubleArray(array.get(i)));
+	    dest[i].add(create1dimDoubleArray(array.get(i)));
     }
 
-    public Class<SPElement>[] getInputClasses() {
-	return new Class[] { SPDoubleArray.class };
+    public Class[] getInputClasses() {
+	return new Class[] { DoubleArray.class };
     }
 
-    public Class<SPElement>[] getOutputClasses() {
+    public Class[] getOutputClasses() {
 	return destClasses;
     }
 }

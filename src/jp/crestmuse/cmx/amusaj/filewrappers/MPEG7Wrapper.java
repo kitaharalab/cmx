@@ -373,23 +373,23 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 
   
   private abstract class MyTimeSeries 
-    implements TimeSeriesCompatible<SPDoubleArray> {
+    implements TimeSeriesCompatible<DoubleArray> {
     int dim;
     int nFrames;
     private int timeunit;
-    java.util.Queue<SPDoubleArray> queue;
+    java.util.Queue<DoubleArray> queue;
     private MPEG7NodeInterface parent;
-    private QueueWrapper<SPDoubleArray> qwrap;
+    private QueueWrapper<DoubleArray> qwrap;
     private MyTimeSeries(String text, int dim, int frames, int timeunit, 
                          MPEG7NodeInterface parent) {
       this.dim = dim;
       this.nFrames = frames;
       this.timeunit = timeunit;
-      queue = new LinkedList<SPDoubleArray>();
-      qwrap = new QueueWrapper<SPDoubleArray>(queue, nFrames);
+      queue = new LinkedList<DoubleArray>();
+      qwrap = new QueueWrapper<DoubleArray>(queue, nFrames);
       this.parent = parent;
     }
-    public QueueReader<SPDoubleArray> getQueueReader() {
+    public QueueReader<DoubleArray> getQueueReader() {
       return qwrap.createReader();
     }
 //    public void finalizeQueueReader() {
@@ -410,7 +410,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 //    public int bytesize() {
 //      return 4 * dim();
 //    }
-    public void add(SPDoubleArray array) {
+    public void add(DoubleArray array) {
       throw new UnsupportedOperationException();
     }
     public void setAttribute(String key, String value) {
@@ -446,7 +446,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
        for (int n = 0; n < nFrames; n++) {
          DoubleArray array = factory.createArray(dim);
          array.set(0, Double.parseDouble(ss[n]));
-         queue.add(new SPDoubleArray(array));
+         queue.add(array);
        }
      }
    }
@@ -466,7 +466,7 @@ public class MPEG7Wrapper extends CMXFileWrapper {
 //        DoubleArray array = factory.createArray(dim);
 //        for (int i = 0; i < dim; i++)
 //          array.set(i, Double.parseDouble(sss[i]));
-        queue.add(new SPDoubleArray(array));
+        queue.add(array);
       }
     }
   }

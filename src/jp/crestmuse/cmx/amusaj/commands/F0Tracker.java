@@ -74,25 +74,25 @@ public class F0Tracker extends AbstractWAVAnalyzer {
     MaxResult maxresult = new MaxResult();
     double nnFrom = -1, step = -1;
     
-    public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest) throws InterruptedException {
+    public void execute(Object[] src, TimeSeriesCompatible[] dest) throws InterruptedException {
       DoubleArray f0pdf = (DoubleArray)src[0];
       max(f0pdf, maxresult);
       if (maxresult.max > thrs) {
         nnFrom = nnFrom<0 ? getParamDouble("f0pdf","NOTENUMBER_FROM") : nnFrom;
         step = step < 0 ? getParamDouble("f0pdf", "STEP") : step;
         double f0 = nn2Hz(nnFrom + step * maxresult.argmax);
-        dest[0].add(new SPDoubleArray(factory.createArray(1, f0)));
+        dest[0].add(factory.createArray(1, f0));
       } else {
-        dest[0].add(new SPDoubleArray(factory.createArray(1, 0.0)));
+        dest[0].add(factory.createArray(1, 0.0));
       }
     }
   
-    public Class<SPElement>[] getInputClasses() {
-      return new Class[] { SPDoubleArray.class };
+    public Class[] getInputClasses() {
+      return new Class[] { DoubleArray.class };
     }
     
-    public Class<SPElement>[] getOutputClasses() {
-      return new Class[] { SPDoubleArray.class };
+    public Class[] getOutputClasses() {
+      return new Class[] { DoubleArray.class };
     }
   }
 }

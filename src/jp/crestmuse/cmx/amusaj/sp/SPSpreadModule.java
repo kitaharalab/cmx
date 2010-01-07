@@ -14,17 +14,17 @@ public class SPSpreadModule extends SPModule {
     this.c = c;
   }
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     for(int i=0; i<spreadNum; i++)
       dest[i].add(src[0]);
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[]{ c };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     Class[] classes = new Class[spreadNum];
     Arrays.fill(classes, c);
     return classes;

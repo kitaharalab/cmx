@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
 import jp.crestmuse.cmx.math.*;
 
-public interface FeatureExtractor<E extends SPElement> {
+public interface FeatureExtractor<E> {
   void extractFeatures(E src);
 //  void nextFrame();
   DoubleArray getFeature(int index);

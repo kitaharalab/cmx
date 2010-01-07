@@ -20,18 +20,18 @@ public class SPProgressDisplayModule extends SPModule {
     return 1;
   }
 */
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     System.err.print(".");
     dest[0].add(src[0]);
   }
 
-  public Class<SPElement>[] getInputClasses() {
-    return new Class[]{ SPElement.class };
+  public Class[] getInputClasses() {
+    return new Class[]{ Object.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
-    return new Class[]{ SPElement.class };
+  public Class[] getOutputClasses() {
+    return new Class[]{ Object.class };
   }
 
 }

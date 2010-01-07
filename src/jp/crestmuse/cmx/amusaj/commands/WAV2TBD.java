@@ -90,9 +90,9 @@ public class WAV2TBD extends AbstractWAVAnalyzer {
         (new KitaharaFeatureExtractor(3, 10));
       ex.addSPModule(fe);
       ex.connect(htsg, 0, fe, 0);
-      TimeSeriesCompatible<SPElement> data = ex.getResult(fe).get(0);
+      TimeSeriesCompatible data = ex.getResult(fe).get(0);
       data.setAttribute("notenum", nnFrom + step * i);
-      System.err.println(data);
+//      System.err.println(data);
       dataset.add(data);
     }
   }

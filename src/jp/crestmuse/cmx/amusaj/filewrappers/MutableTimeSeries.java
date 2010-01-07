@@ -5,7 +5,7 @@ import jp.crestmuse.cmx.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class MutableTimeSeries<D extends SPElement> implements TimeSeriesCompatible<D> {
+public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   private int nFrames;
   private int timeunit;
   private int dim = -1;

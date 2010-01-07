@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-public class SPTerminator implements SPElement {
+public class SPTerminator {
 
     private static final SPTerminator spterm = new SPTerminator();
     private SPTerminator() {

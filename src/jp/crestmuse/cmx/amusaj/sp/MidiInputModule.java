@@ -84,16 +84,16 @@ public class MidiInputModule extends SPModule implements Receiver {
     src_queue.add(miwt);
   }
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     dest[0].add(src_queue.take());
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[0];
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return new Class[]{MidiEventWithTicktime.class};
   }
 

@@ -50,9 +50,9 @@ class DefaultDoubleArray implements DoubleArray,Cloneable {
     }
   }
 
-//  public String encode() {
-//    return Utils.toString2(this);
-//  }
+  public String encode() {
+    return Utils.toString2(this);
+  }
 
 //  public String getEncodeFormatName() {
 //    return "array";

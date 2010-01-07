@@ -57,6 +57,7 @@ public class Utils {
     return gaussian(size, size / 6.0);
   }
 
+/*
     public static final SPDoubleArray createSPDoubleArray(int length) {
 	return new SPDoubleArray(factory.createArray(length));
     }
@@ -74,5 +75,5 @@ public class Utils {
 	array.set(0, x);
 	return new SPDoubleArray(array);
     }
-
+*/
 }

@@ -108,7 +108,12 @@ public class KitaharaFeatureExtractor
     for (int i = 0; i < thru - from; i++) 
       f.addObservedPoint(1.0, 1.0 + i, powerenv.get(from + i));
     PolynomialFunction pf = f.fit();
-    return pf.getCoefficients()[1];
+    double[] coef = pf.getCoefficients();
+    return coef.length >= 2 ? coef[1] : 0.0;
+//    pf.getCoefficients();
+//    System.err.println(from + ":" + pf.getCoefficients().length);
+//    System.err.println(from);
+//    return pf.getCoefficients()[1];
   }
 
   private static DoubleArray calcMedianOfDiffPower(DoubleArray powerenv, 

@@ -85,20 +85,20 @@ public class F0PDFCalculatorModule extends SPModule {
     return 1;
   }
 */
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     if (!paramSet) setParams();
     PeakSet peaks = (PeakSet)src[0];
     if (filter != null) peaks.filter(filter);
-    dest[0].add(new SPDoubleArray(f0calc.calcWeights(peaks)));
+    dest[0].add(f0calc.calcWeights(peaks));
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[]{ PeakSet.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
-    return new Class[]{ SPDoubleArray.class };
+  public Class[] getOutputClasses() {
+    return new Class[]{ DoubleArray.class };
   }
 
 }

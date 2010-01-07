@@ -156,18 +156,18 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
       wrapper.returnToParent();
       for (D d : data) {
         int nFrames = 0;
-        QueueReader<? extends SPElement> queue = d.getQueueReader();
+        QueueReader queue = d.getQueueReader();
         StringBuilder sb = new StringBuilder();
 	while (true) {
-	    SPElement elem = queue.take();
+	    Object elem = queue.take();
 	    if (elem instanceof SPTerminator) 
 		break;
-	    else if (elem instanceof SPElementEncodable) {
+	    else if (elem instanceof Encodable) {
 		if (sb.length() > 0) sb.append("\n");
-		sb.append(((SPElementEncodable)elem).encode());
+		sb.append(((Encodable)elem).encode());
 		nFrames++;
 	    } else 
-		throw new UnsupportedOperationException("The objects should be SPElementEncodable to be written in an XML format.");
+		throw new UnsupportedOperationException("The objects should be Encodable to be written in an XML format.");
 	}
 	//        SPElement elem = queue.take();
 	//        sb.append(elem.encode());
@@ -241,9 +241,9 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
                   + "\" content=\"" + params.getParam(key) + "\" />");
       p.println("  </header>");
       for (D d : data) {
-        QueueReader<? extends SPElement> queue = d.getQueueReader();
-        List<SPElement> l = new LinkedList<SPElement>();
-        SPElement elem;
+        QueueReader queue = d.getQueueReader();
+        List l = new LinkedList();
+        Object elem;
         do {
           elem = queue.take();
           l.add(elem);
@@ -257,13 +257,14 @@ public class AmusaDataSet<D extends TimeSeriesCompatible>
           sbAttr.append(" ").append(e.getKey()).append("=\"").append(e.getValue()).append("\"");
         }
         p.println("  <data" + sbAttr.toString() + ">");
-        for (SPElement e : l) 
+        for (Object e : l) {
 	    if (e instanceof SPTerminator)
 		break;
-	    else if (e instanceof SPElementEncodable)
-		p.println(((SPElementEncodable)e).encode());
+	    else if (e instanceof Encodable)
+		p.println(((Encodable)e).encode());
 	    else
-		throw new UnsupportedOperationException("The objects should be SPElementEncodable to be written in an XML format.");
+		throw new UnsupportedOperationException("The objects should be Encodable to be written in an XML format.");
+        }
         p.println("  </data>");
       }
       p.println("</amusaxml>");

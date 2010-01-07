@@ -6,15 +6,17 @@ import jp.crestmuse.cmx.amusaj.filewrappers.MutableTimeSeries;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
 
+
+// 未テスト
 public class SPGroup extends SPModule {
 
-  private Class<SPElement>[] inputClasses;
-  private Class<SPElement>[] outputClasses;
+  private Class[] inputClasses;
+  private Class[] outputClasses;
   private LinkedList<SPGroupModule> modules = new LinkedList<SPGroupModule>();
-  TimeSeriesCompatible<SPElement>[] headDest;
-  QueueReader<SPElement>[] tailSrc;
+  TimeSeriesCompatible[] headDest;
+  QueueReader[] tailSrc;
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     for(int i=0; i<src.length; i++)
       headDest[i].add(src[i]);
@@ -31,11 +33,11 @@ public class SPGroup extends SPModule {
     }
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return inputClasses;
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return outputClasses;
   }
 
@@ -45,7 +47,7 @@ public class SPGroup extends SPModule {
       inputClasses = module.getInputClasses();
       headDest = new TimeSeriesCompatible[inputClasses.length];
       for(int i=0; i<inputClasses.length; i++) {
-        headDest[i] = new MutableTimeSeries<SPElement>();
+        headDest[i] = new MutableTimeSeries();
         addSpm.src[i] = headDest[i].getQueueReader();
       }
     } else {
@@ -68,17 +70,16 @@ public class SPGroup extends SPModule {
     outputClasses = module.getOutputClasses();
   }
 
-  public void stop(QueueReader<SPElement>[] src,
-      TimeSeriesCompatible<SPElement>[] dest) {
+  public void stop() {
     for (SPGroupModule spm : modules)
       spm.stop();
   };
 
   private class SPGroupModule {
     ProducerConsumerCompatible module;
-    QueueReader<SPElement>[] src;
-    TimeSeriesCompatible<SPElement>[] dest;
-    SPElement[] inputElements;
+    QueueReader[] src;
+    TimeSeriesCompatible[] dest;
+    Object[] inputElements;
     int inputChannelNum;
     int outputChannelNum;
 
@@ -88,9 +89,9 @@ public class SPGroup extends SPModule {
       module = pcc;
       src = new QueueReader[inputChannelNum];
       dest = new TimeSeriesCompatible[outputChannelNum];
-      inputElements = new SPElement[inputChannelNum];
+      inputElements = new Object[inputChannelNum];
       for (int i = 0; i < outputChannelNum; i++)
-        dest[i] = new MutableTimeSeries<SPElement>();
+        dest[i] = new MutableTimeSeries();
     }
 
     void run() {
@@ -98,7 +99,7 @@ public class SPGroup extends SPModule {
         for (int i = 0; i < inputChannelNum; i++)
           inputElements[i] = src[i].take();
         if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
-          for (TimeSeriesCompatible<SPElement> tsc : dest)
+          for (TimeSeriesCompatible tsc : dest)
 	      tsc.add(SPTerminator.getInstance());
           return;
         }
@@ -111,7 +112,7 @@ public class SPGroup extends SPModule {
     }
 
     void stop() {
-      module.stop(src, dest);
+      module.stop();
     }
   }
 

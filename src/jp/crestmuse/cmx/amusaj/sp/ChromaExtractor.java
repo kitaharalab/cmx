@@ -24,10 +24,10 @@ public class ChromaExtractor extends SPModule {
     }
 */
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     PeakSet peaks = (PeakSet)src[0];
-    dest[0].add(new SPDoubleArray(calcChroma(peaks)));
+    dest[0].add(calcChroma(peaks));
   }
 
   private void setParams() {
@@ -72,12 +72,12 @@ public class ChromaExtractor extends SPModule {
 	return 1;
     }
 */
-    public Class<SPElement>[] getInputClasses() {
+    public Class[] getInputClasses() {
       return new Class[]{ PeakSet.class };
     }
 
-    public Class<SPElement>[] getOutputClasses() {
-      return new Class[]{ SPDoubleArray.class };
+    public Class[] getOutputClasses() {
+      return new Class[]{ DoubleArray.class };
     }
 
     private static int Hz2nn(double x) {

@@ -20,25 +20,27 @@ public interface ProducerConsumerCompatible {
    *@param src 全入力チャンネルに対するQueueReaderオブジェクト
    *@param dest 全出力チャンネル
    **********************************************************************/
-  public void execute(SPElement[] src, 
-                      TimeSeriesCompatible<SPElement>[] dest) 
+  public void execute(Object[] src, 
+                      TimeSeriesCompatible[] dest) 
     throws InterruptedException;
 //  public void execute(List<QueueReader<D>> src, 
 //                      List<E> dest) throws InterruptedException;
+  public void terminated(TimeSeriesCompatible[] dest)
+    throws InterruptedException;
   /**
    * モジュールの処理が終了したときにSPExecutorから呼び出されます
    */
-  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest);
+  public void stop();
   /**********************************************************************
    *各入力チャンネルが受け付けるオブジェクトのクラスを配列で返します. 
    **********************************************************************/
   //public int getInputChannels();
-  public Class<SPElement>[] getInputClasses();
+  public Class[] getInputClasses();
   /**********************************************************************
    *各出力チャンネルが出力するオブジェクトのクラスを配列で返します. 
    **********************************************************************/
   //public int getOutputChannels();
-  public Class<SPElement>[] getOutputClasses();
+  public Class[] getOutputClasses();
   /**********************************************************************
    *
    **********************************************************************/

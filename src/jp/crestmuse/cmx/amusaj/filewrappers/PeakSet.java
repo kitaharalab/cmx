@@ -3,7 +3,7 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 
-public class PeakSet implements SPElementEncodable {
+public class PeakSet implements Encodable {
   private int nPeaks;
   private DoubleArray freq;
   private DoubleArray power;

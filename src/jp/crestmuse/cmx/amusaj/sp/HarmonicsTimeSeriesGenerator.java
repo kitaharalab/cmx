@@ -25,15 +25,15 @@ public class HarmonicsTimeSeriesGenerator extends SPModule {
 //    setParams();
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[] { PeakSet.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return new Class[] { HarmonicsTimeSeries.class };
   }
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
     if (!setParams) setParams();
     PeakSet peakset = (PeakSet)src[0];

@@ -52,11 +52,11 @@ public class PeakExtractor extends SPModule {
     return 1;
   }
 */
-  public Class<SPElement>[] getInputClasses() {
-    return new Class[]{ SPComplexArray.class, SPComplexArray.class, SPComplexArray.class };
+  public Class[] getInputClasses() {
+    return new Class[]{ ComplexArray.class, ComplexArray.class, ComplexArray.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return new Class[]{ PeakSet.class };
   }
 /*
@@ -126,17 +126,17 @@ public class PeakExtractor extends SPModule {
                    subarray(ipd, 0, k), fftresult.hasNext()));
   }
 */
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
-    SPComplexArray fftresult = (SPComplexArray)src[0];
-    SPComplexArray fftresultL, fftresultR;
+    ComplexArray fftresult = (ComplexArray)src[0];
+    ComplexArray fftresultL, fftresultR;
     boolean isStereo;
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     int fs = params.getParamInt("fft", "SAMPLE_RATE");
     int winsize = params.getParamInt("fft", "WINDOW_SIZE");
     if (src.length > 1 && src[1] != null) {
-      fftresultL = (SPComplexArray)src[1];
-      fftresultR = (SPComplexArray)src[2];
+      fftresultL = (ComplexArray)src[1];
+      fftresultR = (ComplexArray)src[2];
       isStereo = true;
     } else {
       fftresultL = null;

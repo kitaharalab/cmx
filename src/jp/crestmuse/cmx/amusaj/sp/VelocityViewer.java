@@ -49,7 +49,7 @@ public class VelocityViewer extends SPModule {
   }
 */
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
       throws InterruptedException {
     MidiEventWithTicktime  me = (MidiEventWithTicktime)src[0];
     ShortMessage sm = (ShortMessage)me.getMessage();
@@ -60,11 +60,11 @@ public class VelocityViewer extends SPModule {
     }
   }
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[]{ MidiEventWithTicktime.class };
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     return new Class[0];
   }
 /*
@@ -81,7 +81,7 @@ public class VelocityViewer extends SPModule {
   }
 */
 
-  public void stop(QueueReader<SPElement>[] src, TimeSeriesCompatible<SPElement>[] dest) {
+  public void stop() {
     pw.println();
     pw.close();
     try {

@@ -214,7 +214,7 @@ public class SPExecutor {
   /*********************************************************************
    *指定されたデータ処理モジュールの全チャンネルの出力を返します.
    *********************************************************************/
-  public List<TimeSeriesCompatible<SPElement>> getResult(
+  public List<TimeSeriesCompatible> getResult(
       ProducerConsumerCompatible module) {
     // return map.get(module).dest;
     return Arrays.asList(map.get(module).dest);
@@ -279,9 +279,9 @@ public class SPExecutor {
     List<TimeSeriesCompatible<? extends SPElement>> dest 
     = new ArrayList<TimeSeriesCompatible<? extends SPElement>>();
     */
-    QueueReader<SPElement>[] src;
-    TimeSeriesCompatible<SPElement>[] dest;
-    SPElement[] inputElements;
+    QueueReader[] src;
+    TimeSeriesCompatible[] dest;
+    Object[] inputElements;
     // boolean finish = false;
     int inputChannelNum;
     int outputChannelNum;
@@ -292,9 +292,9 @@ public class SPExecutor {
       module = pcc;
       src = new QueueReader[inputChannelNum];
       dest = new TimeSeriesCompatible[outputChannelNum];
-      inputElements = new SPElement[inputChannelNum];
+      inputElements = new Object[inputChannelNum];
       for (int i = 0; i < outputChannelNum; i++)
-        dest[i] = new MutableTimeSeries<SPElement>();
+        dest[i] = new MutableTimeSeries();
     }
 
     public void run() {
@@ -304,7 +304,8 @@ public class SPExecutor {
             inputElements[i] = src[i].take();
           }
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
-            for (TimeSeriesCompatible<SPElement> tsc : dest)
+            module.terminated(dest);
+            for (TimeSeriesCompatible tsc : dest)     
 		tsc.add(SPTerminator.getInstance());
             break;
           }
@@ -317,7 +318,7 @@ public class SPExecutor {
           break;
         }
       }
-      module.stop(src, dest);
+      module.stop();
       nFinished++;
       checkFinished();
     }

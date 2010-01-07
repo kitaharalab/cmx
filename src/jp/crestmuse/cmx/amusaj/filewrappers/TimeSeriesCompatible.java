@@ -10,7 +10,7 @@ import java.util.*;
  *一定のサンプリングレートでデータが並んでいるものです. 
  *時系列データへのアクセスはFirst-in First-outとします. 
  *********************************************************************/
-public interface TimeSeriesCompatible<D extends SPElement>
+public interface TimeSeriesCompatible<D>
 //  extends AmusaDataCompatible<D> 
 {
 

@@ -130,7 +130,7 @@ public class WindowSlider extends SPModule {
     return 1000 * shift_ / fs;
   }
 
-  public void execute(SPElement[] src, TimeSeriesCompatible<SPElement>[] dest)
+  public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
       if (audiodata.hasNext(winsize)) {
       try {
@@ -141,7 +141,7 @@ public class WindowSlider extends SPModule {
             w = mean(wav);
           else
             w = wav[chTarget[i]];
-          dest[i].add(new SPDoubleArray(w));
+          dest[i].add(w);
         }
       } catch (IOException e) {
         throw new SPException(e);
@@ -185,14 +185,14 @@ public class WindowSlider extends SPModule {
 */
 
 
-  public Class<SPElement>[] getInputClasses() {
+  public Class[] getInputClasses() {
     return new Class[0];
   }
 
-  public Class<SPElement>[] getOutputClasses() {
+  public Class[] getOutputClasses() {
     Class[] cc = new Class[chTarget.length];
     for (int i = 0; i < cc.length; i++)
-      cc[i] = SPDoubleArray.class;
+      cc[i] = DoubleArray.class;
     return cc;
 //    return new Class[]{ SPDoubleArray.class, SPDoubleArray.class, SPDoubleArray.class };
   }

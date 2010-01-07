@@ -21,8 +21,8 @@ public class MidiOutputModule extends SPModule {
       recoder = track;
     }
 
-    public void execute(SPElement[] src,
-        TimeSeriesCompatible<SPElement>[] dest) throws InterruptedException {
+    public void execute(Object[] src,
+        TimeSeriesCompatible[] dest) throws InterruptedException {
       MidiEventWithTicktime e = (MidiEventWithTicktime)src[0];
       receiver.send(e.getMessage(), 0);
       if(recoder != null){
@@ -39,11 +39,11 @@ public class MidiOutputModule extends SPModule {
     }
 */
 
-    public Class<SPElement>[] getInputClasses() {
+    public Class[] getInputClasses() {
       return new Class[]{MidiEventWithTicktime.class};
     }
 
-    public Class<SPElement>[] getOutputClasses() {
+    public Class[] getOutputClasses() {
       return new Class[0];
     }
   }
