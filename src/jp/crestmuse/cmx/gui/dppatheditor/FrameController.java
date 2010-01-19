@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +18,7 @@ import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
+import jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformancePlayer;
 import jp.crestmuse.cmx.misc.PerformanceMatcher3;
 
 public class FrameController implements Runnable {
@@ -26,11 +28,12 @@ public class FrameController implements Runnable {
   private PerformanceMatcher3 pm3;
   private int[] score2pfm;
   private DeviatedPerformance deviatedPerformance;
+  private DeviatedPerformancePlayer player;
   private MainFrame frame;
 
   public FrameController(String scoreFilename, String pfmFilename)
       throws ParserConfigurationException, SAXException, IOException,
-      TransformerException, InvalidMidiDataException {
+      TransformerException, InvalidMidiDataException, MidiUnavailableException {
     this.scoreFilename = scoreFilename;
     this.pfmFilename = pfmFilename;
     pm3 = new PerformanceMatcher3(
@@ -40,6 +43,8 @@ public class FrameController implements Runnable {
     score2pfm = pm3.getScore2Pfm().clone();
     deviation.finalizeDocument();
     deviatedPerformance = new DeviatedPerformance(deviation);
+    player = new DeviatedPerformancePlayer();
+    player.changeDeviation(deviatedPerformance);
     SwingUtilities.invokeLater(this);
   }
 
@@ -47,7 +52,7 @@ public class FrameController implements Runnable {
     if (frame != null)
       frame.dispose();
     try {
-      frame = new MainFrame(deviatedPerformance, pm3, score2pfm);
+      frame = new MainFrame(deviatedPerformance, pm3, score2pfm, player);
       frame.addKeyListener(new MainFrameKeyAdapter());
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setVisible(true);
@@ -65,6 +70,7 @@ public class FrameController implements Runnable {
     score2pfm = pm3.getScore2Pfm().clone();
     dev.finalizeDocument();
     deviatedPerformance = new DeviatedPerformance(dev);
+    player.changeDeviation(deviatedPerformance);
     SwingUtilities.invokeLater(this);
   }
   

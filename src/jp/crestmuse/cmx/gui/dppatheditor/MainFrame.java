@@ -1,15 +1,18 @@
 package jp.crestmuse.cmx.gui.dppatheditor;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,6 +23,7 @@ import javax.swing.event.ChangeListener;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
+import jp.crestmuse.cmx.gui.deveditor.view.DeviatedPerformancePlayer;
 import jp.crestmuse.cmx.misc.PerformanceMatcher3;
 
 public class MainFrame extends JFrame {
@@ -33,32 +37,44 @@ public class MainFrame extends JFrame {
   private ScoreNote selectedScoreNote;
   private PerformanceMatcher3 pm3;
   private int[] score2pfm;
+  private DeviatedPerformancePlayer player;
+  private PfmPanel pfmPanel;
+  private JScrollPane north;
+  private TempoCurve tempo;
 
-  public MainFrame(DeviatedPerformance deviatedPerformance, PerformanceMatcher3 pm3, int[] score2pfm) {
+  public MainFrame(DeviatedPerformance deviatedPerformance,
+      PerformanceMatcher3 pm3, int[] score2pfm, DeviatedPerformancePlayer player) {
     this.pm3 = pm3;
     this.score2pfm = score2pfm;
+    this.player = player;
     pfmNotes = new LinkedList<PfmNote>();
     scoreNotes = new LinkedList<ScoreNote>();
     int lastOffset = 0;
     for (DeviatedNote dn : deviatedPerformance.getDeviatedNotes()) {
       pfmNotes.add(new PfmNote(dn));
-      if(!dn.isExtraNote()) {
+      if (!dn.isExtraNote()) {
         scoreNotes.add(new ScoreNote(dn));
         pfmNotes.getLast().pair = scoreNotes.getLast();
         scoreNotes.getLast().pair = pfmNotes.getLast();
       }
       lastOffset = Math.max(lastOffset, dn.offset());
     }
-    PfmPanel pfmPanel = new PfmPanel();
+    
+    // performance
+    pfmPanel = new PfmPanel();
     ScorePanel scorePanel = new ScorePanel();
     Dimension dim = new Dimension(tick2position(lastOffset),
         notenum2position(128));
     pfmPanel.setPreferredSize(dim);
     scorePanel.setPreferredSize(dim);
-    final JScrollPane north = new JScrollPane();
+    north = new JScrollPane();
+    north.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
     north.getViewport().setPreferredSize(VIEWPORT_DIM);
     north.setViewportView(pfmPanel);
+    
+    // score
     final JViewport south = new JViewport();
+    south.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
     south.setPreferredSize(VIEWPORT_DIM);
     south.setView(scorePanel);
     north.getViewport().addChangeListener(new ChangeListener() {
@@ -67,11 +83,48 @@ public class MainFrame extends JFrame {
       }
     });
     north.getViewport().setViewPosition(new Point(0, dim.height / 2));
-    add(north, BorderLayout.CENTER);
-    add(south, BorderLayout.SOUTH);
+    
+    // tempo
+    tempo = new TempoCurve(deviatedPerformance, dim.width);
+    final JViewport tempoView = new JViewport();
+    tempoView.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+    tempoView.setPreferredSize(new Dimension(VIEWPORT_DIM.width, TempoCurve.PANEL_HEIGHT));
+    tempoView.setView(tempo);
+    north.getViewport().addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        int x = north.getViewport().getViewPosition().x;
+        tempoView.setViewPosition(new Point(x, 0));
+      }
+    });
+    
+    // button
+    JPanel buttons = new JPanel();
+    final JButton play = new JButton("play");
+    play.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(MainFrame.this.player.isNowPlaying()) {
+          MainFrame.this.player.stop();
+          play.setText("play");
+        }else{
+          MainFrame.this.player.play();
+          play.setText("stop");
+          Thread t = new Thread(new Repainter());
+          t.start();
+        }
+      }
+    });
+    buttons.add(play);
+
+    JPanel all = new JPanel();
+    all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
+    all.add(north);
+    all.add(south);
+    all.add(tempoView);
+    all.add(buttons);
+    add(all);
     pack();
   }
-  
+
   public int[] getScore2pfm() {
     return score2pfm;
   }
@@ -79,13 +132,17 @@ public class MainFrame extends JFrame {
   private int tick2position(int tick) {
     return (int) (tick * WIDTH_PER_TICK);
   }
+  
+  private int position2tick(int position) {
+    return (int)(player.getCurrentSequence().getTickLength() * position / pfmPanel.getWidth());
+  }
 
   private int notenum2position(int notenum) {
     return notenum * HEIGHT_PER_NOTE;
   }
 
   private class PfmPanel extends JPanel {
-    
+
     PfmPanel() {
       addMouseListener(new PfmPanelMouseAdapter());
     }
@@ -94,15 +151,18 @@ public class MainFrame extends JFrame {
       super.paint(g);
       for (PfmNote pn : pfmNotes)
         pn.draw(g);
-      if(selectedPfmNote != null)
+      if (selectedPfmNote != null)
         selectedPfmNote.drawAsSelected(g);
+      g.setColor(Color.GREEN);
+      int x = tick2position((int) player.getTickPosition());
+      g.drawLine(x, 0, x, getHeight());
     }
-    
+
     private class PfmPanelMouseAdapter extends MouseAdapter {
 
       public void mousePressed(MouseEvent e) {
-        for(PfmNote pn : pfmNotes) {
-          if(pn.isClicked(e.getX(), e.getY())) {
+        for (PfmNote pn : pfmNotes) {
+          if (pn.isClicked(e.getX(), e.getY())) {
             selectedPfmNote = pn;
             selectedScoreNote = pn.pair;
             MainFrame.this.repaint();
@@ -111,6 +171,8 @@ public class MainFrame extends JFrame {
         }
         selectedPfmNote = null;
         selectedScoreNote = null;
+        if(e.getClickCount() >= 2)
+          player.setTickPosition(position2tick(e.getX()));
         MainFrame.this.repaint();
       }
 
@@ -119,7 +181,7 @@ public class MainFrame extends JFrame {
   }
 
   private class ScorePanel extends JPanel {
-    
+
     ScorePanel() {
       addMouseListener(new ScorePanelMouseAdapter());
     }
@@ -128,57 +190,64 @@ public class MainFrame extends JFrame {
       super.paint(g);
       for (ScoreNote sn : scoreNotes)
         sn.draw(g);
-      if(selectedScoreNote != null)
+      if (selectedScoreNote != null)
         selectedScoreNote.drawAsSelected(g);
     }
-    
+
     class ScorePanelMouseAdapter extends MouseAdapter {
-      
+
       public void mousePressed(MouseEvent e) {
-        for(ScoreNote sn : scoreNotes)
-          if(sn.isClicked(e.getX(), e.getY())) {
-            int dst = pm3.getMusicxmlwrappernote2Index().get(sn.deviatedNote.getNote());
-            if(sn == selectedScoreNote) {
+        for (ScoreNote sn : scoreNotes)
+          if (sn.isClicked(e.getX(), e.getY())) {
+            int dst = pm3.getMusicxmlwrappernote2Index().get(
+                sn.deviatedNote.getNote());
+            if (sn == selectedScoreNote) {
               score2pfm[dst] = -1;
               sn.pair = null;
               selectedPfmNote.pair = null;
               selectedScoreNote = null;
+              selectedPfmNote.edited();
               MainFrame.this.repaint();
               return;
             }
-            if(selectedPfmNote.pair == null) {
+            if (selectedPfmNote.pair == null) {
               int index = -1;
               int diff = Integer.MAX_VALUE;
-              for(Entry<SCCXMLWrapper.Note, Integer> en : pm3.getExtraNoteMap().entrySet()) {
-                if(en.getKey().notenum() != sn.deviatedNote.notenum())
+              for (Entry<SCCXMLWrapper.Note, Integer> en : pm3.getExtraNoteMap().entrySet()) {
+                if (en.getKey().notenum() != sn.deviatedNote.notenum())
                   continue;
-                int d = Math.abs(en.getKey().onsetInMSec() - sn.deviatedNote.onsetInMSec());
-                if(d < diff) {
+                int d = Math.abs(en.getKey().onsetInMSec()
+                    - sn.deviatedNote.onsetInMSec());
+                if (d < diff) {
                   index = en.getValue();
                   diff = d;
                 }
               }
-              if(index != -1) {
+              if (index != -1) {
                 score2pfm[dst] = index;
-                if(sn.pair != null)
+                if (sn.pair != null)
                   sn.pair.pair = null;
                 selectedPfmNote.pair = sn;
                 sn.pair = selectedPfmNote;
                 selectedScoreNote = sn;
+                selectedPfmNote.edited();
                 MainFrame.this.repaint();
               }
               return;
             }
-            int src = pm3.getMusicxmlwrappernote2Index().get(selectedPfmNote.deviatedNote.getNote());
+            int src = pm3.getMusicxmlwrappernote2Index().get(
+                selectedPfmNote.deviatedNote.getNote());
             score2pfm[dst] = score2pfm[src];
             score2pfm[src] = -1;
-            if(sn.pair != null)
+            if (sn.pair != null)
               sn.pair.pair = null;
             sn.pair = selectedPfmNote;
             selectedPfmNote.pair.pair = null;
             selectedPfmNote.pair = sn;
             selectedScoreNote = sn;
+            selectedPfmNote.edited();
             MainFrame.this.repaint();
+            break;
           }
       }
 
@@ -206,12 +275,12 @@ public class MainFrame extends JFrame {
       g.setColor(color);
       g.drawRect(x, y, width, height);
     }
-    
+
     void drawAsSelected(Graphics g) {
       g.setColor(color);
       g.fillRect(x, y, width, height);
     }
-    
+
     boolean isClicked(int px, int py) {
       return px >= x && px <= x + width && py >= y && py <= y + height;
     }
@@ -254,17 +323,50 @@ public class MainFrame extends JFrame {
         roundColor = new Color(255, 0, 127);
       }
     }
-    
+
     void draw(Graphics g) {
       g.setColor(color);
       g.fillRect(x - 1, y - 1, width + 2, height + 2);
       g.setColor(roundColor);
       g.drawRect(x, y, width, height);
+      if (deviatedNote.getIsMissNote()) {
+        g.setColor(Color.BLACK);
+        g.drawString("miss", x, y);
+      }
     }
-    
+
     void drawAsSelected(Graphics g) {
       g.setColor(Color.BLACK);
       g.fillRect(x, y, width, height);
+      if (deviatedNote.getIsMissNote()) {
+        g.setColor(Color.RED);
+        g.drawString("miss", x, y);
+      }
+    }
+
+    void edited() {
+      this.color = Color.BLUE;
+      this.roundColor = Color.BLUE;
+    }
+
+  }
+  
+  private class Repainter implements Runnable {
+
+    public void run() {
+      while(player.isNowPlaying()) {
+        pfmPanel.repaint();
+        int x = tick2position((int)player.getTickPosition()) - north.getWidth() / 2;
+        x = Math.max(x, 0);
+        Point p = north.getViewport().getViewPosition();
+        p.x = x;
+        north.getViewport().setViewPosition(p);
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
     }
 
   }
