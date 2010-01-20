@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
@@ -52,8 +53,7 @@ public class FrameController implements Runnable {
     if (frame != null)
       frame.dispose();
     try {
-      frame = new MainFrame(deviatedPerformance, pm3, score2pfm, player);
-      frame.addKeyListener(new MainFrameKeyAdapter());
+      frame = new MainFrame(deviatedPerformance, pm3, score2pfm, player, this);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setVisible(true);
     } catch (Exception e) {
@@ -63,6 +63,7 @@ public class FrameController implements Runnable {
 
   public void reGenerateDeviation() throws ParserConfigurationException,
       SAXException, IOException, TransformerException, InvalidMidiDataException {
+    frame.setVisible(false);
     pm3 = new PerformanceMatcher3(
         (MusicXMLWrapper) CMXFileWrapper.readfile(scoreFilename),
         MIDIXMLWrapper.readSMF(pfmFilename));
@@ -73,20 +74,9 @@ public class FrameController implements Runnable {
     player.changeDeviation(deviatedPerformance);
     SwingUtilities.invokeLater(this);
   }
-  
-  private class MainFrameKeyAdapter extends KeyAdapter {
 
-    public void keyPressed(KeyEvent e) {
-      if(e.getKeyChar() == 'r') {
-        try {
-          frame.setVisible(false);
-          reGenerateDeviation();
-        } catch (Exception e1) {
-          e1.printStackTrace();
-        }
-      }
-    }
-
+  public void save() throws InvalidFileTypeException, IOException, SAXException {
+    deviatedPerformance.calcDeviation().writefile("out.xml");
   }
 
 }

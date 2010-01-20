@@ -8,9 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,7 +21,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.xml.sax.SAXException;
+
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance;
 import jp.crestmuse.cmx.gui.deveditor.model.DeviatedPerformance.DeviatedNote;
@@ -43,7 +50,7 @@ public class MainFrame extends JFrame {
   private TempoCurve tempo;
 
   public MainFrame(DeviatedPerformance deviatedPerformance,
-      PerformanceMatcher3 pm3, int[] score2pfm, DeviatedPerformancePlayer player) {
+      PerformanceMatcher3 pm3, int[] score2pfm, DeviatedPerformancePlayer player, final FrameController frameController) {
     this.pm3 = pm3;
     this.score2pfm = score2pfm;
     this.player = player;
@@ -113,7 +120,29 @@ public class MainFrame extends JFrame {
         }
       }
     });
+    JButton regenerate = new JButton("ReGenerate");
+    regenerate.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          frameController.reGenerateDeviation();
+        } catch (Exception e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
+    JButton save = new JButton("save");
+    save.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          frameController.save();
+        } catch (Exception e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
     buttons.add(play);
+    buttons.add(regenerate);
+    buttons.add(save);
 
     JPanel all = new JPanel();
     all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
