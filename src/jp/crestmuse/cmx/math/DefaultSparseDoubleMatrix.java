@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.math;
 import java.util.*;
 
-class DefaultSparseDoubleMatrix implements DoubleMatrix {
+class DefaultSparseDoubleMatrix extends AbstractDoubleMatrixImpl {
   private HashMap<IntPair,Double> values;
   private int nrows, ncols;
 

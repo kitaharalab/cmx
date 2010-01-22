@@ -9,29 +9,29 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import org.xml.sax.SAXException;
 
-public class CSVWrapper implements FileWrapperCompatible {
+public class CSVWrapper implements FileWrapperCompatible,Iterable<List<String>> {
 
   private String fileName;
-  private LinkedList<LinkedList<String>> sheet;
+  private List<List<String>> sheet;
 
   public CSVWrapper() {
     fileName = "";
-    sheet = new LinkedList<LinkedList<String>>();
+    sheet = new ArrayList<List<String>>();
   }
 
   public CSVWrapper(String fileName) {
     this.fileName = fileName;
-    sheet = new LinkedList<LinkedList<String>>();
+    sheet = new ArrayList<List<String>>();
     try {
       BufferedReader in = new BufferedReader(new FileReader(fileName));
       String line;
       while ((line = in.readLine()) != null) {
-        LinkedList<String> row = new LinkedList<String>();
+        List<String> row = new ArrayList<String>();
         for (String s : line.split(","))
           row.add(s);
         sheet.add(row);
@@ -42,12 +42,16 @@ public class CSVWrapper implements FileWrapperCompatible {
   }
 
   public void addRow() {
-    sheet.add(new LinkedList<String>());
+    sheet.add(new ArrayList<String>());
   }
 
-  public LinkedList<String> getRow(int row) {
+  public List<String> getRow(int row) {
     return sheet.get(row);
   }
+
+    public Iterator<List<String>> iterator() {
+	return sheet.iterator();
+    }
 
   public void addValue(int row, String value) {
     getRow(row).add(value);
@@ -58,7 +62,7 @@ public class CSVWrapper implements FileWrapperCompatible {
   }
 
   public void write(OutputStream out) throws IOException, SAXException {
-    for (LinkedList<String> row : sheet) {
+    for (List<String> row : sheet) {
       for (String s : row)
         out.write((s + ",").getBytes());
       out.write(System.getProperty("line.separator").getBytes());
@@ -67,7 +71,7 @@ public class CSVWrapper implements FileWrapperCompatible {
   }
 
   public void write(Writer writer) throws IOException, SAXException {
-    for (LinkedList<String> row : sheet) {
+    for (List<String> row : sheet) {
       for (String s : row)
         writer.write(s + ",");
       writer.write(System.getProperty("line.separator"));

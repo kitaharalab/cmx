@@ -18,16 +18,16 @@ public class FFTImpl implements FFT {
     else
 	for (int i = 0; i < length; i++)
 	    buff[i] = in.get(i) * window[i];
-    try {
+    //    try {
       Complex[] result = fft.transform(buff);
       return (new MyComplexArray(result)).subarrayX(0, length/2+1);
 //      ComplexArray array = factory.createArray(result.length/2+1);
 //      for (int i = 0; i < result.length/2+1; i++)
 //        array.set(i, result[i].getReal(), result[i].getImaginary());
 //      return array;
-    } catch (org.apache.commons.math.MathException e) {
-      throw new MathException(e);
-    }
+//    } catch (org.apache.commons.math.MathException e) {
+//      throw new MathException(e);
+//    }
   }
 
   private class MyComplexArray implements ComplexArray {
@@ -47,6 +47,9 @@ public class FFTImpl implements FFT {
     public double getImag(int index) {
       return values[from + index].getImaginary();
     }
+      public ComplexNumber get(int index) {
+	  return new ComplexNumber(getReal(index), getImag(index));
+      }
     public void setReal(int index, double value) {
       throw new UnsupportedOperationException();
     }
@@ -56,6 +59,9 @@ public class FFTImpl implements FFT {
     public void set(int index, double re, double im) {
       throw new UnsupportedOperationException();
     }
+      public void set(int index, ComplexNumber value) {
+	  throw new UnsupportedOperationException();
+      }
     public ComplexArray subarrayX(int from, int thru) {
       MyComplexArray newarray = new MyComplexArray(values);
       newarray.from = this.from + from;

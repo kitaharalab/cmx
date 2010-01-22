@@ -3,14 +3,14 @@ import java.io.*;
 import javax.sound.midi.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 
-public class MidiRecoder extends SPModule {
+public class MidiRecorder extends SPModule {
 
   private int ticksPerBeat;
   private String filename;
   private Sequence seq;
   private Track track;
 
-  public MidiRecoder(String filename, int ticksPerBeat) {
+  public MidiRecorder(String filename, int ticksPerBeat) {
     try {
       seq = new Sequence(Sequence.PPQ, ticksPerBeat);
       track = seq.createTrack();

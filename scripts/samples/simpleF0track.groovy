@@ -21,7 +21,8 @@ class MyF0Tracker extends SPModule {
         }
       }
     }
-    println(f0)
+//    println(f0)
+    println(' ' * (int)(f0 / 50) + '*')
     dest[0].add(create1dimSPDoubleArray(f0))
   }
 

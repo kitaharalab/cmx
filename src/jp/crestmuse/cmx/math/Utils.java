@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.math;
 import java.util.*;
 import java.math.*;
+import org.apache.commons.math.linear.*;
 
 public class Utils {
   private static final DoubleArrayFactory factory = 
@@ -70,13 +71,21 @@ public class Utils {
     return sb.toString();
   }
 
-  public static String toString(ComplexArray x) {
+    public static String toString(ComplexArray x) {
+	return toString1(x);
+    }
+
+  public static String toString1(ComplexArray x) {
     return toString(x, ", ", "{", "}");
   }
 
   public static String toString2(ComplexArray x) {
     return toString(x, " ", "", "");
   }
+
+    public static String toString(DoubleMatrix x) {
+	return toString1(x);
+    }
 
   public static String toString(DoubleMatrix x, String sep1, String sep2, 
                                 String left, String right) {
@@ -87,7 +96,7 @@ public class Utils {
       appendRowString(x, 0, sep1, sb);
       for (int i = 1; i < nrows; i++) {
         sb.append(sep2);
-        appendRowString(x, 0, sep1, sb);
+        appendRowString(x, i, sep1, sb);
       }
     }
     sb.append(right);
@@ -163,10 +172,95 @@ public class Utils {
 	return array;
     }
 
+    public static final DoubleMatrix createDoubleMatrix(int nrows, int ncols) {
+	return mfactory.createMatrix(nrows, ncols);
+    }
+
+    public static final DoubleMatrix createDoubleMatrix(List<List<BigDecimal>> x){
+	int nrows = x.size();
+	int ncols = x.get(0).size();
+	DoubleMatrix matrix = createDoubleMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++) {
+	    List<BigDecimal> l = x.get(i);
+	    for (int j = 0; j < ncols; j++) 
+		matrix.set(i, j, l.get(j).doubleValue());
+	}
+	return matrix;
+    }
+
     public static final DoubleArray create1dimDoubleArray(double x) {
 	DoubleArray array = factory.createArray(1);
 	array.set(0, x);
 	return array;
     }
 
+    public static final RealMatrix toRealMatrix(DoubleMatrix x) {
+	return new MyRealMatrix(x);
+    }
+
+    private static class MyRealMatrix extends AbstractRealMatrix { 
+	private DoubleMatrix x;
+	private MyRealMatrix(DoubleMatrix x) {
+	    super();
+	    this.x = x;
+	}
+	public void addToEntry(int row, int column, double increment) {
+	    x.set(row, column, x.get(row, column) + increment);
+	}
+	public RealMatrix copy() {
+	    try {
+		return new MyRealMatrix((DoubleMatrix)x.clone());
+	    } catch (CloneNotSupportedException e) {
+		throw new UnsupportedOperationException();
+	    }
+	}
+	public RealMatrix createMatrix(int rowDimension, int columnDimension) {
+	    return new Array2DRowRealMatrix(rowDimension, columnDimension);
+	}
+	public int getColumnDimension() {
+	    return x.ncols();
+	}
+	public double getEntry(int row, int column) {
+	    return x.get(row, column);
+	}
+	public int getRowDimension() {
+	    return x.nrows();
+	}
+	public void multiplyEntry(int row, int column, 
+				  double factor){
+	    x.set(row, column, x.get(row, column) * factor);
+	}
+	public void setEntry(int row, int column, double value) {
+	    x.set(row, column, value);
+	}
+    }
+
+    public static DoubleMatrix toDoubleMatrix(RealMatrix x) {
+	return new MyDoubleMatrix(x);
+    }
+
+    private static class MyDoubleMatrix extends AbstractDoubleMatrixImpl {
+	private RealMatrix x;
+	private MyDoubleMatrix(RealMatrix x) {
+	    this.x = x;
+	}
+	public int nrows() {
+	    return x.getRowDimension();
+	}
+	public int ncols() {
+	    return x.getColumnDimension();
+	}
+	public double get(int i, int j) {
+	    return x.getEntry(i, j);
+	}
+	public void set(int i, int j, double value) {
+	    try {
+		x.setEntry(i, j, value);
+	    } catch (MatrixIndexException e) {
+		throw new MathException(e);
+	    }
+	}
+    }
 }
+	
+	

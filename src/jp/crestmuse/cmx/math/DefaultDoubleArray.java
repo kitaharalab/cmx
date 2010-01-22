@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-class DefaultDoubleArray implements DoubleArray,Cloneable {
+class DefaultDoubleArray extends AbstractDoubleArrayImpl {
   private double[] values;
   private int from, thru;
 
@@ -48,10 +48,6 @@ class DefaultDoubleArray implements DoubleArray,Cloneable {
       System.arraycopy(values, from, newarray, 0, thru-from);
       return newarray;
     }
-  }
-
-  public String encode() {
-    return Utils.toString2(this);
   }
 
 //  public String getEncodeFormatName() {

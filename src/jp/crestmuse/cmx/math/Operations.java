@@ -1,7 +1,10 @@
 package jp.crestmuse.cmx.math;
 import org.apache.commons.math.stat.descriptive.rank.*;
+import org.apache.commons.math.linear.*;
+import org.apache.commons.math.util.*;
 import static java.lang.Math.*;
 import java.util.*;
+import static jp.crestmuse.cmx.math.Utils.*;
 
 public class Operations {
 
@@ -11,6 +14,8 @@ public class Operations {
     BooleanArrayFactory.getFactory();
   private static final ComplexArrayFactory cfactory = 
     ComplexArrayFactory.getFactory();
+    private static final DoubleMatrixFactory mfactory = 
+	DoubleMatrixFactory.getFactory();
 
   private static final Median median = new Median();
 
@@ -98,6 +103,24 @@ public class Operations {
 	return sub(x, y);
     }
 
+    public static DoubleArray sub(DoubleArray x, double y) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) - y);
+	return z;
+    }
+
+    public static DoubleArray minus(DoubleArray x, double y) {
+	return sub(x, y);
+    }
+
+    public static void subX(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) - y.get(i));
+    }
+
   public static void subX(DoubleArray x, double y) {
     int length = x.length();
     for (int i = 0; i < length; i++)
@@ -126,6 +149,12 @@ public class Operations {
 
     public static DoubleArray multiply(DoubleArray x, DoubleArray y) {
 	return multiply(x,y);
+    }
+
+    public static void mulX(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) * y.get(i));
     }
 
   public static void mulX(DoubleArray x, double y) {
@@ -158,6 +187,12 @@ public class Operations {
 	return div(x, y);
     }
     
+    public static void divX(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) / y.get(i));
+    }
+		
   public static void divX(DoubleArray x, double y) {
     int length = x.length();
     for (int i = 0; i < length; i++)
@@ -401,6 +436,14 @@ public class Operations {
     return z;
   }
 
+    public static BooleanArray and(BooleanArray x, BooleanArray y) {
+	int length = x.length();
+	BooleanArray z = bfactory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) && y.get(i));
+	return z;
+    }
+
   public static DoubleArray removeMask(DoubleArray x, BooleanArray mask) {
 //    if (x.length() != mask.length())
 //      throw new AmusaDimensionException();
@@ -592,7 +635,417 @@ public class Operations {
     return sum;
   }
 
+    public static ComplexNumber getAt(ComplexArray x, int index) {
+	return x.get(index);
+    }
 
+    public static void putAt(ComplexArray x, int index, 
+				      ComplexNumber value) {
+	x.set(index, value);
+    }
+
+    public static void putAt(ComplexArray x, int index, 
+				      double[] value) {
+	x.set(index, value[0], value[1]);
+    }
+
+    public static DoubleArray getReal(ComplexArray x) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++) 
+	    z.set(i, x.getReal(i));
+	return z;
+    }
+
+    public static DoubleArray getImag(ComplexArray x) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.getImag(i));
+	return z;
+    }
+
+    public static ComplexArray add(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i) + y.getReal(i));
+	    z.setImag(i, x.getImag(i) + y.getImag(i));
+	}
+	return z;
+    }
+
+    public static ComplexArray plus(ComplexArray x, ComplexArray y) {
+	return add(x, y);
+    }
+
+    public static ComplexArray sub(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i) - y.getReal(i));
+	    z.setImag(i, x.getImag(i) - y.getImag(i));
+	}
+	return z;
+    }
+
+    public static ComplexArray minus(ComplexArray x, ComplexArray y) {
+	return sub(x, y);
+    }
+
+    public static ComplexArray mul(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i)*y.getReal(i)-x.getImag(i)*y.getImag(i));
+	    z.setImag(i, x.getImag(i)*y.getReal(i)+x.getReal(i)*y.getImag(i));
+	}
+	return z;
+    }
+
+    public static ComplexArray multiply(ComplexArray x, ComplexArray y) {
+	return mul(x, y);
+    }
+
+    public static ComplexArray div(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    double a = x.getReal(i);
+	    double b = x.getImag(i);
+	    double c = y.getReal(i);
+	    double d = y.getImag(i);
+	    z.setReal(i, (a*c + b*d) / (c*c + d*d));
+	    z.setImag(i, (b*c - a*d) / (c*c + d*d));
+	}
+	return z;
+    }
+
+
+    public static double getAt(DoubleMatrix x, int[] indices) {
+	return x.get(indices[0], indices[1]);
+    }
+
+    public static void putAt(DoubleMatrix x, int[] indices, double value) {
+	x.set(indices[0], indices[1], value);
+    }
+
+    public static DoubleMatrix add(DoubleMatrix x, DoubleMatrix y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) + y.get(i, j));
+	return z;
+    }
+
+    public static DoubleMatrix plus(DoubleMatrix x, DoubleMatrix y) {
+	return add(x, y);
+    }
+
+    public static DoubleMatrix add(DoubleMatrix x, DoubleArray y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) + y.get(j));
+	return z;
+    }
+
+    public static DoubleMatrix plus(DoubleMatrix x, DoubleArray y) {
+	return add(x, y);
+    }
+
+    public static DoubleMatrix sub(DoubleMatrix x, DoubleMatrix y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) - y.get(i, j));
+	return z;
+    }
+
+    public static DoubleMatrix minus(DoubleMatrix x, DoubleMatrix y) {
+	return sub(x, y);
+    }
+
+    public static DoubleMatrix sub(DoubleMatrix x, DoubleArray y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) - y.get(j));
+	return z;
+    }
+
+    public static DoubleMatrix minus(DoubleMatrix x, DoubleArray y) {
+	return sub(x, y);
+    }
+    
+    public static DoubleMatrix mul(DoubleMatrix x, double y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) * y);
+	return z;
+    }
+    
+    public static DoubleMatrix multiply(DoubleMatrix x, double y) {
+	return mul(x, y);
+    }
+
+    public static DoubleMatrix mul(DoubleMatrix x, DoubleMatrix y) {
+	int l = x.nrows();
+	int m = x.ncols();
+	int n = y.ncols();
+	DoubleMatrix z = mfactory.createMatrix(l, n);
+	for (int i = 0; i < l; i++) {
+	    for (int j = 0; j < n; j++) {
+		double value = 0;
+		for (int k = 0; k < m; k++) 
+		    value += x.get(i, k) * y.get(k, j);
+		z.set(i, j, value);
+	    }
+	}
+	return z;
+    }
+
+    public static DoubleMatrix multiply(DoubleMatrix x, DoubleMatrix y) {
+	return mul(x, y);
+    }
+	
+
+    public static DoubleMatrix div(DoubleMatrix x, DoubleArray y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) / y.get(j));
+	return z;
+    }
+
+    public static DoubleMatrix divide(DoubleMatrix x, DoubleArray y) {
+	return div(x, y);
+    }
+
+    public static DoubleMatrix div(DoubleMatrix x, double y) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		z.set(i, j, x.get(i, j) / y);
+	return z;
+    }
+
+    public static DoubleMatrix divide(DoubleMatrix x, double y) {
+	return div(x, y);
+    }
+
+    public static DoubleMatrix transposeX(DoubleMatrix x) {
+	return new TransposedDoubleMatrix(x);
+    }
+
+    private static class TransposedDoubleMatrix extends AbstractDoubleMatrixImpl {
+	private DoubleMatrix x;
+	private TransposedDoubleMatrix(DoubleMatrix x) {
+	    this.x = x;
+	}
+	public int nrows() {
+	    return x.ncols();
+	}
+	public int ncols() {
+	    return x.ncols();
+	}
+	public double get(int i, int j) {
+	    return x.get(j, i);
+	}
+	public void set(int i, int j, double value) {
+	    x.set(j, i, value);
+	}
+    }
+
+    public static DoubleArray getRow(DoubleMatrix x, int index) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(ncols);
+	for (int j = 0; j < ncols; j++)
+	    z.set(j, x.get(index, j));
+	return z;
+    }
+
+    public static DoubleArray getColumn(DoubleMatrix x, int index) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(nrows);
+	for (int i = 0; i < nrows; i++)
+	    z.set(i, x.get(i, index));
+	return z;
+    }
+    
+    public static boolean containsNaNInf(DoubleMatrix x) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		if (Double.isNaN(x.get(i, j)) || Double.isInfinite(x.get(i, j)))
+		    return true;
+	return false;
+    }
+    
+    public static boolean isNaNInf(DoubleMatrix x, int i, int j) {
+	double value = x.get(i, j);
+	return Double.isNaN(value) || Double.isInfinite(value);
+    }
+    
+    public static boolean isNaN(DoubleMatrix x, int i, int j) {
+	return Double.isNaN(x.get(i, j));
+    }
+
+    public static boolean isInf(DoubleMatrix x, int i, int j) {
+	return Double.isInfinite(x.get(i, j));
+    }
+
+    public static DoubleArray sumrows(DoubleMatrix x) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(ncols);
+	for (int j = 0; j < ncols; j++) {
+	    double value = 0;
+	    for (int i = 0; i < nrows; i++)
+		value += x.get(i, j);
+	    z.set(j, value);
+	}
+	return z;
+    }
+
+    public static DoubleArray sumcols(DoubleMatrix x) {
+	int ncols = x.ncols();
+	int nrows = x.nrows();
+	DoubleArray z = factory.createArray(nrows);
+	for (int i = 0; i < nrows; i++) {
+	    double value = 0;
+	    for (int j = 0; j < ncols; j++)
+		value += x.get(i, j);
+	    z.set(i, value);
+	}
+	return z;
+    }
+
+    public static DoubleArray meanrows(DoubleMatrix x) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(ncols);
+	for (int j = 0; j < ncols; j++) {
+	    double value = 0;
+	    for (int i = 0; i < nrows; i++)
+		value += x.get(i, j);
+	    z.set(j, value / nrows);
+	}
+	return z;
+    }
+
+    public static DoubleArray meancols(DoubleMatrix x) {
+	int ncols = x.ncols();
+	int nrows = x.nrows();
+	DoubleArray z = factory.createArray(nrows);
+	for (int i = 0; i < nrows; i++) {
+	    double value = 0;
+	    for (int j = 0; j < ncols; j++)
+		value += x.get(i, j);
+	    z.set(i, value / ncols);
+	}
+	return z;
+    }
+
+    public static DoubleArray stdrows(DoubleMatrix x) {
+	x = sub(x, meanrows(x));
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(ncols);
+	double value;
+	double N = (double)(nrows - 1);
+	for (int j = 0; j < ncols; j++) {
+	    double S = 0;
+	    for (int i = 0; i < nrows; i++) 
+		S += (value = x.get(i, j)) * value;
+	    z.set(j, Math.sqrt(S / N));
+	}
+	return z;
+    }
+
+    public static DoubleArray stdcols(DoubleMatrix x) {
+	x = sub(x, meancols(x));
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	DoubleArray z = factory.createArray(nrows);
+	double value;
+	double N = (double)(ncols - 1);
+	for (int i = 0; i < nrows; i++) {
+	    double S = 0;
+	    for (int j = 0; j < ncols; j++)
+		S += (value = x.get(i, j)) * value;
+	    z.set(i, Math.sqrt(S / N));
+	}
+	return z;
+    }
+
+    public static double max(DoubleMatrix x) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	double max = Double.NEGATIVE_INFINITY;
+	double value;
+	for (int i = 0; i < nrows ; i++)
+	    for (int j = 0; j < ncols; j++)
+		if ((value = x.get(i, j)) > max)
+		    max = value;
+	return max;
+    }
+
+    public static double min(DoubleMatrix x) {
+	int nrows = x.nrows();
+	int ncols = x.ncols();
+	double min = Double.POSITIVE_INFINITY;
+	double value;
+	for (int i = 0; i < nrows; i++)
+	    for (int j = 0; j < ncols; j++)
+		if ((value = x.get(i, j)) < min)
+		    min = value;
+	return min;
+    }
+
+    public static DoubleMatrix cov(DoubleMatrix x) {
+	DoubleMatrix xx = sub(x, meanrows(x));
+	return mul(transposeX(xx), xx);
+    }
+
+
+    public static DoubleMatrix[] svd(DoubleMatrix x) {
+	SingularValueDecomposition 
+	   svd = new SingularValueDecompositionImpl(toRealMatrix(x));
+	DoubleMatrix[] result = new DoubleMatrix[3];
+	result[0] = toDoubleMatrix(svd.getU());
+	result[1] = toDoubleMatrix(svd.getS());
+	result[2] = toDoubleMatrix(svd.getV());
+	return result;
+    }
+
+    public static DoubleMatrix[] eig(DoubleMatrix x) {
+	EigenDecomposition 
+	    eig = new EigenDecompositionImpl(toRealMatrix(x), 
+					     MathUtils.SAFE_MIN);
+	DoubleMatrix[] result = new DoubleMatrix[2];
+	result[0] = toDoubleMatrix(eig.getV());
+	result[1] = toDoubleMatrix(eig.getD());
+	return result;
+    }
 
 }
 

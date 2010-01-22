@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-class DefaultDoubleMatrix implements DoubleMatrix {
+class DefaultDoubleMatrix extends AbstractDoubleMatrixImpl {
   private double[][] values;
   private int nrows, ncols;
 

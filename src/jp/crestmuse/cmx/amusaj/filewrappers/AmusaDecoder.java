@@ -37,4 +37,14 @@ public class AmusaDecoder {
       throw new UnsupportedFormatException(format);
     }
   }
+
+    public Class getClassFor(String format) {
+	if (format.equals("array"))
+	    return DoubleArray.class;
+	else if (format.equals("peaks"))
+	    return PeakSet.class;
+	else
+	    throw new IllegalStateException("Unsupported format: "+format);
+    }
+
 }

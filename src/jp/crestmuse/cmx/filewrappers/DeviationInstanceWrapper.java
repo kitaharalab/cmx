@@ -224,6 +224,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return Double.parseDouble(initSil);
   }
 
+    /** @deprecated */
   public static DeviationInstanceWrapper createDeviationInstanceFor(
       MusicXMLWrapper musicxml) {
     try {
@@ -767,6 +768,101 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return result;
   }
 
+    /** Note: Attributes have not been supported. */
+    public DeviationDataSet toDeviationDataSet() throws IOException {
+	//	if (tctrlview == null) analyze();
+	MusicXMLWrapper musicxml = getTargetMusicXML();
+	final DeviationDataSet dds = new DeviationDataSet(musicxml);
+	dds.setInitialSilence(getInitialSilence());
+	if (tctrlview != null) {
+	    addNonPartwise(tctrlview.getRoot(), dds);
+	    while (tctrlview.hasMoreElementsAtSameTime()) 
+		addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
+	    while (tctrlview.hasElementsAtNextTime()) {
+		addNonPartwise(tctrlview.getFirstElementAtNextTime(), dds);
+		while (tctrlview.hasMoreElementsAtSameTime())
+		    addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
+	    }
+	}
+	for (Map.Entry<String,TimewiseControlView> e : pctrlviews.entrySet()) {
+	    String part = e.getKey();
+	    TimewiseControlView cv = e.getValue();
+	    addPartwise(cv.getRoot(), part, dds);
+	    while (cv.hasMoreElementsAtSameTime())
+		addPartwise(cv.getNextElementAtSameTime(), part, dds);
+	    while (cv.hasElementsAtNextTime()) {
+		addPartwise(cv.getFirstElementAtNextTime(), part, dds);
+		while (cv.hasMoreElementsAtSameTime())
+		    addPartwise(cv.getNextElementAtSameTime(), part, dds);
+	    }
+	}
+	musicxml.processNotePartwise(new NoteHandlerAdapterPartwise() {
+		public void processMusicData(MusicXMLWrapper.MusicData md, 
+					     MusicXMLWrapper mx) {
+		    if (md instanceof MusicXMLWrapper.Note) {
+			MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
+			addNoteDeviation(note, getNoteDeviation(note), dds);
+			addChordDeviation(note, getChordDeviation(note), dds);
+			addMissNote(note, getMissNote(note), dds);
+		    }
+		}
+	    });
+	//	for (Map.Entry<MusicXMLWrapper.Note,NoteDeviation> e : noteDevMap.entrySet()) 
+	//	    addNoteDeviation(e.getKey(), e.getValue(), dds);
+	//	for (Map.Entry<MusicXMLWrapper.Note,ChordDeviation> e : chordDevMap.entrySet())
+	//	    addChordDeviation(e.getKey(), e.getValue(), dds);
+	//	for (Map.Entry<MusicXMLWrapper.Note,MissNote> e : missNoteMap.entrySet()) 
+	//	    addMissNote(e.getKey(), e.getValue(), dds);
+	for (Map.Entry<String,TreeView<ExtraNote>> e : extraNotes.entrySet()) {
+	    String part = e.getKey();
+	    TreeView<ExtraNote> cv = e.getValue();
+	    addExtraNote(cv.getRoot(), part, dds);
+	    while (cv.hasMoreElementsAtSameTime())
+		addExtraNote(cv.getNextElementAtSameTime(), part, dds);
+	    while (cv.hasElementsAtNextTime()) {
+		addExtraNote(cv.getFirstElementAtNextTime(), part, dds);
+		while (cv.hasMoreElementsAtSameTime())
+		    addExtraNote(cv.getNextElementAtSameTime(), part, dds);
+	    }
+	}
+	return dds;
+    }
+	   
+    private void addNonPartwise(Control c, DeviationDataSet dds) {
+	dds.addNonPartwiseControl(c.measure(), c.beat(), c.type(), c.value());
+    }
+
+    private void addPartwise(Control c, String part, DeviationDataSet dds) {
+	dds.addPartwiseControl(part, c.measure(), c.beat(), c.type(), c.value());
+    }
+    
+    private void addNoteDeviation(MusicXMLWrapper.Note note, 
+				  NoteDeviation nd, DeviationDataSet dds) {
+	if (nd != null)
+	dds.addNoteDeviation(note, nd.attack(), nd.release(), nd.dynamics(), 
+			     nd.endDynamics());
+    }
+
+    private void addChordDeviation(MusicXMLWrapper.Note note, 
+				   ChordDeviation nd, DeviationDataSet dds) {
+	if (nd != null)
+	dds.addChordDeviation(note, nd.attack(), nd.release(), nd.dynamics(), 
+			      nd.endDynamics());
+    }
+
+    private void addMissNote(MusicXMLWrapper.Note note, MissNote mn, 
+			     DeviationDataSet dds) {
+	if (mn != null)
+	dds.addMissNote(note);
+    }
+    
+    private void addExtraNote(ExtraNote en, String part, DeviationDataSet dds) {
+	dds.addExtraNote(part, en.measure(), en.beat(), en.pitchStep(), 
+			 en.pitchAlter(), en.pitchOctave(), en.duration(), 
+			 en.dynamics(), en.endDynamics());
+    }
+	    
+	       
   private class NoteListForSCC {
     private int serial;
     private int ch;

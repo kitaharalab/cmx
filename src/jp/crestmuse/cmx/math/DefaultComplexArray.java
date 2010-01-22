@@ -36,6 +36,10 @@ class DefaultComplexArray implements ComplexArray {
       return im[from + index];
   }
 
+    public ComplexNumber get(int index) {
+	return new ComplexNumber(getReal(index), getImag(index));
+    }
+
   public void setReal(int index, double value) {
     re[from + index] = value;
   }
@@ -50,6 +54,10 @@ class DefaultComplexArray implements ComplexArray {
     setReal(index, re);
     setImag(index, im);
   }
+
+    public void set(int index, ComplexNumber value) {
+	set(index, value.real, value.imag);
+    }
 
   public ComplexArray subarrayX(int from, int thru) {
     DefaultComplexArray newarray = new DefaultComplexArray(re, im);
