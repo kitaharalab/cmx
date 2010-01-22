@@ -1046,6 +1046,67 @@ public class Operations {
 	result[1] = toDoubleMatrix(eig.getD());
 	return result;
     }
+    
+    public static DoubleMatrix[] lu(DoubleMatrix x) {
+	LUDecomposition lu = new LUDecompositionImpl(toRealMatrix(x));
+	DoubleMatrix[] result = new DoubleMatrix[3];
+	result[0] = toDoubleMatrix(lu.getL());
+	result[1] = toDoubleMatrix(lu.getU());
+	result[2] = toDoubleMatrix(lu.getP());
+	return result;
+    }
+
+    public static double det(DoubleMatrix x) {
+	LUDecomposition lu = new LUDecompositionImpl(toRealMatrix(x));
+	return lu.getDeterminant();
+    }
+
+    public static DoubleMatrix inv(DoubleMatrix x) {
+	LUDecomposition lu = new LUDecompositionImpl(toRealMatrix(x));
+	return toDoubleMatrix(lu.getSolver().getInverse());
+    }
+	
+    public static DoubleMatrix[] qr(DoubleMatrix x) {
+	QRDecomposition qr = new QRDecompositionImpl(toRealMatrix(x));
+	DoubleMatrix[] result = new DoubleMatrix[2];
+	result[0] = toDoubleMatrix(qr.getQ());
+	result[1] = toDoubleMatrix(qr.getR());
+	return result;
+    }
+
+    public static boolean isSquare(DoubleMatrix x) {
+	return x.nrows() == x.ncols();
+    }
+
+    public static DoubleArray diag(DoubleMatrix x) {
+	if (!isSquare(x)) 
+	    throw new MathException("Matrix should be square");
+	int length = x.nrows();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i, i));
+	return z;
+    }
+    
+    public static DoubleMatrix normalize(DoubleMatrix x) {
+	DoubleArray mean = meanrows(x);
+	DoubleArray std = stdrows(x);
+	for (int i = 0; i < std.length(); i++)
+	    if (std.get(i) == 0) std.set(i, 1.0);
+	return div(sub(x, mean), std);
+    }
+
+    public static double innerproduct(DoubleArray x, DoubleArray y) {
+	double value = 0;
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    value += x.get(i) * y.get(i);
+	return value;
+    }
+
+    public static double norm(DoubleArray x) {
+	return Math.sqrt(innerproduct(x, x));
+    }
 
 }
 

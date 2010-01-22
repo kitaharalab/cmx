@@ -14,6 +14,7 @@ println("x = \n${x.toString()}")
 println("mean(x) = \n${x.meanrows().toString()}")
 println("std(x) = \n${x.stdrows().toString()}")
 println("cov(x) = \n${x.cov().toString()}")
+println("normalize(x) = \n${x.normalize().toString()}")
 
 println("Singular value decomposition: (U, S, V) = svd(x)")
 (U, S, V) = x.svd()
