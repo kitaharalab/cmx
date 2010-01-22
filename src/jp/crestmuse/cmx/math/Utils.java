@@ -10,6 +10,8 @@ public class Utils {
     BooleanArrayFactory.getFactory();
   private static final DoubleMatrixFactory mfactory = 
     DoubleMatrixFactory.getFactory();
+  private static final ComplexArrayFactory cfactory = 
+      ComplexArrayFactory.getFactory();
 
   public Utils() { }
 
@@ -169,6 +171,24 @@ public class Utils {
 	DoubleArray array = createDoubleArray(length);
 	for (int i = 0; i < length; i++)
 	    array.set(i, x.get(i).doubleValue());
+	return array;
+    }
+
+    public static final ComplexArray createComplexArray(int length) {
+	return cfactory.createArray(length);
+    }
+
+    public static final ComplexArray createComplexArray(double[] re, 
+							  double[] im) {
+	return cfactory.createArray(re, im);
+    }
+
+    public static final ComplexArray 
+	createComplexArray(List<BigDecimal> re, List<BigDecimal> im) {
+	int length = re.size();
+	ComplexArray array = createComplexArray(length);
+	for (int i = 0; i < length; i++) 
+	    array.set(i, re.get(i).doubleValue(), im.get(i).doubleValue());
 	return array;
     }
 
