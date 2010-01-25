@@ -30,11 +30,14 @@ public class ApplyCSVTempoDeviation extends CMXCommand<DeviationInstanceWrapper,
 
     protected DeviationInstanceWrapper run(DeviationInstanceWrapper indata) throws IOException {
 	DeviationDataSet dds = indata.toDeviationDataSet();
-	if (tempo > 0)
-	    dds.addNonPartwiseControl(1, 1, "tempo", tempo);
+	if (tempo > 0) {
+	    int firstMeasure = 
+		indata.getTargetMusicXML().getPartList()[0].firstMeasureNumber();
+	    dds.addNonPartwiseControl(firstMeasure, 1, "tempo", tempo);
+	}
 	CSVWrapper csv = new CSVWrapper(csvfilename);
 	for (List<String> data : csv) {
-	    dds.addNonPartwiseControl(Integer.parseInt(data.get(0)), Double.parseDouble(data.get(1)), "tempo-deviatoin", Double.parseDouble(data.get(2)));
+	    dds.addNonPartwiseControl(Integer.parseInt(data.get(0)), Double.parseDouble(data.get(1)), "tempo-deviation", Double.parseDouble(data.get(2)));
 	}
 	return dds.toWrapper();
     }
