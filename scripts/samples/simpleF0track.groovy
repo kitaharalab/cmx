@@ -1,11 +1,16 @@
 import jp.crestmuse.cmx.amusaj.sp.*
-//import static jp.crestmuse.cmx.amusaj.sp.Utils.*
 import static jp.crestmuse.cmx.math.Utils.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*
 import jp.crestmuse.cmx.amusaj.commands.*
 import jp.crestmuse.cmx.math.*
 
 DoubleArray.mixin(Operations)
+
+/***********************************************************************
+
+ ***********************************************************************/
+
+args = "-conf config.xml sample1.wav"
 
 class MyF0Tracker extends SPModule {
 
@@ -22,8 +27,6 @@ class MyF0Tracker extends SPModule {
         }
       }
     }
-    println(f0)
-//    println(' ' * (int)(f0 / 50) + '*')
     dest[0].add(create1dimDoubleArray(f0))
   }
 
@@ -32,7 +35,7 @@ class MyF0Tracker extends SPModule {
   }
 
   Class[] getOutputClasses() {
-    [SPDoubleArray.class]
+    [DoubleArray.class]
   }
 }
 

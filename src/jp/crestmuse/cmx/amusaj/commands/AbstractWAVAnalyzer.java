@@ -12,12 +12,13 @@ import javax.sound.sampled.*;
 import org.xml.sax.*;
 
 public abstract class AbstractWAVAnalyzer 
-  extends CMXCommand<WAVWrapper,AmusaDataSetCompatible> {
+  extends CMXCommand<WAVWrapper,FileWrapperCompatible> {
 //  protected Map<String,String> params = new HashMap<String,String>();
   private AmusaDataSet dataset = null;
   WindowSlider winslider = null;
   private boolean fromMic = false;
   private int fs = 16000;
+  //  private boolean plain = false;
 
   static {
       addOptionHelpMessage("-winsize <winsize>", "window size in STFT");
@@ -70,6 +71,9 @@ public abstract class AbstractWAVAnalyzer
     } else if (option.equals("-mic")) {
       fromMic = true;
       return true;
+      //    } else if (option.equals("-plain")) {
+      //	plain = true;
+      //	return true;
     } else {
       return false;
     }

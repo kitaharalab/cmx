@@ -1108,6 +1108,64 @@ public class Operations {
 	return Math.sqrt(innerproduct(x, x));
     }
 
+    public static DoubleMatrix toMatrixV(DoubleArray array) {
+	return new MyMatrixV(array);
+    }
+
+    private static class MyMatrixV extends AbstractDoubleMatrixImpl {
+	private DoubleArray array;
+	private MyMatrixV(DoubleArray array) {
+	    this.array = array;
+	}
+	public int nrows() {
+	    return array.length();
+	}
+	public int ncols() {
+	    return 1;
+	}
+	public double get(int i, int j) {
+	    if (j == 0)
+		return array.get(i);
+	    else
+		throw new IllegalStateException();
+	}
+	public void set(int i, int j, double value) {
+	    if (j == 0)
+	        array.set(i, value);
+	    else
+		throw new IllegalStateException();
+	}
+    }
+
+    public static DoubleMatrix toMatrixH(DoubleArray array) {
+	return new MyMatrixH(array);
+    }
+
+    private static class MyMatrixH extends AbstractDoubleMatrixImpl {
+	private DoubleArray array;
+	private MyMatrixH(DoubleArray array) {
+	    this.array = array;
+	}
+	public int nrows() {
+	    return 1;
+	}
+	public int ncols() {
+	    return array.length();
+	}
+	public double get(int i, int j) {
+	    if (i == 0)
+		return array.get(j);
+	    else
+		throw new IllegalStateException();
+	}
+	public void set(int i, int j, double value) {
+	    if (i == 0)
+		array.set(j, value);
+	    else
+		throw new IllegalStateException();
+	}
+    }
+	
 }
 
 

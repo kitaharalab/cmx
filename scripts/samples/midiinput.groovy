@@ -2,11 +2,18 @@ import jp.crestmuse.cmx.sound.*
 import jp.crestmuse.cmx.amusaj.sp.*
 import jp.crestmuse.cmx.amusaj.filewrappers.*
 
+/************************************************************
+   midiinput.groovy 
+     prints MIDI messages input by the user through 
+     a virtual keyboard displayed on the screen. 
+ ************************************************************/
+     
 class MidiPrint extends SPModule {
 
   void execute(Object[] src, TimeSeriesCompatible[] dest) {
-    def midimsg = src[0].getMessage()
-    println("MIDI Message: ${midimsg.getStatus()}\t${midimsg.getData1()}\t${midimsg.getData2()}")
+    println src[0].getMessageInByteArray()
+    def (status, data1, data2) = src[0].getMessageInByteArray()
+    println("MIDI Message: ${status}\t${data1}\t${data2}")
   }
 
   Class[] getInputClasses() {

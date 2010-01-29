@@ -1,9 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.Track;
-
+import javax.sound.midi.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
@@ -12,6 +9,11 @@ public class MidiOutputModule extends SPModule {
     private Receiver receiver;
     private Track recoder;
     
+    public MidiOutputModule(MidiDevice dev) 
+	throws MidiUnavailableException {
+	this(dev.getReceiver());
+    }
+
     public MidiOutputModule(Receiver rec) {
       this(rec, null);
     }

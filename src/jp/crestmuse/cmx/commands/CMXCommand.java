@@ -399,6 +399,13 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
     runAll();
   }
 
+  public final void start(String args)
+      throws IOException, SAXException, ParserConfigurationException, 
+      TransformerException, InvalidOptionException, 
+      InvalidFileTypeException {
+      start(args.split("\\s+"));
+  }
+
   /*******************************************************************
    *Executes the following processses: 
    *<ol>
