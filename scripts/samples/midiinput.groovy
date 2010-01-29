@@ -4,16 +4,16 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*
 
 class MidiPrint extends SPModule {
 
-  void execute(SPElement[] src, TimeSeriesCompatible[] dest) {
+  void execute(Object[] src, TimeSeriesCompatible[] dest) {
     def midimsg = src[0].getMessage()
     println("MIDI Message: ${midimsg.getStatus()}\t${midimsg.getData1()}\t${midimsg.getData2()}")
   }
 
-  Class<SPElement>[] getInputClasses() {
+  Class[] getInputClasses() {
     [ MidiEventWithTicktime.class ]
   }
 
-  Class<SPElement>[] getOutputClasses() {
+  Class[] getOutputClasses() {
     []
   }
 }

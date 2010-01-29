@@ -1,5 +1,6 @@
 import jp.crestmuse.cmx.amusaj.sp.*
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*
+//import static jp.crestmuse.cmx.amusaj.sp.Utils.*
+import static jp.crestmuse.cmx.math.Utils.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*
 import jp.crestmuse.cmx.amusaj.commands.*
 import jp.crestmuse.cmx.math.*
@@ -8,10 +9,10 @@ DoubleArray.mixin(Operations)
 
 class MyF0Tracker extends SPModule {
 
-  void execute(SPElement[] src, TimeSeriesCompatible[] dest) {
+  void execute(Object[] src, TimeSeriesCompatible[] dest) {
     def freq = src[0].freq()
     def power = src[0].power()
-    def power_thrs = 0.01 * power.sum()
+    def power_thrs = 0.001 * power.sum()
     def f0 = 0.0
     if (freq.length() > 0) {
       for (i in 0..(freq.length()-1)) {
@@ -21,9 +22,9 @@ class MyF0Tracker extends SPModule {
         }
       }
     }
-//    println(f0)
-    println(' ' * (int)(f0 / 50) + '*')
-    dest[0].add(create1dimSPDoubleArray(f0))
+    println(f0)
+//    println(' ' * (int)(f0 / 50) + '*')
+    dest[0].add(create1dimDoubleArray(f0))
   }
 
   Class[] getInputClasses() {
