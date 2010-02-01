@@ -163,6 +163,10 @@ public class Operations {
       x.set(i, x.get(i) * y);
   }
 
+    public static void mulX(DoubleArray x, int i, double y ) {
+	x.set(i, x.get(i) * y);
+    }
+
   public static DoubleArray div(DoubleArray x, double y) {
     int length = x.length();
     DoubleArray z = factory.createArray(length);
@@ -334,6 +338,16 @@ public class Operations {
     return result;
   }
 */
+
+    public static double absmax(DoubleArray x) {
+	double max = Double.NEGATIVE_INFINITY;
+	int length = x.length();
+	double value;
+	for (int i = 0; i < length; i++)
+	    if ((value = Math.abs(x.get(i))) > max)
+		max = value;
+	return max;
+    }
 
   public static double median(DoubleArray x) {
     return median.evaluate(x.toArray());
@@ -1165,6 +1179,16 @@ public class Operations {
 		throw new IllegalStateException();
 	}
     }
+
+    public static DoubleArray conv(DoubleArray x, DoubleArray y) {
+	DoubleArray z = factory.createArray(x.length(), 0.0);
+	for (int t = 0; t < x.length(); t++) 
+	    for (int k = 0; k < y.length(); k++)
+		if (t - k >= 0)
+		    addX(z, t, x.get(t-k) * y.get(k));
+	return z;
+    }
+
 	
 }
 

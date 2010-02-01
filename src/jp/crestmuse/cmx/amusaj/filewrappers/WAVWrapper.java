@@ -31,6 +31,11 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     setWaveform(wav, sampleRate);
   }
 
+    public WAVWrapper(AudioDataCompatible wav) 
+	throws IOException {
+	this(wav.getDoubleArrayWaveform(), wav.sampleRate());
+    }
+
   private void setWaveform(DoubleArray[] waveform, int sampleRate) {
       fmt.setDefault(waveform.length, sampleRate);
       data.setWaveform(waveform);

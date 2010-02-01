@@ -9,22 +9,17 @@ import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import static jp.crestmuse.cmx.misc.Misc.*;
 
-public class DeviationInstanceGeneratorSample extends CMXCommand {
+public class DeviationInstanceGeneratorSample 
+  extends CMXCommand<MusicXMLWrapper,DeviationInstanceWrapper> {
 
     private DeviationDataSet dds;
 
-    protected void run()
+    protected DeviationInstanceWrapper run(MusicXMLWrapper musicxml)
 	throws IOException, ParserConfigurationException, 
 	       TransformerException, SAXException, InvalidFileTypeException {
-	//	readInputData();
-        //      indata().removeBlankTextNodes();
-	newOutputData("deviation");
-	((DeviationInstanceWrapper)outdata()).setTargetMusicXMLFileName
-	    (indata().getFileName());
-	dds = ((DeviationInstanceWrapper)outdata()).createDeviationDataSet();
-	((MusicXMLWrapper)indata()).processNotePartwise(new SampleHandler());
-	dds.toWrapper();
-	//	writeOutputData();
+      dds = new DeviationDataSet(musicxml);
+      musicxml.processNotePartwise(new SampleHandler());
+      return dds.toWrapper();
     }
 
     public static void main(String[] args) {

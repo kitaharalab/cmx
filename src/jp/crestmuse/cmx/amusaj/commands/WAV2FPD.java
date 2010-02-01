@@ -11,6 +11,12 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
+/** WAV2FPD, given a WAV file, calculates the F0 predominance function 
+    at every F0 in a given pitch range. 
+    To execute this class, the implementation of F0PDFCalculator is 
+    required.
+    @author Tetsuro Kitahara
+*/
 
 public class WAV2FPD extends AbstractWAVAnalyzer {
 //  private double nnFrom = Double.NaN, nnThru = Double.NaN, step = Double.NaN;

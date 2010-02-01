@@ -899,6 +899,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return getAttributeInt(node(), "vol");
     }
 
+      public final int panpot() {
+	  return getAttributeInt(node(), "pan");
+      }
+
     public final String getXPathExpression() {
       return xpath;
     }

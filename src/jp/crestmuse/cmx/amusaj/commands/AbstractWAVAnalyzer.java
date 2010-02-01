@@ -11,6 +11,14 @@ import javax.xml.parsers.*;
 import javax.sound.sampled.*;
 import org.xml.sax.*;
 
+/** AbstractWAVAnalyzer can be used as a base class for implementing 
+    commands that read and analyze WAV files. 
+    You can implement such commands only by overriding several 
+    abstract methods: getAmusaXMLFormat(), getModules(), 
+    getModuleConnections(), and getOutputData(). 
+    For details, see source files of classes that use this class, 
+    such as WAV2SPD, WAV2FPD, and WAV2TBD.
+*/
 public abstract class AbstractWAVAnalyzer 
   extends CMXCommand<WAVWrapper,FileWrapperCompatible> {
 //  protected Map<String,String> params = new HashMap<String,String>();
@@ -115,13 +123,15 @@ public abstract class AbstractWAVAnalyzer
 //    return AmusaParameterSet.getInstance().getParamInt("fft", "WINDOW_SIZE");
 ////    return Integer.valueOf(params.get("WINDOW_SIZE"));
 //  }
-
+  
+  /** */
   protected FileWrapperCompatible 
   readInputData(String filename) throws IOException{
     return WAVWrapper.readfile(filename);
 //    return WAVXMLWrapper.readWAV(filename);
   }
 
+  /** If you override this method, please write "super();" at first. */
   protected void preproc() throws IOException, ParserConfigurationException, TransformerException, SAXException  {
     AmusaParameterSet.getInstance().setAnotherParameterSet(CMXCommand.getConfigXMLWrapper());
   }
@@ -170,13 +180,42 @@ public abstract class AbstractWAVAnalyzer
 //    return analyzeWaveform(wav, winslider, ex);
   }
 
+  /** Please override this method so that this returns the list of 
+      modules (typically subclasses of SPModule) used in this class. 
+      If your command use STFT and PeakExtractor, you may override this 
+      method as follows: 
+      <pre>
+      private ProducerConsumerCompatible stft, peakext;
+      protected abstractProducerConsumerCompatible[] getUsedModules() {
+        return new ProducerConsumerCompatible[] {
+	    stft = new STFT(), 
+	    peakext = new PeakExtractor()
+        };
+      }
+      </pre>
+  */
   protected abstract ProducerConsumerCompatible[] getUsedModules();
 
+  /** Please override this method to specify the connections between 
+      modules described in the getUsedModules() method. 
+      If the output of the stft module connects to the input of the 
+      peakext module, you may override this method as follows: 
+      <pre>
+      protected ModuleConnection[] getModuleConnections() {
+        return new ModuleConnection[] {
+	  new ModuleConnection(stft, 0, peakext, 0);
+        };
+      }
+      </pre>
+  */
   protected abstract ModuleConnection[] getModuleConnections();
 
-  /** "array" or "peaks" */
+  /** Please override this method so that this returns "array" or "peaks" */
   protected abstract String getAmusaXMLFormat();
 
+  /** Please override this method to specify what data should be 
+      output to a file.
+  */
   protected abstract OutputData[] getOutputData();
 
   protected void customSetting(SPExecutor ex, AmusaDataSetCompatible dataset) {

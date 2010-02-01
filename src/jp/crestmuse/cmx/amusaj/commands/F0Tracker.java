@@ -10,6 +10,14 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
+/** F0Tracker extracts the most prodominant harmonic structure 
+    from the given WAV file. 
+    To execute this class, the implementation of F0PDFCaclulator is 
+    required. 
+    This class is written to provide a simple example of our 
+    signal processing API, and therefore does not have a sufficient 
+    accuracy. 
+*/
 public class F0Tracker extends AbstractWAVAnalyzer {
   private ProducerConsumerCompatible stft, peakext, f0calc, f0track, 
     spread, harmext;
