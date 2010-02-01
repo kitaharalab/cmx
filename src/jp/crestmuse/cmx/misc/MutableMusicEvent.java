@@ -35,6 +35,11 @@ public abstract class MutableMusicEvent
       return onset * ticksPerBeat / this.ticksPerBeat;
   }
 
+  public int onsetInMilliSec() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**@deprecated*/
   public int onsetInMSec() {
     throw new UnsupportedOperationException();
   }
@@ -43,6 +48,11 @@ public abstract class MutableMusicEvent
     return offset;
   }
 
+  public int offsetInMilliSec() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**@deprecated*/
   public int offsetInMSec() {
     throw new UnsupportedOperationException();
   }

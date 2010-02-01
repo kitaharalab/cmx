@@ -1424,10 +1424,20 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       throw new UnsupportedOperationException();
     }
 
+    public int onsetInMilliSec() {
+      throw new UnsupportedOperationException();
+    }
+
+    /**@deprecated*/
     public int onsetInMSec() {
       throw new UnsupportedOperationException();
     }
 
+    public int offsetInMilliSec() {
+      throw new UnsupportedOperationException();
+    }
+
+    /**@deprecated*/
     public int offsetInMSec() {
       throw new UnsupportedOperationException();
     }

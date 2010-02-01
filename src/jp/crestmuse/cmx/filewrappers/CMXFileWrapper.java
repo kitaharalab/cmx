@@ -127,8 +127,8 @@ import jp.crestmuse.cmx.math.*;
  *あると思われますので, その際には追加すべきデータを一時的に格納する
  *クラスを用意しています. たとえばDeviationDataSetなどが該当します. </p>
  *
- *<p>JAXPに対応したXMLパーサ(Xercesが望ましい)とXSLTプロセッサ
- *(いまのところXalanのみ対応)が必要です. </p>
+ *<p>JAXPに対応したXMLパーサ(Xerces)とXSLTプロセッサ
+ *(Xalan)が必要です. </p>
  *
  *@author Tetsuro Kitahara (t.kitahara@ksc.kwansei.ac.jp)
  *@version 0.21
@@ -175,7 +175,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
       addClassTable("config", 
                     PACKAGE_BASE + "." + "ConfigXMLWrapper");
       addDocumentTypeTable("config", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.40 ConfigXML//EN",
+                           "-//CrestMuse//DTD CrestMuseXML ConfigXML//EN",
                            "http://www.crestmuse.jp/cmx/dtds/config.dtd");
       addClassTable("score-partwise", 
                     PACKAGE_BASE + "." + "MusicXMLWrapper");
@@ -188,12 +188,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
                            "http://www.musicxml.org/dtds/midixml.dtd");
       addClassTable("scc", PACKAGE_BASE + "." + "SCCXMLWrapper");
       addDocumentTypeTable("scc", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.30 SCCXML//EN",
+                           "-//CrestMuse//DTD CrestMuseXML SCCXML//EN",
                            "http://www.crestmuse.jp/cmx/dtds/sccxml.dtd");
       addClassTable("deviation",
                     PACKAGE_BASE+"."+"DeviationInstanceWrapper");
       addDocumentTypeTable("deviation", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.30 " + 
+                           "-//CrestMuse//DTD CrestMuseXML " + 
                            "DeviationInstanceXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/deviation.dtd");
 //      addClassTable("riff-wave", 
@@ -229,7 +229,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
       addClassTable("amusaxml", 
                     AMUSA_PACKAGE_BASE + "." + "AmusaXMLWrapper");
       addDocumentTypeTable("amusaxml", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.41 " +
+                           "-//CrestMuse//DTD CrestMuseXML " +
                            "AmusaXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/amusaxml.dtd");
       addClassTable("Mpeg7", 
@@ -237,13 +237,13 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
       addClassTable("script", 
                     AMUSA_PACKAGE_BASE + "." + "AmusaScriptWrapper");
       addDocumentTypeTable("script", 
-                           "-//CrestMuse//DTD CrestMuseXML 0.41 " + 
+                           "-//CrestMuse//DTD CrestMuseXML " + 
                            "AmusaScriptXML//EN", 
                            "http://www.crestmuse.jp/cmx/dtds/amusascript.dtd");
       
       //090313 MusicApex動作テストのため暫定的に追記　ここから
       addClassTable("music-apex", PACKAGE_BASE+"."+"MusicApexWrapper");
-      addDocumentTypeTable("music-apex", "-//CrestMuse//DTD CrestMuseXML 0.41" +
+      addDocumentTypeTable("music-apex", "-//CrestMuse//DTD CrestMuseXML " +
           "MusicApexXML//EN",
           "music-apex.dtd");      
       //ここまで
