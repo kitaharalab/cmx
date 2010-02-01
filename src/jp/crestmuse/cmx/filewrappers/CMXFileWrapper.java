@@ -278,6 +278,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
       builderFactory.setIgnoringComments(true);
       builderFactory.setIgnoringElementContentWhitespace(true);
       //      builderFactory.setValidating(true);
+      builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", 
+				 false);
     }
     if (builder == null) {
       builder = builderFactory.newDocumentBuilder();
