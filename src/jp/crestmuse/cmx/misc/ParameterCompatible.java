@@ -3,6 +3,8 @@ package jp.crestmuse.cmx.misc;
 public interface ParameterCompatible {
   String PARAM_NAMESPACE = "param";
   String FILTER_NAMESPACE = "filters";
+  String MDB_NAMESPACE = "mdb";
+  String PROGNUM_NAMESPACE = "prognum";
 //  boolean containsParam(String category, String key);
 //  String getParam(String category, String key);
 //  int getParamInt(String category, String key);

@@ -30,7 +30,7 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
   private String mdb = "rwc";
   private String path;
   private String pitchlistfilename;
-  private String instlisttype = "default";
+  private String instlisttype;
   private String pattern;
   private String sty = null;
   private String sty2 = null;
@@ -114,8 +114,10 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
    *Reads some parameters and constructs some objects as pre-processing.
    *******************************************************************/
   protected void preproc() throws IOException {
-      AmusaParameterSet param = AmusaParameterSet.getInstance();
-    cache_capacity = param.getParamInt("scc2wav", "CACHE_CAPACITY");
+//    super();
+//      AmusaParameterSet param = AmusaParameterSet.getInstance();
+    ConfigXMLWrapper param = getConfigXMLWrapper();
+    cache_capacity = param.getParamInt("param", "scc2wav", "CACHE_CAPACITY");
     fs = param.getParamInt("mdb", mdb, "SAMPLE_RATE");
     if (length < 0) 
       length = param.getParamInt("param", "scc2wav", "LENGTH");
@@ -161,45 +163,47 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
    *"wav" format. 
    *******************************************************************/
   protected WAVWrapper run(SCCXMLWrapper scc) throws ParserConfigurationException, SAXException, TransformerException, IOException {
-	final MutableWaveform wav = new MutableWaveform(length, fs, 
-						  isStereo ? 2 : 1);
-	scc.processNotes(new SCCHandlerAdapter() {
-		public void processNote(SCCXMLWrapper.Note note, 
-					SCCXMLWrapper scc2) {
-		    int onset = note.onsetInMilliSec() * fs / 1000;
-		    int offset = note.offsetInMilliSec() * fs / 1000;
-		    AudioDataCompatible w = readWaveform(note.part().prognum(), 
-							 note.notenum(), 
-							 sty, var);
-		    if (w == null && sty2 != null)
-			w = readWaveform(note.part().prognum(), note.notenum(),
-					 sty2, var);
-		    if (w != null) {
-			MutableWaveform w2 = new MutableWaveform(w);
-			w2 = (MutableWaveform)w2.clone();
-			w2.cutAfter(offset - onset);
-			w2.smoothOffset();
-			if (isStereo) {
-			    int itd_2 = 
-				(int)(fs * 0.5 * mic2mic * 
-				      Math.sin((Math.PI * note.part().panpot()
-						+ random.nextGaussian() * lSD)
-					       / 180.0) / mach);
-			    wav.mix_st(w, onset+itd_2, onset-itd_2, 
-				       note.part().volume() * note.velocity() / 10000, 
-				       note.part().volume() * note.velocity() / 10000);
-			}
-		    }
-		}
-	    });
-	wav.trim(releasetime + fs);
-	if (isStereo && impL != null && impR != null)
-	    wav.conv_st(impL, impR);
-	else if (imp != null)
-	    wav.conv(imp);
-	wav.normalize();
-	return new WAVWrapper(wav);
-    }
+    final MutableWaveform wav = new MutableWaveform(length, fs, 
+						    isStereo ? 2 : 1);
+    scc.processNotes(new SCCHandlerAdapter() {
+	public void processNote(SCCXMLWrapper.Note note, 
+				SCCXMLWrapper scc2) {
+	  int onset = note.onsetInMilliSec() * fs / 1000;
+	  int offset = note.offsetInMilliSec() * fs / 1000;
+	  AudioDataCompatible w = readWaveform(note.part().prognum(), 
+					       note.notenum(), sty, var);
+	  if (w == null && sty2 != null)
+	    w = readWaveform(note.part().prognum(), note.notenum(),
+			     sty2, var);
+	  if (w != null) {
+	    MutableWaveform w2 = new MutableWaveform(w);
+	    w2 = (MutableWaveform)w2.clone();
+	    w2.cutAfter(offset - onset);
+	    w2.smoothOffset();
+	    if (isStereo) {
+	      int itd_2 = 
+		(int)(fs * 0.5 * mic2mic * 
+		      Math.sin((Math.PI * note.part().panpot()
+				+ random.nextGaussian() * lSD - 64)
+			       / 128.0) / mach);
+	      wav.mix_st(w2, onset+itd_2, onset-itd_2, 
+			 (double)(note.part().volume()*note.velocity())/10000, 
+			 (double)(note.part().volume()*note.velocity())/10000);
+	    } else {
+	      wav.mix(w2, onset, 
+		      (double)(note.part().volume()*note.velocity())/10000);
+	    }
+	  }
+	}
+      });
+    wav.trim(releasetime + fs);
+    if (isStereo && impL != null && impR != null)
+      wav.conv_st(impL, impR);
+    else if (imp != null)
+      wav.conv(imp);
+    wav.normalize();
+    return new WAVWrapper(wav);
+  }
     
   private MutableWaveform readWaveform
 		(int prognum, int notenum, String sty, int var) {
@@ -316,13 +320,13 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
     }
 
       private String getInstName(int prognum) {
-	  return AmusaParameterSet.getInstance().
+	return getConfigXMLWrapper().
 	      getParam("prognum", instlisttype, "PN_" + prognum);
       }
 
     private String getWaveFileName(int prognum, int notenum, String sty, 
 							int var) {
-	String instname = getInstName(prognum);
+      String instname = getInstName(prognum);
       String pattern1 = pattern.replaceAll("%i", instname);
       pattern1 = pattern1.replaceAll("%s", sty);
       pattern1 = pattern1.replaceAll("%1v", addZeroToInt(var, 1));
@@ -331,6 +335,8 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
       String strNoteNum = String.valueOf(notenum);
       for (int i = 0; i < h.size(strNoteNum); i++) {
         String filename = (String)h.get(strNoteNum, i);
+//	System.err.println(filename);
+//	System.err.println(pattern1);
         Matcher m = p.matcher(filename);
         if (m.matches())
           return filename;

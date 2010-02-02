@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Thank you for downloading CrestMuseXML Toolkit."
-echo "This program uses Apache Xerces, Xalan and Commons Math, distributed "
+echo "This program uses Apache Xerces, Xalan, Commons Math etc. distributed "
 echo "under Apache License 2.0."
 echo "For details, read separate text files."
 echo ""

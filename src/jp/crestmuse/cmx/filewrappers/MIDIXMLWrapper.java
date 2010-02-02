@@ -766,7 +766,6 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
 		}
 		for (int i = 0; i < values.length; i++) {
 		    byte len = getByteLength(msgType);
-		    System.err.println(msgType + " " + len);
 		    if (len == (byte)1) {
 			data[counter] = (byte)values[i];
 			counter++;

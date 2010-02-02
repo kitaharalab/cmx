@@ -11,6 +11,8 @@ import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
+import groovy.lang.*;
+
 /**********************************************************************
  *<p>
  * The <tt>MusicXMLWrapper</tt> class wraps a MusicXML document.
@@ -164,6 +166,24 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
       h.endPart(part.id(), this);
     }
+  }
+
+
+  public void eachnote(Closure closure) throws TransformerException {
+      Part[] partlist = getPartList();
+      for (Part part : partlist) {
+	Measure[] measurelist = part.getMeasureList();
+	for (Measure measure : measurelist) {
+	  MusicData[] mdlist = measure.getMusicDataList();
+	  for (MusicData md : mdlist) {
+	    if (md instanceof Note) {
+	      Note note = (Note)md;
+	      if (!note.rest())
+		closure.call(new Object[]{note});
+	    }
+	  }
+	}
+      }
   }
 
   // void setDeviationInstance(DeviationInstanceWrapper dev) {

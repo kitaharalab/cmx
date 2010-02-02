@@ -1180,14 +1180,26 @@ public class Operations {
 	}
     }
 
-    public static DoubleArray conv(DoubleArray x, DoubleArray y) {
-	DoubleArray z = factory.createArray(x.length(), 0.0);
-	for (int t = 0; t < x.length(); t++) 
-	    for (int k = 0; k < y.length(); k++)
-		if (t - k >= 0)
-		    addX(z, t, x.get(t-k) * y.get(k));
-	return z;
+  public static DoubleArray conv(DoubleArray x, DoubleArray y) {
+    int xlength = x.length();
+    int ylength = y.length();
+    double[] z = new double[xlength];
+    if (x instanceof DefaultDoubleArray && y instanceof DefaultDoubleArray) {
+      double[] xx = x.toArray();
+      double[] yy = y.toArray();
+      for (int t = 0; t < xlength; t++)
+	for (int k = 0; k < ylength; k++)
+	  if (t - k >= 0)
+	    z[t] += xx[t-k] * yy[k];
+    } else {
+      for (int t = 0; t < xlength; t++)
+	for (int k = 0; k < ylength; k++)
+	  if (t - k >= 0)
+	    z[t] += x.get(t-k) * y.get(k);
     }
+    return factory.createArray(z);
+  }
+  
 
 	
 }

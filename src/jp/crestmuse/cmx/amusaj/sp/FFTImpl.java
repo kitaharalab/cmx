@@ -16,8 +16,8 @@ public class FFTImpl implements FFT {
       for (int i = 0; i < length; i++)
         buff[i] = in.get(i);
     else
-	for (int i = 0; i < length; i++)
-	    buff[i] = in.get(i) * window[i];
+      for (int i = 0; i < length; i++)
+	buff[i] = in.get(i) * window[i];
     //    try {
       Complex[] result = fft.transform(buff);
       return (new MyComplexArray(result)).subarrayX(0, length/2+1);

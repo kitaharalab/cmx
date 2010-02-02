@@ -551,14 +551,14 @@ public class PerformanceMatcher3 {
       int j = score2pfm[i];
       if (j >= 0) {
         addNoteDeviation(dds, scoreNotes[i], pfmNotes[j], tempolist);
-      } else if (score2pfm[i] < -1) {
-        if (extraNotes.get(-j - 2) != null) {
-          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
-              tempolist);
-          extraNotes.set(-j - 2, null);
-        } else {
-          addMissNote(dds, scoreNotes[i]);
-        }
+//      } else if (score2pfm[i] < -1) {
+//        if (extraNotes.get(-j - 2) != null) {
+//          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
+//              tempolist);
+//          extraNotes.set(-j - 2, null);
+//        } else {
+//          addMissNote(dds, scoreNotes[i]);
+//        }
       } else {
         addMissNote(dds, scoreNotes[i]);
       }
@@ -591,6 +591,7 @@ public class PerformanceMatcher3 {
               score2pfm[i] = k;
               break;
             }
+	  extraNotes.set(j, null);
         }
       }
     }
@@ -946,6 +947,11 @@ public class PerformanceMatcher3 {
       } else {
         int interval = tnt.tickInScore - prevtnt.tickInScore;
         double pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
+	// zantei
+	if (pfmInterval < 0.0000000001) {
+	  tnt.setTimeInSec(tnt.timeInSec + 0.01);
+	  pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
+	}
         prevtnt.tempo = (double) (interval * 60 / scoreTicksPerBeat)
             / pfmInterval;
         // prevtnt.tempo = (60.0 / (tnt.timeInSec - prevtnt.timeInSec));

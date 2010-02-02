@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.*;
 
 import org.w3c.dom.*;
 
@@ -9,6 +10,8 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
+
+import groovy.lang.*;
 
 public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible {
 	/** newOutputData()に指定するトップタグ名．スペルミス防止．
@@ -187,6 +190,18 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     returnToParent();
   }
 */
+
+
+  public void eachnote(Closure closure) throws TransformerException {
+      Part[] partlist = getPartList();
+      for (Part part : partlist) {
+	Note[] notelist = part.getNoteList();
+	for (Note note : notelist) {
+	  closure.call(new Object[]{note});
+	}
+      }
+  }
+	
 
 
     public void addPitchBend(int onset, int offset, int value) {

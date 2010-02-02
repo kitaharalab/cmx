@@ -22,12 +22,14 @@ UNIX系の環境（Mac OSX，Cygwinを含む）をお使いの方は，setup.sh 
 -----------
  LIBRARIES
 -----------
-Apache Xerces 2.9.1, Xalan 2.7.1, Commons Math 1.2 (Apache License 2.0)
-およびjahmm 0.6.2 (BSD License) を動的結合により利用しております．
+Apache Xerces 2.9.1, Xalan 2.7.1, Commons Math 1.2 (Apache License 2.0), 
+groovy 1.7.1 (Apach License 2.0)およびjahmm 0.6.2 (BSD License)を動的結合に
+より利用しております．
 これらのソースコードは，下記のURLより入手可能です．
 http://xerces.apache.org/
 http://xml.apache.org/xalan-j/
 http://commons.apache.org/math/
+http://groovy.codehaus.org/
 http://code.google.com/p/jahmm/
 
 ---------
