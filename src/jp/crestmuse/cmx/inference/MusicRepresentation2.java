@@ -104,9 +104,11 @@ public class MusicRepresentation2 {
       changeFlag = false;
     }
 
+    /*
     public void applyBackPointers(String layer) {
 	getMusicLayer(layer).applyBackPointers();
     }
+    */
 
   @Deprecated
   public int getIndex(long tick) {
@@ -432,6 +434,7 @@ public class MusicRepresentation2 {
 	  return pairs.get(i).backpointer;
       }
 
+      /*
       public void setBackPointer(int i, int value) {
 	  pairs.get(i).backpointer = value;
       }
@@ -439,6 +442,7 @@ public class MusicRepresentation2 {
       public void setBackPointerTo(BackPointerSetter e) {
 	  backpoint = (MusicElement)e;
       }
+      */
 
       /*
       public void setBackPointerTo(int measure, int tick) {
