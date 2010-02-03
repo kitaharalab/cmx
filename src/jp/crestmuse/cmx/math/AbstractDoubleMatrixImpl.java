@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-abstract class AbstractDoubleMatrixImpl implements DoubleMatrix,Cloneable {
+public abstract class AbstractDoubleMatrixImpl implements DoubleMatrix,Cloneable {
 
   public Object clone() throws CloneNotSupportedException {
       DoubleMatrix newmatrix = Utils.createDoubleMatrix(nrows(), ncols());

@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.math;
 import java.util.*;
 import java.math.*;
 import org.apache.commons.math.linear.*;
+import java.nio.*;
 
 public class Utils {
   private static final DoubleArrayFactory factory = 
@@ -254,6 +255,20 @@ public class Utils {
 	    x.set(row, column, value);
 	}
     }
+
+/*
+  public static void copyTo(DoubleArray array, 
+						DoubleBuffer buff) {
+    if (array instanceof DefaultDoubleArray) {
+      ((DefaultDoubleArray)array).copyTo(DoubleBuffer buff);
+    } else {
+      int length = array.length();
+      for (int i = 0; i < length; i++)
+	buff.put(array.get(i));
+    }
+  }
+*/
+
 
     public static DoubleMatrix toDoubleMatrix(RealMatrix x) {
 	return new MyDoubleMatrix(x);

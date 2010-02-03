@@ -68,5 +68,11 @@ class DefaultDoubleArray extends AbstractDoubleArrayImpl {
     newarray.thru = this.from + thru;
     return newarray;
   }
-    
+
+/*
+  void copyTo(DoubleBuffer buff) {
+    buff.put(values, from, thru - from);
+  }
+*/
+
 }

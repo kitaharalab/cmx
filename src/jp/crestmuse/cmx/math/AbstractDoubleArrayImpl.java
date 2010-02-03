@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.math;
 
-abstract class AbstractDoubleArrayImpl implements DoubleArray,Cloneable {
+public abstract class AbstractDoubleArrayImpl implements DoubleArray,Cloneable {
 
   public Object clone() throws CloneNotSupportedException {
       DoubleArray newarray = Utils.createDoubleArray(length());

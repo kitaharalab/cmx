@@ -45,13 +45,13 @@ public class WindowSlider extends SPModule {
 //    wav = new DoubleArray[chTarget.length];
   }
   
-  protected String getParamCategory() {
-    return "fft";
-  }
+//  protected String getParamCategory() {
+//    return "fft";
+//  }
 
-  protected String[] getUsedParamNames() {
-    return new String[]{"WINDOW_SIZE", "SHIFT"};
-  }
+//  protected String[] getUsedParamNames() {
+//    return new String[]{"WINDOW_SIZE", "SHIFT"};
+//  }
 
   /** "from" and "thru" in milli sec. */
   public void setInputData(AudioDataCompatible audiodata, 
@@ -60,6 +60,10 @@ public class WindowSlider extends SPModule {
     setInputData(excerpt(audiodata, 
                          (int)((long)from * fs / 1000), 
                          (int)((long)thru * fs / 1000)));
+  }
+
+  public AudioDataCompatible getTargetWaveform() {
+    return audiodata;
   }
   
 /*public void setInputData(AudioDataCompatible audiodata, int from, 
