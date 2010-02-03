@@ -185,6 +185,7 @@ public class MusicRepresentation2 {
       this.updateChainLimit = updateChainLimit;
     }
 
+      /*
       void applyBackPointers() {
 	  MusicElement e = getElement(getMeasureNum()-1, getDivision()-1);
 	  int lastindex = e.argmax;
@@ -195,7 +196,7 @@ public class MusicRepresentation2 {
 	      e = e.backpoint;
 	  }
       }
-
+      */
 
   }
 
@@ -296,7 +297,7 @@ public class MusicRepresentation2 {
     }
   }
 
-  public class MusicElement implements BackPointerSetter {
+  public class MusicElement {
       private ArrayList<ElementProbPair> pairs;
       private int evidenceIndex = -1;
     private boolean setflag = false;
@@ -430,9 +431,11 @@ public class MusicRepresentation2 {
 	//      parent.update(this);
       }
 
+      /*
       int getBackPointer(int i) {
 	  return pairs.get(i).backpointer;
       }
+      */
 
       /*
       public void setBackPointer(int i, int value) {
@@ -488,7 +491,7 @@ public class MusicRepresentation2 {
 	  private int index;
 	  //	  private double prob;
 	  private double loglik;
-	  private int backpointer = -1;
+	  //	  private int backpointer = -1;
 	  private ElementProbPair(int index, double loglik) {
 	      this.index = index;
 	      this.loglik = loglik;
