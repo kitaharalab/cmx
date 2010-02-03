@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+setopt null_glob
+
 release=`basename $PWD`
 JAR_FILE=cmx.jar
 
