@@ -62,6 +62,10 @@ public class WindowSlider extends SPModule {
                          (int)((long)thru * fs / 1000)));
   }
   
+  public AudioDataCompatible getTargetWaveform() {
+    return audiodata;
+  }
+
 /*public void setInputData(AudioDataCompatible audiodata, int from, 
                            int thru) {
     if (!audio.supportsWholeWaveformGetter())

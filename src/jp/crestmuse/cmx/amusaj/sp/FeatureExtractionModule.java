@@ -33,14 +33,20 @@ public class FeatureExtractionModule extends SPModule {
 //    fe.nextFrame();
   }
 
-  protected String getParamCategory() {
-    return "feature";
-  }
+//  protected String getParamCategory() {
+//    return "feature";
+//  }
 
   public String[] getFeatureTypes() {
     return types;
   }
 
+  public int getChannelFor(String featureType) {
+    for (int i = 0; i < types.length; i++)
+      if (featureType.equals(types[i]))
+	return i;
+    return -1;
+  }
 //  public FeatureExtractor<SPDoubleArray> getFeatureExtractor() {
 //    return fe;
 //  }
