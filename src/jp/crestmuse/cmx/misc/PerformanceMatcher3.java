@@ -110,7 +110,13 @@ public class PerformanceMatcher3 {
   public DeviationInstanceWrapper extractDeviation(int[] indexlist) {
     List<Note> extraNotes = new ArrayList<Note>();
     score2pfm = getPath(indexlist, extraNotes);
-    return path2dev(extraNotes);
+    int[] score2pfm_2 = (int[])score2pfm.clone();
+    DeviationInstanceWrapper d = path2dev(extraNotes);
+    for (int i = 0; i < score2pfm.length; i++)
+      if (score2pfm[i] != score2pfm_2[i])
+	System.err.println("NOT SAME: " + i + "  " + score2pfm[i] + " " + score2pfm_2[i]);
+    return d;
+//    return path2dev(extraNotes);
   }
 
   private int[] getPath(DTWMatrix matrix, List<Note> extraNotes) {
