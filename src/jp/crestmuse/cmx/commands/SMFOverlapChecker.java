@@ -40,6 +40,14 @@ public class SMFOverlapChecker extends
     return MIDIXMLWrapper.readSMF(filename);
   }
 */
+
+  protected MIDIXMLWrapper readInputData(String filename) 
+    throws IOException, ParserConfigurationException, SAXException,
+    TransformerException {
+    return MIDIXMLWrapper.readSMF(filename);
+  }
+
+
   protected MIDIXMLWrapper run(MIDIXMLWrapper indata)
     throws ParserConfigurationException, SAXException, 
     TransformerException, IOException {
@@ -84,9 +92,9 @@ public class SMFOverlapChecker extends
       if (e2 == null) {
         last1[nn][ch] = e;
       } else if (isNoteOn(e2)) {
-        System.err.printf
+        System.out.printf
           ("Overlap detected: NoteOn  (beat=%3d, tick=%3d, note=%3d, vel=%3d)\n",            e2.time / div, e2.time % div, e2.evt.value(0), e2.evt.value(1));
-        System.err.printf
+        System.out.printf
           ("                  NoteOn  (beat=%3d, tick=%3d, note=%3d, vel=%3d)\n", 
            e.time / div, e.time % div, e.evt.value(0), e.evt.value(1));
         last1[nn][ch] = e;
@@ -102,9 +110,9 @@ public class SMFOverlapChecker extends
       } else if (isNoteOn(e2)) {
         last1[nn][ch] = e;
       } else if (isNoteOff(e2)) {
-        System.err.printf
+        System.out.printf
           ("Overlap detected: NoteOff (beat=%3d, tick=%3d, note=%3d, vel=%3d)\n",            e2.time / div, e2.time % div, e2.evt.value(0), e2.evt.value(1));
-        System.err.printf
+        System.out.printf
           ("                  NoteOff (beat=%3d, tick=%3d, note=%3d, vel=%3d)\n", 
            e.time / div, e.time % div, e.evt.value(0), e.evt.value(1));
         last1[nn][ch] = e;

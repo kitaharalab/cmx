@@ -3,6 +3,19 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
 import java.util.*;
 
+/** 
+<p>TimeInSecForSMF checks the equivalency of two 
+standard MIDI files. </p>
+<p>Usage:
+<pre>
+$java jp.crestmuse.cmx.commands.TimeInSecForSMF file1.mid file2.mid
+</pre>
+</p>
+<p>TimeInSecForSMFは、2つのSMFの等価性を検証するコマンドです。
+このコマンドは、CrestMusePEDBのデータ作成の用いられます。</p>
+*/
+    
+
 public class TimeInSecForSMF {
   MIDIEvent[] tempolist;
   int currentTick0 = 0;
@@ -127,14 +140,14 @@ public class TimeInSecForSMF {
         sbuff.append("[null]                  ");
       if (e1 != null && e2 != null && e1.approxEquals(e2))
         sbuff.append("  ==> ok");
-      else if (e1 == null && !isOn2 && e2.msg.equals("NoteOff"))
-        ;
-      else if (e2 == null && !isOn1 && e1.msg.equals("NoteOff"))
-        ;
-      else if (e1 == null && isOn1 && e2.msg.equals("NoteOff"))  // kari
-        ;
-      else if (e2 == null && e1.equals(lastE1))
-        ;
+//      else if (e1 == null && !isOn2 && e2.msg.equals("NoteOff"))
+//        ;
+//      else if (e2 == null && !isOn1 && e1.msg.equals("NoteOff"))
+//        ;
+//      else if (e1 == null && isOn1 && e2.msg.equals("NoteOff"))  // kari
+//        ;
+//      else if (e2 == null && e1.equals(lastE1))
+//        ;
       else
         sbuff.append(" ==> diff");
       if (e1 != null && e1.msg.equals("NoteOn"))

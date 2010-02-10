@@ -551,7 +551,7 @@ public class PerformanceMatcher3 {
       int j = score2pfm[i];
       if (j >= 0) {
         addNoteDeviation(dds, scoreNotes[i], pfmNotes[j], tempolist);
-//      } else if (score2pfm[i] < -1) {
+      } else if (score2pfm[i] < -1) {
 //        if (extraNotes.get(-j - 2) != null) {
 //          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
 //              tempolist);
@@ -576,8 +576,11 @@ public class PerformanceMatcher3 {
       Note scoreNote = scoreNotes[i];
       double scoreOnset = getSecFromScoreTick(scoreNote.onset(), tempolist);
       int scoreNN = scoreNote.notenum();
+    extraNoteLoop: 
       for (int j = 0; j < extraNotes.size(); j++) {
         Note pfmNote = extraNotes.get(j);
+	if (pfmNote == null)
+	  continue;
         int pfmNN = pfmNote.notenum();
         if (scoreNN != pfmNN)
           continue;
@@ -585,13 +588,15 @@ public class PerformanceMatcher3 {
         if (scoreOnset - pfmOnset < MISS_EXTRA_ONSET_DIFF
             && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
           // TODO ?
-          // score2pfm[i] = -j - 2;
+//           score2pfm[i] = -j - 2;
+//	   System.err.print(i + ":" + j + " ");
           for (int k = 0; k < pfmNotes.length; k++)
             if (pfmNotes[k] == pfmNote) {
               score2pfm[i] = k;
-              break;
+	      extraNotes.set(j, null);
+//	      System.err.print(i + ":" + j + " ");
+              break extraNoteLoop;
             }
-	  extraNotes.set(j, null);
         }
       }
     }

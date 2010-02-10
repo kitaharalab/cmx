@@ -11,6 +11,10 @@ import org.xml.sax.*;
 import java.io.*;
 import java.util.*;
 
+/**
+SMFOverlapRemover shortens the durations of notes removes a pair of two notes having 
+
+*/
 public class SMFOverlapRemover extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 

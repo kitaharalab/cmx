@@ -42,6 +42,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     // added 2008.02.21
   private Map<MutableNote,Note> notemap2 = new HashMap<MutableNote,Note>();
 
+  private List<MutableMusicEvent> mutableNotes;
+
   private int currentPart = 0;
 
   protected void analyze() {
@@ -162,13 +164,51 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     if(name != null){
       setAttribute("name", name);
     }
+    mutableNotes = new ArrayList<MutableMusicEvent>();
     currentPart = serial;
     partStarted = true;
   }
 
+
+  private class MyMutableNote extends MutableNote {
+    private MusicXMLWrapper.Note note = null;
+    private Map<String,String> attr = new HashMap<String,String>();
+    private MyMutableNote(int onset, int offset, int notenum, int velocity, 
+			  int offVelocity, int ticksPerBeat) {
+      super(onset, offset, notenum, velocity, offVelocity, ticksPerBeat);
+    }
+  }
+
   public void endPart() {
+    System.err.println(getDivision());
     checkElementAddition(partStarted);
+    Collections.sort(mutableNotes);
+    for (MutableMusicEvent e : mutableNotes) {
+      if (e instanceof MutableNote) {
+	MyMutableNote n = (MyMutableNote)e;
+	addChild("note");
+	for (Map.Entry<String,String> ee : n.attr.entrySet()) 
+	  setAttribute(ee.getKey(), ee.getValue());
+	addText(n.onset() + " " + n.offset() + " " + n.notenum()
+		+ " " + n.velocity() + " " + n.offVelocity());
+	returnToParent();
+	if (n.note != null)
+	  putNoteMap(n.onset(), n.offset(), n.notenum(), n.velocity(), 
+		     n.velocity(), getDivision(), 
+		     currentPart, n.note);
+      } else if (e instanceof MutableControlChange) {
+	MutableControlChange cc = (MutableControlChange)e;
+	addChildAndText("control", 
+			cc.onset() + " " + cc.offset() + " " 
+			+ cc.ctrlnum() + " " + cc.value());
+      } else if (e instanceof MutablePitchBend) {
+	MutablePitchBend pb = (MutablePitchBend)e;
+	addChildAndText("pitch-bend", 
+			pb.onset() + " " + pb.offset() + " " + pb.value());
+      }
+    }
     returnToParent();
+    mutableNotes = null;
     partStarted = false;
   }
 
@@ -193,31 +233,34 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 
 
   public void eachnote(Closure closure) throws TransformerException {
-      Part[] partlist = getPartList();
-      for (Part part : partlist) {
-	Note[] notelist = part.getNoteList();
-	for (Note note : notelist) {
-	  closure.call(new Object[]{note});
-	}
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      Note[] notelist = part.getNoteList();
+      for (Note note : notelist) {
+	closure.call(new Object[]{note});
       }
+    }
   }
 	
 
 
-    public void addPitchBend(int onset, int offset, int value) {
-	checkElementAddition(partStarted);
-	addChild("pitch-bend");
-	addText(onset + " " + offset + " " + value);
-	returnToParent();
-    }
+  public void addPitchBend(int onset, int offset, int value) {
+    checkElementAddition(partStarted);
+    mutableNotes.add(new MutablePitchBend(onset, value, getDivision()));
+//	addChild("pitch-bend");
+//	addText(onset + " " + offset + " " + value);
+//	returnToParent();
+  }
 	
 
   public void addControlChange(int onset, int offset, 
                                int ctrlnum, int value) {
     checkElementAddition(partStarted);
-    addChild("control");
-    addText(onset + " " + offset + " " + ctrlnum + " " + value);
-    returnToParent();
+    mutableNotes.add(new MutableControlChange(onset, ctrlnum, value, 
+					      getDivision()));
+//    addChild("control");
+//    addText(onset + " " + offset + " " + ctrlnum + " " + value);
+//    returnToParent();
   }
 
   public void addNoteElement(int onset, int offset,
@@ -225,18 +268,30 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     addNoteElement(onset, offset, notenum, velocity, null);
   }
 
+  public void addNoteElement(int onset, int offset, int notenum, int velocity, 
+			     MusicXMLWrapper.Note note) {
+    addNoteElement(onset, offset, notenum, velocity, velocity, note);
+  }
+  
+  private MyMutableNote lastnote = null;
+
   public void addNoteElement(int onset, int offset, 
-                             int notenum, int velocity, 
+                             int notenum, int velocity, int offVelocity, 
                              MusicXMLWrapper.Note note) {
     checkElementAddition(partStarted);
-    addChild("note");
-    addText(onset + " " + offset + " " + notenum + " " + velocity);
-    if (note != null) 
-      putNoteMap(onset, offset, notenum, velocity, velocity, getDivision(), 
-                 currentPart, note);
-//      notemap.put(new MutableNote(onset, offset, notenum, velocity, 
-//                                  getDivision()), note);
-    returnToParent();
+    lastnote = new MyMutableNote(onset, offset, notenum, velocity, 
+				 offVelocity, getDivision());
+    if (note != null) lastnote.note = note;
+    mutableNotes.add(lastnote);
+
+//    addChild("note");
+//    addText(onset + " " + offset + " " + notenum + " " + velocity);
+//    if (note != null) 
+//      putNoteMap(onset, offset, notenum, velocity, velocity, getDivision(), 
+//                 currentPart, note);
+////      notemap.put(new MutableNote(onset, offset, notenum, velocity, 
+////                                  getDivision()), note);
+//    returnToParent();
   }
 
   public void addNoteElement(int onset, int offset, int notenum, 
@@ -244,6 +299,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     addNoteElement(onset, offset, notenum, velocity, offVelocity, null);
   }
 
+/*
   public void addNoteElement(int onset, int offset, int notenum, 
                              int velocity, int offVelocity, 
                              MusicXMLWrapper.Note note) {
@@ -258,6 +314,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 //                                  offVelocity), note);
     returnToParent();
   }
+*/
 
   public void addNoteElementWithWord(String word, int onset, int offset,
       int notenum, int velocity, int offVelocity){
@@ -268,6 +325,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     returnToParent();
   }
   
+  public void setNoteAttribute(String attrname, String attrvalue) {
+    lastnote.attr.put(attrname, attrvalue);
+  }
+
   private void putNoteMap(int onset, int offset, int notenum, int velocity,
                           int offVelocity, int ticksPerBeat, int partid, 
                           MusicXMLWrapper.Note note) {
