@@ -1,0 +1,29 @@
+Usage: 
+$cmx command options
+
+Available commands: 
+  - dev2midi   ... Converts DeviationIntanceXML to
+                   MIDIXML (or SMF)
+  - addtempo   ... Adds tempo deviations to the given 
+                   DeviationInstanceXML 
+  - mkdev      ... Makes a DeviationInstanceXML file 
+                   from a pair of MusicXML and SMF
+  - midi2scc   ... Converts MIDIXML to SCCXML
+  - midi2smf   ... Converts MIDIXML to SMF
+  - mkdeadpan  ... Makes the SCCXML file of the deadpan 
+                   performance for the given MusicXML
+  - scc2midi   ... Converts SCCXML to MIDIXML
+  - smf2midi   ... Converts SMF to MIDIXML
+  - smf2scc    ... Converts SMF to SCCXML
+  - smfovrelap-check
+  - smfoverlap-remove
+  - smfovrelap-remove2
+  - wav2chroma ... Calculates chroma vectors for the 
+                   given WAV file
+  - wav2fpd    ... Calculates F0 predominance data for 
+                   the given WAV file
+  - wav2spd    ... Calculates spectral data for the 
+                   given WAV file
+
+You may know options for each command by: 
+$cmx command -h

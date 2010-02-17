@@ -180,7 +180,6 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
 
   public void endPart() {
-    System.err.println(getDivision());
     checkElementAddition(partStarted);
     Collections.sort(mutableNotes);
     for (MutableMusicEvent e : mutableNotes) {
@@ -1197,6 +1196,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 */
+
+/*
   public static void main(String[] args){
     try {
       DeviationInstanceWrapper dev =
@@ -1212,4 +1213,5 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       e.printStackTrace();
     }
   }
+*/
 }
