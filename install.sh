@@ -22,6 +22,7 @@ do
   myclasspath=\$myclasspath:\$jarfile
 done
 CLASSPATH=\$CLASSPATH:\$myclasspath
+export CLASSPATH
 
 if [ -z \$1 ]; then
   echo No command specified. Type \"$BIN_NAME help\" for help.
@@ -71,5 +72,5 @@ EOF
 
 chmod +x $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/$BIN_NAME
 mkdir -p $INSTALL_DIR/bin
-ln -s $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/$BIN_NAME \
+ln -sf $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/$BIN_NAME \
   $INSTALL_DIR/bin/$BIN_NAME
