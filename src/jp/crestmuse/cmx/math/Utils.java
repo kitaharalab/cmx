@@ -197,6 +197,10 @@ public class Utils {
 	return mfactory.createMatrix(nrows, ncols);
     }
 
+  public static final DoubleMatrix createDoubleMatrix(double[][] values) {
+    return mfactory.createMatrix(values);
+  }
+  
     public static final DoubleMatrix createDoubleMatrix(List<List<BigDecimal>> x){
 	int nrows = x.size();
 	int ncols = x.get(0).size();
@@ -208,6 +212,10 @@ public class Utils {
 	}
 	return matrix;
     }
+
+  public static final DoubleMatrix createSparseDoubleMatrix(int nrows, int ncols) {
+    return mfactory.createSparseMatrix(nrows, ncols);
+  }
 
     public static final DoubleArray create1dimDoubleArray(double x) {
 	DoubleArray array = factory.createArray(1);

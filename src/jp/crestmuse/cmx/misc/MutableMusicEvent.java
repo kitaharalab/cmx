@@ -35,11 +35,13 @@ public abstract class MutableMusicEvent
       return onset * ticksPerBeat / this.ticksPerBeat;
   }
 
+  /** Not supported. This method always throws UnsupportedOperationException. */
   public int onsetInMilliSec() {
     throw new UnsupportedOperationException();
   }
 
-  /**@deprecated*/
+  /**@deprecated
+     Not supported. This method always throws UnsupportedOperationException. */
   public int onsetInMSec() {
     throw new UnsupportedOperationException();
   }
@@ -48,11 +50,13 @@ public abstract class MutableMusicEvent
     return offset;
   }
 
+  /** Not supported. This method always throws UnsupportedOperationException. */
   public int offsetInMilliSec() {
     throw new UnsupportedOperationException();
   }
 
-  /**@deprecated*/
+  /**@deprecated
+     Not supported. This method always throws UnsuppportedOperationException.*/
   public int offsetInMSec() {
     throw new UnsupportedOperationException();
   }
@@ -96,4 +100,9 @@ public abstract class MutableMusicEvent
        : offset - another.offset)
       : onset - another.onset;
   }
+
+  public boolean supportsMilliSec() {
+    return false;
+  }
+  
 }

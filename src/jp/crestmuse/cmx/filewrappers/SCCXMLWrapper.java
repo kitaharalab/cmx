@@ -241,13 +241,17 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 	
-
+  public void eachchord(Closure closure) throws TransformerException {
+    Annotation[] chordlist = getChordList();
+    for (Annotation chord : chordlist) 
+      closure.call(new Object[]{chord});
+  }
 
   public void addPitchBend(int onset, int offset, int value) {
     checkElementAddition(partStarted);
     mutableNotes.add(new MutablePitchBend(onset, value, getDivision()));
 //	addChild("pitch-bend");
-//	addText(onset + " " + offset + " " + value);
+//	addText(onset + " " + of1fset + " " + value);
 //	returnToParent();
   }
 	
@@ -390,7 +394,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     //    chordprogStarted = false;
     //  }
 
-  public class Annotation extends NodeInterface{
+  public class Annotation extends NodeInterface implements OnsetOffsetCompatible {
     private int onset;
     private int offset;
     private String content;
@@ -405,8 +409,46 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return "chord|barline|lyrics";
     }
     public int onset(){ return onset; }
+
+    public int onset(int ticksPerBeat) {
+      return onset * ticksPerBeat / getDivision();
+    }
+
     public int offset(){ return offset; }
+
+    public int offset(int ticksPerBeat) {
+      return offset * ticksPerBeat / getDivision();
+    }
+
+    /** Not supported. 
+	This method always throws UnsupportedOperationException. */
+    public int onsetInMilliSec() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** Not supported. 
+	This method always throws UnsupportedOperationException. */
+    public int offsetInMilliSec() {
+      throw new UnsupportedOperationException();
+    }
+    
+    /** Returns "false". */
+    public boolean supportsMilliSec() {
+      return false;
+    }
+
+    public int duration(int ticksPerBeat ) {
+      return offset(ticksPerBeat) - onset(ticksPerBeat);
+    }
+      
     public String content(){ return content; }
+
+
+    public String toString() {
+      return getNodeName() + "[" + onset + ", " + offset + ", " + content + "]";
+    }
+
+
   }
   
     public Annotation[] getChordList() {
@@ -493,6 +535,29 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       }
     }
     return headlist;
+  }
+
+  public HeaderElement getHeaderElement(String name, int timestamp) {
+    HeaderElement[] hh = getHeaderElementList();
+    for (HeaderElement h : hh) {
+      if (h.time() == timestamp && h.name().equals(name))
+	return h;
+    }
+    return null;
+  }
+
+  public String getHeaderContent(String name, int timestamp) {
+    HeaderElement h = getHeaderElement(name, timestamp);
+    if (h == null)
+      return null;
+    else
+      return h.content();
+  }
+
+  public void eachheader(Closure closure) {
+    HeaderElement[] hh = getHeaderElementList();
+    for (HeaderElement h : hh) 
+      closure.call(new Object[]{h});
   }
 
   public void processNotes(CommonNoteHandler h) throws TransformerException {
@@ -683,42 +748,47 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     dest.finalizeDocument();
   }
 
-  public SCCXMLWrapper replaceVelocity(List<List<Byte>> vellist, boolean sorted) 
-    throws TransformerException, InvalidFileTypeException, ParserConfigurationException,
-    SAXException, IOException   {
-    final SCCXMLWrapper newscc = (SCCXMLWrapper)CMXFileWrapper.createDocument(TOP_TAG);
+  public SCCXMLWrapper replaceVelocity(List<List<Byte>> vellist, 
+				       boolean sorted) 
+    throws TransformerException, InvalidFileTypeException, 
+    ParserConfigurationException, SAXException, IOException   {
+    final SCCXMLWrapper newscc = 
+      (SCCXMLWrapper)CMXFileWrapper.createDocument(TOP_TAG);
     newscc.setDivision(getDivision());
     final Iterator<List<Byte>> it1 = vellist.iterator();
     SCCHandler h = new SCCHandler() {
-      Iterator<Byte> it2;
-      public final void beginHeader(SCCXMLWrapper w) {
-        newscc.beginHeader();
-      }
-      public final void endHeader(SCCXMLWrapper w) {
-        newscc.endHeader();
-      }
-      public final void processHeaderElement(int timestamp, String name, 
-                                             String content, SCCXMLWrapper w) {
-        newscc.addHeaderElement(timestamp, name, content);
-      }
-      public final void beginPart(Part part, SCCXMLWrapper w) {
-        newscc.newPart(part.serial(), part.channel(), part.prognum(), part.volume());
-        it2 = it1.next().iterator();
-      }
-      public final void endPart(Part part, SCCXMLWrapper w) {
-        newscc.endPart();
-      }
-      public final void processNote(Note note, SCCXMLWrapper w) {
-        if (note instanceof ControlChange) {
-          ControlChange cc = (ControlChange)note;
-          newscc.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), cc.value());
-        } else {
-          byte velocity = it2.next();
-          newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), velocity, 
-                                note.getMusicXMLWrapperNote());
-        }
-      }
-    };
+	Iterator<Byte> it2;
+	public final void beginHeader(SCCXMLWrapper w) {
+	  newscc.beginHeader();
+	}
+	public final void endHeader(SCCXMLWrapper w) {
+	  newscc.endHeader();
+	}
+	public final void processHeaderElement
+	(int timestamp, String name, String content, SCCXMLWrapper w) {
+	  newscc.addHeaderElement(timestamp, name, content);
+	}
+	public final void beginPart(Part part, SCCXMLWrapper w) {
+	  newscc.newPart(part.serial(), part.channel(), 
+			 part.prognum(), part.volume());
+	  it2 = it1.next().iterator();
+	}
+	public final void endPart(Part part, SCCXMLWrapper w) {
+	  newscc.endPart();
+	}
+	public final void processNote(Note note, SCCXMLWrapper w) {
+	  if (note instanceof ControlChange) {
+	    ControlChange cc = (ControlChange)note;
+	    newscc.addControlChange(cc.onset(), cc.offset(), 
+				    cc.ctrlnum(), cc.value());
+	  } else {
+	    byte velocity = it2.next();
+	    newscc.addNoteElement(note.onset(), note.offset(), 
+				  note.notenum(), velocity, 
+				  note.getMusicXMLWrapperNote());
+	  }
+	}
+      };
     if (sorted)
       processSortedNotes(h);
     else
@@ -728,42 +798,46 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
 
   public SCCXMLWrapper changeVelocity(List<List<Byte>> diff, boolean sorted)
-    throws TransformerException, InvalidFileTypeException, ParserConfigurationException,
-    SAXException, IOException {
-    final SCCXMLWrapper newscc = (SCCXMLWrapper)CMXFileWrapper.createDocument(TOP_TAG);
+    throws TransformerException, InvalidFileTypeException, 
+    ParserConfigurationException, SAXException, IOException {
+    final SCCXMLWrapper newscc = 
+      (SCCXMLWrapper)CMXFileWrapper.createDocument(TOP_TAG);
     newscc.setDivision(getDivision());
     final Iterator<List<Byte>> it1 = diff.iterator();
     SCCHandler h = new SCCHandler() {
-      Iterator<Byte> it2;
-      public final void beginHeader(SCCXMLWrapper w) {
-        newscc.beginHeader();
-      }
-      public final void endHeader(SCCXMLWrapper w) {
-        newscc.endHeader();
-      }
-      public final void processHeaderElement(int timestamp, String name,
-                                             String content, SCCXMLWrapper w) {
-        newscc.addHeaderElement(timestamp, name, content);
-      }
-      public final void beginPart(Part part, SCCXMLWrapper w) {
-        newscc.newPart(part.serial(), part.channel(), part.prognum(), part.volume());
-        it2 = it1.next().iterator();
-      }
-      public final void endPart(Part part, SCCXMLWrapper w) {
-        newscc.endPart();
-      }
-      public final void processNote(Note note, SCCXMLWrapper w) {
-        if (note instanceof ControlChange) {
-          ControlChange cc = (ControlChange)note;
-          newscc.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), cc.value());
-        } else {
-          byte diffvel = it2.next();
-          int vel = Math.max(Math.min(note.velocity + diffvel, 127), 0);
-          newscc.addNoteElement(note.onset(), note.offset(), note.notenum(), vel, 
-                                note.getMusicXMLWrapperNote());
-        }
-      }
-    };
+	Iterator<Byte> it2;
+	public final void beginHeader(SCCXMLWrapper w) {
+	  newscc.beginHeader();
+	}
+	public final void endHeader(SCCXMLWrapper w) {
+	  newscc.endHeader();
+	}
+	public final void processHeaderElement
+	(int timestamp, String name, String content, SCCXMLWrapper w) {
+	  newscc.addHeaderElement(timestamp, name, content);
+	}
+	public final void beginPart(Part part, SCCXMLWrapper w) {
+	  newscc.newPart(part.serial(), part.channel(), part.prognum(), 
+			 part.volume());
+	  it2 = it1.next().iterator();
+	}
+	public final void endPart(Part part, SCCXMLWrapper w) {
+	  newscc.endPart();
+	}
+	public final void processNote(Note note, SCCXMLWrapper w) {
+	  if (note instanceof ControlChange) {
+	    ControlChange cc = (ControlChange)note;
+	    newscc.addControlChange(cc.onset(), cc.offset(), 
+				    cc.ctrlnum(), cc.value());
+	  } else {
+	    byte diffvel = it2.next();
+	    int vel = Math.max(Math.min(note.velocity + diffvel, 127), 0);
+	    newscc.addNoteElement(note.onset(), note.offset(), 
+				  note.notenum(), vel, 
+				  note.getMusicXMLWrapperNote());
+	  }
+	}
+      };
     if (sorted)
       processSortedNotes(h);
     else
@@ -1055,7 +1129,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return part;
     }
 
-    /** Obsolete. use onsetInMilliSec() instead. */
+    /** @deprecated Use onsetInMilliSec() instead. */
     public final int onsetInMSec() {
       return onsetInMSec;
     }
@@ -1064,13 +1138,17 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return onsetInMSec;
     }
 
-    /** Obsolete. use offsetInMilliSec() instead. */
+    /** @deprecated Use offsetInMilliSec() instead. */
     public final int offsetInMSec() {
       return offsetInMSec;
     }
 
     public final int offsetInMilliSec() {
       return offsetInMSec;
+    }
+
+    public final boolean supportsMilliSec() {
+      return true;
     }
 
     public MusicXMLWrapper.Note getMusicXMLWrapperNote() {
@@ -1116,17 +1194,17 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 
-    public class PitchBend extends Note {
-	private PitchBend(Node node, Part part) {
-	    super(node, part);
-	}
-	protected String getSupportedNodeName() {
-	    return "pitch-bend";
-	}
-	public final int value() {
-	    return notenum();
-	}
+  public class PitchBend extends Note {
+    private PitchBend(Node node, Part part) {
+      super(node, part);
     }
+    protected String getSupportedNodeName() {
+      return "pitch-bend";
+    }
+    public final int value() {
+      return notenum();
+    }
+  }
        
 
   private class NumberedNote extends MutableNote {

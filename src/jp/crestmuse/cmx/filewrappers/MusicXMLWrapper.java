@@ -1440,26 +1440,41 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
     }
 
+
+    /**Not supported. 
+       This method always throws UnsupportedOperationException.*/
     public int velocity() {
       throw new UnsupportedOperationException();
     }
 
+    /**Not supported. 
+       This method always throws UnsupportedOperationException.*/
     public int onsetInMilliSec() {
       throw new UnsupportedOperationException();
     }
 
-    /**@deprecated*/
+    /**@deprecated 
+       Not supported. 
+       This method always throws UnsupportedOperationException.*/
     public int onsetInMSec() {
       throw new UnsupportedOperationException();
     }
 
+    /**Not supported. 
+       This method always throws UnsupportedOperationException.*/
     public int offsetInMilliSec() {
       throw new UnsupportedOperationException();
     }
 
-    /**@deprecated*/
+    /**@deprecated 
+       Not supported. 
+       This method always throws UnsupportedOperationException.*/
     public int offsetInMSec() {
       throw new UnsupportedOperationException();
+    }
+
+    public boolean supportsMilliSec() {
+      return false;
     }
 
     public String toString() {
@@ -1516,7 +1531,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return xpath;
     }
 
-    /** obsolete */
+
     public double beat() {
       return onsetWithinMeasure() + 1.0;
       // if (Double.isNaN(beat))

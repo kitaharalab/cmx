@@ -6,6 +6,6 @@ public interface DoubleMatrix extends Encodable{
   int ncols();
   double get(int i, int j);
   void set(int i, int j, double value);
-    Object clone() throws CloneNotSupportedException;
-    String encode();
+  DoubleMatrix clone() throws CloneNotSupportedException;
+  String encode();
 }
