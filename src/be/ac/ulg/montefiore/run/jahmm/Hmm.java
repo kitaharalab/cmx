@@ -36,7 +36,7 @@ import jp.crestmuse.cmx.math.*;
 public class Hmm<O extends Observation> 
 implements Serializable, Cloneable
 {		
-  private String[] labels;
+  private String[] labels = null;
 	private double pi[];
 	private DoubleMatrix a;
 //	private double a[][];
@@ -121,7 +121,7 @@ implements Serializable, Cloneable
 	  this.labels = labels;
 	  this.pi = pi.toArray();
 	  this.a = a;
-	  this.opdfs = opdfs;
+	  this.opdfs = new ArrayList<Opdf<O>>(opdfs);
         }
 	
 	
@@ -168,7 +168,7 @@ implements Serializable, Cloneable
 
 
 	public String getLabel(int stateNb) {
-	  return labels[stateNb];
+	  return labels == null ? null : labels[stateNb];
 	}
 
 	public void setLabel(int stateNb, String label) {
@@ -349,7 +349,8 @@ implements Serializable, Cloneable
 		
 		for (int i = 0; i < nbStates(); i++) {
 		  sb.append("\nState " + i + "\n");
-		  sb.append("  Label: " + getLabel(i) + "\n");
+		  sb.append("  Label: " + 
+			    (labels != null ? getLabel(i) : "" ) + "\n");
 		  sb.append("  Pi: " + getPi(i) + "\n");
 		  sb.append("  Aij:");
 			

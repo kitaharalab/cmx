@@ -11,6 +11,8 @@ import java.util.List;
 
 import be.ac.ulg.montefiore.run.jahmm.*;
 
+import jp.crestmuse.cmx.math.*;
+
 
 /**
  * This class can read Hidden Markov Models represented as text files.
@@ -61,42 +63,71 @@ public class HmmReader
 	 * @param opdfReader The {@link OpdfReader} used to read the observation
 	 *        distributions.
 	 */
-	public static <O extends Observation> Hmm<O>
-	read(Reader reader, OpdfReader<? extends Opdf<O>> opdfReader)
-	throws IOException, FileFormatException
+  public static <O extends Observation> Hmm<O>
+		   read(Reader reader, 
+			OpdfReader<? extends Opdf<O>> opdfReader) 
+    throws IOException, FileFormatException {
+    return read(reader, opdfReader, false);
+  }
+
+  public static <O extends Observation> Hmm<O>
+		   read(Reader reader, 
+			OpdfReader<? extends Opdf<O>> opdfReader, 
+			boolean usesSparseMatrix) 
+    throws IOException, FileFormatException
 	{
-		StreamTokenizer st = new StreamTokenizer(reader);
-		initSyntaxTable(st);
+	  StreamTokenizer st = new StreamTokenizer(reader);
+	  initSyntaxTable(st);
+	  
+	  readWords(st, "Hmm", "v1.0", "NbStates");
+	  int nbStates = (int) readNumber(st);
+
+	  DoubleArray pi = Utils.createDoubleArray(nbStates);
+	  DoubleMatrix a = usesSparseMatrix ? 
+	    Utils.createSparseDoubleMatrix(nbStates, nbStates) :
+	    Utils.createDoubleMatrix(nbStates, nbStates);
+//		double[] pi = new double[nbStates];
+//		double[][] a = new double[nbStates][nbStates];
+	  List<Opdf<O>> opdfs = new ArrayList<Opdf<O>>(nbStates); 
+	  String[] labels = new String[nbStates];
 		
-		readWords(st, "Hmm", "v1.0", "NbStates");
-		int nbStates = (int) readNumber(st);
-		
-		double[] pi = new double[nbStates];
-		double[][] a = new double[nbStates][nbStates];
-		List<Opdf<O>> opdfs = new ArrayList<Opdf<O>>(nbStates); 
-		
-		for (int i = 0; i < nbStates; i++) 
-			readState(st, nbStates, i, pi, a, opdfs, opdfReader);
-		
-		return new Hmm<O>(pi, a, opdfs);
+	  for (int i = 0; i < nbStates; i++) 
+	    readState(st, nbStates, i, pi, a, opdfs, labels, opdfReader);
+
+	  return new Hmm<O>(pi, a, opdfs, labels);
 	}
 	
 	
-	static private <O extends Observation> void
-	readState(StreamTokenizer st, int nbStates,	int stateNb, double[] pi,
-			double[][] a,
-			List<Opdf<O>> opdfs, OpdfReader<? extends Opdf<O>> opdfReader)
-	throws IOException, FileFormatException
-	{
-		readWords(st, "State", "Pi");
-		pi[stateNb] = readNumber(st);
+  static private <O extends Observation> void
+		    readState(StreamTokenizer st, int nbStates,	
+			      int stateNb, DoubleArray pi,
+			      DoubleMatrix a,
+			      List<Opdf<O>> opdfs, String[] labels, 
+			      OpdfReader<? extends Opdf<O>> opdfReader)
+    throws IOException, FileFormatException
+    {
+      readWords(st, "State");
+
+      try {
+	readWords(st, "Label");
+	st.nextToken();
+	labels[stateNb] = st.sval;
+      } catch (FileFormatException e) {
+	st.pushBack();
+      }
+
+      readWords(st, "Pi");
+//      readWords(st, "State", "Pi");
+      pi.set(stateNb, readNumber(st));
+//      pi[stateNb] = readNumber(st);
 		
-		readWords(st, "A");
-		for (int i = 0; i < nbStates; i++)
-			a[stateNb][i] = readNumber(st);
-		
-		opdfs.add(opdfReader.read(st));
-	}
+      readWords(st, "A");
+      for (int i = 0; i < nbStates; i++)
+	a.set(stateNb, i, readNumber(st));
+//	a[stateNb][i] = readNumber(st);
+      
+      opdfs.add(opdfReader.read(st));
+    }
 	
 	
 	/**
@@ -108,28 +139,28 @@ public class HmmReader
 	static void readWords(StreamTokenizer st, String... words)
 	throws IOException, FileFormatException
 	{
-		for (String word : words) {
-			st.nextToken();
-			
-			if (st.ttype == StreamTokenizer.TT_WORD)
-				if (st.sval.equals(word))
-					continue;
-				else
-					throw new FileFormatException(st.lineno(),
-							"Syntax error: unexpected token '" +
-							st.sval + "', ('" + word + "' expected)");
-			
-			if (st.ttype > 0) // Single character token
-				if (word.length() == 1 && st.ttype == (int) word.charAt(0))
-					continue;
-				else
-					throw new FileFormatException(st.lineno(),
-							"Syntax error: unexpected token '" +
-							(char) st.ttype + "' (" + word + "' expected)");
-			
-			throw new FileFormatException(st.lineno(), "Syntax error: '" +
-					word + "' expected");
-		}
+	  for (String word : words) {
+	    st.nextToken();
+
+	    if (st.ttype == StreamTokenizer.TT_WORD)
+	      if (st.sval.equals(word))
+		continue;
+	      else
+		throw new FileFormatException(st.lineno(),
+					      "Syntax error: unexpected token '" +
+					      st.sval + "', ('" + word + "' expected)");
+	    
+	    if (st.ttype > 0) // Single character token
+	      if (word.length() == 1 && st.ttype == (int) word.charAt(0))
+		continue;
+	      else
+		throw new FileFormatException(st.lineno(),
+					      "Syntax error: unexpected token '" +
+					      (char) st.ttype + "' (" + word + "' expected)");
+	    
+	    throw new FileFormatException(st.lineno(), "Syntax error: '" +
+					  word + "' expected");
+	  }
 	}
 	
 
@@ -137,7 +168,7 @@ public class HmmReader
 	throws IOException, FileFormatException
 	{
 		st.nextToken();
-		
+
 		if (st.ttype != StreamTokenizer.TT_NUMBER)
 			throw new FileFormatException(st.lineno(),
 					"Syntax error: number expected");

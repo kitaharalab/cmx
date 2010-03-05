@@ -32,7 +32,8 @@ class DefaultSparseDoubleMatrix extends AbstractDoubleMatrixImpl {
   public void set(int i, int j, double value) {
     if (i >= nrows || j >= ncols || i < 0 || j < 0)
       throw new ArrayIndexOutOfBoundsException();
-    values.put(new IntPair(i, j), value);
+    if (value != 0.0)
+      values.put(new IntPair(i, j), value);
   }
 
   private class IntPair {

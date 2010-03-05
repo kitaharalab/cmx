@@ -16,6 +16,9 @@ import be.ac.ulg.montefiore.run.jahmm.*;
  */
 public class HmmWriter
 {
+
+  static DecimalFormat formatter = new DecimalFormat("#0.############");
+
 	/**
 	 * Writes a HMM description.
 	 * 
@@ -41,9 +44,13 @@ public class HmmWriter
 			Hmm<O> hmm, int stateNb)
     throws IOException
     {
-		DecimalFormat formatter = new DecimalFormat("#0.######");
-		
-    	writer.write("State\nPi " + formatter.format(hmm.getPi(stateNb)));
+//		DecimalFormat formatter = new DecimalFormat("#0.######");
+	
+      writer.write("State\n");
+      if (hmm.getLabel(stateNb) != null)
+	writer.write("Label " + hmm.getLabel(stateNb) + "\n");
+      writer.write("Pi " + formatter.format(hmm.getPi(stateNb)));
+//    	writer.write("State\nPi " + formatter.format(hmm.getPi(stateNb)));
     	
     	writer.write("\nA ");
     	for (int i = 0; i < hmm.nbStates(); i++)

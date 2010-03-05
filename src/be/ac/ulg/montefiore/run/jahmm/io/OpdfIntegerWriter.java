@@ -24,7 +24,8 @@ extends OpdfWriter<OpdfInteger>
 		String s = "IntegerOPDF [";
 		
 		for (int i = 0; i < opdf.nbEntries(); i++)
-			s += opdf.probability(new ObservationInteger(i)) + " ";
+		  s += HmmWriter.formatter.format(opdf.probability(new ObservationInteger(i))) + " ";
+//			s += opdf.probability(new ObservationInteger(i)) + " ";
 			
 		writer.write(s + "]\n");
 	}
