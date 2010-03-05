@@ -112,6 +112,17 @@ implements Serializable, Cloneable
 		
 		this.opdfs = new ArrayList<Opdf<O>>(opdfs);
 	}
+
+	public Hmm(DoubleArray pi, DoubleMatrix a, 
+		   List<? extends Opdf<O>> opdfs, String[] labels) {
+	  if (a.nrows() == 0 || pi.length() != a.nrows() || 
+	      opdfs.size() != a.nrows())
+	    throw new IllegalArgumentException("Wrong parameter");
+	  this.labels = labels;
+	  this.pi = pi.toArray();
+	  this.a = a;
+	  this.opdfs = opdfs;
+        }
 	
 	
 	/**
