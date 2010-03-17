@@ -8,6 +8,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
+import jp.crestmuse.cmx.handlers.CommonNoteHandler;
+import jp.crestmuse.cmx.misc.NoteCompatible;
+import jp.crestmuse.cmx.misc.PianoRollCompatible;
 
 /**
  * MusicXMLから音楽構造グルーピングを生成するためのクラスです。<br>
@@ -82,21 +85,37 @@ public class MusicApexDataSet {
     // toplevel.groupParent = null;
 
     // MusicXMLのすべてのNote要素をグループに追加する
-    MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
-    for (MusicXMLWrapper.Part part : partlist) {
-      MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
-      for (MusicXMLWrapper.Measure measure : measurelist) {
-        MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
-        for (MusicXMLWrapper.MusicData md : mdlist) {
-          if (md instanceof MusicXMLWrapper.Note) {
-            MusicXMLWrapper.Note note = (MusicXMLWrapper.Note) md;
-            toplevel.addNote(note);
-            noteMap.put(note.node(), note);
-            allnotes.add(note);
-          }
-        }
+    musicxml.processNotes(new CommonNoteHandler() {
+
+      public void processNote(NoteCompatible note,
+          PianoRollCompatible filewrapper) {
+        Note n = (Note) note;
+        toplevel.addNote(n);
+        noteMap.put(n.node(), n);
+        allnotes.add(n);
       }
-    }
+
+      public void endPart(String id, PianoRollCompatible filewrapper) {
+      }
+
+      public void beginPart(String id, PianoRollCompatible filewrapper) {
+      }
+    });
+    // MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
+    // for (MusicXMLWrapper.Part part : partlist) {
+    // MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
+    // for (MusicXMLWrapper.Measure measure : measurelist) {
+    // MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
+    // for (MusicXMLWrapper.MusicData md : mdlist) {
+    // if (md instanceof MusicXMLWrapper.Note) {
+    // MusicXMLWrapper.Note note = (MusicXMLWrapper.Note) md;
+    // toplevel.addNote(note);
+    // noteMap.put(note.node(), note);
+    // allnotes.add(note);
+    // }
+    // }
+    // }
+    // }
     return toplevel;
   }
 
@@ -418,7 +437,8 @@ public class MusicApexDataSet {
     }
 
     public void removeSubgroup(NoteGroup g) {
-      undernotes.removeAll(g.getAllNotes());
+      // undernotes.removeAll(g.getAllNotes());
+      ownnotes.addAll(g.getAllNotes());
       subGroups.remove(g);
     }
 
