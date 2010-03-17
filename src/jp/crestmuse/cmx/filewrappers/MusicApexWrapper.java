@@ -28,8 +28,8 @@ public class MusicApexWrapper extends CMXFileWrapper {
   private boolean inherited;
   private String aspect = null;
   private ApexWrapedGroup toplevel = null;
-  private List<ApexWrapedGroup> depthFirstView = null;
-  private List<ApexWrapedGroup> breadthFirstView = null;
+  private List<NoteGroup> depthFirstView = null;
+  private List<NoteGroup> breadthFirstView = null;
 
   public static MusicApexWrapper createMusicApexWrapperFor(
       MusicXMLWrapper musicxml) {
@@ -66,15 +66,15 @@ public class MusicApexWrapper extends CMXFileWrapper {
    * 
    * @return
    */
-  public List<ApexWrapedGroup> getDepthFirstGroupView() {
+  public List<NoteGroup> getDepthFirstGroupView() {
     if (depthFirstView == null) {
       depthFirstView = makeDepthFirst(toplevel);
     }
     return depthFirstView;
   }
 
-  private List<ApexWrapedGroup> makeDepthFirst(ApexWrapedGroup wg) {
-    List<ApexWrapedGroup> dest = new ArrayList<ApexWrapedGroup>();
+  private List<NoteGroup> makeDepthFirst(ApexWrapedGroup wg) {
+    List<NoteGroup> dest = new ArrayList<NoteGroup>();
     dest.add(wg);
     for (NoteGroup g : wg.getSubgroups()) {
       dest.addAll(makeDepthFirst((ApexWrapedGroup) g));
@@ -87,15 +87,15 @@ public class MusicApexWrapper extends CMXFileWrapper {
    * 
    * @return
    */
-  public List<ApexWrapedGroup> getBreadthFirstView() {
+  public List<NoteGroup> getBreadthFirstView() {
     if (breadthFirstView == null) {
       breadthFirstView = makeBreadthFirst(toplevel);
     }
     return breadthFirstView;
   }
 
-  private List<ApexWrapedGroup> makeBreadthFirst(ApexWrapedGroup src) {
-    List<ApexWrapedGroup> dest = new ArrayList<ApexWrapedGroup>();
+  private List<NoteGroup> makeBreadthFirst(ApexWrapedGroup src) {
+    List<NoteGroup> dest = new ArrayList<NoteGroup>();
     Queue<ApexWrapedGroup> queue = new LinkedList<ApexWrapedGroup>();
     queue.offer(src);
     while (!queue.isEmpty()) {
@@ -237,7 +237,7 @@ public class MusicApexWrapper extends CMXFileWrapper {
     return count;
   }
 
-  class ApexWrapedGroup implements NoteGroup {
+  private class ApexWrapedGroup implements NoteGroup {
 
     private int depth = -1;
     private List<Note> ownnotes = new ArrayList<Note>(); // 自分のグループのみが持つノート
