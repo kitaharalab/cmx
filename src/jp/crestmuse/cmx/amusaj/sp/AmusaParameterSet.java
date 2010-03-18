@@ -6,7 +6,7 @@ public class AmusaParameterSet implements ParameterCompatible {
 
   private ParameterCompatible params = null;
   private HashMap<String,String> map = new HashMap<String,String>();
-  private Set<String> usedKeys = new HashSet<String>();
+  private HashSet<String> usedKeys = new HashSet<String>();
 
   private static final AmusaParameterSet paramset = new AmusaParameterSet();
 
@@ -20,7 +20,7 @@ public class AmusaParameterSet implements ParameterCompatible {
 
   public final Set<String> keySet() {
     usedKeys.addAll(map.keySet());
-    return usedKeys;
+    return (Set<String>)usedKeys.clone();
 //    Set<String> s = map.keySet();
 //    s.addAll(usedKeys);
     //    return s;

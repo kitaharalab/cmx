@@ -121,19 +121,24 @@ public class MusicRepresentation2 {
     return measure * division + index;
   }
 
-  /*
-   * public void update(String layername, int index) {
-   * getMusicLayer(layername).update(index); }
-   * 
-   */
+//  public void update(String layername, int index) {
+//    getMusicLayer(layername).update(index); 
+//  }
 
-    /*
-   public void update(String layer, int measure, int tick) {
-       MusicLayer l = name2layer.get(layer);
-       l.update(l.getElement(measure, tick));
-   }
-    */
+  public void update(String layer, int measure, int tick) {
+    MusicLayer l = name2layer.get(layer);
+    l.update(l.getElement(measure, tick));
+  }
 
+  public void updateAll(String layer) {
+    MusicLayer l = name2layer.get(layer);
+    int m = getMeasureNum();
+    int n = getDivision();
+    int d = getTiedLength(layer);
+    for (int i = 0; i < m; i++)
+      for (int j = 0; j < n; j += d) 
+	l.update(l.getElement(i, j));
+  }
   abstract class MusicLayer {
     protected int tiedLength;
     protected List<MusicElement> elements;

@@ -13,27 +13,31 @@ import jp.crestmuse.cmx.misc.NoteCompatible;
 import jp.crestmuse.cmx.misc.PianoRollCompatible;
 
 /**
- * MusicXMLから音楽構造グルーピングを生成するためのクラスです。<br>
+ * <p>MusicXMLから音楽構造グルーピングを生成するためのクラスです。
  * インスタンスの生成にはMusicXMLWrapperを渡す必要があり、 トップレベルのグループには全てのNoteが生成されます
  * 
- * -使い方<br>
- * MusicXMLWrapper musicxml =
- * (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");<br>
- * MusicXMLのインスタンス化<br>
- * MusicApexDataSet ads = new MusicApexDataSet(musicxml);<br>
- * MusicApexDataSetにMusicXMLを渡しインスタンス化<br>
- * ads.createTopLevelGroup(true);<br>
- * inheritedを指定し、トップレベルグループを作成<br>
- * ads.setAspect("sample-aspect");<br>
- * 何に着目したかを設定(任意)<br>
- * <br>
- * ads.topgroup.makeSubgroup(notes);<br>
- * トップレベルからグループを作成<br>
- * 〜〜<br>
- * <br>
- * ads.toWrapper();<br>
- * MusicXMLWrapper化<br>
- * 
+ * <ul>
+   <li>使い方
+   <pre>
+ *  MusicXMLWrapper musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");
+ *    MusicXMLのインスタンス化
+ *  MusicApexDataSet ads = new MusicApexDataSet(musicxml);
+ *    MusicApexDataSetにMusicXMLを渡しインスタンス化
+ *  ads.createTopLevelGroup(true);
+ *    inheritedを指定し、トップレベルグループを作成
+ *  ads.setAspect("sample-aspect");
+ *    何に着目したかを設定(任意)
+ *
+ *  ads.topgroup.makeSubgroup(notes);
+ *    トップレベルからグループを作成
+ *  〜〜
+ *  
+ *  ads.toWrapper();
+ *    MusicXMLWrapper化
+ *  </pre>
+ *  </li>
+ *  </ul>
+ *  
  * @author R.Tokuami
  */
 public class MusicApexDataSet {
