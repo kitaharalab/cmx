@@ -66,6 +66,8 @@ public interface NoteGroup {
    */
   public void addNote(MusicXMLWrapper.Note n);
 
+  public void removeNote(MusicXMLWrapper.Note n);
+
   /**
    * このグループの子に引数として与えたグループを追加します。 別に作成したグループを追加するにはこのメソッドを利用してください。
    * 既にこのインスタンスに所属するノートをグループ化する場合はmakeSubgroupを利用してください。

@@ -279,6 +279,10 @@ public class MusicApexWrapper extends CMXFileWrapper {
       throw new UnsupportedOperationException();
     }
 
+    public void removeNote(Note n) {
+      throw new UnsupportedOperationException();
+    }
+
     public void addSubgroup(NoteGroup g) {
       throw new UnsupportedOperationException();
     }

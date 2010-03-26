@@ -331,29 +331,29 @@ public class MusicApexDataSet {
       return;
     }
 
+    public void removeNote(Note n) {
+      for (NoteGroup ng : subGroups)
+        ng.removeNote(n);
+      ownnotes.remove(n);
+      undernotes.remove(n);
+    }
+
     public void addSubgroup(NoteGroup g) {
-      if (g instanceof ApexDataGroup) {
-        // ((ApexDataGroup) g).groupParent = this;
-        ((ApexDataGroup) g).depth = this.depth() + 1;
-        if (isApexInherited() == true) {
-          refreshSubGroupApex((ApexDataGroup) g);
-        }
-      }
+      if (g instanceof ApexDataGroup)
+        refreshSubGroup((ApexDataGroup) g, this.depth() + 1);
       undernotes.addAll(g.getAllNotes());
       subGroups.add(g);
       return;
     }
 
-    private void refreshSubGroupApex(ApexDataGroup g) {
-      if (g.getNotes().contains(this.apex)) {
+    private void refreshSubGroup(ApexDataGroup g, int depth) {
+      g.depth = depth;
+      if (isApexInherited() && g.getNotes().contains(this.apex)) {
         g.apex = this.apex;
         g.saliency = this.saliency;
       }
-      if (!(g.subGroups.isEmpty())) {
-        for (NoteGroup sg : g.getSubgroups()) {
-          g.refreshSubGroupApex((ApexDataGroup) sg);
-        }
-      }
+      for (NoteGroup sg : g.getSubgroups())
+        g.refreshSubGroup((ApexDataGroup) sg, depth + 1);
       return;
     }
 
