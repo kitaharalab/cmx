@@ -303,6 +303,14 @@ public class MusicApexWrapper extends CMXFileWrapper {
       throw new UnsupportedOperationException();
     }
 
+    public String getAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void setAttribute(String key, String value) {
+      throw new UnsupportedOperationException();
+    }
+
     public NoteGroup getParentGroup() {
       return groupParent;
     }
@@ -319,6 +327,7 @@ public class MusicApexWrapper extends CMXFileWrapper {
           + (this.groupParent != null ? this.groupParent.toString() : "null"));
       System.out.println();
     }
+
   }
 
   public static void main(String[] args) {

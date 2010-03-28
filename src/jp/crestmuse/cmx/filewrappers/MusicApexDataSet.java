@@ -13,12 +13,14 @@ import jp.crestmuse.cmx.misc.NoteCompatible;
 import jp.crestmuse.cmx.misc.PianoRollCompatible;
 
 /**
- * <p>MusicXMLから音楽構造グルーピングを生成するためのクラスです。
- * インスタンスの生成にはMusicXMLWrapperを渡す必要があり、 トップレベルのグループには全てのNoteが生成されます
+ * <p>
+ * MusicXMLから音楽構造グルーピングを生成するためのクラスです。 インスタンスの生成にはMusicXMLWrapperを渡す必要があり、
+ * トップレベルのグループには全てのNoteが生成されます
  * 
  * <ul>
-   <li>使い方
-   <pre>
+ * <li>使い方
+ * 
+ * <pre>
  *  MusicXMLWrapper musicxml = (MusicXMLWrapper)CMXFileWrapper.readfile("./sample.xml");
  *    MusicXMLのインスタンス化
  *  MusicApexDataSet ads = new MusicApexDataSet(musicxml);
@@ -27,17 +29,17 @@ import jp.crestmuse.cmx.misc.PianoRollCompatible;
  *    inheritedを指定し、トップレベルグループを作成
  *  ads.setAspect("sample-aspect");
  *    何に着目したかを設定(任意)
- *
  *  ads.topgroup.makeSubgroup(notes);
  *    トップレベルからグループを作成
  *  〜〜
  *  
  *  ads.toWrapper();
  *    MusicXMLWrapper化
- *  </pre>
- *  </li>
- *  </ul>
- *  
+ * </pre>
+ * 
+ * </li>
+ * </ul>
+ * 
  * @author R.Tokuami
  */
 public class MusicApexDataSet {
@@ -284,9 +286,9 @@ public class MusicApexDataSet {
     // private NoteGroup groupParent = null;
     private Note apex = null;
     private double saliency = Double.NaN;
+    private HashMap<String, String> attribute = new HashMap<String, String>();
 
     public ApexDataGroup() {
-      return;
     }
 
     public ApexDataGroup(List<Note> notes, Note apex, double saliency) {
@@ -294,7 +296,6 @@ public class MusicApexDataSet {
       this.undernotes.addAll(notes);
       this.apex = apex;
       this.saliency = saliency;
-      return;
     }
 
     public int depth() {
@@ -444,6 +445,14 @@ public class MusicApexDataSet {
       // undernotes.removeAll(g.getAllNotes());
       ownnotes.addAll(g.getAllNotes());
       subGroups.remove(g);
+    }
+
+    public String getAttribute(String key) {
+      return attribute.get(key);
+    }
+
+    public void setAttribute(String key, String value) {
+      attribute.put(key, value);
     }
 
     // /**

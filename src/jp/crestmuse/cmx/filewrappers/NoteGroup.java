@@ -106,4 +106,8 @@ public interface NoteGroup {
    */
   public void setApex(MusicXMLWrapper.Note n, double saliency);
 
+  public String getAttribute(String key);
+
+  public void setAttribute(String key, String value);
+
 }
