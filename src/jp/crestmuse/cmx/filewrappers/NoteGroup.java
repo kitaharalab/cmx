@@ -2,6 +2,8 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.util.List;
 
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
+
 /**
  * 音符の集まりからなる1つのグループを示すインターフェイスです。
  */
@@ -106,8 +108,29 @@ public interface NoteGroup {
    */
   public void setApex(MusicXMLWrapper.Note n, double saliency);
 
+  public void setApex(ApexSpan apexSpan);
+
+  public void setApex(ApexSpan apexSpan, double saliency);
+
+  public ApexSpan getApexSpan();
+
   public String getAttribute(String key);
 
   public void setAttribute(String key, String value);
+
+  public class ApexSpan {
+
+    public final Note startNote, endNote;
+    public final double startTime, endTime;
+
+    public ApexSpan(Note startNote, double startTime, Note endNote,
+        double endTime) {
+      this.startNote = startNote;
+      this.startTime = startTime;
+      this.endNote = endNote;
+      this.endTime = endTime;
+    }
+
+  }
 
 }

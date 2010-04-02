@@ -225,30 +225,42 @@ public class MusicApexDataSet {
       throw new RuntimeException("Invalid GroupDepth");
     mawxml.setAttribute("depth", group.depth());
     // write subgroups
-    if (!(group.getSubgroups().isEmpty())) {
-      for (NoteGroup adg : group.getSubgroups()) {
-        writeApexDataGroup(mawxml, adg);
-      }
+    for (NoteGroup adg : group.getSubgroups()) {
+      writeApexDataGroup(mawxml, adg);
     }
     // write ownnote
-    if (!(group.getNotes().isEmpty())) {
+    if (!(group.getNotes().isEmpty()))
       for (Note n : group.getNotes()) {
         mawxml.addChild("note");
         mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
             "#xpointer(" + n.getXPathExpression() + ")");
         mawxml.returnToParent();
       }
-    } else {
+    else
       throw new RuntimeException("Creating No Notes Group");
-    }
     // write apex
     if (group.getApex() != null) {
       mawxml.addChild("apex");
       mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
           "#xpointer(" + group.getApex().getXPathExpression() + ")");
-      if (!(Double.isNaN(group.getApexSaliency()))) {
+      if (!(Double.isNaN(group.getApexSaliency())))
         mawxml.setAttribute("saliency", group.getApexSaliency());
-      }
+      mawxml.returnToParent();
+    } else if (group.getApexSpan() != null) {
+      mawxml.addChild("apex");
+      if (!(Double.isNaN(group.getApexSaliency())))
+        mawxml.setAttribute("saliency", group.getApexSaliency());
+      mawxml.addChild("start");
+      mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
+          "#xpointer(" + group.getApexSpan().startNote.getXPathExpression()
+              + ")");
+      mawxml.setAttribute("time", group.getApexSpan().startTime);
+      mawxml.returnToParent();
+      mawxml.addChild("end");
+      mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
+          "#xpointer(" + group.getApexSpan().endNote.getXPathExpression() + ")");
+      mawxml.setAttribute("time", group.getApexSpan().endTime);
+      mawxml.returnToParent();
       mawxml.returnToParent();
     }
     mawxml.returnToParent();
@@ -283,8 +295,8 @@ public class MusicApexDataSet {
     private List<Note> ownnotes = new ArrayList<Note>(); // 自分のグループのみが持つノート
     private List<Note> undernotes = new ArrayList<Note>(); // 自分のグループ以下にあるノート、自分も含む
     private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
-    // private NoteGroup groupParent = null;
     private Note apex = null;
+    private ApexSpan apexSpan = null;
     private double saliency = Double.NaN;
     private HashMap<String, String> attribute = new HashMap<String, String>();
 
@@ -430,7 +442,6 @@ public class MusicApexDataSet {
         throw new RuntimeException("This group already has Apex. : "
             + n.getXPathExpression());
       this.apex = n;
-      return;
     }
 
     public void setApex(Note n, double value) {
@@ -438,7 +449,6 @@ public class MusicApexDataSet {
         throw new RuntimeException("This Apex is inherited");
       this.apex = n;
       this.saliency = value;
-      return;
     }
 
     public void removeSubgroup(NoteGroup g) {
@@ -453,6 +463,20 @@ public class MusicApexDataSet {
 
     public void setAttribute(String key, String value) {
       attribute.put(key, value);
+    }
+
+    public ApexSpan getApexSpan() {
+      return apexSpan;
+    }
+
+    public void setApex(ApexSpan apexSpan) {
+      // TODO inherited, already
+      this.apexSpan = apexSpan;
+    }
+
+    public void setApex(ApexSpan apexSpan, double saliency) {
+      this.apexSpan = apexSpan;
+      this.saliency = saliency;
     }
 
     // /**

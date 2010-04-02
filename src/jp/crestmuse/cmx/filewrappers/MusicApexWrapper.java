@@ -328,6 +328,18 @@ public class MusicApexWrapper extends CMXFileWrapper {
       System.out.println();
     }
 
+    public ApexSpan getApexSpan() {
+      throw new UnsupportedOperationException();
+    }
+
+    public void setApex(ApexSpan apexSpan) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void setApex(ApexSpan apexSpan, double saliency) {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   public static void main(String[] args) {
