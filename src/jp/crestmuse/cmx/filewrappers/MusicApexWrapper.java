@@ -295,10 +295,6 @@ public class MusicApexWrapper extends CMXFileWrapper {
       throw new UnsupportedOperationException();
     }
 
-    public void setApex(Note n, double value) {
-      throw new UnsupportedOperationException();
-    }
-
     public void removeSubgroup(NoteGroup g) {
       throw new UnsupportedOperationException();
     }
@@ -328,16 +324,42 @@ public class MusicApexWrapper extends CMXFileWrapper {
       System.out.println();
     }
 
-    public ApexSpan getApexSpan() {
+
+    public List<Note> getImplicitGroupNotes() {
       throw new UnsupportedOperationException();
     }
 
-    public void setApex(ApexSpan apexSpan) {
+    public boolean isImplicit() {
       throw new UnsupportedOperationException();
     }
 
-    public void setApex(ApexSpan apexSpan, double saliency) {
+    public int type() {
       throw new UnsupportedOperationException();
+    }
+
+    public Note getApexStart() {
+      return null;
+    }
+
+    public double getApexStartTime() {
+      return 0;
+    }
+
+    public Note getApexStop() {
+      return null;
+    }
+
+    public double getApexStopTime() {
+      return 0;
+    }
+
+    public void setApexStart(Note n, double time) {
+    }
+
+    public void setApexStop(Note n, double time) {
+    }
+
+    public void setApexSaliency(double saliency) {
     }
 
   }

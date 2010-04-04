@@ -1,11 +1,12 @@
 package jp.crestmuse.cmx.filewrappers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.handlers.CommonNoteHandler;
@@ -44,61 +45,41 @@ import jp.crestmuse.cmx.misc.PianoRollCompatible;
  */
 public class MusicApexDataSet {
 
-  private MusicXMLWrapper musicxml = null;
+  private final MusicXMLWrapper musicxml;
   private boolean inherited = false;
   private String aspect = null;
-  private ApexDataGroup toplevel = null;
-  private HashMap<Node, MusicXMLWrapper.Note> noteMap = new HashMap<Node, Note>();
-  private List<Note> allnotes;
+  private AbstractGroup topGroup = null;
+  private HashMap<Node, Note> noteMap = new HashMap<Node, Note>();
+  private final int type;
 
   /**
    * MuscXMLを元に、MusicApexDataSetオブジェクトを作成します。
    * 
    * @param musicxml
    */
-  public MusicApexDataSet(MusicXMLWrapper musicxml) {
+  public MusicApexDataSet(MusicXMLWrapper musicxml, int type,
+      boolean apexInherited) {
     this.musicxml = musicxml;
+    this.type = type;
+    this.inherited = apexInherited;
   }
 
   /**
    * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
-   * トップレベルグループ作成の時点でinheritedなグループかどうかを指定する必要があります。
-   * グループの頂点の音符がサブグループに含まれていたときに、 頂点であることを継承するならtrue それぞれのグループで頂点を指定するならfalse
-   * を指定してください。
    * 
-   * @param inherited
-   *          親グループの頂点を子グループで継承するかどうか
-   * @return トップレベルグループのApexDataGroupオブジェクト
+   * @return トップレベルグループのNoteGroupオブジェクト
    */
-  public NoteGroup createTopLevelGroup(boolean inherited) {
-    return createTopLevelGroup(inherited, null);
-  }
-
-  /**
-   * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。 inheritedとaspectを指定する必要があります。
-   * 
-   * @param inherited
-   * @param aspect
-   *          何に着目した構造記述か
-   * @return トップレベルグループを示すApexDataGroupオブジェクト
-   */
-  public NoteGroup createTopLevelGroup(boolean inherited, String aspect) {
-    this.inherited = inherited;
-    this.aspect = aspect;
-    this.toplevel = new ApexDataGroup();
-    this.allnotes = new ArrayList<Note>();
-    toplevel.depth = 1;
-    // toplevel.groupParent = null;
-
+  public NoteGroup createTopLevelGroup() {
+    topGroup = (AbstractGroup) createGroup();
+    topGroup.depth = 1;
     // MusicXMLのすべてのNote要素をグループに追加する
     musicxml.processNotes(new CommonNoteHandler() {
 
       public void processNote(NoteCompatible note,
           PianoRollCompatible filewrapper) {
         Note n = (Note) note;
-        toplevel.addNote(n);
+        topGroup.addNote(n);
         noteMap.put(n.node(), n);
-        allnotes.add(n);
       }
 
       public void endPart(String id, PianoRollCompatible filewrapper) {
@@ -106,23 +87,9 @@ public class MusicApexDataSet {
 
       public void beginPart(String id, PianoRollCompatible filewrapper) {
       }
+
     });
-    // MusicXMLWrapper.Part[] partlist = musicxml.getPartList();
-    // for (MusicXMLWrapper.Part part : partlist) {
-    // MusicXMLWrapper.Measure[] measurelist = part.getMeasureList();
-    // for (MusicXMLWrapper.Measure measure : measurelist) {
-    // MusicXMLWrapper.MusicData[] mdlist = measure.getMusicDataList();
-    // for (MusicXMLWrapper.MusicData md : mdlist) {
-    // if (md instanceof MusicXMLWrapper.Note) {
-    // MusicXMLWrapper.Note note = (MusicXMLWrapper.Note) md;
-    // toplevel.addNote(note);
-    // noteMap.put(note.node(), note);
-    // allnotes.add(note);
-    // }
-    // }
-    // }
-    // }
-    return toplevel;
+    return topGroup;
   }
 
   /**
@@ -131,7 +98,7 @@ public class MusicApexDataSet {
    * @return
    */
   public NoteGroup createGroup() {
-    return new ApexDataGroup();
+    return createGroup(new ArrayList<Note>(0));
   }
 
   /**
@@ -142,7 +109,7 @@ public class MusicApexDataSet {
    * @return
    */
   public NoteGroup createGroup(List<Note> notes) {
-    return new ApexDataGroup(notes, null, Double.NaN);
+    return createGroup(notes, null, Double.NaN);
   }
 
   /**
@@ -155,7 +122,7 @@ public class MusicApexDataSet {
    * @return
    */
   public NoteGroup createGroup(List<Note> notes, Note apex) {
-    return new ApexDataGroup(notes, apex, Double.NaN);
+    return createGroup(notes, apex, Double.NaN);
   }
 
   /**
@@ -170,7 +137,23 @@ public class MusicApexDataSet {
    * @return
    */
   public NoteGroup createGroup(List<Note> notes, Note apex, double saliency) {
-    return new ApexDataGroup(notes, apex, saliency);
+    NoteGroup group;
+    switch (type) {
+    case 0:
+      group = new NoteGroupType0();
+      break;
+    case 1:
+      group = new NoteGroupType1();
+      break;
+    default:
+      throw new IllegalStateException(String.format("illegal type: %d", type));
+    }
+    for (Note n : notes)
+      group.addNote(n);
+    if (apex != null)
+      group.setApex(apex);
+    group.setApexSaliency(saliency);
+    return group;
   }
 
   /**
@@ -182,7 +165,6 @@ public class MusicApexDataSet {
    */
   public void setAspect(String aspect) {
     this.aspect = aspect;
-    return;
   }
 
   /**
@@ -191,7 +173,7 @@ public class MusicApexDataSet {
    * @return トップレベルのApexDataGroupオブジェクト
    */
   public NoteGroup topgroup() {
-    return this.toplevel;
+    return topGroup;
   }
 
   /**
@@ -204,7 +186,7 @@ public class MusicApexDataSet {
    */
   public MusicApexWrapper toWrapper() {
     // check initalized
-    if (toplevel == null)
+    if (topGroup == null)
       throw new RuntimeException("TopLevelGroup not created.");
     // create apexxml
     MusicApexWrapper mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
@@ -214,7 +196,7 @@ public class MusicApexDataSet {
     if (aspect != null)
       mawxml.setAttribute("aspect", aspect);
     // write groups
-    writeApexDataGroup(mawxml, toplevel);
+    writeApexDataGroup(mawxml, topGroup);
 
     return mawxml;
   }
@@ -239,27 +221,27 @@ public class MusicApexDataSet {
     else
       throw new RuntimeException("Creating No Notes Group");
     // write apex
-    if (group.getApex() != null) {
-      mawxml.addChild("apex");
-      mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
-          "#xpointer(" + group.getApex().getXPathExpression() + ")");
-      if (!(Double.isNaN(group.getApexSaliency())))
-        mawxml.setAttribute("saliency", group.getApexSaliency());
-      mawxml.returnToParent();
-    } else if (group.getApexSpan() != null) {
+    // if (group.getApex() != null) {
+    // mawxml.addChild("apex");
+    // mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
+    // "#xpointer(" + group.getApex().getXPathExpression() + ")");
+    // if (!(Double.isNaN(group.getApexSaliency())))
+    // mawxml.setAttribute("saliency", group.getApexSaliency());
+    // mawxml.returnToParent();
+    // } else
+    if (group.getApexStart() != null && group.getApexStop() != null) {
       mawxml.addChild("apex");
       if (!(Double.isNaN(group.getApexSaliency())))
         mawxml.setAttribute("saliency", group.getApexSaliency());
       mawxml.addChild("start");
       mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
-          "#xpointer(" + group.getApexSpan().startNote.getXPathExpression()
-              + ")");
-      mawxml.setAttribute("time", group.getApexSpan().startTime);
+          "#xpointer(" + group.getApexStart().getXPathExpression() + ")");
+      mawxml.setAttribute("time", group.getApexStartTime());
       mawxml.returnToParent();
-      mawxml.addChild("end");
+      mawxml.addChild("stop");
       mawxml.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
-          "#xpointer(" + group.getApexSpan().endNote.getXPathExpression() + ")");
-      mawxml.setAttribute("time", group.getApexSpan().endTime);
+          "#xpointer(" + group.getApexStop().getXPathExpression() + ")");
+      mawxml.setAttribute("time", group.getApexStopTime());
       mawxml.returnToParent();
       mawxml.returnToParent();
     }
@@ -267,19 +249,259 @@ public class MusicApexDataSet {
     return;
   }
 
-  /**
-   * MusicXMLに含まれるNoteのリストのindexが start番目からend番目のNoteをListにして返します
-   * 
-   * @param start
-   * @param end
-   * @return
-   */
-  private List<Note> getNotesByRange(int start, int end) {
-    ArrayList<Note> dest = new ArrayList<Note>();
-    for (int i = start; i <= end; i++) {
-      dest.add(allnotes.get(i));
+  // /**
+  // * MusicXMLに含まれるNoteのリストのindexが start番目からend番目のNoteをListにして返します
+  // *
+  // * @param start
+  // * @param end
+  // * @return
+  // */
+  // private List<Note> getNotesByRange(int start, int end) {
+  // ArrayList<Note> dest = new ArrayList<Note>();
+  // for (int i = start; i <= end; i++)
+  // dest.add(allnotes.get(i));
+  // return dest;
+  // }
+
+  private abstract class AbstractGroup implements NoteGroup {
+
+    final List<Note> ownNotes = new ArrayList<Note>();
+    final List<Note> underNotes = new ArrayList<Note>();
+    final List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
+    final HashMap<String, String> attribute = new HashMap<String, String>();
+    int depth = -1;
+    Note apexStart, apexStop;
+    double apexStartTime, apexStopTime;
+    double saliency = Double.NaN;
+    boolean implicit = false;
+    AbstractGroup parent;
+
+    AbstractGroup() {
+      this(null);
     }
-    return dest;
+
+    AbstractGroup(AbstractGroup parent) {
+      this.parent = parent;
+    }
+
+    public int depth() {
+      return depth;
+    }
+
+    public List<Note> getNotes() {
+      return ownNotes;
+    }
+
+    public List<Note> getAllNotes() {
+      return underNotes;
+    }
+
+    public List<NoteGroup> getSubgroups() {
+      return subGroups;
+    }
+
+    public Note getApexStart() {
+      return apexStart;
+    }
+
+    public void setApexStart(Note n, double time) {
+      apexStart = n;
+      apexStartTime = time;
+    }
+
+    public double getApexStartTime() {
+      return apexStartTime;
+    }
+
+    public Note getApexStop() {
+      return apexStop;
+    }
+
+    public void setApexStop(Note n, double time) {
+      apexStop = n;
+      apexStopTime = time;
+    }
+
+    public double getApexStopTime() {
+      return apexStopTime;
+    }
+
+    public Note getApex() {
+      if (apexStart != apexStop)
+        return apexStart;
+      throw new IllegalStateException("apexStart don't match apexStart");
+    }
+
+    public void setApex(Note n) {
+      apexStart = apexStop = n;
+      apexStartTime = 0;
+      apexStopTime = n.actualDuration();
+    }
+
+    public double getApexSaliency() {
+      return saliency;
+    }
+
+    public void setApexSaliency(double saliency) {
+      this.saliency = saliency;
+    }
+
+    public String getAttribute(String key) {
+      return attribute.get(key);
+    }
+
+    public List<Note> getImplicitGroupNotes() {
+      ArrayList<Note> result = new ArrayList<Note>();
+      result.addAll(getNotes());
+      for (NoteGroup ng : subGroups)
+        if (ng.isImplicit())
+          result.addAll(ng.getAllNotes());
+      return result;
+    }
+
+    public boolean isApexInherited() {
+      return inherited;
+    }
+
+    public boolean isImplicit() {
+      return implicit;
+    }
+
+    public int type() {
+      return type;
+    }
+
+    public void setAttribute(String key, String value) {
+      attribute.put(key, value);
+    }
+
+  }
+
+  private class NoteGroupType0 extends AbstractGroup {
+
+    public void addNote(Note n) {
+    }
+
+    public void addSubgroup(NoteGroup g) {
+    }
+
+    public NoteGroup makeSubgroup(List<Note> notes) {
+      return null;
+    }
+
+    public void removeNote(Note n) {
+    }
+
+    public void removeSubgroup(NoteGroup g) {
+    }
+
+  }
+
+  private class NoteGroupType1 extends AbstractGroup {
+
+    public void addNote(Note n) {
+      if (underNotes.contains(n))
+        throw new IllegalArgumentException("already contain");
+      if (depth == 1) {
+        ownNotes.add(n);
+        underNotes.add(n);
+        return;
+      }
+      underNotes.add(n);
+      if (!isContinuation(underNotes)) {
+        underNotes.remove(n);
+        throw new IllegalArgumentException(
+            "can't keep continuous note sequence");
+      }
+      NoteGroup brother = null;
+      for (NoteGroup ng : parent.subGroups)
+        if (ng != this && ng.getAllNotes().contains(n)) {
+          ((NoteGroupType1) ng).removeNoteWithoutForce(n);
+          brother = ng;
+          break;
+        }
+      if(brother.getAllNotes().isEmpty())
+        parent.subGroups.remove(brother);
+      if (subGroups.isEmpty())
+        ownNotes.add(n);
+      else
+        for (NoteGroup ng : subGroups)
+          try {
+            ng.addNote(n);
+          } catch (IllegalArgumentException e) {
+          }
+    }
+
+    public void addSubgroup(NoteGroup g) {
+    }
+
+    public NoteGroup makeSubgroup(List<Note> notes) {
+      return null;
+    }
+
+    public void removeNote(Note n) {
+    }
+
+    void removeNoteWithoutForce(Note n) {
+      for (NoteGroup ng : subGroups)
+        ((NoteGroupType1) ng).removeNoteWithoutForce(n);
+      ownNotes.remove(n);
+      underNotes.remove(n);
+    }
+
+    public void removeSubgroup(NoteGroup g) {
+      // 孤立したノートを仮グループで囲う
+    }
+
+    boolean isContinuation(List<Note> notes) {
+      final int tpb = 480;
+      class Event implements Comparable<Event> {
+
+        boolean onset;
+        int tick;
+
+        Event(Note note, boolean onset) {
+          this.onset = onset;
+          if (onset)
+            tick = note.onset(tpb);
+          else
+            tick = note.offset(tpb);
+        }
+
+        public int compareTo(Event o) {
+          if (tick == o.tick) {
+            if (onset && !o.onset)
+              return -1;
+            if (!onset && o.onset)
+              return 1;
+          }
+          return tick - o.tick;
+        }
+
+        public String toString() {
+          return String.format("tick:%d, onset:%s", tick, onset);
+        }
+
+      }
+      LinkedList<Event> events = new LinkedList<Event>();
+      for (Note n : notes) {
+        events.add(new Event(n, true));
+        events.add(new Event(n, false));
+      }
+      Collections.sort(events);
+      events.removeLast();
+      int stack = 0;
+      for (Event e : events)
+        if (e.onset)
+          stack++;
+        else {
+          stack--;
+          if (stack <= 0)
+            return false;
+        }
+      return true;
+    }
+
   }
 
   /**
@@ -296,7 +518,6 @@ public class MusicApexDataSet {
     private List<Note> undernotes = new ArrayList<Note>(); // 自分のグループ以下にあるノート、自分も含む
     private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
     private Note apex = null;
-    private ApexSpan apexSpan = null;
     private double saliency = Double.NaN;
     private HashMap<String, String> attribute = new HashMap<String, String>();
 
@@ -452,7 +673,6 @@ public class MusicApexDataSet {
     }
 
     public void removeSubgroup(NoteGroup g) {
-      // undernotes.removeAll(g.getAllNotes());
       ownnotes.addAll(g.getAllNotes());
       subGroups.remove(g);
     }
@@ -465,69 +685,85 @@ public class MusicApexDataSet {
       attribute.put(key, value);
     }
 
-    public ApexSpan getApexSpan() {
-      return apexSpan;
+    public List<Note> getImplicitGroupNotes() {
+      return null;
     }
 
-    public void setApex(ApexSpan apexSpan) {
-      // TODO inherited, already
-      this.apexSpan = apexSpan;
+    public boolean isImplicit() {
+      return false;
     }
 
-    public void setApex(ApexSpan apexSpan, double saliency) {
-      this.apexSpan = apexSpan;
-      this.saliency = saliency;
+    public int type() {
+      return 0;
     }
 
-    // /**
-    // * このインスタンスの親のグループを返します。
-    // *
-    // * @return 親のApexDataGroupオブジェクト(存在しないならnull)
-    // */
-    // public NoteGroup getParentGroup() {
-    // return groupParent;
-    // }
+    public Note getApexStart() {
+      return null;
+    }
+
+    public double getApexStartTime() {
+      return 0;
+    }
+
+    public Note getApexStop() {
+      return null;
+    }
+
+    public double getApexStopTime() {
+      return 0;
+    }
+
+    public void setApexSaliency(double saliency) {
+    }
+
+    public void setApexStart(Note n, double time) {
+    }
+
+    public void setApexStop(Note n, double time) {
+    }
+
   }
 
-  public static void main(String[] args) {
-    MusicXMLWrapper musicxml = new MusicXMLWrapper();
-    try {
-      musicxml = (MusicXMLWrapper) CMXFileWrapper.readfile("./sample.xml");
-      MusicApexDataSet ads = new MusicApexDataSet(musicxml);
-      ads.createTopLevelGroup(true);
-      ads.setAspect("hoge");
-      ads.toplevel.setApex(ads.allnotes.get(8));
-      ads.toplevel.makeSubgroup(ads.getNotesByRange(5, 10), ads.allnotes.get(6));
-      ads.toplevel.makeSubgroup(ads.getNotesByRange(20, 30));
-      ((ApexDataGroup) ads.toplevel.subGroups.get(1)).makeSubgroup(
-          ads.getNotesByRange(24, 28), ads.allnotes.get(28));
-      // ApexDataGroup gp =
-      // (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
-      // mad.grouptop.addSubgroup(gp);
-      // ads.toWrapper().writefile(new File("sampleapex.xml"));
-
-      NodeList nl = musicxml.selectNodeList("/score-partwise/part/measure[@number='1']/note");
-      for (int i = 0; i < nl.getLength(); i++) {
-        System.out.println(nl.item(i).getTextContent());
-        printNote(ads.noteMap.get(nl.item(i)));
-      }
-
-      Note a = ads.allnotes.get(1);
-      Class c = Note.class;
-      System.out.println(a instanceof NodeInterface);
-      System.out.println(c.getName());
-      System.out.println(a);
-      System.out.println(a.getClass().equals(c));
-      // ads.toWrapper().write(System.out);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Deprecated
-  public static void printNote(Note n) {
-    System.out.println("Type:" + n.type() + " m:" + n.measure().number()
-        + " b:" + n.beat() + " text:" + n.getText());
-    System.out.println(n.getText());
-  }
+  // public static void main(String[] args) {
+  // MusicXMLWrapper musicxml = new MusicXMLWrapper();
+  // try {
+  // musicxml = (MusicXMLWrapper) CMXFileWrapper.readfile("./sample.xml");
+  // MusicApexDataSet ads = new MusicApexDataSet(musicxml);
+  // ads.createTopLevelGroup(true);
+  // ads.setAspect("hoge");
+  // ads.toplevel.setApex(ads.allnotes.get(8));
+  // ads.toplevel.makeSubgroup(ads.getNotesByRange(5, 10), ads.allnotes.get(6));
+  // ads.toplevel.makeSubgroup(ads.getNotesByRange(20, 30));
+  // ((ApexDataGroup) ads.toplevel.subGroups.get(1)).makeSubgroup(
+  // ads.getNotesByRange(24, 28), ads.allnotes.get(28));
+  // // ApexDataGroup gp =
+  // // (ApexDataGroup)mad.createGroup(mad.getNotesByRange(10, 15));
+  // // mad.grouptop.addSubgroup(gp);
+  // // ads.toWrapper().writefile(new File("sampleapex.xml"));
+  //
+  // NodeList nl =
+  // musicxml.selectNodeList("/score-partwise/part/measure[@number='1']/note");
+  // for (int i = 0; i < nl.getLength(); i++) {
+  // System.out.println(nl.item(i).getTextContent());
+  // printNote(ads.noteMap.get(nl.item(i)));
+  // }
+  //
+  // Note a = ads.allnotes.get(1);
+  // Class c = Note.class;
+  // System.out.println(a instanceof NodeInterface);
+  // System.out.println(c.getName());
+  // System.out.println(a);
+  // System.out.println(a.getClass().equals(c));
+  // // ads.toWrapper().write(System.out);
+  // } catch (Exception e) {
+  // e.printStackTrace();
+  // }
+  // }
+  //
+  // @Deprecated
+  // public static void printNote(Note n) {
+  // System.out.println("Type:" + n.type() + " m:" + n.measure().number()
+  // + " b:" + n.beat() + " text:" + n.getText());
+  // System.out.println(n.getText());
+  // }
 }

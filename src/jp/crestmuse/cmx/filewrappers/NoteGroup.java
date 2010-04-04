@@ -86,51 +86,39 @@ public interface NoteGroup {
    * @param notes
    *          Noteオブジェクトのリスト
    */
-  public NoteGroup makeSubgroup(List<MusicXMLWrapper.Note> notes);
+  public NoteGroup makeSubgroup(List<Note> notes);
 
   public void removeSubgroup(NoteGroup g);
+
+  public void setApexStart(Note n, double time);
+
+  public void setApexStop(Note n, double time);
 
   /**
    * このグループの頂点となるNoteを設定します。
    * 
    * @param n
    */
-  public void setApex(MusicXMLWrapper.Note n);
+  public void setApex(Note n);
 
-  /**
-   * このグループの頂点となるNoteと、どの程度目立っているかを設定します。 どの程度目立っているかに関しての計算方法は規程されていません。
-   * 定義されていない場合は、SetApex(Note n)を利用するか、Double.NaNをセットしてください。
-   * 
-   * @param n
-   *          頂点となるNoteオブジェクト
-   * @param saliency
-   *          どの程度目立っているか
-   */
-  public void setApex(MusicXMLWrapper.Note n, double saliency);
+  public Note getApexStart();
 
-  public void setApex(ApexSpan apexSpan);
+  public double getApexStartTime();
 
-  public void setApex(ApexSpan apexSpan, double saliency);
+  public Note getApexStop();
 
-  public ApexSpan getApexSpan();
+  public double getApexStopTime();
+  
+  public void setApexSaliency(double saliency);
 
   public String getAttribute(String key);
 
   public void setAttribute(String key, String value);
 
-  public class ApexSpan {
+  public boolean isImplicit();
 
-    public final Note startNote, endNote;
-    public final double startTime, endTime;
+  public List<Note> getImplicitGroupNotes();
 
-    public ApexSpan(Note startNote, double startTime, Note endNote,
-        double endTime) {
-      this.startNote = startNote;
-      this.startTime = startTime;
-      this.endNote = endNote;
-      this.endTime = endTime;
-    }
-
-  }
+  public int type();
 
 }
