@@ -362,6 +362,9 @@ public class MusicApexWrapper extends CMXFileWrapper {
     public void setApexSaliency(double saliency) {
     }
 
+    public void setImplicit(boolean value) {
+    }
+
   }
 
   public static void main(String[] args) {

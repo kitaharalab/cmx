@@ -116,6 +116,8 @@ public interface NoteGroup {
   public void setAttribute(String key, String value);
 
   public boolean isImplicit();
+  
+  public void setImplicit(boolean value);
 
   public List<Note> getImplicitGroupNotes();
 

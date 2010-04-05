@@ -367,6 +367,10 @@ public class MusicApexDataSet {
       return implicit;
     }
 
+    public void setImplicit(boolean value) {
+      implicit = value;
+    }
+
     public int type() {
       return type;
     }
@@ -420,7 +424,7 @@ public class MusicApexDataSet {
           brother = ng;
           break;
         }
-      if(brother.getAllNotes().isEmpty())
+      if (brother.getAllNotes().isEmpty())
         parent.subGroups.remove(brother);
       if (subGroups.isEmpty())
         ownNotes.add(n);
@@ -433,10 +437,49 @@ public class MusicApexDataSet {
     }
 
     public void addSubgroup(NoteGroup g) {
+      if (isImplicit())
+        throw new IllegalStateException("group is implicit");
+      if (!subGroups.isEmpty())
+        throw new IllegalStateException("group already has sub group");
+      if (!isContinuation(g.getAllNotes()))
+        throw new IllegalArgumentException(
+            "argument group is not continuous note sequence");
+      int TPB = 480;
+      int leastOnset = Integer.MAX_VALUE;
+      int biggestOffset = 0;
+      for (Note n : g.getAllNotes()) {
+        leastOnset = Math.min(leastOnset, n.onset(TPB));
+        biggestOffset = Math.max(biggestOffset, n.offset(TPB));
+      }
+      LinkedList<Note> forwardGroup = new LinkedList<Note>();
+      LinkedList<Note> backwardGroup = new LinkedList<Note>();
+      for (Note n : ownNotes)
+        if (n.onset(TPB) < leastOnset)
+          forwardGroup.add(n);
+        else if (n.offset(TPB) > biggestOffset)
+          backwardGroup.add(n);
+      if (!forwardGroup.isEmpty()) {
+        NoteGroup ng = createGroup(forwardGroup);
+        ng.setImplicit(true);
+        subGroups.add(ng);
+      }
+      subGroups.add(g);
+      if (!backwardGroup.isEmpty()) {
+        NoteGroup ng = createGroup(backwardGroup);
+        ng.setImplicit(true);
+        subGroups.add(ng);
+      }
     }
 
     public NoteGroup makeSubgroup(List<Note> notes) {
-      return null;
+      if(!subGroups.isEmpty())
+        throw new IllegalStateException("group already has sub group");
+      NoteGroup ng = createGroup(notes);
+      if(isImplicit()) {
+        // TODO
+      } else
+        addSubgroup(ng);
+      return ng;
     }
 
     public void removeNote(Note n) {
@@ -720,6 +763,9 @@ public class MusicApexDataSet {
     }
 
     public void setApexStop(Note n, double time) {
+    }
+
+    public void setImplicit(boolean value) {
     }
 
   }
