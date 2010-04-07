@@ -406,7 +406,7 @@ public class MusicApexDataSet {
     public void addNote(Note n) {
       if (underNotes.contains(n))
         throw new IllegalArgumentException("already contain");
-      if (depth == 1) {
+      if (depth <= 1) {
         ownNotes.add(n);
         underNotes.add(n);
         return;
@@ -472,17 +472,46 @@ public class MusicApexDataSet {
     }
 
     public NoteGroup makeSubgroup(List<Note> notes) {
-      if(!subGroups.isEmpty())
+      if (!subGroups.isEmpty())
         throw new IllegalStateException("group already has sub group");
+      if (isContinuation(notes))
+        throw new IllegalArgumentException(
+            "argument group is not continuous note sequence");
       NoteGroup ng = createGroup(notes);
-      if(isImplicit()) {
-        // TODO
+      if (isImplicit()) {
+        for (Note n : notes) {
+          ownNotes.remove(n);
+          underNotes.remove(n);
+        }
+        subGroups.add(ng);
       } else
         addSubgroup(ng);
       return ng;
     }
 
     public void removeNote(Note n) {
+      if (depth == 1)
+        throw new IllegalStateException("can't remove from top group");
+      int TPB = 480;
+      NoteGroup prev, current = this.parent;
+      while (!current.getSubgroups().isEmpty()) {
+        prev = current;
+        for (NoteGroup ng : current.getSubgroups())
+          if (ng.getAllNotes().contains(n)) {
+            current = ng;
+            break;
+          }
+        NoteGroup imp = createGroup();
+        imp.setImplicit(true);
+        for (Note note : current.getAllNotes())
+          if (note.onset(TPB) >= n.onset(TPB)
+              && note.offset(TPB) <= n.offset(TPB)) {
+            current.getNotes().remove(n);
+            current.getAllNotes().remove(n);
+            imp.addNote(note);
+          }
+        ((NoteGroupType1) prev).subGroups.add(imp);
+      }
     }
 
     void removeNoteWithoutForce(Note n) {
@@ -493,7 +522,14 @@ public class MusicApexDataSet {
     }
 
     public void removeSubgroup(NoteGroup g) {
-      // 孤立したノートを仮グループで囲う
+      if (!subGroups.contains(g))
+        throw new IllegalArgumentException("argument is not sub group");
+      subGroups.remove(g);
+      if (!subGroups.isEmpty()) {
+        NoteGroup ng = createGroup(g.getAllNotes());
+        ng.setImplicit(true);
+        subGroups.add(ng);
+      }
     }
 
     boolean isContinuation(List<Note> notes) {
