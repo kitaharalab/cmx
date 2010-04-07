@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.filewrappers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -412,11 +413,11 @@ public class MusicApexDataSet {
         return;
       }
       underNotes.add(n);
-      if (!isContinuation(underNotes)) {
-        underNotes.remove(n);
-        throw new IllegalArgumentException(
-            "can't keep continuous note sequence");
-      }
+      // if (!isContinuation(underNotes)) {
+      // underNotes.remove(n);
+      // throw new IllegalArgumentException(
+      // "can't keep continuous note sequence");
+      // }
       NoteGroup brother = null;
       for (NoteGroup ng : parent.subGroups)
         if (ng != this && ng.getAllNotes().contains(n)) {
@@ -424,7 +425,7 @@ public class MusicApexDataSet {
           brother = ng;
           break;
         }
-      if (brother.getAllNotes().isEmpty())
+      if (brother != null && brother.getAllNotes().isEmpty())
         parent.subGroups.remove(brother);
       if (subGroups.isEmpty())
         ownNotes.add(n);
@@ -444,6 +445,10 @@ public class MusicApexDataSet {
       if (!isContinuation(g.getAllNotes()))
         throw new IllegalArgumentException(
             "argument group is not continuous note sequence");
+      addSubgroupForce(g, ownNotes);
+    }
+
+    private void addSubgroupForce(NoteGroup g, List<Note> notes) {
       int TPB = 480;
       int leastOnset = Integer.MAX_VALUE;
       int biggestOffset = 0;
@@ -453,20 +458,26 @@ public class MusicApexDataSet {
       }
       LinkedList<Note> forwardGroup = new LinkedList<Note>();
       LinkedList<Note> backwardGroup = new LinkedList<Note>();
-      for (Note n : ownNotes)
+      for (Note n : notes)
         if (n.onset(TPB) < leastOnset)
           forwardGroup.add(n);
         else if (n.offset(TPB) > biggestOffset)
           backwardGroup.add(n);
       if (!forwardGroup.isEmpty()) {
-        NoteGroup ng = createGroup(forwardGroup);
+        NoteGroupType1 ng = (NoteGroupType1) createGroup(forwardGroup);
         ng.setImplicit(true);
+        ng.parent = this;
+        ng.depth = this.depth + 1;
         subGroups.add(ng);
       }
       subGroups.add(g);
+      ((NoteGroupType1) g).parent = this;
+      ((NoteGroupType1) g).depth = this.depth + 1;
       if (!backwardGroup.isEmpty()) {
-        NoteGroup ng = createGroup(backwardGroup);
+        NoteGroupType1 ng = (NoteGroupType1) createGroup(backwardGroup);
         ng.setImplicit(true);
+        ng.parent = this;
+        ng.depth = this.depth + 1;
         subGroups.add(ng);
       }
     }
@@ -474,16 +485,16 @@ public class MusicApexDataSet {
     public NoteGroup makeSubgroup(List<Note> notes) {
       if (!subGroups.isEmpty())
         throw new IllegalStateException("group already has sub group");
-      if (isContinuation(notes))
+      if (!isContinuation(notes))
         throw new IllegalArgumentException(
             "argument group is not continuous note sequence");
-      NoteGroup ng = createGroup(notes);
+      for (Note n : notes)
+        if (!underNotes.contains(n))
+          throw new IllegalArgumentException("group has not contain note " + n);
+      NoteGroupType1 ng = (NoteGroupType1) createGroup(notes);
       if (isImplicit()) {
-        for (Note n : notes) {
-          ownNotes.remove(n);
-          underNotes.remove(n);
-        }
-        subGroups.add(ng);
+        parent.subGroups.remove(this);
+        ((NoteGroupType1) parent).addSubgroupForce(ng, getAllNotes());
       } else
         addSubgroup(ng);
       return ng;
@@ -524,12 +535,93 @@ public class MusicApexDataSet {
     public void removeSubgroup(NoteGroup g) {
       if (!subGroups.contains(g))
         throw new IllegalArgumentException("argument is not sub group");
-      subGroups.remove(g);
-      if (!subGroups.isEmpty()) {
-        NoteGroup ng = createGroup(g.getAllNotes());
-        ng.setImplicit(true);
-        subGroups.add(ng);
+      if (g.getSubgroups().isEmpty()) {
+        List<NoteGroup> brother = subGroups;
+        if (brother.size() == 1) {
+          subGroups.remove(g);
+          return;
+        }
+        boolean allImp = true;
+        for (NoteGroup ng : brother) {
+          if (ng == g)
+            continue;
+          allImp &= ng.isImplicit();
+        }
+        if (allImp) {
+          for (NoteGroup ng : new ArrayList<NoteGroup>(brother))
+            subGroups.remove(ng);
+          return;
+        }
+        Collections.sort(brother, new Comparator<NoteGroup>() {
+          int noteGroupOnset(NoteGroup ng) {
+            int TPB = 480;
+            int onset = Integer.MAX_VALUE;
+            for (Note n : ng.getAllNotes())
+              onset = Math.min(onset, n.onset(TPB));
+            return onset;
+          }
+
+          public int compare(NoteGroup o1, NoteGroup o2) {
+            return noteGroupOnset(o1) - noteGroupOnset(o2);
+          }
+        });
+        int selectedGroupIndex;
+        for (selectedGroupIndex = 0; selectedGroupIndex < brother.size(); selectedGroupIndex++)
+          if (brother.get(selectedGroupIndex) == g)
+            break;
+        if (selectedGroupIndex == 0) {
+          NoteGroup next = brother.get(selectedGroupIndex + 1);
+          if (next.isImplicit()) {
+            subGroups.remove(g);
+            for (Note n : g.getAllNotes()) {
+              ((NoteGroupType1) next).ownNotes.add(n);
+              ((NoteGroupType1) next).underNotes.add(n);
+            }
+          } else
+            g.setImplicit(true);
+        } else if (selectedGroupIndex == brother.size() - 1) {
+          NoteGroup prev = brother.get(selectedGroupIndex - 1);
+          if (prev.isImplicit()) {
+            subGroups.remove(g);
+            for (Note n : g.getAllNotes()) {
+              ((NoteGroupType1) prev).ownNotes.add(n);
+              ((NoteGroupType1) prev).underNotes.add(n);
+            }
+          } else
+            g.setImplicit(true);
+        } else {
+          NoteGroup prev = brother.get(selectedGroupIndex - 1);
+          NoteGroup next = brother.get(selectedGroupIndex + 1);
+          if (!prev.isImplicit() && !next.isImplicit())
+            g.setImplicit(true);
+          else if (prev.isImplicit() && next.isImplicit()) {
+            subGroups.remove(g);
+            subGroups.remove(next);
+            for (Note n : g.getAllNotes())
+              prev.addNote(n);
+            for (Note n : next.getAllNotes())
+              prev.addNote(n);
+          } else {
+            subGroups.remove(g);
+            NoteGroup dst = prev.isImplicit() ? prev : next;
+            for (Note n : g.getAllNotes())
+              dst.addNote(n);
+          }
+        }
+      } else {
+        decrementDepth(g);
+        subGroups.remove(g);
+        for (NoteGroup ng : g.getSubgroups()) {
+          ((NoteGroupType1) ng).parent = this;
+          subGroups.add(ng);
+        }
       }
+    }
+
+    void decrementDepth(NoteGroup ng) {
+      ((NoteGroupType1) ng).depth--;
+      for (NoteGroup g : ng.getSubgroups())
+        decrementDepth(g);
     }
 
     boolean isContinuation(List<Note> notes) {
