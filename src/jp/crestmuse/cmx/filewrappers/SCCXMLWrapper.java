@@ -192,7 +192,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       super(onset, offset, notenum, velocity, offVelocity, ticksPerBeat);
       this.note = note;
       this.graceNum = graceNum;
-      if (note.grace())
+      if (note != null && note.grace())
         attr.put("grace", String.valueOf(graceNum));
     }
 
@@ -868,6 +868,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
   }
 
   public class Part extends NodeInterface {
+
     private Note[] notelist = null;
     private List<Note> noteonlylist = null;
     private String xpath;
@@ -939,11 +940,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       Note[] l = (Note[]) (getNoteOnlyList().clone());
       Arrays.sort(l, new Comparator<Note>() {
         public int compare(Note n1, Note n2) {
-          return n1.onset() == n2.onset() ? (n1.offset() == n2.offset() ? (n1.notenum() == n2.notenum() ? n1.velocity()
-              - n2.velocity()
-              : n1.notenum() - n2.notenum())
-              : n1.offset() - n2.offset())
-              : n1.onset() - n2.onset();
+          if (n1.onset() == n2.onset()) {
+            if (n1.getGrace() != 0 && n2.getGrace() != 0)
+              return n1.getGrace() - n2.getGrace();
+            else if (n1.getGrace() != 0 && n2.getGrace() == 0)
+              return -1;
+            else if (n1.getGrace() == 0 && n2.getGrace() != 0)
+              return 1;
+            return n1.offset() == n2.offset() ? (n1.notenum() == n2.notenum() ? n1.velocity()
+                - n2.velocity()
+                : n1.notenum() - n2.notenum())
+                : n1.offset() - n2.offset();
+          }
+          return n1.onset() - n2.onset();
         }
       });
       return l;
@@ -1044,6 +1053,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
   }
 
   public class Note extends NodeInterface implements NoteCompatible {
+
     private Part part;
     private int onset, offset, notenum, velocity, offVelocity;
     private int onsetInMSec, offsetInMSec;
@@ -1160,6 +1170,15 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
 
     public String getXPathExpression() {
       return xpath;
+    }
+
+    /**
+     * 装飾音符でないとき0を返します．
+     */
+    public int getGrace() {
+      if (!hasAttribute("grace"))
+        return 0;
+      return getAttributeInt("grace");
     }
 
   }

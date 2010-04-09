@@ -607,7 +607,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             velocity = (int) (baseVelocity * baseDynamics * note.dynamics);
             offVelocity = (int) (baseVelocity * baseDynamics * note.offDynamics);
           }
-          if (note.note.grace())
+          if (note.note != null && note.note.grace())
             dest.addNoteElement(note.onset(), note.offset(), note.notenum(),
                 velocity, offVelocity, note.note, note.graceNum);
           else

@@ -110,13 +110,14 @@ public class PerformanceMatcher3 {
   public DeviationInstanceWrapper extractDeviation(int[] indexlist) {
     List<Note> extraNotes = new ArrayList<Note>();
     score2pfm = getPath(indexlist, extraNotes);
-    int[] score2pfm_2 = (int[])score2pfm.clone();
+    int[] score2pfm_2 = (int[]) score2pfm.clone();
     DeviationInstanceWrapper d = path2dev(extraNotes);
     for (int i = 0; i < score2pfm.length; i++)
       if (score2pfm[i] != score2pfm_2[i])
-	System.err.println("NOT SAME: " + i + "  " + score2pfm[i] + " " + score2pfm_2[i]);
+        System.err.println("NOT SAME: " + i + "  " + score2pfm[i] + " "
+            + score2pfm_2[i]);
     return d;
-//    return path2dev(extraNotes);
+    // return path2dev(extraNotes);
   }
 
   private int[] getPath(DTWMatrix matrix, List<Note> extraNotes) {
@@ -205,7 +206,7 @@ public class PerformanceMatcher3 {
 
   private DeviationInstanceWrapper path2dev(List<Note> extraNotes) {
     DeviationDataSet dds = new DeviationDataSet(musicxml);
-//    sortIndexList();
+    // sortIndexList();
     ArrayList<TempoAndTime> tempolist = alignBeats();
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
@@ -258,7 +259,7 @@ public class PerformanceMatcher3 {
   public Map<MusicXMLWrapper.Note, Integer> getMusicxmlwrappernote2Index() {
     return musicxmlwrappernote2index;
   }
-  
+
   public Map<SCCXMLWrapper.Note, Integer> getExtraNoteMap() {
     return extraNoteMap;
   }
@@ -369,7 +370,8 @@ public class PerformanceMatcher3 {
     nist.addNote(prev, 0);
     compressedScore.add(nist);
     for (int i = 1; i < scoreNotes.length; i++) {
-      if (scoreNotes[i].onset() != prev.onset()) {
+      if (scoreNotes[i].onset() != prev.onset()
+          || scoreNotes[i].getGrace() == 0) {
         nist = new NoteInSameTime();
         compressedScore.add(nist);
       }
@@ -558,13 +560,13 @@ public class PerformanceMatcher3 {
       if (j >= 0) {
         addNoteDeviation(dds, scoreNotes[i], pfmNotes[j], tempolist);
       } else if (score2pfm[i] < -1) {
-//        if (extraNotes.get(-j - 2) != null) {
-//          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
-//              tempolist);
-//          extraNotes.set(-j - 2, null);
-//        } else {
-//          addMissNote(dds, scoreNotes[i]);
-//        }
+        // if (extraNotes.get(-j - 2) != null) {
+        // addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
+        // tempolist);
+        // extraNotes.set(-j - 2, null);
+        // } else {
+        // addMissNote(dds, scoreNotes[i]);
+        // }
       } else {
         addMissNote(dds, scoreNotes[i]);
       }
@@ -582,11 +584,10 @@ public class PerformanceMatcher3 {
       Note scoreNote = scoreNotes[i];
       double scoreOnset = getSecFromScoreTick(scoreNote.onset(), tempolist);
       int scoreNN = scoreNote.notenum();
-    extraNoteLoop: 
-      for (int j = 0; j < extraNotes.size(); j++) {
+      extraNoteLoop: for (int j = 0; j < extraNotes.size(); j++) {
         Note pfmNote = extraNotes.get(j);
-	if (pfmNote == null)
-	  continue;
+        if (pfmNote == null)
+          continue;
         int pfmNN = pfmNote.notenum();
         if (scoreNN != pfmNN)
           continue;
@@ -594,13 +595,13 @@ public class PerformanceMatcher3 {
         if (scoreOnset - pfmOnset < MISS_EXTRA_ONSET_DIFF
             && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
           // TODO ?
-//           score2pfm[i] = -j - 2;
-//	   System.err.print(i + ":" + j + " ");
+          // score2pfm[i] = -j - 2;
+          // System.err.print(i + ":" + j + " ");
           for (int k = 0; k < pfmNotes.length; k++)
             if (pfmNotes[k] == pfmNote) {
               score2pfm[i] = k;
-	      extraNotes.set(j, null);
-//	      System.err.print(i + ":" + j + " ");
+              extraNotes.set(j, null);
+              // System.err.print(i + ":" + j + " ");
               break extraNoteLoop;
             }
         }
@@ -958,11 +959,11 @@ public class PerformanceMatcher3 {
       } else {
         int interval = tnt.tickInScore - prevtnt.tickInScore;
         double pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
-	// zantei
-	if (pfmInterval < 0.0000000001) {
-	  tnt.setTimeInSec(tnt.timeInSec + 0.01);
-	  pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
-	}
+        // zantei
+        if (pfmInterval < 0.0000000001) {
+          tnt.setTimeInSec(tnt.timeInSec + 0.01);
+          pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
+        }
         prevtnt.tempo = (double) (interval * 60 / scoreTicksPerBeat)
             / pfmInterval;
         // prevtnt.tempo = (60.0 / (tnt.timeInSec - prevtnt.timeInSec));
