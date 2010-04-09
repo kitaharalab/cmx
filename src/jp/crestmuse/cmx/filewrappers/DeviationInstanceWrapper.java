@@ -35,9 +35,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private MusicXMLWrapper targetMusicXML = null;
   private String targetMusicXMLFileName = null;
-//  private String targetMusicXMLDirName = null;
-//  private static List<String> dirCondidates = new ArrayList<String>();
-//  private static String defaultDirName = ".";
+  // private String targetMusicXMLDirName = null;
+  // private static List<String> dirCondidates = new ArrayList<String>();
+  // private static String defaultDirName = ".";
   private TimewiseControlView tctrlview = null;
   private HashMap<String, TimewiseControlView> pctrlviews = new HashMap<String, TimewiseControlView>();
   private HashMap<String, TreeView<ExtraNote>> extraNotes = new HashMap<String, TreeView<ExtraNote>>();
@@ -75,34 +75,23 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     if (targetMusicXML == null) {
       if (getParentPath() != null)
         addPathFirst(getParentPath());
-      targetMusicXML = (MusicXMLWrapper)readfile(getTargetMusicXMLFileName());
+      targetMusicXML = (MusicXMLWrapper) readfile(getTargetMusicXMLFileName());
     }
     return targetMusicXML;
   }
 
-/*
-  public MusicXMLWrapper getTargetMusicXML() throws IOException {
-    if (targetMusicXML == null) {
-      try {
-        targetMusicXML = (MusicXMLWrapper) readfile(targetMusicXMLDirName
-            + File.separator + getTargetMusicXMLFileName());
-      } catch (FileNotFoundException e) {
-        for (String dir : dirCondidates) {
-          try {
-            targetMusicXML = (MusicXMLWrapper) readfile(
-              dir + File.separator + getTargetMusicXMLFileName());
-            targetMusicXMLDirName = dir;
-            break;
-          } catch (FileNotFoundException e) {
-            continue;
-          }
-//        targetMusicXML = (MusicXMLWrapper) readfile(defaultDirName
-//            + File.separator + getTargetMusicXMLFileName());
-      }
-    }
-    return targetMusicXML;
-  }
-*/
+  /*
+   * public MusicXMLWrapper getTargetMusicXML() throws IOException { if
+   * (targetMusicXML == null) { try { targetMusicXML = (MusicXMLWrapper)
+   * readfile(targetMusicXMLDirName + File.separator +
+   * getTargetMusicXMLFileName()); } catch (FileNotFoundException e) { for
+   * (String dir : dirCondidates) { try { targetMusicXML = (MusicXMLWrapper)
+   * readfile( dir + File.separator + getTargetMusicXMLFileName());
+   * targetMusicXMLDirName = dir; break; } catch (FileNotFoundException e) {
+   * continue; } // targetMusicXML = (MusicXMLWrapper) readfile(defaultDirName
+   * // + File.separator + getTargetMusicXMLFileName()); } } return
+   * targetMusicXML; }
+   */
 
   /*****************************************************************************
    * Reads the file name of the target MusicXML document. <br>
@@ -118,27 +107,22 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return targetMusicXMLFileName;
   }
 
-/*
-  public String getTargetMusicXMLFileName() {
-    if (targetMusicXMLFileName == null)
-      targetMusicXMLFileName = getTopTagAttribute("target");
-    // targetMusicXMLFileName =
-    // getDocument().getDocumentElement().getAttribute("target");
-    if (targetMusicXMLFileName.contains("/")) {
-      int i = targetMusicXMLFileName.lastIndexOf("/");
-      targetMusicXMLDirName = targetMusicXMLFileName.substring(0, i);
-      targetMusicXMLFileName = targetMusicXMLFileName.substring(i + 1);
-    }
-    if (targetMusicXMLFileName.contains("\\")) {
-      int i = targetMusicXMLFileName.lastIndexOf("\\");
-      targetMusicXMLDirName = targetMusicXMLFileName.substring(0, i);
-      targetMusicXMLFileName = targetMusicXMLFileName.substring(i + 1);
-    }
-    return targetMusicXMLFileName;
-  }
-*/
+  /*
+   * public String getTargetMusicXMLFileName() { if (targetMusicXMLFileName ==
+   * null) targetMusicXMLFileName = getTopTagAttribute("target"); //
+   * targetMusicXMLFileName = //
+   * getDocument().getDocumentElement().getAttribute("target"); if
+   * (targetMusicXMLFileName.contains("/")) { int i =
+   * targetMusicXMLFileName.lastIndexOf("/"); targetMusicXMLDirName =
+   * targetMusicXMLFileName.substring(0, i); targetMusicXMLFileName =
+   * targetMusicXMLFileName.substring(i + 1); } if
+   * (targetMusicXMLFileName.contains("\\")) { int i =
+   * targetMusicXMLFileName.lastIndexOf("\\"); targetMusicXMLDirName =
+   * targetMusicXMLFileName.substring(0, i); targetMusicXMLFileName =
+   * targetMusicXMLFileName.substring(i + 1); } return targetMusicXMLFileName; }
+   */
 
-    /** @deprecated */
+  /** @deprecated */
   public void setTargetMusicXMLFileName(String filename) {
     File f = new File(filename);
     if (f.getParent() != null)
@@ -148,33 +132,29 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       setTopTagAttribute("target", targetMusicXMLFileName);
   }
 
-/*
-  public void setTargetMusicXMLFileName(String filename) {
-    if (targetMusicXMLFileName == null)
-      targetMusicXMLFileName = filename;
-    if (targetMusicXMLFileName.contains("/")) {
-      int i = targetMusicXMLFileName.lastIndexOf("/");
-      targetMusicXMLDirName = targetMusicXMLFileName.substring(0, i);
-      targetMusicXMLFileName = targetMusicXMLFileName.substring(i + 1);
-    }
-    if (targetMusicXMLFileName.contains("\\")) {
-      int i = targetMusicXMLFileName.lastIndexOf("\\");
-      targetMusicXMLDirName = targetMusicXMLFileName.substring(0, i);
-      targetMusicXMLFileName = targetMusicXMLFileName.substring(i + 1);
-    }
-
-    if (targetMusicXMLFileName != null && !isFinalized())
-      setTopTagAttribute("target", targetMusicXMLFileName);
-    // getDocument().getDocumentElement().setAttribute("target",
-    // targetMusicXMLFileName);
-  }
-*/
+  /*
+   * public void setTargetMusicXMLFileName(String filename) { if
+   * (targetMusicXMLFileName == null) targetMusicXMLFileName = filename; if
+   * (targetMusicXMLFileName.contains("/")) { int i =
+   * targetMusicXMLFileName.lastIndexOf("/"); targetMusicXMLDirName =
+   * targetMusicXMLFileName.substring(0, i); targetMusicXMLFileName =
+   * targetMusicXMLFileName.substring(i + 1); } if
+   * (targetMusicXMLFileName.contains("\\")) { int i =
+   * targetMusicXMLFileName.lastIndexOf("\\"); targetMusicXMLDirName =
+   * targetMusicXMLFileName.substring(0, i); targetMusicXMLFileName =
+   * targetMusicXMLFileName.substring(i + 1); }
+   * 
+   * if (targetMusicXMLFileName != null && !isFinalized())
+   * setTopTagAttribute("target", targetMusicXMLFileName); //
+   * getDocument().getDocumentElement().setAttribute("target", //
+   * targetMusicXMLFileName); }
+   */
 
   /** @deprecated */
   public static void changeDefaultMusicXMLDirName(String dirname) {
-    //tentative
+    // tentative
     addPathFirst(dirname);
-//    defaultDirName = dirname;
+    // defaultDirName = dirname;
   }
 
   // public void setTargetMusicXMLDirName(String dirname) {
@@ -224,7 +204,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       return Double.parseDouble(initSil);
   }
 
-    /** @deprecated */
+  /** @deprecated */
   public static DeviationInstanceWrapper createDeviationInstanceFor(
       MusicXMLWrapper musicxml) {
     try {
@@ -275,8 +255,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     if (chordDevMap.containsKey(note)) {
       return chordDevMap.get(note);
     } else {
-      Node linkednode = linkmanager.getNodeLinkedTo(note.topNoteOfChord()
-          .node(), "chord-deviation");
+      Node linkednode = linkmanager.getNodeLinkedTo(
+          note.topNoteOfChord().node(), "chord-deviation");
       if (linkednode != null) {
         ChordDeviation cd = new ChordDeviation(linkednode);
         chordDevMap.put(note, cd);
@@ -413,13 +393,14 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         int time = c.timestamp(ticksPerBeat);
         double value = currentTempo * c.value();
         String curve = null;
-        if(c.containsAttributeInChild("curve"))
+        if (c.containsAttributeInChild("curve"))
           curve = c.getChildAttribute("curve");
-        if(curve != null && curve.equals("linear")){
+        if (curve != null && curve.equals("linear")) {
           int timeDiv = ticksPerBeat / linearDivision;
           double tempoDiv = (value - lastTempo) / linearDivision;
-          for(int i = linearDivision - 1; i >= 1; i--)
-            dest.addHeaderElement(time - timeDiv * i, "TEMPO", value - tempoDiv * i);
+          for (int i = linearDivision - 1; i >= 1; i--)
+            dest.addHeaderElement(time - timeDiv * i, "TEMPO", value - tempoDiv
+                * i);
         }
         dest.addHeaderElement(time, "TEMPO", value);
         lastTempo = currentTempo * c.value();
@@ -545,12 +526,15 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private void processNotewiseForSCC(final int ticksPerBeat,
       final Map<String, NoteListForSCC> partwiseNoteList) throws IOException {
     getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise() {
+
       private int currentPart = 0;
       private NoteListForSCC notelist;
+      private int graceNum = 0;
 
       public void beginPart(MusicXMLWrapper.Part part, MusicXMLWrapper w) {
         currentPart++;
         notelist = new NoteListForSCC(currentPart, currentPart);
+        graceNum = 0;
       }
 
       public void endPart(MusicXMLWrapper.Part part, MusicXMLWrapper w) {
@@ -571,26 +555,25 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           if (cd == null)
             cd = getDefaultNoteDeviation();
           NoteDeviationInterface nd = getNoteDeviation(note);
-
           if (nd == null)
             nd = getDefaultNoteDeviation();
           int attack = (int) (ticksPerBeat * (cd.attack() + nd.attack()));
           int release = (int) (ticksPerBeat * (cd.release() + nd.release()));
           int dynamics = (int) (baseVelocity * cd.dynamics() * nd.dynamics());
-          int endDynamics = (int) (baseVelocity * cd.endDynamics() * nd
-              .endDynamics());
+          int endDynamics = (int) (baseVelocity * cd.endDynamics() * nd.endDynamics());
           if (!note.rest() && getMissNote(note) == null
               && !"none".equals(note.notehead())
               && !note.containsTieType("stop")) {
-            int onset = initticks
-            // + note.measure().cumulativeTicks(ticksPerBeat)
-                + note.onset(ticksPerBeat);
+            int onset = initticks + note.onset(ticksPerBeat);
             int offset = initticks + note.offset(ticksPerBeat);
-            // int offset = note.actualDuration(ticksPerBeat) + onset;
-            notelist.list.add(new MyNote(onset + attack, offset + release, note
-                .notenum(), dynamics, endDynamics, cd.dynamics()
-                * nd.dynamics(), cd.endDynamics() * nd.endDynamics(), nd
-                .dynamicsType(), ticksPerBeat, note));
+            if (note.grace())
+              graceNum++;
+            else
+              graceNum = 0;
+            notelist.list.add(new MyNote(onset + attack, offset + release,
+                note.notenum(), dynamics, endDynamics, cd.dynamics()
+                    * nd.dynamics(), cd.endDynamics() * nd.endDynamics(),
+                nd.dynamicsType(), ticksPerBeat, note, graceNum));
           }
         }
       }
@@ -624,12 +607,16 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             velocity = (int) (baseVelocity * baseDynamics * note.dynamics);
             offVelocity = (int) (baseVelocity * baseDynamics * note.offDynamics);
           }
-          dest.addNoteElement(note.onset(), note.offset(), note.notenum(),
-              velocity, offVelocity, note.note);
+          if (note.note.grace())
+            dest.addNoteElement(note.onset(), note.offset(), note.notenum(),
+                velocity, offVelocity, note.note, note.graceNum);
+          else
+            dest.addNoteElement(note.onset(), note.offset(), note.notenum(),
+                velocity, offVelocity, note.note);
         } else if (e instanceof MutableControlChange) {
           dest.addControlChange(e.onset(), e.offset(),
-              ((MutableControlChange) e).ctrlnum(), ((MutableControlChange) e)
-                  .value());
+              ((MutableControlChange) e).ctrlnum(),
+              ((MutableControlChange) e).value());
         } else if (e instanceof BaseDynamicsEvent) {
           baseDynamics = ((BaseDynamicsEvent) e).getValue();
         }
@@ -640,14 +627,13 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   private void addBarlinesToSCC(SCCXMLWrapper dest, MusicXMLWrapper musicxml,
       int ticksPerBeat) {
-    MusicXMLWrapper.Measure[] measurelist = musicxml.getPartList()[0]
-        .getMeasureList();
+    MusicXMLWrapper.Measure[] measurelist = musicxml.getPartList()[0].getMeasureList();
     dest.beginAnnotations();
     for (MusicXMLWrapper.Measure measure : measurelist)
       dest.addBarline(measure.cumulativeTicks(ticksPerBeat), "");
-    MusicXMLWrapper.Measure lastm = measurelist[measurelist.length-1];
-    dest.addBarline(lastm.cumulativeTicks(ticksPerBeat) 
-                    + lastm.duration(ticksPerBeat), "");
+    MusicXMLWrapper.Measure lastm = measurelist[measurelist.length - 1];
+    dest.addBarline(lastm.cumulativeTicks(ticksPerBeat)
+        + lastm.duration(ticksPerBeat), "");
     dest.endAnnotations();
   }
 
@@ -674,8 +660,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   public SCCXMLWrapper toSCCXML(int ticksPerBeat) throws TransformerException,
       IOException, ParserConfigurationException, SAXException {
-    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper
-        .createDocument(SCCXMLWrapper.TOP_TAG);
+    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
     toSCCXML(dest, ticksPerBeat);
     return dest;
   }
@@ -691,9 +676,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     try {
       int ticksPerBeat = 480;
       SCCXMLWrapper scc = toSCCXML(ticksPerBeat);
-      TimeFreqRepresentation tfr = TimeFreqRepresentation
-          .getTimeFreqRepresentation(scc, ticksPerBeat, divisionPerMeasure,
-              getTargetMusicXML());
+      TimeFreqRepresentation tfr = TimeFreqRepresentation.getTimeFreqRepresentation(
+          scc, ticksPerBeat, divisionPerMeasure, getTargetMusicXML());
       double[] tempos = new double[tfr.length()];
       HeaderElement[] headers = scc.getHeaderElementList();
       for (int i = 0; i < headers.length; i++) {
@@ -727,8 +711,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
               velocity += Math.exp(b);
           for (NoteCompatible n : tfr.get(j).data()) {
             try {
-              NoteDeviation nd = getNoteDeviation(((Note) n)
-                  .getMusicXMLWrapperNote());
+              NoteDeviation nd = getNoteDeviation(((Note) n).getMusicXMLWrapperNote());
               dynamicsAve += nd.dynamics();
               attackAve += nd.attack();
               releaseAve += nd.release();
@@ -768,101 +751,102 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     return result;
   }
 
-    /** Note: Attributes have not been supported. */
-    public DeviationDataSet toDeviationDataSet() throws IOException {
-	//	if (tctrlview == null) analyze();
-	MusicXMLWrapper musicxml = getTargetMusicXML();
-	final DeviationDataSet dds = new DeviationDataSet(musicxml);
-	dds.setInitialSilence(getInitialSilence());
-	if (tctrlview != null) {
-	    addNonPartwise(tctrlview.getRoot(), dds);
-	    while (tctrlview.hasMoreElementsAtSameTime()) 
-		addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
-	    while (tctrlview.hasElementsAtNextTime()) {
-		addNonPartwise(tctrlview.getFirstElementAtNextTime(), dds);
-		while (tctrlview.hasMoreElementsAtSameTime())
-		    addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
-	    }
-	}
-	for (Map.Entry<String,TimewiseControlView> e : pctrlviews.entrySet()) {
-	    String part = e.getKey();
-	    TimewiseControlView cv = e.getValue();
-	    addPartwise(cv.getRoot(), part, dds);
-	    while (cv.hasMoreElementsAtSameTime())
-		addPartwise(cv.getNextElementAtSameTime(), part, dds);
-	    while (cv.hasElementsAtNextTime()) {
-		addPartwise(cv.getFirstElementAtNextTime(), part, dds);
-		while (cv.hasMoreElementsAtSameTime())
-		    addPartwise(cv.getNextElementAtSameTime(), part, dds);
-	    }
-	}
-	musicxml.processNotePartwise(new NoteHandlerAdapterPartwise() {
-		public void processMusicData(MusicXMLWrapper.MusicData md, 
-					     MusicXMLWrapper mx) {
-		    if (md instanceof MusicXMLWrapper.Note) {
-			MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
-			addNoteDeviation(note, getNoteDeviation(note), dds);
-			addChordDeviation(note, getChordDeviation(note), dds);
-			addMissNote(note, getMissNote(note), dds);
-		    }
-		}
-	    });
-	//	for (Map.Entry<MusicXMLWrapper.Note,NoteDeviation> e : noteDevMap.entrySet()) 
-	//	    addNoteDeviation(e.getKey(), e.getValue(), dds);
-	//	for (Map.Entry<MusicXMLWrapper.Note,ChordDeviation> e : chordDevMap.entrySet())
-	//	    addChordDeviation(e.getKey(), e.getValue(), dds);
-	//	for (Map.Entry<MusicXMLWrapper.Note,MissNote> e : missNoteMap.entrySet()) 
-	//	    addMissNote(e.getKey(), e.getValue(), dds);
-	for (Map.Entry<String,TreeView<ExtraNote>> e : extraNotes.entrySet()) {
-	    String part = e.getKey();
-	    TreeView<ExtraNote> cv = e.getValue();
-	    addExtraNote(cv.getRoot(), part, dds);
-	    while (cv.hasMoreElementsAtSameTime())
-		addExtraNote(cv.getNextElementAtSameTime(), part, dds);
-	    while (cv.hasElementsAtNextTime()) {
-		addExtraNote(cv.getFirstElementAtNextTime(), part, dds);
-		while (cv.hasMoreElementsAtSameTime())
-		    addExtraNote(cv.getNextElementAtSameTime(), part, dds);
-	    }
-	}
-	return dds;
+  /** Note: Attributes have not been supported. */
+  public DeviationDataSet toDeviationDataSet() throws IOException {
+    // if (tctrlview == null) analyze();
+    MusicXMLWrapper musicxml = getTargetMusicXML();
+    final DeviationDataSet dds = new DeviationDataSet(musicxml);
+    dds.setInitialSilence(getInitialSilence());
+    if (tctrlview != null) {
+      addNonPartwise(tctrlview.getRoot(), dds);
+      while (tctrlview.hasMoreElementsAtSameTime())
+        addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
+      while (tctrlview.hasElementsAtNextTime()) {
+        addNonPartwise(tctrlview.getFirstElementAtNextTime(), dds);
+        while (tctrlview.hasMoreElementsAtSameTime())
+          addNonPartwise(tctrlview.getNextElementAtSameTime(), dds);
+      }
     }
-	   
-    private void addNonPartwise(Control c, DeviationDataSet dds) {
-	dds.addNonPartwiseControl(c.measure(), c.beat(), c.type(), c.value());
+    for (Map.Entry<String, TimewiseControlView> e : pctrlviews.entrySet()) {
+      String part = e.getKey();
+      TimewiseControlView cv = e.getValue();
+      addPartwise(cv.getRoot(), part, dds);
+      while (cv.hasMoreElementsAtSameTime())
+        addPartwise(cv.getNextElementAtSameTime(), part, dds);
+      while (cv.hasElementsAtNextTime()) {
+        addPartwise(cv.getFirstElementAtNextTime(), part, dds);
+        while (cv.hasMoreElementsAtSameTime())
+          addPartwise(cv.getNextElementAtSameTime(), part, dds);
+      }
     }
+    musicxml.processNotePartwise(new NoteHandlerAdapterPartwise() {
+      public void processMusicData(MusicXMLWrapper.MusicData md,
+          MusicXMLWrapper mx) {
+        if (md instanceof MusicXMLWrapper.Note) {
+          MusicXMLWrapper.Note note = (MusicXMLWrapper.Note) md;
+          addNoteDeviation(note, getNoteDeviation(note), dds);
+          addChordDeviation(note, getChordDeviation(note), dds);
+          addMissNote(note, getMissNote(note), dds);
+        }
+      }
+    });
+    // for (Map.Entry<MusicXMLWrapper.Note,NoteDeviation> e :
+    // noteDevMap.entrySet())
+    // addNoteDeviation(e.getKey(), e.getValue(), dds);
+    // for (Map.Entry<MusicXMLWrapper.Note,ChordDeviation> e :
+    // chordDevMap.entrySet())
+    // addChordDeviation(e.getKey(), e.getValue(), dds);
+    // for (Map.Entry<MusicXMLWrapper.Note,MissNote> e : missNoteMap.entrySet())
+    // addMissNote(e.getKey(), e.getValue(), dds);
+    for (Map.Entry<String, TreeView<ExtraNote>> e : extraNotes.entrySet()) {
+      String part = e.getKey();
+      TreeView<ExtraNote> cv = e.getValue();
+      addExtraNote(cv.getRoot(), part, dds);
+      while (cv.hasMoreElementsAtSameTime())
+        addExtraNote(cv.getNextElementAtSameTime(), part, dds);
+      while (cv.hasElementsAtNextTime()) {
+        addExtraNote(cv.getFirstElementAtNextTime(), part, dds);
+        while (cv.hasMoreElementsAtSameTime())
+          addExtraNote(cv.getNextElementAtSameTime(), part, dds);
+      }
+    }
+    return dds;
+  }
 
-    private void addPartwise(Control c, String part, DeviationDataSet dds) {
-	dds.addPartwiseControl(part, c.measure(), c.beat(), c.type(), c.value());
-    }
-    
-    private void addNoteDeviation(MusicXMLWrapper.Note note, 
-				  NoteDeviation nd, DeviationDataSet dds) {
-	if (nd != null)
-	dds.addNoteDeviation(note, nd.attack(), nd.release(), nd.dynamics(), 
-			     nd.endDynamics());
-    }
+  private void addNonPartwise(Control c, DeviationDataSet dds) {
+    dds.addNonPartwiseControl(c.measure(), c.beat(), c.type(), c.value());
+  }
 
-    private void addChordDeviation(MusicXMLWrapper.Note note, 
-				   ChordDeviation nd, DeviationDataSet dds) {
-	if (nd != null)
-	dds.addChordDeviation(note, nd.attack(), nd.release(), nd.dynamics(), 
-			      nd.endDynamics());
-    }
+  private void addPartwise(Control c, String part, DeviationDataSet dds) {
+    dds.addPartwiseControl(part, c.measure(), c.beat(), c.type(), c.value());
+  }
 
-    private void addMissNote(MusicXMLWrapper.Note note, MissNote mn, 
-			     DeviationDataSet dds) {
-	if (mn != null)
-	dds.addMissNote(note);
-    }
-    
-    private void addExtraNote(ExtraNote en, String part, DeviationDataSet dds) {
-	dds.addExtraNote(part, en.measure(), en.beat(), en.pitchStep(), 
-			 en.pitchAlter(), en.pitchOctave(), en.duration(), 
-			 en.dynamics(), en.endDynamics());
-    }
-	    
-	       
+  private void addNoteDeviation(MusicXMLWrapper.Note note, NoteDeviation nd,
+      DeviationDataSet dds) {
+    if (nd != null)
+      dds.addNoteDeviation(note, nd.attack(), nd.release(), nd.dynamics(),
+          nd.endDynamics());
+  }
+
+  private void addChordDeviation(MusicXMLWrapper.Note note, ChordDeviation nd,
+      DeviationDataSet dds) {
+    if (nd != null)
+      dds.addChordDeviation(note, nd.attack(), nd.release(), nd.dynamics(),
+          nd.endDynamics());
+  }
+
+  private void addMissNote(MusicXMLWrapper.Note note, MissNote mn,
+      DeviationDataSet dds) {
+    if (mn != null)
+      dds.addMissNote(note);
+  }
+
+  private void addExtraNote(ExtraNote en, String part, DeviationDataSet dds) {
+    dds.addExtraNote(part, en.measure(), en.beat(), en.pitchStep(),
+        en.pitchAlter(), en.pitchOctave(), en.duration(), en.dynamics(),
+        en.endDynamics());
+  }
+
   private class NoteListForSCC {
     private int serial;
     private int ch;
@@ -888,20 +872,44 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   }
 
   private class MyNote extends MutableNote {
+
     private MusicXMLWrapper.Note note;
     private double dynamics;
     private double offDynamics;
     private String dynamicsType;
+    private int graceNum;
 
     private MyNote(int onset, int offset, int notenum, int velocity,
         int offVelocity, double dynamics, double offDynamics,
         String dynamicsType, int ticksPerBeat, MusicXMLWrapper.Note note) {
+      this(onset, offset, notenum, velocity, offVelocity, dynamics,
+          offDynamics, dynamicsType, ticksPerBeat, note, 0);
+    }
+
+    private MyNote(int onset, int offset, int notenum, int velocity,
+        int offVelocity, double dynamics, double offDynamics,
+        String dynamicsType, int ticksPerBeat, MusicXMLWrapper.Note note,
+        int graceNum) {
       super(onset, offset, notenum, velocity, offVelocity, ticksPerBeat);
       this.note = note;
       this.dynamics = dynamics;
       this.offDynamics = offDynamics;
       this.dynamicsType = dynamicsType;
+      this.graceNum = graceNum;
     }
+
+    public int compareTo(MutableMusicEvent another) {
+      if (another instanceof MyNote && onset() == ((MyNote) another).onset())
+        if (note != null && ((MyNote) another).note != null)
+          if (note.grace() && ((MyNote) another).note.grace())
+            return graceNum - ((MyNote) another).graceNum;
+          else if (note.grace() && !((MyNote) another).note.grace())
+            return -1;
+          else if (!note.grace() && ((MyNote) another).note.grace())
+            return 1;
+      return super.compareTo(another);
+    }
+
   }
 
   /*
