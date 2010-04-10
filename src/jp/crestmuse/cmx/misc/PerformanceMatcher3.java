@@ -138,7 +138,10 @@ public class PerformanceMatcher3 {
     boolean[] matched = new boolean[pfmNotes.length];
     for (i = 0; i < com2pfm.length; i++) {
       NoteInSameTime snotes = compressedScore.get(i);
+      System.err.println("S: " + snotes.toString());
+      System.err.println(snotes.notes.get(0).grace());
       NoteInSameTime pnotes = com2pfm[i];
+      System.err.println("P: " + pnotes.toString());
       for (j = 0; j < snotes.notes.size(); j++) {
         for (int k = 0; k < pnotes.notes.size(); k++) {
           int pfmIndex = pnotes.indexes.get(k);
@@ -365,6 +368,46 @@ public class PerformanceMatcher3 {
 
   private void initCompressedScore() {
     compressedScore = new ArrayList<NoteInSameTime>();
+    NoteBuffer nb = new NoteBuffer();
+    for (int i = 0; i < scoreNotes.length; i++) {
+      if (i >= 1 && scoreNotes[i].onset() != scoreNotes[i-1].onset()) {
+	addNotesToCompressedScore(nb, compressedScore);
+	nb = new NoteBuffer();
+      }
+      nb.addNote(scoreNotes[i], i);
+    }
+    addNotesToCompressedScore(nb, compressedScore);
+  }
+    
+  private class NoteBuffer {
+    Note[][] notes = new Note[64][128];
+    int[][] indices = new int[64][128];
+    int[] next = new int[64];
+    void addNote(Note note, int index) {
+      int grace = note.grace();
+      notes[grace][next[grace]] = note;
+      indices[grace][next[grace]] = index;
+      next[grace]++;
+    }
+  }
+
+  private void addNotesToCompressedScore(NoteBuffer nb, 
+					 List<NoteInSameTime> compressedScore){
+    for (int n = 1; nb.next[n] > 0; n++) {
+      NoteInSameTime nist = new NoteInSameTime();
+      for (int i = 0; i < nb.next[n]; i++)
+	nist.addNote(nb.notes[n][i], nb.indices[n][i]);
+      compressedScore.add(nist);
+    }
+    NoteInSameTime nist = new NoteInSameTime();
+    for (int i = 0; i < nb.next[0]; i++)
+      nist.addNote(nb.notes[0][i], nb.indices[0][i]);
+    compressedScore.add(nist);
+  }
+
+/*
+  private void initCompressedScore() {
+    compressedScore = new ArrayList<NoteInSameTime>();
     Note prev = scoreNotes[0];
     NoteInSameTime nist = new NoteInSameTime();
     nist.addNote(prev, 0);
@@ -379,6 +422,7 @@ public class PerformanceMatcher3 {
       prev = scoreNotes[i];
     }
   }
+*/
 
   private void sortIndexList() {
     for (int i = 0; i < score2pfm.length - 1; i++) {

@@ -941,11 +941,11 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       Arrays.sort(l, new Comparator<Note>() {
         public int compare(Note n1, Note n2) {
           if (n1.onset() == n2.onset()) {
-            if (n1.getGrace() != 0 && n2.getGrace() != 0)
-              return n1.getGrace() - n2.getGrace();
-            else if (n1.getGrace() != 0 && n2.getGrace() == 0)
+            if (n1.grace() != 0 && n2.grace() != 0)
+              return n1.grace() - n2.grace();
+            else if (n1.grace() != 0 && n2.grace() == 0)
               return -1;
-            else if (n1.getGrace() == 0 && n2.getGrace() != 0)
+            else if (n1.grace() == 0 && n2.grace() != 0)
               return 1;
             return n1.offset() == n2.offset() ? (n1.notenum() == n2.notenum() ? n1.velocity()
                 - n2.velocity()
@@ -1175,7 +1175,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
     /**
      * 装飾音符でないとき0を返します．
      */
-    public int getGrace() {
+    public int grace() {
       if (!hasAttribute("grace"))
         return 0;
       return getAttributeInt("grace");
