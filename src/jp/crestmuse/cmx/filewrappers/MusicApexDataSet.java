@@ -402,7 +402,7 @@ public class MusicApexDataSet {
 
   }
 
-  private class NoteGroupType1 extends AbstractGroup {
+  public class NoteGroupType1 extends AbstractGroup {
 
     public void addNote(Note n) {
       if (underNotes.contains(n))
@@ -525,7 +525,7 @@ public class MusicApexDataSet {
       }
     }
 
-    void removeNoteWithoutForce(Note n) {
+    private void removeNoteWithoutForce(Note n) {
       for (NoteGroup ng : subGroups)
         ((NoteGroupType1) ng).removeNoteWithoutForce(n);
       ownNotes.remove(n);
@@ -618,13 +618,13 @@ public class MusicApexDataSet {
       }
     }
 
-    void decrementDepth(NoteGroup ng) {
+    private void decrementDepth(NoteGroup ng) {
       ((NoteGroupType1) ng).depth--;
       for (NoteGroup g : ng.getSubgroups())
         decrementDepth(g);
     }
 
-    boolean isContinuation(List<Note> notes) {
+    private boolean isContinuation(List<Note> notes) {
       final int tpb = 480;
       class Event implements Comparable<Event> {
 
@@ -671,6 +671,216 @@ public class MusicApexDataSet {
             return false;
         }
       return true;
+    }
+
+    public void divide(Note note) {
+      if (depth == 1)
+        throw new IllegalStateException("top group can't divide");
+      parent.subGroups.remove(this);
+      parseDivideGroup(parent, this, note);
+    }
+
+    private void parseDivideGroup(NoteGroup dst, NoteGroup src, Note note) {
+      ArrayList<Note> forward = new ArrayList<Note>();
+      ArrayList<Note> backward = new ArrayList<Note>();
+      int TPB = 480;
+      int sep = note.onset(TPB);
+      for (Note n : src.getAllNotes())
+        if (!dst.getAllNotes().contains(n))
+          continue;
+        else if (n.onset(480) < sep)
+          forward.add(n);
+        else
+          backward.add(n);
+      NoteGroupType1 newDst;
+      if (!forward.isEmpty()) {
+        newDst = (NoteGroupType1) createGroup(forward);
+        newDst.parent = (AbstractGroup) dst;
+        newDst.depth = dst.depth() + 1;
+        ((NoteGroupType1) dst).subGroups.add(newDst);
+        for (NoteGroup ng : src.getSubgroups())
+          parseDivideGroup(newDst, ng, note);
+      }
+      if (!backward.isEmpty()) {
+        newDst = (NoteGroupType1) createGroup(backward);
+        newDst.parent = (AbstractGroup) dst;
+        newDst.depth = dst.depth() + 1;
+        ((NoteGroupType1) dst).subGroups.add(newDst);
+        for (NoteGroup ng : src.getSubgroups())
+          parseDivideGroup(newDst, ng, note);
+      }
+    }
+
+    public void mergeGroup(NoteGroup dst) {
+      boolean srcLeft = noteGroupOnset(this) < noteGroupOnset(dst);
+      parent.subGroups.remove(this);
+      margeNoEmpties(this, dst, srcLeft);
+    }
+
+    private void margeNoEmpties(NoteGroup src, NoteGroup dst, boolean srcLeft) {
+      if (src.getSubgroups().isEmpty() && dst.getSubgroups().isEmpty()) {
+        for (Note n : src.getAllNotes()) {
+          ((NoteGroupType1) dst).ownNotes.add(n);
+          ((NoteGroupType1) dst).underNotes.add(n);
+        }
+      } else if (src.getSubgroups().isEmpty() && !dst.getSubgroups().isEmpty()) {
+        for (Note n : src.getAllNotes())
+          ((NoteGroupType1) dst).underNotes.add(n);
+        margeEmptyAndNoempty(src, dst, srcLeft);
+      } else if (dst.getSubgroups().isEmpty() && !src.getSubgroups().isEmpty()) {
+        parent.subGroups.remove(dst);
+        for (Note n : dst.getAllNotes())
+          ((NoteGroupType1) src).underNotes.add(n);
+        margeEmptyAndNoempty(dst, src, !srcLeft);
+        parent.subGroups.add(src);
+      } else {
+        for (Note n : src.getAllNotes())
+          ((NoteGroupType1) dst).underNotes.add(n);
+        NoteGroup srcEdge, dstEdge;
+        if (srcLeft) {
+          srcEdge = getLastSubGroup(src);
+          dstEdge = getFirstSubGroup(dst);
+        } else {
+          srcEdge = getFirstSubGroup(src);
+          dstEdge = getLastSubGroup(dst);
+        }
+        margeNoEmpties(srcEdge, dstEdge, srcLeft);
+        for (NoteGroup ng : src.getSubgroups())
+          if (ng != srcEdge)
+            ((NoteGroupType1) dst).subGroups.add(ng);
+      }
+    }
+
+    private void margeEmptyAndNoempty(NoteGroup empty, NoteGroup full,
+        boolean emptyLeft) {
+      NoteGroup edge = full;
+      while (!edge.getSubgroups().isEmpty()) {
+        if (emptyLeft)
+          edge = getFirstSubGroup(edge);
+        else
+          edge = getLastSubGroup(edge);
+        for (Note n : empty.getAllNotes())
+          ((NoteGroupType1) edge).underNotes.add(n);
+      }
+      for (Note n : empty.getAllNotes())
+        ((NoteGroupType1) edge).ownNotes.add(n);
+    }
+
+    private int noteGroupOnset(NoteGroup ng) {
+      int TPB = 480;
+      int onset = Integer.MAX_VALUE;
+      for (Note n : ng.getAllNotes())
+        onset = Math.min(onset, n.onset(TPB));
+      return onset;
+    }
+
+    private NoteGroup getFirstSubGroup(NoteGroup superGroup) {
+      NoteGroup result = superGroup.getSubgroups().get(0);
+      int minOnset = noteGroupOnset(result);
+      for (NoteGroup sub : superGroup.getSubgroups()) {
+        int onset = noteGroupOnset(sub);
+        if (onset < minOnset) {
+          minOnset = onset;
+          result = sub;
+        }
+      }
+      return result;
+    }
+
+    private NoteGroup getLastSubGroup(NoteGroup superGroup) {
+      NoteGroup result = superGroup.getSubgroups().get(0);
+      int maxOnset = noteGroupOnset(result);
+      for (NoteGroup sub : superGroup.getSubgroups()) {
+        int onset = noteGroupOnset(sub);
+        if (onset > maxOnset) {
+          maxOnset = onset;
+          result = sub;
+        }
+      }
+      return result;
+    }
+
+    public void asSubGroup(NoteGroup dst) {
+      if (depth == 1)
+        throw new IllegalStateException("top group has no parent");
+      parent.subGroups.remove(this);
+      for (Note n : underNotes)
+        ((NoteGroupType1) dst).underNotes.add(n);
+      if (dst.getSubgroups().isEmpty()) {
+        NoteGroupType1 ng = (NoteGroupType1) createGroup(dst.getNotes());
+        for (Note n : ownNotes)
+          ((NoteGroupType1) dst).underNotes.add(n);
+        ng.implicit = true;
+        ng.parent = (NoteGroupType1) dst;
+        ng.depth = dst.depth() + 1;
+        ((NoteGroupType1) dst).subGroups.add(ng);
+      }
+      parent = (NoteGroupType1) dst;
+      incrementDepth(this);
+      ((NoteGroupType1) dst).subGroups.add(this);
+    }
+
+    private void incrementDepth(NoteGroup ng) {
+      ((NoteGroupType1) ng).depth++;
+      for (NoteGroup g : ng.getSubgroups())
+        incrementDepth(g);
+    }
+
+    public NoteGroup makeSuperGroup(NoteGroup ng) {
+      if (depth == 1)
+        throw new IllegalStateException("top group");
+      parent.subGroups.remove(this);
+      parent.subGroups.remove(ng);
+      ArrayList<Note> notes = new ArrayList<Note>(underNotes.size()
+          + ng.getAllNotes().size());
+      notes.addAll(underNotes);
+      notes.addAll(ng.getAllNotes());
+      NoteGroupType1 newNg = (NoteGroupType1) createGroup(notes);
+      newNg.depth = depth;
+      newNg.parent = parent;
+      parent.subGroups.add(newNg);
+      incrementDepth(this);
+      incrementDepth(ng);
+      parent = newNg;
+      ((NoteGroupType1) ng).parent = newNg;
+      newNg.subGroups.add(this);
+      newNg.subGroups.add(ng);
+      return newNg;
+    }
+
+    public void changeDividePos(NoteGroup dst, Note srcEdge) {
+      boolean srcLeft = noteGroupOnset(this) < noteGroupOnset(dst);
+      int TPB = 480;
+      ArrayList<Note> moveNotes = new ArrayList<Note>();
+      if (srcLeft) {
+        for (Note n : underNotes)
+          if (n.onset(TPB) > srcEdge.onset(TPB))
+            moveNotes.add(n);
+      } else
+        for (Note n : underNotes)
+          if (n.onset(TPB) < srcEdge.onset(TPB))
+            moveNotes.add(n);
+      for (Note n : moveNotes)
+        removeNoteWithoutForce(n);
+      for (Note n : moveNotes)
+        ((NoteGroupType1) dst).underNotes.add(n);
+      if (srcLeft) {
+        while (!dst.getSubgroups().isEmpty()) {
+          dst = getFirstSubGroup(dst);
+          for (Note n : moveNotes)
+            ((NoteGroupType1) dst).underNotes.add(n);
+        }
+        for (Note n : moveNotes)
+          ((NoteGroupType1) dst).ownNotes.add(n);
+      } else {
+        while (!dst.getSubgroups().isEmpty()) {
+          dst = getLastSubGroup(dst);
+          for (Note n : moveNotes)
+            ((NoteGroupType1) dst).underNotes.add(n);
+        }
+        for (Note n : moveNotes)
+          ((NoteGroupType1) dst).ownNotes.add(n);
+      }
     }
 
   }
