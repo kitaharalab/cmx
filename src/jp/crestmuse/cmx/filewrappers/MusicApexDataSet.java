@@ -186,19 +186,14 @@ public class MusicApexDataSet {
    *           トップレベルグループが作られていない、MusicXMLが指定されていない場合
    */
   public MusicApexWrapper toWrapper() {
-    // check initalized
     if (topGroup == null)
       throw new RuntimeException("TopLevelGroup not created.");
-    // create apexxml
     MusicApexWrapper mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
-    // write toplevel and attributes
     mawxml.setAttribute("target", musicxml.getFileName());
     mawxml.setAttribute("apex-inherited", (inherited ? "yes" : "no"));
     if (aspect != null)
       mawxml.setAttribute("aspect", aspect);
-    // write groups
     writeApexDataGroup(mawxml, topGroup);
-
     return mawxml;
   }
 
@@ -207,11 +202,10 @@ public class MusicApexDataSet {
     if (group.depth() == -1)
       throw new RuntimeException("Invalid GroupDepth");
     mawxml.setAttribute("depth", group.depth());
-    // write subgroups
-    for (NoteGroup adg : group.getSubgroups()) {
+    if (group.isImplicit())
+      mawxml.setAttribute("implicit", "yes");
+    for (NoteGroup adg : group.getSubgroups())
       writeApexDataGroup(mawxml, adg);
-    }
-    // write ownnote
     if (!(group.getNotes().isEmpty()))
       for (Note n : group.getNotes()) {
         mawxml.addChild("note");
@@ -483,14 +477,22 @@ public class MusicApexDataSet {
     }
 
     public NoteGroup makeSubgroup(List<Note> notes) {
-      if (!subGroups.isEmpty())
-        throw new IllegalStateException("group already has sub group");
       if (!isContinuation(notes))
         throw new IllegalArgumentException(
             "argument group is not continuous note sequence");
       for (Note n : notes)
         if (!underNotes.contains(n))
           throw new IllegalArgumentException("group has not contain note " + n);
+      if (!subGroups.isEmpty()) {
+        IllegalArgumentException iae = new IllegalArgumentException();
+        for (NoteGroup ng : subGroups)
+          try {
+            return ng.makeSubgroup(notes);
+          } catch (IllegalArgumentException e) {
+            iae = e;
+          }
+        throw iae;
+      }
       NoteGroupType1 ng = (NoteGroupType1) createGroup(notes);
       if (isImplicit()) {
         parent.subGroups.remove(this);
@@ -885,228 +887,230 @@ public class MusicApexDataSet {
 
   }
 
-  /**
-   * MusicApexDataSetクラスで用いる、音楽構造グループ1つを表すクラスです。
-   * 
-   * グループの深さ、グループに属するNoteのリスト、子グループのリスト、 頂点、頂点がどのぐらい目立っているかなどを保持し、
-   * グループの状態を取得するメソッド、グループの親子関係を設定するメソッドを提供します。
-   * 
-   */
-  private class ApexDataGroup implements NoteGroup {
-
-    private int depth = -1;
-    private List<Note> ownnotes = new ArrayList<Note>(); // 自分のグループのみが持つノート
-    private List<Note> undernotes = new ArrayList<Note>(); // 自分のグループ以下にあるノート、自分も含む
-    private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
-    private Note apex = null;
-    private double saliency = Double.NaN;
-    private HashMap<String, String> attribute = new HashMap<String, String>();
-
-    public ApexDataGroup() {
-    }
-
-    public ApexDataGroup(List<Note> notes, Note apex, double saliency) {
-      this.ownnotes.addAll(notes);
-      this.undernotes.addAll(notes);
-      this.apex = apex;
-      this.saliency = saliency;
-    }
-
-    public int depth() {
-      return depth;
-    }
-
-    public boolean isApexInherited() {
-      return inherited;
-    }
-
-    public double getApexSaliency() {
-      return saliency;
-    }
-
-    public List<Note> getNotes() {
-      return ownnotes;
-    }
-
-    public List<Note> getAllNotes() {
-      return undernotes;
-    }
-
-    public Note getApex() {
-      return apex;
-    }
-
-    public List<NoteGroup> getSubgroups() {
-      return subGroups;
-    }
-
-    public void addNote(Note n) {
-      ownnotes.add(n);
-      undernotes.add(n);
-      return;
-    }
-
-    public void removeNote(Note n) {
-      for (NoteGroup ng : subGroups)
-        ng.removeNote(n);
-      ownnotes.remove(n);
-      undernotes.remove(n);
-    }
-
-    public void addSubgroup(NoteGroup g) {
-      if (g instanceof ApexDataGroup)
-        refreshSubGroup((ApexDataGroup) g, this.depth() + 1);
-      undernotes.addAll(g.getAllNotes());
-      subGroups.add(g);
-      return;
-    }
-
-    private void refreshSubGroup(ApexDataGroup g, int depth) {
-      g.depth = depth;
-      if (isApexInherited() && g.getNotes().contains(this.apex)) {
-        g.apex = this.apex;
-        g.saliency = this.saliency;
-      }
-      for (NoteGroup sg : g.getSubgroups())
-        g.refreshSubGroup((ApexDataGroup) sg, depth + 1);
-      return;
-    }
-
-    public NoteGroup makeSubgroup(List<Note> notes) {
-      return makeSubgroup(notes, null);
-    }
-
-    /**
-     * このインスタンスから、子としてグループを作成し、追加します。
-     * 
-     * @param notes
-     *          グループ化するNoteオブジェクトのリスト
-     * @param apex
-     *          作成する子グループの頂点
-     * @throws RuntimeException
-     *           このインスタンスにグループ化するノートが含まれていない
-     */
-    public NoteGroup makeSubgroup(List<Note> notes, Note apex) {
-      return makeSubgroup(notes, apex, Double.NaN);
-    }
-
-    /**
-     * このインスタンスから、子としてグループを作成し、追加します。
-     * 
-     * @param notes
-     *          グループ化するNoteオブジェクトのリスト
-     * @param apex
-     *          作成する子グループの頂点のNote
-     * @param saliency
-     *          頂点のNoteがどれぐらい目立っているか
-     * @throws RuntimeException
-     *           このインスタンスにグループ化するノートが含まれていない
-     */
-    public NoteGroup makeSubgroup(List<Note> notes, Note apex, double saliency) {
-      // 各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
-      for (Note checknote : notes) {
-        Boolean included = false;
-        if (!(included = ownnotes.contains(checknote))) {
-          for (NoteGroup ng : getSubgroups()) {
-            if (ng.getNotes().contains(checknote)) {
-              included = true;
-              break;
-            }
-          }
-        }
-        if (included == false)
-          throw new RuntimeException(
-              "Note is not included Parent and Parent's subgroups");
-      }
-      // making new group
-      ApexDataGroup g = new ApexDataGroup();
-      // g.groupParent = this;
-      g.ownnotes.addAll(notes);
-      g.undernotes.addAll(notes);
-      g.depth = this.depth + 1;
-
-      if (isApexInherited() == true && this.getApex() != null
-          && g.ownnotes.contains(this.apex)) {
-        g.apex = this.apex;
-        g.saliency = this.saliency;
-      } else {
-        g.apex = apex;
-        g.saliency = saliency;
-      }
-      // add to parent group
-      subGroups.add(g);
-      ownnotes.removeAll(notes);
-      return g;
-    }
-
-    public void setApex(Note n) {
-      if (this.apex != null)
-        throw new RuntimeException("This group already has Apex. : "
-            + n.getXPathExpression());
-      this.apex = n;
-    }
-
-    public void setApex(Note n, double value) {
-      if (inherited)
-        throw new RuntimeException("This Apex is inherited");
-      this.apex = n;
-      this.saliency = value;
-    }
-
-    public void removeSubgroup(NoteGroup g) {
-      ownnotes.addAll(g.getAllNotes());
-      subGroups.remove(g);
-    }
-
-    public String getAttribute(String key) {
-      return attribute.get(key);
-    }
-
-    public void setAttribute(String key, String value) {
-      attribute.put(key, value);
-    }
-
-    public List<Note> getImplicitGroupNotes() {
-      return null;
-    }
-
-    public boolean isImplicit() {
-      return false;
-    }
-
-    public int type() {
-      return 0;
-    }
-
-    public Note getApexStart() {
-      return null;
-    }
-
-    public double getApexStartTime() {
-      return 0;
-    }
-
-    public Note getApexStop() {
-      return null;
-    }
-
-    public double getApexStopTime() {
-      return 0;
-    }
-
-    public void setApexSaliency(double saliency) {
-    }
-
-    public void setApexStart(Note n, double time) {
-    }
-
-    public void setApexStop(Note n, double time) {
-    }
-
-    public void setImplicit(boolean value) {
-    }
-
-  }
+  // /**
+  // * MusicApexDataSetクラスで用いる、音楽構造グループ1つを表すクラスです。
+  // *
+  // * グループの深さ、グループに属するNoteのリスト、子グループのリスト、 頂点、頂点がどのぐらい目立っているかなどを保持し、
+  // * グループの状態を取得するメソッド、グループの親子関係を設定するメソッドを提供します。
+  // *
+  // */
+  // private class ApexDataGroup implements NoteGroup {
+  //
+  // private int depth = -1;
+  // private List<Note> ownnotes = new ArrayList<Note>(); // 自分のグループのみが持つノート
+  // private List<Note> undernotes = new ArrayList<Note>(); //
+  // 自分のグループ以下にあるノート、自分も含む
+  // private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
+  // private Note apex = null;
+  // private double saliency = Double.NaN;
+  // private HashMap<String, String> attribute = new HashMap<String, String>();
+  //
+  // public ApexDataGroup() {
+  // }
+  //
+  // public ApexDataGroup(List<Note> notes, Note apex, double saliency) {
+  // this.ownnotes.addAll(notes);
+  // this.undernotes.addAll(notes);
+  // this.apex = apex;
+  // this.saliency = saliency;
+  // }
+  //
+  // public int depth() {
+  // return depth;
+  // }
+  //
+  // public boolean isApexInherited() {
+  // return inherited;
+  // }
+  //
+  // public double getApexSaliency() {
+  // return saliency;
+  // }
+  //
+  // public List<Note> getNotes() {
+  // return ownnotes;
+  // }
+  //
+  // public List<Note> getAllNotes() {
+  // return undernotes;
+  // }
+  //
+  // public Note getApex() {
+  // return apex;
+  // }
+  //
+  // public List<NoteGroup> getSubgroups() {
+  // return subGroups;
+  // }
+  //
+  // public void addNote(Note n) {
+  // ownnotes.add(n);
+  // undernotes.add(n);
+  // return;
+  // }
+  //
+  // public void removeNote(Note n) {
+  // for (NoteGroup ng : subGroups)
+  // ng.removeNote(n);
+  // ownnotes.remove(n);
+  // undernotes.remove(n);
+  // }
+  //
+  // public void addSubgroup(NoteGroup g) {
+  // if (g instanceof ApexDataGroup)
+  // refreshSubGroup((ApexDataGroup) g, this.depth() + 1);
+  // undernotes.addAll(g.getAllNotes());
+  // subGroups.add(g);
+  // return;
+  // }
+  //
+  // private void refreshSubGroup(ApexDataGroup g, int depth) {
+  // g.depth = depth;
+  // if (isApexInherited() && g.getNotes().contains(this.apex)) {
+  // g.apex = this.apex;
+  // g.saliency = this.saliency;
+  // }
+  // for (NoteGroup sg : g.getSubgroups())
+  // g.refreshSubGroup((ApexDataGroup) sg, depth + 1);
+  // return;
+  // }
+  //
+  // public NoteGroup makeSubgroup(List<Note> notes) {
+  // return makeSubgroup(notes, null);
+  // }
+  //
+  // /**
+  // * このインスタンスから、子としてグループを作成し、追加します。
+  // *
+  // * @param notes
+  // * グループ化するNoteオブジェクトのリスト
+  // * @param apex
+  // * 作成する子グループの頂点
+  // * @throws RuntimeException
+  // * このインスタンスにグループ化するノートが含まれていない
+  // */
+  // public NoteGroup makeSubgroup(List<Note> notes, Note apex) {
+  // return makeSubgroup(notes, apex, Double.NaN);
+  // }
+  //
+  // /**
+  // * このインスタンスから、子としてグループを作成し、追加します。
+  // *
+  // * @param notes
+  // * グループ化するNoteオブジェクトのリスト
+  // * @param apex
+  // * 作成する子グループの頂点のNote
+  // * @param saliency
+  // * 頂点のNoteがどれぐらい目立っているか
+  // * @throws RuntimeException
+  // * このインスタンスにグループ化するノートが含まれていない
+  // */
+  // public NoteGroup makeSubgroup(List<Note> notes, Note apex, double saliency)
+  // {
+  // // 各ノートがグループを作成する親グループまたはそのdepth+1の範囲に含まれるかチェック
+  // for (Note checknote : notes) {
+  // Boolean included = false;
+  // if (!(included = ownnotes.contains(checknote))) {
+  // for (NoteGroup ng : getSubgroups()) {
+  // if (ng.getNotes().contains(checknote)) {
+  // included = true;
+  // break;
+  // }
+  // }
+  // }
+  // if (included == false)
+  // throw new RuntimeException(
+  // "Note is not included Parent and Parent's subgroups");
+  // }
+  // // making new group
+  // ApexDataGroup g = new ApexDataGroup();
+  // // g.groupParent = this;
+  // g.ownnotes.addAll(notes);
+  // g.undernotes.addAll(notes);
+  // g.depth = this.depth + 1;
+  //
+  // if (isApexInherited() == true && this.getApex() != null
+  // && g.ownnotes.contains(this.apex)) {
+  // g.apex = this.apex;
+  // g.saliency = this.saliency;
+  // } else {
+  // g.apex = apex;
+  // g.saliency = saliency;
+  // }
+  // // add to parent group
+  // subGroups.add(g);
+  // ownnotes.removeAll(notes);
+  // return g;
+  // }
+  //
+  // public void setApex(Note n) {
+  // if (this.apex != null)
+  // throw new RuntimeException("This group already has Apex. : "
+  // + n.getXPathExpression());
+  // this.apex = n;
+  // }
+  //
+  // public void setApex(Note n, double value) {
+  // if (inherited)
+  // throw new RuntimeException("This Apex is inherited");
+  // this.apex = n;
+  // this.saliency = value;
+  // }
+  //
+  // public void removeSubgroup(NoteGroup g) {
+  // ownnotes.addAll(g.getAllNotes());
+  // subGroups.remove(g);
+  // }
+  //
+  // public String getAttribute(String key) {
+  // return attribute.get(key);
+  // }
+  //
+  // public void setAttribute(String key, String value) {
+  // attribute.put(key, value);
+  // }
+  //
+  // public List<Note> getImplicitGroupNotes() {
+  // return null;
+  // }
+  //
+  // public boolean isImplicit() {
+  // return false;
+  // }
+  //
+  // public int type() {
+  // return 0;
+  // }
+  //
+  // public Note getApexStart() {
+  // return null;
+  // }
+  //
+  // public double getApexStartTime() {
+  // return 0;
+  // }
+  //
+  // public Note getApexStop() {
+  // return null;
+  // }
+  //
+  // public double getApexStopTime() {
+  // return 0;
+  // }
+  //
+  // public void setApexSaliency(double saliency) {
+  // }
+  //
+  // public void setApexStart(Note n, double time) {
+  // }
+  //
+  // public void setApexStop(Note n, double time) {
+  // }
+  //
+  // public void setImplicit(boolean value) {
+  // }
+  //
+  // }
 
   // public static void main(String[] args) {
   // MusicXMLWrapper musicxml = new MusicXMLWrapper();
