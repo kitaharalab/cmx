@@ -330,7 +330,10 @@ public class MusicApexDataSet {
     public void setApex(Note n) {
       apexStart = apexStop = n;
       apexStartTime = 0;
-      apexStopTime = n.actualDuration();
+      if (n == null)
+        apexStopTime = 0;
+      else
+        apexStopTime = n.actualDuration();
     }
 
     public double getApexSaliency() {
