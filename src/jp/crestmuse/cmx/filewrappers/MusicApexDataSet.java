@@ -401,6 +401,9 @@ public class MusicApexDataSet {
 
   public class NoteGroupType1 extends AbstractGroup {
 
+    private NoteGroupType1() {
+    }
+
     public void addNote(Note n) {
       if (underNotes.contains(n))
         throw new IllegalArgumentException("already contain");
@@ -410,11 +413,6 @@ public class MusicApexDataSet {
         return;
       }
       underNotes.add(n);
-      // if (!isContinuation(underNotes)) {
-      // underNotes.remove(n);
-      // throw new IllegalArgumentException(
-      // "can't keep continuous note sequence");
-      // }
       NoteGroup brother = null;
       for (NoteGroup ng : parent.subGroups)
         if (ng != this && ng.getAllNotes().contains(n)) {
