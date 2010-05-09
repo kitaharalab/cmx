@@ -361,7 +361,7 @@ public class MusicApexDataSet {
         apexStopTime = n.actualDuration();
     }
 
-    private void inheritedApex() {
+    protected void inheritedApex() {
       if (!inherited || apexStart == null || apexStop == null)
         return;
       int TPB = 480;
@@ -537,6 +537,8 @@ public class MusicApexDataSet {
       for (Note n : notes)
         if (!underNotes.contains(n))
           throw new IllegalArgumentException("group has not contain note " + n);
+      if (inherited && !validApex(notes))
+        throw new IllegalArgumentException("invalid apex");
       if (!subGroups.isEmpty()) {
         IllegalArgumentException iae = new IllegalArgumentException();
         for (NoteGroup ng : subGroups)
@@ -553,7 +555,28 @@ public class MusicApexDataSet {
         ((NoteGroupType1) parent).addSubgroupForce(ng, getAllNotes());
       } else
         addSubgroup(ng);
+      inheritedApex();
       return ng;
+    }
+
+    private boolean validApex(List<Note> notes) {
+      if (apexStart == null || apexStop == null)
+        return true;
+      int TPB = 480;
+      double onset = Double.MAX_VALUE;
+      double offset = Double.MIN_VALUE;
+      for (Note n : notes) {
+        int on = n.onset(TPB);
+        int off = n.offset(TPB);
+        onset = Math.min(onset, on);
+        offset = Math.max(offset, off);
+      }
+      double apexOnset = apexStart.onset(TPB) + TPB * apexStartTime;
+      double apexOffset = apexStop.onset(TPB) + TPB * apexStopTime;
+      if (apexOnset < onset && onset < apexOffset || apexOnset < offset
+          && offset < apexOffset)
+        return false;
+      return true;
     }
 
     public void removeNote(Note n) {
@@ -733,7 +756,13 @@ public class MusicApexDataSet {
       if (depth == 1)
         throw new IllegalStateException("top group can't divide");
       parent.subGroups.remove(this);
-      parseDivideGroup(parent, this, note);
+      try {
+        parseDivideGroup(parent, this, note);
+        parent.inheritedApex();
+      } catch (IllegalArgumentException e) {
+        parent.subGroups.add(this);
+        throw e;
+      }
     }
 
     private void parseDivideGroup(NoteGroup dst, NoteGroup src, Note note) {
@@ -748,23 +777,27 @@ public class MusicApexDataSet {
           forward.add(n);
         else
           backward.add(n);
-      NoteGroupType1 newDst;
+      if (inherited && (!validApex(forward) || !validApex(backward)))
+        throw new IllegalArgumentException("invalid apex");
+      NoteGroupType1 fwdDst = null, bwdDst = null;
       if (!forward.isEmpty()) {
-        newDst = (NoteGroupType1) createGroup(forward);
-        newDst.parent = (AbstractGroup) dst;
-        newDst.depth = dst.depth() + 1;
-        ((NoteGroupType1) dst).subGroups.add(newDst);
+        fwdDst = (NoteGroupType1) createGroup(forward);
+        fwdDst.parent = (AbstractGroup) dst;
+        fwdDst.depth = dst.depth() + 1;
         for (NoteGroup ng : src.getSubgroups())
-          parseDivideGroup(newDst, ng, note);
+          parseDivideGroup(fwdDst, ng, note);
       }
       if (!backward.isEmpty()) {
-        newDst = (NoteGroupType1) createGroup(backward);
-        newDst.parent = (AbstractGroup) dst;
-        newDst.depth = dst.depth() + 1;
-        ((NoteGroupType1) dst).subGroups.add(newDst);
+        bwdDst = (NoteGroupType1) createGroup(backward);
+        bwdDst.parent = (AbstractGroup) dst;
+        bwdDst.depth = dst.depth() + 1;
         for (NoteGroup ng : src.getSubgroups())
-          parseDivideGroup(newDst, ng, note);
+          parseDivideGroup(bwdDst, ng, note);
       }
+      if (!forward.isEmpty())
+        ((NoteGroupType1) dst).subGroups.add(fwdDst);
+      if (!backward.isEmpty())
+        ((NoteGroupType1) dst).subGroups.add(bwdDst);
     }
 
     public void mergeGroup(NoteGroup dst) {
@@ -916,6 +949,8 @@ public class MusicApexDataSet {
         for (Note n : underNotes)
           if (n.onset(TPB) < srcEdge.onset(TPB))
             moveNotes.add(n);
+      if(inherited && !validApex(moveNotes))
+        throw new IllegalArgumentException("invalid apex");
       for (Note n : moveNotes)
         removeNoteWithoutForce(n);
       for (Note n : moveNotes)
