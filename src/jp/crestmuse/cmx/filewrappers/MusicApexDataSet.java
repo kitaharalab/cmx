@@ -270,6 +270,7 @@ public class MusicApexDataSet {
     double saliency = Double.NaN;
     boolean implicit = false;
     AbstractGroup parent;
+    boolean inheritedApexFromParent = false;
 
     AbstractGroup() {
       this(null);
@@ -300,8 +301,19 @@ public class MusicApexDataSet {
     }
 
     public void setApexStart(Note n, double time) {
+      if (inheritedApexFromParent)
+        throw new IllegalStateException("apex inherited from parent");
+      Note prevNote = apexStart;
+      double prevTime = apexStartTime;
       apexStart = n;
       apexStartTime = time;
+      try {
+        inheritedApex();
+      } catch (IllegalStateException e) {
+        apexStart = prevNote;
+        apexStartTime = prevTime;
+        throw e;
+      }
     }
 
     public double getApexStartTime() {
@@ -313,8 +325,19 @@ public class MusicApexDataSet {
     }
 
     public void setApexStop(Note n, double time) {
+      if (inheritedApexFromParent)
+        throw new IllegalStateException("apex inherited from parent");
+      Note prevNote = apexStop;
+      double prevTime = apexStopTime;
       apexStop = n;
       apexStopTime = time;
+      try {
+        inheritedApex();
+      } catch (IllegalStateException e) {
+        apexStop = prevNote;
+        apexStopTime = prevTime;
+        throw e;
+      }
     }
 
     public double getApexStopTime() {
@@ -328,12 +351,42 @@ public class MusicApexDataSet {
     }
 
     public void setApex(Note n) {
+      if (inheritedApexFromParent)
+        throw new IllegalStateException("apex inherited from parent");
       apexStart = apexStop = n;
       apexStartTime = 0;
       if (n == null)
         apexStopTime = 0;
       else
         apexStopTime = n.actualDuration();
+    }
+
+    private void inheritedApex() {
+      if (!inherited || apexStart == null || apexStop == null)
+        return;
+      int TPB = 480;
+      double apexOnset = apexStart.onset(TPB) + TPB * apexStartTime;
+      double apexOffset = apexStop.onset(TPB) + TPB * apexStopTime;
+      for (NoteGroup ng : subGroups) {
+        double onset = Double.MAX_VALUE;
+        double offset = Double.MIN_VALUE;
+        for (Note n : ng.getAllNotes()) {
+          int on = n.onset(TPB);
+          int off = n.offset(TPB);
+          onset = Math.min(onset, on);
+          offset = Math.max(offset, off);
+        }
+        if (apexOnset < onset && onset < apexOffset || apexOnset < offset
+            && offset < apexOffset)
+          throw new IllegalStateException("can't set apex");
+        if (onset < apexOnset && apexOffset < offset) {
+          ((AbstractGroup) ng).inheritedApexFromParent = false;
+          ng.setApexStart(apexStart, apexStartTime);
+          ng.setApexStop(apexStop, apexStopTime);
+          ((AbstractGroup) ng).inheritedApexFromParent = true;
+          break;
+        }
+      }
     }
 
     public double getApexSaliency() {
