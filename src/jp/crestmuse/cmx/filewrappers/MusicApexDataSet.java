@@ -355,10 +355,18 @@ public class MusicApexDataSet {
         throw new IllegalStateException("apex inherited from parent");
       apexStart = apexStop = n;
       apexStartTime = 0;
-      if (n == null)
+      if (n == null) {
         apexStopTime = 0;
-      else
+        for (NoteGroup ng : subGroups) {
+          if (((AbstractGroup) ng).inheritedApexFromParent) {
+            ((AbstractGroup) ng).inheritedApexFromParent = false;
+            break;
+          }
+        }
+      } else {
         apexStopTime = n.actualDuration();
+        inheritedApex();
+      }
     }
 
     protected void inheritedApex() {
@@ -379,7 +387,7 @@ public class MusicApexDataSet {
         if (apexOnset < onset && onset < apexOffset || apexOnset < offset
             && offset < apexOffset)
           throw new IllegalStateException("can't set apex");
-        if (onset < apexOnset && apexOffset < offset) {
+        if (onset <= apexOnset && apexOffset <= offset) {
           ((AbstractGroup) ng).inheritedApexFromParent = false;
           ng.setApexStart(apexStart, apexStartTime);
           ng.setApexStop(apexStop, apexStopTime);
@@ -949,7 +957,7 @@ public class MusicApexDataSet {
         for (Note n : underNotes)
           if (n.onset(TPB) < srcEdge.onset(TPB))
             moveNotes.add(n);
-      if(inherited && !validApex(moveNotes))
+      if (inherited && !validApex(moveNotes))
         throw new IllegalArgumentException("invalid apex");
       for (Note n : moveNotes)
         removeNoteWithoutForce(n);
