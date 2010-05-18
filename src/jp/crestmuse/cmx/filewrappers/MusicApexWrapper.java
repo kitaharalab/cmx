@@ -117,6 +117,10 @@ public class MusicApexWrapper extends CMXFileWrapper {
     return this.aspect;
   }
 
+  public MusicApexDataSet toDataSet() {
+    return new MusicApexDataSet(targetMusicXML, toplevel);
+  }
+
   protected void analyze() throws IOException {
     try {
       addLinks("//note", getTargetMusicXML());
@@ -190,7 +194,14 @@ public class MusicApexWrapper extends CMXFileWrapper {
 
     Element apexn = (Element) selectSingleNode(nodepath + "/apex[1]");
     if (apexn != null) {
-      g.apex = xpathNoteView.get(cutXPath(apexn));
+      Node start = apexn.getElementsByTagName("start").item(0);
+      Node stop = apexn.getElementsByTagName("stop").item(0);
+      g.apexStart = xpathNoteView.get(cutXPath(start));
+      g.apexStartTime = Double.parseDouble(start.getAttributes().getNamedItem(
+          "time").getNodeValue());
+      g.apexStop = xpathNoteView.get(cutXPath(stop));
+      g.apexStopTime = Double.parseDouble(stop.getAttributes().getNamedItem(
+          "time").getNodeValue());
       g.saliency = (apexn.hasAttribute("saliency") ? Double.parseDouble(apexn.getAttribute("saliency"))
           : Double.NaN);
     }
@@ -243,8 +254,10 @@ public class MusicApexWrapper extends CMXFileWrapper {
     private List<Note> ownnotes = new ArrayList<Note>(); // 自分のグループのみが持つノート
     private List<Note> undernotes = new ArrayList<Note>(); // 自分のグループ以下にあるノート、自分も含む
     private List<NoteGroup> subGroups = new ArrayList<NoteGroup>();
+    private HashMap<String, String> attribute = new HashMap<String, String>();
     private NoteGroup groupParent = null;
-    private Note apex = null;
+    private Note apexStart, apexStop;
+    private double apexStartTime, apexStopTime;
     private double saliency = Double.NaN;
 
     public int depth() {
@@ -268,7 +281,9 @@ public class MusicApexWrapper extends CMXFileWrapper {
     }
 
     public Note getApex() {
-      return apex;
+      if (apexStart == apexStop)
+        return apexStart;
+      throw new IllegalStateException("apexStart don't match apexStart");
     }
 
     public List<NoteGroup> getSubgroups() {
@@ -300,11 +315,11 @@ public class MusicApexWrapper extends CMXFileWrapper {
     }
 
     public String getAttribute(String key) {
-      throw new UnsupportedOperationException();
+      return attribute.get(key);
     }
 
     public void setAttribute(String key, String value) {
-      throw new UnsupportedOperationException();
+      attribute.put(key, value);
     }
 
     public NoteGroup getParentGroup() {
@@ -324,7 +339,6 @@ public class MusicApexWrapper extends CMXFileWrapper {
       System.out.println();
     }
 
-
     public List<Note> getImplicitGroupNotes() {
       throw new UnsupportedOperationException();
     }
@@ -338,38 +352,42 @@ public class MusicApexWrapper extends CMXFileWrapper {
     }
 
     public Note getApexStart() {
-      return null;
+      return apexStart;
     }
 
     public double getApexStartTime() {
-      return 0;
+      return apexStartTime;
     }
 
     public Note getApexStop() {
-      return null;
+      return apexStop;
     }
 
     public double getApexStopTime() {
-      return 0;
+      return apexStopTime;
     }
 
     public void setApexStart(Note n, double time) {
+      throw new UnsupportedOperationException();
     }
 
     public void setApexStop(Note n, double time) {
+      throw new UnsupportedOperationException();
     }
 
     public void setApexSaliency(double saliency) {
+      throw new UnsupportedOperationException();
     }
 
     public void setImplicit(boolean value) {
+      throw new UnsupportedOperationException();
     }
 
   }
 
   public static void main(String[] args) {
     try {
-      MusicApexWrapper maw = (MusicApexWrapper) MusicApexWrapper.readfile("sampleapex.xml");
+      MusicApexWrapper maw = (MusicApexWrapper) CMXFileWrapper.readfile(args[0]);
       /*
        * System.out.println(maw.inherited); System.out.println(maw.aspect);
        * System.out.println(maw.getTargetMusicXMLFileName()); Node ap =

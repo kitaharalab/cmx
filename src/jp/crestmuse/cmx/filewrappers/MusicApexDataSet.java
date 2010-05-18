@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,6 +66,36 @@ public class MusicApexDataSet {
     this.inherited = apexInherited;
   }
 
+  MusicApexDataSet(MusicXMLWrapper musicxml, NoteGroup topGroup) {
+    this.musicxml = musicxml;
+    type = 1;
+    inherited = true;
+    copyGroup(topGroup, (AbstractGroup) createTopLevelGroup());
+  }
+
+  private AbstractGroup copyGroup(NoteGroup src, AbstractGroup dst) {
+    dst.ownNotes.addAll(src.getNotes());
+    dst.underNotes.addAll(src.getAllNotes());
+    // TODO copy attribute
+    dst.depth = src.depth();
+    dst.apexStart = src.getApexStart();
+    dst.apexStop = src.getApexStop();
+    dst.apexStartTime = src.getApexStartTime();
+    dst.apexStopTime = src.getApexStopTime();
+    dst.saliency = src.getApexSaliency();
+    for (NoteGroup ng : src.getSubgroups()) {
+      AbstractGroup subGroup = copyGroup(ng, (AbstractGroup) createGroup());
+      subGroup.parent = dst;
+      if (inherited && dst.apexStart == subGroup.apexStart
+          && dst.apexStartTime == subGroup.apexStartTime
+          && dst.apexStop == subGroup.apexStop
+          && dst.apexStopTime == subGroup.apexStopTime)
+        subGroup.inheritedApexFromParent = true;
+      dst.subGroups.add(subGroup);
+    }
+    return dst;
+  }
+
   /**
    * MusicXMLに含まれるすべてのノートを含むトップレベルグループを作成します。
    * 
@@ -110,7 +141,7 @@ public class MusicApexDataSet {
    * @return
    */
   public NoteGroup createGroup(List<Note> notes) {
-    return createGroup(notes, null, Double.NaN);
+    return createGroup(notes, null);
   }
 
   /**
