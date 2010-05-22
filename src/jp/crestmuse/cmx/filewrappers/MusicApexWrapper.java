@@ -124,7 +124,8 @@ public class MusicApexWrapper extends CMXFileWrapper {
   protected void analyze() throws IOException {
     try {
       addLinks("//note", getTargetMusicXML());
-      addLinks("//apex", getTargetMusicXML());
+      addLinks("//apex/start", getTargetMusicXML());
+      addLinks("//apex/stop", getTargetMusicXML());
 
       Node top = selectSingleNode("/music-apex");
       if (NodeInterface.hasAttribute(top, "apex-inherited")) {

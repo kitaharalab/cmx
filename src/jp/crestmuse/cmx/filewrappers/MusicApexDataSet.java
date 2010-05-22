@@ -1,6 +1,5 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,8 +68,8 @@ public class MusicApexDataSet {
   MusicApexDataSet(MusicXMLWrapper musicxml, NoteGroup topGroup) {
     this.musicxml = musicxml;
     type = 1;
-    inherited = true;
-    copyGroup(topGroup, (AbstractGroup) createTopLevelGroup());
+    inherited = topGroup.isApexInherited();
+    this.topGroup = copyGroup(topGroup, (AbstractGroup) createGroup());
   }
 
   private AbstractGroup copyGroup(NoteGroup src, AbstractGroup dst) {
@@ -220,6 +219,8 @@ public class MusicApexDataSet {
     if (topGroup == null)
       throw new RuntimeException("TopLevelGroup not created.");
     MusicApexWrapper mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
+    mawxml.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink",
+        "http://www.w3.org/1999/xlink");
     mawxml.setAttribute("target", musicxml.getFileName());
     mawxml.setAttribute("apex-inherited", (inherited ? "yes" : "no"));
     if (aspect != null)
