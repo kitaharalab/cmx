@@ -526,8 +526,8 @@ public class MusicApexDataSet {
     }
 
     public void addSubgroup(NoteGroup g) {
-      if (isImplicit())
-        throw new IllegalStateException("group is implicit");
+      // if (isImplicit())
+      // throw new IllegalStateException("group is implicit");
       if (!subGroups.isEmpty())
         throw new IllegalStateException("group already has sub group");
       if (!isContinuation(g.getAllNotes()))
@@ -590,11 +590,12 @@ public class MusicApexDataSet {
         throw iae;
       }
       NoteGroupType1 ng = (NoteGroupType1) createGroup(notes);
-      if (isImplicit()) {
-        parent.subGroups.remove(this);
-        ((NoteGroupType1) parent).addSubgroupForce(ng, getAllNotes());
-      } else
-        addSubgroup(ng);
+      // if (isImplicit()) {
+      // parent.subGroups.remove(this);
+      // ((NoteGroupType1) parent).addSubgroupForce(ng, getAllNotes());
+      // } else
+      // addSubgroup(ng);
+      addSubgroup(ng);
       inheritedApex();
       return ng;
     }
