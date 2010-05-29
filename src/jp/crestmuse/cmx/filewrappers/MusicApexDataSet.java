@@ -956,25 +956,30 @@ public class MusicApexDataSet {
         incrementDepth(g);
     }
 
-    public NoteGroup makeSuperGroup(NoteGroup ng) {
+    public NoteGroup makeSuperGroup(List<NoteGroup> ng) {
       if (depth == 1)
         throw new IllegalStateException("top group");
       parent.subGroups.remove(this);
-      parent.subGroups.remove(ng);
-      ArrayList<Note> notes = new ArrayList<Note>(underNotes.size()
-          + ng.getAllNotes().size());
+      for (NoteGroup nngg : ng)
+        parent.subGroups.remove(nngg);
+      ArrayList<Note> notes = new ArrayList<Note>();
       notes.addAll(underNotes);
-      notes.addAll(ng.getAllNotes());
+      for (NoteGroup nngg : ng)
+        notes.addAll(nngg.getAllNotes());
       NoteGroupType1 newNg = (NoteGroupType1) createGroup(notes);
       newNg.depth = depth;
       newNg.parent = parent;
+      newNg.setImplicit(true);
       parent.subGroups.add(newNg);
       incrementDepth(this);
-      incrementDepth(ng);
+      for (NoteGroup nngg : ng)
+        incrementDepth(nngg);
       parent = newNg;
-      ((NoteGroupType1) ng).parent = newNg;
       newNg.subGroups.add(this);
-      newNg.subGroups.add(ng);
+      for (NoteGroup nngg : ng) {
+        ((NoteGroupType1) nngg).parent = newNg;
+        newNg.subGroups.add(nngg);
+      }
       return newNg;
     }
 
