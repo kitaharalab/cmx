@@ -470,6 +470,27 @@ public class MusicApexDataSet {
       attribute.put(key, value);
     }
 
+    public Object clone() throws CloneNotSupportedException {
+      AbstractGroup result = (AbstractGroup) createGroup();
+      result.ownNotes.addAll(ownNotes);
+      result.underNotes.addAll(underNotes);
+      for (NoteGroup sg : subGroups) {
+        AbstractGroup subGroup = (AbstractGroup) sg.clone();
+        subGroup.parent = result;
+        subGroup.inheritedApexFromParent = ((AbstractGroup) sg).inheritedApexFromParent;
+        result.subGroups.add(subGroup);
+      }
+      result.attribute.putAll(attribute);
+      result.depth = depth;
+      result.apexStart = apexStart;
+      result.apexStop = apexStop;
+      result.apexStartTime = apexStartTime;
+      result.apexStopTime = apexStopTime;
+      result.saliency = saliency;
+      result.implicit = implicit;
+      return result;
+    };
+
   }
 
   private class NoteGroupType0 extends AbstractGroup {

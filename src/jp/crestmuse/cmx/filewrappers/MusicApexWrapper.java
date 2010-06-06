@@ -383,6 +383,10 @@ public class MusicApexWrapper extends CMXFileWrapper {
     public void setImplicit(boolean value) {
       throw new UnsupportedOperationException();
     }
+    
+    public Object clone() throws CloneNotSupportedException {
+      throw new UnsupportedOperationException();
+    }
 
   }
 

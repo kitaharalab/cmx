@@ -7,7 +7,9 @@ import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 /**
  * 音符の集まりからなる1つのグループを示すインターフェイスです。
  */
-public interface NoteGroup {
+public interface NoteGroup extends Cloneable {
+  
+  public Object clone() throws CloneNotSupportedException;
 
   /**
    * グループの深さを返します。 (トップレベルの深さは1)
