@@ -49,7 +49,7 @@ elif [ "\$cmd" = "midi2smf" ]; then
 elif [ "\$cmd" = "mkdeadpan" ]; then
   java jp.crestmuse.cmx.commands.MakeDeadpanSCC \$*
 elif [ "\$cmd" = "scc2midi" ]; then
-  java jp.crestmuse.cmx.commands.SCC2MIDIXML \$*
+  java jp.crestmuse.cmx.commands.SCC2MIDI \$*
 elif [ "\$cmd" = "smf2midi" ]; then
   java jp.crestmuse.cmx.commands.SMF2MIDIXML \$*
 elif [ "\$cmd" = "smf2scc" ]; then

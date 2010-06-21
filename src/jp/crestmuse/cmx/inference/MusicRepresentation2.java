@@ -235,7 +235,9 @@ public class MusicRepresentation2 {
     }
 
 	Object getLabel(int index) {
+	    // kari
 	    return labels[index];
+	    //	    return index >= 0 ? labels[index] : "";
 	}
 
 	int getIndexOf(Object label) {

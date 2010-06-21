@@ -22,7 +22,7 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
   private int division;
   private ObservationInteger[] oseq;
 
-  public SimpleHMMChainCalculator(File hmmfile, 
+    public SimpleHMMChainCalculator(File hmmfile, String workingDir, 
 				  String inputLayer, String outputLayer, 
 				  PriorProbCalculator priorcalc)
     throws IOException,FileFormatException {
@@ -33,7 +33,8 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
       if (!line.startsWith("#")) {
 	line = line.trim();
 	String[] data = line.split(",");
-	File f = new File(data[0]);
+	File f = data[0].startsWith(File.separator) ? 
+	    new File(data[0]) : new File(workingDir, data[0]);
 	hmms.add(HmmReader.read(new BufferedReader(new FileReader(f)), 
 				opdfread));
 	filenames.add(data[0]);
