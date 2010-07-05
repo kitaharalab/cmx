@@ -82,6 +82,7 @@ public class MusicApexDataSet {
     dst.apexStartTime = src.getApexStartTime();
     dst.apexStopTime = src.getApexStopTime();
     dst.saliency = src.getApexSaliency();
+    dst.implicit = src.isImplicit();
     for (NoteGroup ng : src.getSubgroups()) {
       AbstractGroup subGroup = copyGroup(ng, (AbstractGroup) createGroup());
       subGroup.parent = dst;
@@ -597,7 +598,7 @@ public class MusicApexDataSet {
             "argument group is not continuous note sequence");
       for (Note n : notes)
         if (!underNotes.contains(n))
-          throw new IllegalArgumentException("group has not contain note " + n);
+          throw new IllegalArgumentException("The specified notes are separated into more than one groups.");
       if (inherited && !validApex(notes))
         throw new IllegalArgumentException("invalid apex");
       if (!subGroups.isEmpty()) {

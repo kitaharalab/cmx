@@ -180,6 +180,8 @@ public class MusicApexWrapper extends CMXFileWrapper {
     ApexWrapedGroup g = new ApexWrapedGroup();
 
     g.depth = Integer.parseInt(node.getAttribute("depth"));
+    g.implicit = node.hasAttribute("implicit")
+        && node.getAttribute("implicit").equals("yes");
 
     String nodepath = getXPathPosition(node);
 
@@ -260,6 +262,7 @@ public class MusicApexWrapper extends CMXFileWrapper {
     private Note apexStart, apexStop;
     private double apexStartTime, apexStopTime;
     private double saliency = Double.NaN;
+    private boolean implicit = false;
 
     public int depth() {
       return depth;
@@ -345,7 +348,7 @@ public class MusicApexWrapper extends CMXFileWrapper {
     }
 
     public boolean isImplicit() {
-      throw new UnsupportedOperationException();
+      return implicit;
     }
 
     public int type() {
@@ -383,7 +386,7 @@ public class MusicApexWrapper extends CMXFileWrapper {
     public void setImplicit(boolean value) {
       throw new UnsupportedOperationException();
     }
-    
+
     public Object clone() throws CloneNotSupportedException {
       throw new UnsupportedOperationException();
     }
