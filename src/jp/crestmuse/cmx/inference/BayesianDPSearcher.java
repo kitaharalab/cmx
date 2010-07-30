@@ -1,8 +1,6 @@
 package jp.crestmuse.cmx.inference;
 
 import java.util.LinkedList;
-import jp.crestmuse.cmx.inference.MusicRepresentation2.*;
-
 
 public class BayesianDPSearcher implements MusicLayerListener {
 
@@ -24,7 +22,7 @@ public class BayesianDPSearcher implements MusicLayerListener {
   }
 
 
-    public void update(MusicRepresentation2 mr, MusicElement me, 
+    public void update(MusicRepresentation mr, MusicElement me, 
 		      int measure, int tick) {
 	if (measure == mr.getMeasureNum())
 	    return;
@@ -84,7 +82,7 @@ public class BayesianDPSearcher implements MusicLayerListener {
 		    if (e != null) {
 			double[] margins = bayesNet.getMargin(bm.bayesnetIndex);
 			for (int i = 0; i < margins.length; i++) {
-			    e.removeEvidence(i);
+			    e.removeEvidence();
 			    e.setProb(i, margins[i]);
 			}
 		    }

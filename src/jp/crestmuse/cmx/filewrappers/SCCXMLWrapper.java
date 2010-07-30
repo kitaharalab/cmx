@@ -252,6 +252,13 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
    * returnToParent(); returnToParent(); }
    */
 
+
+  public void eachpart(Closure closure) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist)
+      closure.call(new Object[]{part});
+  }
+
   public void eachnote(Closure closure) throws TransformerException {
     Part[] partlist = getPartList();
     for (Part part : partlist) {
@@ -261,6 +268,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       }
     }
   }
+
+
+  public void eachbarline(Closure closure) throws TransformerException {
+    Annotation[] barlines = getBarlineList();
+    for (Annotation barline : barlines)
+      closure.call(new Object[]{barline});
+  }
+	
 
   public void eachchord(Closure closure) throws TransformerException {
     Annotation[] chordlist = getChordList();
@@ -335,6 +350,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
   }
 
   public void setNoteAttribute(String attrname, String attrvalue) {
+    System.err.println(lastnote);
+    System.err.println(lastnote.attr);
     lastnote.attr.put(attrname, attrvalue);
   }
 
@@ -584,6 +601,19 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
         h.processNote(note, this);
       h.endPart(id, this);
     }
+  }
+
+
+  public void processChord(SCCAnnotationHandler h) throws TransformerException {
+    Annotation[] anns = getChordList();
+    for (Annotation a : anns)
+      h.processAnnotation(a, this);
+  }
+
+  public void processBarline(SCCAnnotationHandler h) throws TransformerException {
+    Annotation[] anns = getBarlineList();
+    for (Annotation a : anns)
+      h.processAnnotation(a, this);
   }
 
   public void processNotes(SCCHandler h) throws TransformerException {
@@ -886,6 +916,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
     // return selectNodeList(node(), "note");
     // }
 
+  public void eachnote(Closure closure) throws TransformerException {
+    Note[] notelist = getNoteList();
+    for (Note note : notelist) {
+      closure.call(new Object[]{note});
+    }
+  }
+
+
     public Note[] getNoteList() {
       if (notelist == null) {
         // NodeList nl = selectNodeList(node(), "note");
@@ -1043,9 +1081,15 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       return getAttributeInt(node(), "vol");
     }
 
+
     public final int panpot() {
       return getAttributeInt(node(), "pan");
     }
+    
+    public final String name() {
+      return getAttribute("name");
+    }
+    
 
     public final String getXPathExpression() {
       return xpath;

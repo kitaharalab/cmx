@@ -2,7 +2,7 @@ package jp.crestmuse.cmx.inference;
 
 import java.io.*;
 import java.util.*;
-import jp.crestmuse.cmx.inference.MusicRepresentation2.*;
+//import jp.crestmuse.cmx.inference.MusicRepresentation2.*;
 import be.ac.ulg.montefiore.run.jahmm.*;
 import be.ac.ulg.montefiore.run.jahmm.io.*;
 
@@ -17,12 +17,12 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
 
   private PriorProbCalculator priorcalc;
 
-  private MusicRepresentation2 mr = null;
+  private MusicRepresentation mr = null;
   private int tiedLength;
   private int division;
   private ObservationInteger[] oseq;
 
-    public SimpleHMMChainCalculator(File hmmfile, String workingDir, 
+  public SimpleHMMChainCalculator(File hmmfile, String workingDir, 
 				  String inputLayer, String outputLayer, 
 				  PriorProbCalculator priorcalc)
     throws IOException,FileFormatException {
@@ -46,7 +46,15 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
     this.priorcalc = priorcalc;
   }
 
-  public void update(MusicRepresentation2 mr, MusicElement me, 
+  public List<String> getLabels() {
+    return labels;
+  }
+
+  public String[] getLabelsAsArray() {
+    return labels.toArray(new String[labels.size()]);
+  }
+
+  public void update(MusicRepresentation mr, MusicElement me, 
 		     int measure, int tick) {
     if (mr != this.mr) {
       this.mr = mr;
@@ -73,20 +81,25 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
       oseq1.add(oseq[i]);
     }
 
-    double max = Double.NEGATIVE_INFINITY;
-    int argmax = -1;
-    for (int i = 0; i < hmms.size(); i++) {
-      double prior = 1.0;
-      if (priorcalc != null)
-	prior = priorcalc.calcPriorProb(labels.get(i), null, mr, measure, tick);
-      double p = hmms.get(i).probability(oseq1) * prior;
-      if (p > max) {
-	max = p;
-	argmax = i;
-      }
-    }
     MusicElement e2 = mr.getMusicElement(outputLayer, measure, tick);
-    e2.setEvidence(e2.addNewLabel(labels.get(argmax)));
+//    double max = Double.NEGATIVE_INFINITY;
+//    int argmax = -1;
+    for (int i = 0; i < hmms.size(); i++) {
+//      double prior = 1.0;
+      double p = hmms.get(i).probability(oseq1);
+      if (priorcalc != null) {
+	double prior = 
+	  priorcalc.calcPriorProb(labels.get(i), null, mr, measure, tick);
+	e2.setLogLikelihood(i, Math.log(p) + Math.log(prior));
+      } else {
+	e2.setLogLikelihood(i, Math.log(p));
+      }
+//      if (p > max) {
+//	max = p;
+//	argmax = i;
+//      }
+    }
+//    e2.setEvidence(e2.addNewLabel(labels.get(argmax)));
   }
 
 

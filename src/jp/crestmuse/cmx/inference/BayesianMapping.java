@@ -1,7 +1,5 @@
 package jp.crestmuse.cmx.inference;
 
-import jp.crestmuse.cmx.inference.MusicRepresentation2.*;
-
 public class BayesianMapping {
 
   final String layer;
@@ -49,9 +47,12 @@ public class BayesianMapping {
 	this(layer, musRepPosition, option, bayesNodeName, bn, true);
     }
 
+  protected String labelToString(Object o) {
+    return o.toString();
+  }
 
 
-    protected MusicElement mappedElement(MusicRepresentation2 mr, 
+    protected MusicElement mappedElement(MusicRepresentation mr, 
 					 int currentMeasure, int currentTick) {
 	if (musRepPosition == 0)
 	    return mr.getMusicElement(layer, currentMeasure, currentTick);

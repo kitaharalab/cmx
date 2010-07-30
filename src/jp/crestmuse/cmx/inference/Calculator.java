@@ -1,8 +1,9 @@
 package jp.crestmuse.cmx.inference;
 
 //import jp.crestmuse.cmx.inference.MusicRepresentation;
-import jp.crestmuse.cmx.inference.MusicRepresentation.MusicElement;
+//import jp.crestmuse.cmx.inference.MusicRepresentation.MusicElement;
 
+/** @deprecated */
 public interface Calculator {
   /**
    * この計算オブジェクトがどのイベントで発火するかを返す

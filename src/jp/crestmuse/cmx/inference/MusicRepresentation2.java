@@ -10,14 +10,15 @@ import java.util.List;
 
 import jp.crestmuse.cmx.sound.SequencerManager;
 
-public class MusicRepresentation2 {
+/** @deprecated */
+public class MusicRepresentation2 implements MusicRepresentation {
 
   private int measureNum;
   private int division;
   private HashMap<String, MusicLayer> name2layer;
   private boolean changeFlag;
 
-  public MusicRepresentation2(int measureNum, int division) {
+  MusicRepresentation2(int measureNum, int division) {
     this.measureNum = measureNum;
     this.division = division;
     name2layer = new HashMap<String, MusicLayer>();
@@ -48,6 +49,14 @@ public class MusicRepresentation2 {
 	for(int i=0; i<notenum; i++) arr[i] = i + ""; 
 	addMusicLayerBasic(name, arr, tiedLength); 
     }
+
+  public void addMusicLayer(String name, Object[] labels) {
+    addMusicLayerBasic(name, labels);
+  }
+
+  public void addMusicLayer(String name, Object[] labels, int tiedLength) {
+    addMusicLayerBasic(name, labels, tiedLength);
+  }
 
     public void addMusicLayerBasic(String name, Object[] labels) {
 	addMusicLayerBasic(name, labels, 1); 
@@ -173,7 +182,8 @@ public class MusicRepresentation2 {
         return;
       updateChainCount++;
       for (MusicLayerListener listener : listeners) {
-        listener.update(MusicRepresentation2.this, me, me.indexInMusRep / MusicRepresentation2.this.getDivision(), me.indexInMusRep % MusicRepresentation2.this.getDivision());
+	listener.update(MusicRepresentation2.this, me, me.measure(), me.tick());
+//        listener.update(MusicRepresentation2.this, me, me.indexInMusRep / MusicRepresentation2.this.getDivision(), me.indexInMusRep % MusicRepresentation2.this.getDivision());
       }
       updateChainCount = 0;
     }
@@ -189,13 +199,14 @@ public class MusicRepresentation2 {
     }
 
       void applyBackPointers() {
-	  MusicElement e = getElement(getMeasureNum()-1, getDivision()-1);
+	MusicElementImpl e = (MusicElementImpl)getElement(getMeasureNum()-1, getDivision()-1);
 	  int lastindex = e.argmax;
 	  e.evidenceIndex = lastindex;
 	  while (e.backpoint != null) {
-	      e.backpoint.evidenceIndex = e.getBackPointer(lastindex);
-	      System.err.println(e.backpoint.evidenceIndex);
-	      e = e.backpoint;
+	    e.backpoint.setEvidence(e.getBackPointer(lastindex));
+//	      bp.evidenceIndex = e.getBackPointer(lastindex);
+//	      System.err.println(e.backpoint.evidenceIndex);
+	    e = (MusicElementImpl)e.backpoint;
 	  }
       }
 
@@ -208,7 +219,7 @@ public class MusicRepresentation2 {
 	    super(tiedLength);
 	    this.labels = labels;
 	    for (int i = 0; i < getMeasureNum() * getDivision() / tiedLength; i++) {
-        elements.add(new MusicElement(this, i * tiedLength));
+        elements.add(new MusicElementImpl(this, i * tiedLength));
       }
 	}
       //    MusicLayerBasic(int tiedLength) {
@@ -255,7 +266,7 @@ public class MusicRepresentation2 {
       super(measureWidth * getDivision());
       labels = new ArrayList();
       for (int i = 0; i < getMeasureNum() * getDivision() / tiedLength; i++) {
-        elements.add(new MusicElement(this, i * tiedLength));
+        elements.add(new MusicElementImpl(this, i * tiedLength));
       }
     }
 
@@ -301,7 +312,7 @@ public class MusicRepresentation2 {
     }
   }
 
-  public class MusicElement implements BackPointerSetter {
+  public class MusicElementImpl implements MusicElement {
       private ArrayList<ElementProbPair> pairs;
       private int evidenceIndex = -1;
     private boolean setflag = false;
@@ -314,7 +325,7 @@ public class MusicRepresentation2 {
       //      private int bptick = -1;
       private MusicElement backpoint = null;
 
-    private MusicElement(MusicLayer parent, int indexInMusRep) {
+    private MusicElementImpl(MusicLayer parent, int indexInMusRep) {
 	if (parent instanceof MusicLayerBasic) {
 	    MusicLayerBasic l = ((MusicLayerBasic)parent);
 	    pairs = new ArrayList<ElementProbPair>();
@@ -333,6 +344,21 @@ public class MusicRepresentation2 {
       this.indexInMusRep = indexInMusRep;
     }
 
+    public int measure() {
+      return indexInMusRep / division;
+    }
+
+    public int tick() {
+      return indexInMusRep % division;
+    }
+
+    public int division() {
+      return division;
+    }
+
+    public int tiedLength() {
+      return parent.getTiedLength();
+    }
 
       public double[] getAllProbs() {
 	  double[] allprobs = new double[pairs.size()];
@@ -413,29 +439,41 @@ public class MusicRepresentation2 {
       parent.update(this);
     }
 
-    public void removeEvidence(int i) {
+    public void removeEvidence() {
       evidenceIndex = -1;
     }
 
-      public void setLogLikelihood(int i, double value) {
-	  evidenceIndex = -1;
-	  pairs.get(i).loglik = value;
-	  if (value > maxLL) {
-	      maxLL = value;
-	      argmax = i;
-	  }
-	  setflag = true;
-	  parent.update(this);
+    public void setLogLikelihood(int i, double value, boolean update) {
+      evidenceIndex = -1;
+      pairs.get(i).loglik = value;
+      if (value > maxLL) {
+	maxLL = value;
+	argmax = i;
       }
+      setflag = true;
+      if (update) parent.update(this);
+    }
 
-      public void setProb(int i, double value) {
-	  setLogLikelihood(i, Math.log(value));
+    public void setLogLikelihood(int i, double value) {
+      setLogLikelihood(i, value, true);
+    }
+
+    public void setProb(int i, double value, boolean update) {
+      setLogLikelihood(i, Math.log(value), update);
 	//	pairs.get(i).dist = -Math.log(value);
 	//      setflag = true;
 	//      parent.update(this);
-      }
+    }
 
-      int getBackPointer(int i) {
+    public void setProb(int i, double value) {
+      setProb(i, value, true);
+    }
+
+    public void update() {
+      parent.update(this);
+    }
+
+      public int getBackPointer(int i) {
 	  return pairs.get(i).backpointer;
       }
 
@@ -443,8 +481,8 @@ public class MusicRepresentation2 {
 	  pairs.get(i).backpointer = value;
       }
 
-      public void setBackPointerTo(BackPointerSetter e) {
-	  backpoint = (MusicElement)e;
+      public void setBackPointerTo(MusicElement e) {
+	  backpoint = e;
       }
 
       /*
@@ -486,6 +524,18 @@ public class MusicRepresentation2 {
       public int getIndexOf(Object label) {
         return parent.getIndexOf(label);
       }
+
+//    public boolean tiedFromPrevious() {
+//      throw new UnsupportedOperationException();
+/*
+      if (indexInMusRep > 0) {
+	MusicElement prev = parent.elements.get(indexInMusRep - 1);
+	return prev == this;
+      } else {
+	return false;
+      }
+*/
+//    }
 
       private class ElementProbPair implements Comparable<ElementProbPair> {
 	  private int index;
