@@ -4,13 +4,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import jp.crestmuse.cmx.inference.Calculator;
 import jp.crestmuse.cmx.sound.SequencerManager;
 
 /** @deprecated 
- This class remains just for the compatibility to legacy softwares. 
- Don't use this class if you are developing a new software. */
+ This class remains just for the compatibility to legacy software. 
+ Don't use this class if you are developing new software. */
 public class MusicRepresentationImpl implements MusicRepresentation {
 
   private int measureNum;
@@ -70,6 +71,24 @@ public class MusicRepresentationImpl implements MusicRepresentation {
     name2layer.get(layer).addCalculator(calc);
   }
 
+  /** NOTE: always throws UnsupportedOperationException */
+  public void addMusicLayerListener(String layer, MusicLayerListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void suspendUpdate() {
+      throw new UnsupportedOperationException();
+    }
+
+    
+    /** NOTE: always throws UnsupportedOperationException */
+    public void resumeUpdate() {
+      throw new UnsupportedOperationException();
+    }
+
+
+
   public int getIndex(long tick) {
     return getIndex(tick, SequencerManager.TICKS_PER_BEAT);
   }
@@ -84,6 +103,18 @@ public class MusicRepresentationImpl implements MusicRepresentation {
   public void update(String layer, int index) {
     name2layer.get(layer).update(index);
   }
+
+  /** NOTE: always throws UnsupportedOperationExceoption */
+  public boolean isChanged() {
+    throw new UnsupportedOperationException();
+  }
+
+  /** NOTE: always throws UnsupportedOperationExceoption */
+  public void resetChangeFlag() {
+    throw new UnsupportedOperationException();
+  }
+
+    
 
   class MusicElementImpl implements MusicElement {
 
@@ -130,7 +161,58 @@ public class MusicRepresentationImpl implements MusicRepresentation {
     public void update() {
       throw new UnsupportedOperationException();
     }
+
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean tiedFromPrevious() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setTiedFromPrevious(boolean b) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean rest() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setRest(boolean b) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setAttribute(String key, String value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public String getAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean hasAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void removeAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public Map<String,String> getAllAttributes() {
+      throw new UnsupportedOperationException();
+    }
     
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setAllAttributes(Map<String,String> map) {
+      throw new UnsupportedOperationException();
+    }
+
     public double[] getAllProbs() {
       return prob;
     }
@@ -214,6 +296,10 @@ public class MusicRepresentationImpl implements MusicRepresentation {
 
     public String getLabel(int i) {
       return labels[i];
+    }
+
+    public int getIndexOf(Object s) {
+      return indexOf((String)s);
     }
 
     public int indexOf(String s) {

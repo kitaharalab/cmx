@@ -10,6 +10,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
   private int division;
   private HashMap<String, MusicLayer> name2layer;
   private boolean changeFlag;
+  private boolean updateEnabled = true;
 
   public MusicRepresentation3(int measureNum, int division) {
     this.measureNum = measureNum;
@@ -91,6 +92,14 @@ public class MusicRepresentation3 implements MusicRepresentation {
 	l.update(l.getElement(i, j));
   }
 
+  public void suspendUpdate() {
+    updateEnabled = false;
+  }
+
+  public void resumeUpdate() {
+    updateEnabled = true;
+  }
+
   private class MusicLayer {
     private Object[] labels;
 
@@ -108,7 +117,8 @@ public class MusicRepresentation3 implements MusicRepresentation {
       MusicElement e = null;
       int k = 0;
       for (int i = 0; i < getMeasureNum() * getDivision(); i++) {
-	if (k % tiedLength == 0)
+	if (i % tiedLength == 0)
+//	if (k % tiedLength == 0)
 	  e = new MusicElementImpl(this, i);
 	elements[i] = e;
       }
@@ -142,7 +152,8 @@ public class MusicRepresentation3 implements MusicRepresentation {
     MusicElement getElement(int measure, int index) {
       if (index >= getDivision())
         throw new IndexOutOfBoundsException();
-      return elements[(getDivision() * measure + index) / getTiedLength()];
+      return elements[getDivision() * measure + index];
+//      return elements[(getDivision() * measure + index) / getTiedLength()];
     }
 
     Object getLabel(int index) {
@@ -202,6 +213,8 @@ public class MusicRepresentation3 implements MusicRepresentation {
     private MusicElement backpoint = null;
     private int duration;
     private Map<String,String> attrs = new HashMap<String,String>();
+    private boolean tiedFromPrevious = false;
+    private boolean rest = false;
 
     private MusicElementImpl(MusicLayer parent, int indexInMusRep) {
       this.parent = parent;
@@ -262,8 +275,40 @@ public class MusicRepresentation3 implements MusicRepresentation {
       attrs.put(key, value);
     }
 
-    public String getAttribute(String key, String value) {
+    public void setAllAttributes(Map<String,String> map) {
+      attrs.putAll(map);
+    }
+
+    public String getAttribute(String key) {
       return attrs.get(key);
+    }
+
+    public boolean hasAttribute(String key) {
+      return attrs.containsKey(key);
+    }
+
+    public void removeAttribute(String key) {
+      attrs.remove(key);
+    }
+
+    public Map<String,String> getAllAttributes() {
+      return attrs;
+    }
+
+    public boolean tiedFromPrevious() {
+      return tiedFromPrevious;
+    }
+
+    public boolean rest() {
+      return rest;
+    }
+
+    public void setTiedFromPrevious(boolean b) {
+      tiedFromPrevious = b;
+    }
+
+    public void setRest(boolean b) {
+      rest = b;
     }
 
     public double[] getAllProbs() {
@@ -296,8 +341,10 @@ public class MusicRepresentation3 implements MusicRepresentation {
     public int getHighestProbIndex() {
       if (evidenceIndex != -1)
 	return evidenceIndex;
-      else
+      else if (argmax != -1)
 	return argmax;
+      else
+	return getRankedProbIndex(0);
       //	    return getRankedProbIndex(0);
     }
 
@@ -360,7 +407,8 @@ public class MusicRepresentation3 implements MusicRepresentation {
     public void setEvidence(int i) {
       this.evidenceIndex = i;
       sortedPairs = null;
-      parent.update(this);
+      if (updateEnabled)
+	parent.update(this);
     }
 
     public void removeEvidence() {
@@ -368,23 +416,31 @@ public class MusicRepresentation3 implements MusicRepresentation {
       evidenceIndex = -1;
     }
 
-    public void setLogLikelihood(int i, double value, boolean update) {
+    private void setLogLikelihood(int i, double value, boolean update) {
       sortedPairs = null;
       evidenceIndex = -1;
+      if (pairs[i].loglik == maxLL && value < maxLL) {
+	argmax = -1;
+      }
       pairs[i].loglik = value;
-      if (value > maxLL) {
+      System.err.println("### " + i + " " + pairs[i].loglik);
+      if (argmax != -1 && value > maxLL) {
 	maxLL = value;
 	argmax = i;
+      } else if (argmax == -1) {
+	argmax = getHighestProbIndex();
+	maxLL = getLogLikelihood(argmax);
       }
       setflag = true;
-      if (update) parent.update(this);
+      if (updateEnabled && update) parent.update(this);
+      System.err.println("@@@ " + argmax + "  " + maxLL);
     }
 
     public void setLogLikelihood(int i, double value) {
       setLogLikelihood(i, value, true);
     }
 
-    public void setProb(int i, double value, boolean update) {
+    private void setProb(int i, double value, boolean update) {
       setLogLikelihood(i, Math.log(value), update);
 	//	pairs.get(i).dist = -Math.log(value);
 	//      setflag = true;

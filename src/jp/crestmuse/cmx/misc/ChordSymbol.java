@@ -57,6 +57,7 @@ public final class ChordSymbol {
   }
   
   public static ChordSymbol parse(String s, boolean seventhIgnored) {
+    s = s.trim();
     Matcher m = p.matcher(s);
     if (m.matches())
       return new ChordSymbol(parseRoot(m.group(1)), 

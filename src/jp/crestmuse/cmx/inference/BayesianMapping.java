@@ -62,7 +62,7 @@ public class BayesianMapping {
 	int division = mr.getDivision();
 	int newindex = currentMeasure * division + currentTick 
 	    + musRepPosition * inc;
-	System.err.println("newindex: " + newindex);
+//	System.err.println("newindex: " + newindex);
 	if (newindex >= 0) {
 	    int newmeasure = newindex / division;
 	    int newtick;
@@ -70,7 +70,7 @@ public class BayesianMapping {
 		newtick = 0;
 	    else
 		newtick = newindex % division;
-	    System.err.println(layer + " " + newindex);
+//	    System.err.println(layer + " " + newindex);
 	    return mr.getMusicElement(layer, newmeasure, newtick);
 	} else {
 	    return null;

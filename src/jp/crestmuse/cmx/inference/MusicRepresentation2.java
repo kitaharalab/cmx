@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.*;
 
 import jp.crestmuse.cmx.sound.SequencerManager;
 
@@ -148,6 +149,20 @@ public class MusicRepresentation2 implements MusicRepresentation {
       for (int j = 0; j < n; j += d) 
 	l.update(l.getElement(i, j));
   }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void suspendUpdate() {
+      throw new UnsupportedOperationException();
+    }
+
+    
+    /** NOTE: always throws UnsupportedOperationException */
+    public void resumeUpdate() {
+      throw new UnsupportedOperationException();
+    }
+
+
+
   abstract class MusicLayer {
     protected int tiedLength;
     protected List<MusicElement> elements;
@@ -175,6 +190,8 @@ public class MusicRepresentation2 implements MusicRepresentation {
       //    int getElementsLength(){
       //      return elements.size();
       //    }
+
+    
 
     private void update(MusicElement me) {
       changeFlag = true;
@@ -525,6 +542,58 @@ public class MusicRepresentation2 implements MusicRepresentation {
         return parent.getIndexOf(label);
       }
 
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean tiedFromPrevious() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setTiedFromPrevious(boolean b) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean rest() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setRest(boolean b) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setAttribute(String key, String value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public String getAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public void removeAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public boolean hasAttribute(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: always throws UnsupportedOperationException */
+    public Map<String,String> getAllAttributes() {
+      throw new UnsupportedOperationException();
+    }
+    
+    /** NOTE: always throws UnsupportedOperationException */
+    public void setAllAttributes(Map<String,String> map) {
+      throw new UnsupportedOperationException();
+    }
+    
 //    public boolean tiedFromPrevious() {
 //      throw new UnsupportedOperationException();
 /*

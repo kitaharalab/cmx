@@ -150,7 +150,17 @@ public abstract class NodeInterface {
 //    if (attrmap == null) attrmap = node.getAttributes();
 //    return attrmap.getNamedItem(key).getNodeValue();
   }
-
+  
+  public Map<String,String> getAllAttributes() {
+    Map<String,String> map = new HashMap<String,String>();
+    NamedNodeMap attrs = node.getAttributes();
+    for (int i = 0; i < attrs.getLength(); i++) {
+      Attr a = (Attr)attrs.item(i);
+      map.put(a.getName(), a.getValue());
+    }
+    return map;
+  }
+  
   public int getAttributeInt(String key) {
     return Integer.parseInt(getAttribute(key));
   }
