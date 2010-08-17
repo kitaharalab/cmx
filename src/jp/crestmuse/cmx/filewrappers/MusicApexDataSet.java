@@ -384,6 +384,10 @@ public class MusicApexDataSet {
     }
 
     public void setApex(Note n) {
+      setApex(n, false);
+    }
+
+    public void setApex(Note n, boolean clearInheritedApex) {
       if (inheritedApexFromParent)
         throw new IllegalStateException("apex inherited from parent");
       apexStart = apexStop = n;
@@ -393,6 +397,8 @@ public class MusicApexDataSet {
         for (NoteGroup ng : subGroups) {
           if (((AbstractGroup) ng).inheritedApexFromParent) {
             ((AbstractGroup) ng).inheritedApexFromParent = false;
+            if (clearInheritedApex)
+              ((NoteGroupType1) ng).setApex(null, true);
             break;
           }
         }
@@ -598,7 +604,8 @@ public class MusicApexDataSet {
             "argument group is not continuous note sequence");
       for (Note n : notes)
         if (!underNotes.contains(n))
-          throw new IllegalArgumentException("The specified notes are separated into more than one groups.");
+          throw new IllegalArgumentException(
+              "The specified notes are separated into more than one groups.");
       if (inherited && !validApex(notes))
         throw new IllegalArgumentException("invalid apex");
       if (!subGroups.isEmpty()) {
