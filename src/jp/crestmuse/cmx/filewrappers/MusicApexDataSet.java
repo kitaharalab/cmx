@@ -870,60 +870,115 @@ public class MusicApexDataSet {
         ((NoteGroupType1) dst).subGroups.add(bwdDst);
     }
 
-    public void mergeGroup(NoteGroup dst) {
-      boolean srcLeft = noteGroupOnset(this) < noteGroupOnset(dst);
-      parent.subGroups.remove(this);
-      margeNoEmpties(this, dst, srcLeft);
-    }
-
-    private void margeNoEmpties(NoteGroup src, NoteGroup dst, boolean srcLeft) {
-      if (src.getSubgroups().isEmpty() && dst.getSubgroups().isEmpty()) {
-        for (Note n : src.getAllNotes()) {
-          ((NoteGroupType1) dst).ownNotes.add(n);
-          ((NoteGroupType1) dst).underNotes.add(n);
-        }
-      } else if (src.getSubgroups().isEmpty() && !dst.getSubgroups().isEmpty()) {
-        for (Note n : src.getAllNotes())
-          ((NoteGroupType1) dst).underNotes.add(n);
-        margeEmptyAndNoempty(src, dst, srcLeft);
-      } else if (dst.getSubgroups().isEmpty() && !src.getSubgroups().isEmpty()) {
-        parent.subGroups.remove(dst);
-        for (Note n : dst.getAllNotes())
-          ((NoteGroupType1) src).underNotes.add(n);
-        margeEmptyAndNoempty(dst, src, !srcLeft);
-        parent.subGroups.add(src);
+    public NoteGroup mergeGroup(NoteGroup dst) {
+      NoteGroupType1 left, right;
+      if (noteGroupOnset(this) < noteGroupOnset(dst)) {
+        left = this;
+        right = (NoteGroupType1) dst;
       } else {
-        for (Note n : src.getAllNotes())
-          ((NoteGroupType1) dst).underNotes.add(n);
-        NoteGroup srcEdge, dstEdge;
-        if (srcLeft) {
-          srcEdge = getLastSubGroup(src);
-          dstEdge = getFirstSubGroup(dst);
-        } else {
-          srcEdge = getFirstSubGroup(src);
-          dstEdge = getLastSubGroup(dst);
-        }
-        margeNoEmpties(srcEdge, dstEdge, srcLeft);
-        for (NoteGroup ng : src.getSubgroups())
-          if (ng != srcEdge)
-            ((NoteGroupType1) dst).subGroups.add(ng);
+        left = (NoteGroupType1) dst;
+        right = this;
       }
+      parent.subGroups.remove(left);
+      parent.subGroups.remove(right);
+      ArrayList<Note> all = new ArrayList<Note>(left.getAllNotes());
+      all.addAll(right.getAllNotes());
+      NoteGroupType1 mergedGroup = (NoteGroupType1) createGroup(all);
+      mergedGroup.depth = left.depth;
+      mergedGroup.implicit = left.implicit && right.implicit;
+      mergedGroup.parent = parent;
+      parent.subGroups.add(mergedGroup);
+      ArrayList<NoteGroup> cat = new ArrayList<NoteGroup>(left.subGroups);
+      cat.addAll(right.subGroups);
+      for (NoteGroup ng : cat) {
+        mergedGroup.addSubgroupWithoutForce((NoteGroupType1) ng);
+        all.removeAll(ng.getAllNotes());
+      }
+      NoteGroupType1 imp = null;
+      if (cat.size() > 0 && all.size() > 0) {
+        imp = (NoteGroupType1) createGroup(all);
+        imp.implicit = true;
+        mergedGroup.addSubgroupWithoutForce(imp);
+      }
+      if (!left.subGroups.isEmpty() || !right.subGroups.isEmpty()) {
+        NoteGroup leftEdge = left.subGroups.isEmpty() ? imp
+            : getLastSubGroup(left);
+        NoteGroup rightEdge = right.subGroups.isEmpty() ? imp
+            : getFirstSubGroup(right);
+        ((NoteGroupType1) leftEdge).mergeGroup(rightEdge);
+      }
+      return mergedGroup;
     }
 
-    private void margeEmptyAndNoempty(NoteGroup empty, NoteGroup full,
-        boolean emptyLeft) {
-      NoteGroup edge = full;
-      while (!edge.getSubgroups().isEmpty()) {
-        if (emptyLeft)
-          edge = getFirstSubGroup(edge);
-        else
-          edge = getLastSubGroup(edge);
-        for (Note n : empty.getAllNotes())
-          ((NoteGroupType1) edge).underNotes.add(n);
-      }
-      for (Note n : empty.getAllNotes())
-        ((NoteGroupType1) edge).ownNotes.add(n);
+    private void addSubgroupWithoutForce(NoteGroupType1 subGroup) {
+      subGroup.setDepthRec(depth + 1);
+      subGroup.parent = this;
+      subGroups.add(subGroup);
     }
+
+    private void setDepthRec(int depth) {
+      this.depth = depth;
+      for (NoteGroup ng : subGroups)
+        ((NoteGroupType1) ng).setDepthRec(depth + 1);
+    }
+
+    // public void mergeGroup(NoteGroup dst) {
+    // boolean srcLeft = noteGroupOnset(this) < noteGroupOnset(dst);
+    // parent.subGroups.remove(this);
+    // margeNoEmpties(this, dst, srcLeft);
+    // }
+
+    // private void margeNoEmpties(NoteGroup src, NoteGroup dst, boolean
+    // srcLeft) {
+    // if (src.getSubgroups().isEmpty() && dst.getSubgroups().isEmpty()) {
+    // for (Note n : src.getAllNotes()) {
+    // ((NoteGroupType1) dst).ownNotes.add(n);
+    // ((NoteGroupType1) dst).underNotes.add(n);
+    // }
+    // } else if (src.getSubgroups().isEmpty() && !dst.getSubgroups().isEmpty())
+    // {
+    // for (Note n : src.getAllNotes())
+    // ((NoteGroupType1) dst).underNotes.add(n);
+    // margeEmptyAndNoempty(src, dst, srcLeft);
+    // } else if (dst.getSubgroups().isEmpty() && !src.getSubgroups().isEmpty())
+    // {
+    // parent.subGroups.remove(dst);
+    // for (Note n : dst.getAllNotes())
+    // ((NoteGroupType1) src).underNotes.add(n);
+    // margeEmptyAndNoempty(dst, src, !srcLeft);
+    // parent.subGroups.add(src);
+    // } else {
+    // for (Note n : src.getAllNotes())
+    // ((NoteGroupType1) dst).underNotes.add(n);
+    // NoteGroup srcEdge, dstEdge;
+    // if (srcLeft) {
+    // srcEdge = getLastSubGroup(src);
+    // dstEdge = getFirstSubGroup(dst);
+    // } else {
+    // srcEdge = getFirstSubGroup(src);
+    // dstEdge = getLastSubGroup(dst);
+    // }
+    // margeNoEmpties(srcEdge, dstEdge, srcLeft);
+    // for (NoteGroup ng : src.getSubgroups())
+    // if (ng != srcEdge)
+    // ((NoteGroupType1) dst).subGroups.add(ng);
+    // }
+    // }
+
+    // private void margeEmptyAndNoempty(NoteGroup empty, NoteGroup full,
+    // boolean emptyLeft) {
+    // NoteGroup edge = full;
+    // while (!edge.getSubgroups().isEmpty()) {
+    // if (emptyLeft)
+    // edge = getFirstSubGroup(edge);
+    // else
+    // edge = getLastSubGroup(edge);
+    // for (Note n : empty.getAllNotes())
+    // ((NoteGroupType1) edge).underNotes.add(n);
+    // }
+    // for (Note n : empty.getAllNotes())
+    // ((NoteGroupType1) edge).ownNotes.add(n);
+    // }
 
     private int noteGroupOnset(NoteGroup ng) {
       int TPB = 480;
