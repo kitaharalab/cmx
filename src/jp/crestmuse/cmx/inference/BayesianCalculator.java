@@ -23,21 +23,26 @@ public class BayesianCalculator implements MusicLayerListener {
       return;
     for (BayesianMapping bm : readMappings) {
       MusicElement e = bm.mappedElement(musRep, measure, tick);
-//      System.err.println("measure: " + measure + "  tick: " + tick);
+      System.err.println("measure: " + measure + "  tick: " + tick);
 //      System.err.println(bm.layer);
 //      System.err.println(e);
       if (e != null) {
-	  if (bm.evidenceOnly || e.hasEvidence()) {
+//	  if (bm.evidenceOnly || e.hasEvidence()) {
+	if (bm.evidenceOnly) {
+	  if (e.hasEvidence()) {
 	    int index = e.getHighestProbIndex();
 //	    System.err.println(index);
 	    if (index >= 0) {
 	      Object label = e.getLabel(index);
 	      int evidence = musRepLabelToBayesNetIndex(bm, label);
 	      bayesNet.setEvidence(bm.bayesnetIndex, evidence);
-//	      System.err.println(label);
+	      System.err.println(label);
 	    }
-//	      bayesNet.setEvidence(bm.bayesnetIndex, e.getHighestProbIndex());
 	  } else {
+	    bayesNet.setEvidence(bm.bayesnetIndex, -1);
+	  }
+//	      bayesNet.setEvidence(bm.bayesnetIndex, e.getHighestProbIndex());
+	} else {
 	      // ネットワークの始点じゃないとうまくいかない？
 	    throw new UnsupportedOperationException("not implmeneted yet.");
 //	      double[] dd = e.getAllProbs();
@@ -58,15 +63,15 @@ public class BayesianCalculator implements MusicLayerListener {
 	double[] margins = bayesNet.getMargin(bm.bayesnetIndex);
 	musRep.suspendUpdate();
 //	System.err.println("measure: " + measure + "  tick: " + tick);
-//	System.err.println(bm.layer);
+	System.err.println(bm.layer);
 	for (int i = 0; i < margins.length; i++) {
 	  e.removeEvidence();
 	  int j = bayesNetIndexToMusRepIndex(bm, i, e);
 	  e.setProb(j, margins[i]);
-//	  System.err.println(j + ":" + margins[i]);
+	  System.err.println(j + ":" + margins[i]);
 //	  e.setProb(j, margins[i], false);
 	}
-//	System.err.println();
+	System.err.println();
 	musRep.resumeUpdate();
 	e.update();
 	// System.err.println("Rank0: " + e.getProb(e.getRankedProbIndex(0)));

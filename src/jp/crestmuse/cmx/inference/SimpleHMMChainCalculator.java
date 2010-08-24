@@ -81,11 +81,11 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
 	else
 	oseq[i] = new ObservationInteger(e.getHighestProbIndex());
 //	oseq[i] = new ObservationInteger(me.getHighestProbIndex());
-	System.err.println("getMusicElement(" + inputLayer + " , " + 
-			   (i / division) + ", " + (i % division) + ")");
-	System.err.println(e);
-	System.err.println(e.getHighestProbIndex());
-	System.err.println(oseq[i]);
+//	System.err.println("getMusicElement(" + inputLayer + " , " + 
+//			   (i / division) + ", " + (i % division) + ")");
+//	System.err.println(e);
+//	System.err.println(e.getHighestProbIndex());
+//	System.err.println(oseq[i]);
 
 //      }
       System.err.println("OSEQ[" + i + "]=" + oseq[i]);
@@ -100,7 +100,7 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
     for (int i = 0; i < hmms.size(); i++) {
 //      double prior = 1.0;
       double p = hmms.get(i).probability(oseq1);
-      System.err.println(labels.get(i) + ": " + p);
+//      System.err.println(labels.get(i) + ": " + p);
       if (priorcalc != null) {
 	double prior = 
 	  priorcalc.calcPriorProb(labels.get(i), null, mr, measure, tick);
@@ -115,7 +115,7 @@ public class SimpleHMMChainCalculator implements MusicLayerListener {
     }
     mr.resumeUpdate();
     e2.update();
-    System.err.println(e2.getLabel(e2.getHighestProbIndex()));
+//    System.err.println(e2.getLabel(e2.getHighestProbIndex()));
     
 //    e2.setEvidence(e2.addNewLabel(labels.get(argmax)));
   }

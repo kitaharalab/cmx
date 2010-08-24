@@ -423,7 +423,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
 	argmax = -1;
       }
       pairs[i].loglik = value;
-      System.err.println("### " + i + " " + pairs[i].loglik);
+//      System.err.println("### " + i + " " + pairs[i].loglik);
       if (argmax != -1 && value > maxLL) {
 	maxLL = value;
 	argmax = i;
@@ -433,7 +433,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
       }
       setflag = true;
       if (updateEnabled && update) parent.update(this);
-      System.err.println("@@@ " + argmax + "  " + maxLL);
+//      System.err.println("@@@ " + argmax + "  " + maxLL);
     }
 
     public void setLogLikelihood(int i, double value) {
