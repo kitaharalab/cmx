@@ -252,11 +252,10 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
    * returnToParent(); returnToParent(); }
    */
 
-
   public void eachpart(Closure closure) throws TransformerException {
     Part[] partlist = getPartList();
     for (Part part : partlist)
-      closure.call(new Object[]{part});
+      closure.call(new Object[] { part });
   }
 
   public void eachnote(Closure closure) throws TransformerException {
@@ -269,13 +268,11 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
     }
   }
 
-
   public void eachbarline(Closure closure) throws TransformerException {
     Annotation[] barlines = getBarlineList();
     for (Annotation barline : barlines)
-      closure.call(new Object[]{barline});
+      closure.call(new Object[] { barline });
   }
-	
 
   public void eachchord(Closure closure) throws TransformerException {
     Annotation[] chordlist = getChordList();
@@ -603,14 +600,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
     }
   }
 
-
   public void processChord(SCCAnnotationHandler h) throws TransformerException {
     Annotation[] anns = getChordList();
     for (Annotation a : anns)
       h.processAnnotation(a, this);
   }
 
-  public void processBarline(SCCAnnotationHandler h) throws TransformerException {
+  public void processBarline(SCCAnnotationHandler h)
+      throws TransformerException {
     Annotation[] anns = getBarlineList();
     for (Annotation a : anns)
       h.processAnnotation(a, this);
@@ -901,6 +898,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
 
     private Note[] notelist = null;
     private List<Note> noteonlylist = null;
+    private List<ControlChange> controllist = null;
     private String xpath;
 
     private Part(Node node) {
@@ -916,13 +914,12 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
     // return selectNodeList(node(), "note");
     // }
 
-  public void eachnote(Closure closure) throws TransformerException {
-    Note[] notelist = getNoteList();
-    for (Note note : notelist) {
-      closure.call(new Object[]{note});
+    public void eachnote(Closure closure) throws TransformerException {
+      Note[] notelist = getNoteList();
+      for (Note note : notelist) {
+        closure.call(new Object[] { note });
+      }
     }
-  }
-
 
     public Note[] getNoteList() {
       if (notelist == null) {
@@ -931,6 +928,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
         int size = nl.getLength();
         notelist = new Note[size];
         noteonlylist = new ArrayList<Note>();
+        controllist = new ArrayList<ControlChange>();
         int iNote = 0, iCC = 0, iPB = 0;
         for (int i = 0; i < size; i++) {
           Node node = nl.item(i);
@@ -940,7 +938,9 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
             notelist[i].xpath = getXPathExpression() + "/note[" + iNote + "]";
             iNote++;
           } else if (node.getNodeName().equals("control")) {
-            notelist[i] = new ControlChange(node, this);
+            ControlChange cc = new ControlChange(node, this);
+            notelist[i] = cc;
+            controllist.add(cc);
             notelist[i].xpath = getXPathExpression() + "/control[" + iCC + "]";
             iCC++;
           } else if (node.getNodeName().equals("pitch-bend")) {
@@ -1042,6 +1042,12 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
      * System.err.println(s); return s; }
      */
 
+    public ControlChange[] getControlChangeList() {
+      if (controllist == null)
+        getNoteList();
+      return controllist.toArray(new ControlChange[controllist.size()]);
+    }
+
     public MIDIEventList toMIDIEventList() {
       byte ch = channel();
       MIDIEventList el = new MIDIEventList();
@@ -1081,15 +1087,13 @@ public class SCCXMLWrapper extends CMXFileWrapper implements
       return getAttributeInt(node(), "vol");
     }
 
-
     public final int panpot() {
       return getAttributeInt(node(), "pan");
     }
-    
+
     public final String name() {
       return getAttribute("name");
     }
-    
 
     public final String getXPathExpression() {
       return xpath;

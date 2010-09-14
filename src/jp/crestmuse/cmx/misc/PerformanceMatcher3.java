@@ -3,6 +3,7 @@ package jp.crestmuse.cmx.misc;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.ControlChange;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
@@ -41,10 +42,10 @@ public class PerformanceMatcher3 {
   }
 
   private MusicXMLWrapper musicxml;
-  private MIDIXMLWrapper midixml;
   private String partid;
   private Measure[] measurelist;
   private Note[] scoreNotes, pfmNotes;
+  private ControlChange[] controls;
   private List<NoteInSameTime> compressedScore;
   private Annotation[] barlines;
   // private DeviationDataSet dds;
@@ -64,7 +65,6 @@ public class PerformanceMatcher3 {
       int ticksPerBeat) throws ParserConfigurationException, SAXException,
       IOException, TransformerException {
     this.musicxml = score;
-    this.midixml = pfm;
     Part part0 = musicxml.getPartList()[0];
     measurelist = part0.getMeasureList();
     partid = part0.id();
@@ -74,6 +74,7 @@ public class PerformanceMatcher3 {
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
     calcMusicXMLNote2Index();
     pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);
+    controls = pfmSCC.getPartList()[0].getControlChangeList();
     initCompressedScore();
     scoreTicksPerBeat = scoreSCC.getDivision();
     pfmTicksPerBeat = pfmSCC.getDivision();
@@ -220,6 +221,7 @@ public class PerformanceMatcher3 {
     addTempoDeviations(dds, tempolist, avgtempo);
     checkMissAndExtraNotes(extraNotes, tempolist);
     setNotewiseDeviations(dds, extraNotes, tempolist);
+    setPedalControls(dds, tempolist);
     return dds.toWrapper();
   }
 
@@ -370,19 +372,20 @@ public class PerformanceMatcher3 {
     compressedScore = new ArrayList<NoteInSameTime>();
     NoteBuffer nb = new NoteBuffer();
     for (int i = 0; i < scoreNotes.length; i++) {
-      if (i >= 1 && scoreNotes[i].onset() != scoreNotes[i-1].onset()) {
-	addNotesToCompressedScore(nb, compressedScore);
-	nb = new NoteBuffer();
+      if (i >= 1 && scoreNotes[i].onset() != scoreNotes[i - 1].onset()) {
+        addNotesToCompressedScore(nb, compressedScore);
+        nb = new NoteBuffer();
       }
       nb.addNote(scoreNotes[i], i);
     }
     addNotesToCompressedScore(nb, compressedScore);
   }
-    
+
   private class NoteBuffer {
     Note[][] notes = new Note[64][128];
     int[][] indices = new int[64][128];
     int[] next = new int[64];
+
     void addNote(Note note, int index) {
       int grace = note.grace();
       notes[grace][next[grace]] = note;
@@ -391,12 +394,12 @@ public class PerformanceMatcher3 {
     }
   }
 
-  private void addNotesToCompressedScore(NoteBuffer nb, 
-					 List<NoteInSameTime> compressedScore){
+  private void addNotesToCompressedScore(NoteBuffer nb,
+      List<NoteInSameTime> compressedScore) {
     for (int n = 1; nb.next[n] > 0; n++) {
       NoteInSameTime nist = new NoteInSameTime();
       for (int i = 0; i < nb.next[n]; i++)
-	nist.addNote(nb.notes[n][i], nb.indices[n][i]);
+        nist.addNote(nb.notes[n][i], nb.indices[n][i]);
       compressedScore.add(nist);
     }
     NoteInSameTime nist = new NoteInSameTime();
@@ -405,24 +408,15 @@ public class PerformanceMatcher3 {
     compressedScore.add(nist);
   }
 
-/*
-  private void initCompressedScore() {
-    compressedScore = new ArrayList<NoteInSameTime>();
-    Note prev = scoreNotes[0];
-    NoteInSameTime nist = new NoteInSameTime();
-    nist.addNote(prev, 0);
-    compressedScore.add(nist);
-    for (int i = 1; i < scoreNotes.length; i++) {
-      if (scoreNotes[i].onset() != prev.onset()
-          || scoreNotes[i].getGrace() == 0) {
-        nist = new NoteInSameTime();
-        compressedScore.add(nist);
-      }
-      nist.addNote(scoreNotes[i], i);
-      prev = scoreNotes[i];
-    }
-  }
-*/
+  /*
+   * private void initCompressedScore() { compressedScore = new
+   * ArrayList<NoteInSameTime>(); Note prev = scoreNotes[0]; NoteInSameTime nist
+   * = new NoteInSameTime(); nist.addNote(prev, 0); compressedScore.add(nist);
+   * for (int i = 1; i < scoreNotes.length; i++) { if (scoreNotes[i].onset() !=
+   * prev.onset() || scoreNotes[i].getGrace() == 0) { nist = new
+   * NoteInSameTime(); compressedScore.add(nist); } nist.addNote(scoreNotes[i],
+   * i); prev = scoreNotes[i]; } }
+   */
 
   private void sortIndexList() {
     for (int i = 0; i < score2pfm.length - 1; i++) {
@@ -651,6 +645,24 @@ public class PerformanceMatcher3 {
         }
       }
     }
+  }
+
+  private void setPedalControls(DeviationDataSet dds,
+      ArrayList<TempoAndTime> tempolist) {
+    for (ControlChange cc : controls)
+      if (cc.ctrlnum() == 64) {
+        TempoAndTime tnt = searchTnT(cc.onset(), tempolist);
+        double diff = cc.onset() - tnt.tickInPfm;
+        diff = diff * tnt.tempo / (pfmTicksPerBeat * baseTempo);
+        dds.addPartwiseControl(musicxml.getPartList()[0].id(), tnt.measure,
+            tnt.beat + diff, "pedal");
+        if (cc.value() == 0)
+          dds.setAttribute("action", "off");
+        else {
+          dds.setAttribute("action", "on");
+          dds.setAttribute("value", cc.value() / 127.0);
+        }
+      }
   }
 
   // kari; redundant calculation
@@ -1069,8 +1081,10 @@ public class PerformanceMatcher3 {
       MusicXMLWrapper score = (MusicXMLWrapper) CMXFileWrapper.readfile(args[0]);
       MIDIXMLWrapper pfm = MIDIXMLWrapper.readSMF(args[1]);
       // PerformanceMatcher3.DTW_PATH_FILENAME = args[2];
-      PerformanceMatcher3.extractDeviation(score, pfm, new File(args[2])).writefile(
-          args[3]);
+      // PerformanceMatcher3.extractDeviation(score, pfm, new
+      // File(args[2])).writefile(
+      // args[3]);
+      PerformanceMatcher3.extractDeviation(score, pfm).write(System.out);
     } catch (Exception e) {
       e.printStackTrace();
     }
