@@ -3,7 +3,10 @@ package jp.crestmuse.cmx.commands;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
 
+import java.io.IOException;
 import java.util.*;
+
+import org.xml.sax.SAXException;
 
 /**
  * <p>

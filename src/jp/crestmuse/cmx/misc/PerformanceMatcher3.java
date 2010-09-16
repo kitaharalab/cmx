@@ -654,13 +654,15 @@ public class PerformanceMatcher3 {
         TempoAndTime tnt = searchTnT(cc.onset(), tempolist);
         double diff = cc.onset() - tnt.tickInPfm;
         diff = diff * tnt.tempo / (pfmTicksPerBeat * baseTempo);
+        // if (tnt.measure == -1)
+        // System.err.println(tempolist.get(1).tickInScore);
         dds.addPartwiseControl(musicxml.getPartList()[0].id(), tnt.measure,
             tnt.beat + diff, "pedal");
         if (cc.value() == 0)
           dds.setAttribute("action", "off");
         else {
           dds.setAttribute("action", "on");
-          dds.setAttribute("value", cc.value() / 127.0);
+          dds.setAttribute("depth", cc.value() / 127.0);
         }
       }
   }
@@ -693,7 +695,8 @@ public class PerformanceMatcher3 {
 
   private TempoAndTime searchTnT(double tick, ArrayList<TempoAndTime> tempolist) {
     int size = tempolist.size();
-    while (i >= size - 1 || tempolist.get(i).tickInPfm > tick && i > 0)
+    i = 1;
+    while (i >= size - 1 || tempolist.get(i).tickInPfm > tick && i > 1)
       i--;
     while (i < 0 || tempolist.get(i + 1).tickInPfm <= tick && i < size - 2)
       i++;
@@ -1084,7 +1087,11 @@ public class PerformanceMatcher3 {
       // PerformanceMatcher3.extractDeviation(score, pfm, new
       // File(args[2])).writefile(
       // args[3]);
-      PerformanceMatcher3.extractDeviation(score, pfm).write(System.out);
+      // PerformanceMatcher3.extractDeviation(score, pfm).write(System.out);
+      DeviationInstanceWrapper dev = PerformanceMatcher3.extractDeviation(
+          score, pfm);
+      dev.finalizeDocument();
+      dev.toSCCXML(480).toMIDIXML().writefileAsSMF("out.mid");
     } catch (Exception e) {
       e.printStackTrace();
     }
