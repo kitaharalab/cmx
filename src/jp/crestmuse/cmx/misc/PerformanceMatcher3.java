@@ -652,12 +652,16 @@ public class PerformanceMatcher3 {
     for (ControlChange cc : controls)
       if (cc.ctrlnum() == 64) {
         TempoAndTime tnt = searchTnT(cc.onset(), tempolist);
-        double diff = cc.onset() - tnt.tickInPfm;
+        double diff = 0;
+        if (tnt.measure >= 0)
+          diff = cc.onset() - tnt.tickInPfm;
+        else
+          diff = cc.onset() - tempolist.get(1).tickInPfm;
         diff = diff * tnt.tempo / (pfmTicksPerBeat * baseTempo);
         // if (tnt.measure == -1)
         // System.err.println(tempolist.get(1).tickInScore);
-        dds.addPartwiseControl(musicxml.getPartList()[0].id(), tnt.measure,
-            tnt.beat + diff, "pedal");
+        dds.addPartwiseControl(musicxml.getPartList()[0].id(), Math.max(
+            tnt.measure, 1), tnt.beat + diff, "pedal");
         if (cc.value() == 0)
           dds.setAttribute("action", "off");
         else {
@@ -695,8 +699,7 @@ public class PerformanceMatcher3 {
 
   private TempoAndTime searchTnT(double tick, ArrayList<TempoAndTime> tempolist) {
     int size = tempolist.size();
-    i = 1;
-    while (i >= size - 1 || tempolist.get(i).tickInPfm > tick && i > 1)
+    while (i >= size - 1 || tempolist.get(i).tickInPfm > tick && i > 0)
       i--;
     while (i < 0 || tempolist.get(i + 1).tickInPfm <= tick && i < size - 2)
       i++;
