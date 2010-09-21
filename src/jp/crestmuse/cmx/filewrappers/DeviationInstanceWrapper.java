@@ -514,8 +514,11 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         } else {
           throw new InvalidElementException();
         }
+        int ctrlnum = 64;
+        if ("soft".equals(c.getChildAttribute("type")))
+          ctrlnum = 67;
         notelist.list.add(new MutableControlChange(c.timestamp(ticksPerBeat),
-            64, depth, ticksPerBeat));
+            ctrlnum, depth, ticksPerBeat));
       } else if (c.type().equals("base-dynamics")) {
         notelist.list.add(new BaseDynamicsEvent(c.timestamp(ticksPerBeat),
             ticksPerBeat, c.value()));

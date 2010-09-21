@@ -650,7 +650,7 @@ public class PerformanceMatcher3 {
   private void setPedalControls(DeviationDataSet dds,
       ArrayList<TempoAndTime> tempolist) {
     for (ControlChange cc : controls)
-      if (cc.ctrlnum() == 64) {
+      if (cc.ctrlnum() == 64 || cc.ctrlnum() == 67) {
         TempoAndTime tnt = searchTnT(cc.onset(), tempolist);
         double diff = 0;
         if (tnt.measure >= 0)
@@ -658,8 +658,6 @@ public class PerformanceMatcher3 {
         else
           diff = cc.onset() - tempolist.get(1).tickInPfm;
         diff = diff * tnt.tempo / (pfmTicksPerBeat * baseTempo);
-        // if (tnt.measure == -1)
-        // System.err.println(tempolist.get(1).tickInScore);
         dds.addPartwiseControl(musicxml.getPartList()[0].id(), Math.max(
             tnt.measure, 1), tnt.beat + diff, "pedal");
         if (cc.value() == 0)
@@ -668,6 +666,8 @@ public class PerformanceMatcher3 {
           dds.setAttribute("action", "on");
           dds.setAttribute("depth", cc.value() / 127.0);
         }
+        if (cc.ctrlnum() == 67)
+          dds.setAttribute("type", "soft");
       }
   }
 
@@ -1086,11 +1086,6 @@ public class PerformanceMatcher3 {
     try {
       MusicXMLWrapper score = (MusicXMLWrapper) CMXFileWrapper.readfile(args[0]);
       MIDIXMLWrapper pfm = MIDIXMLWrapper.readSMF(args[1]);
-      // PerformanceMatcher3.DTW_PATH_FILENAME = args[2];
-      // PerformanceMatcher3.extractDeviation(score, pfm, new
-      // File(args[2])).writefile(
-      // args[3]);
-      // PerformanceMatcher3.extractDeviation(score, pfm).write(System.out);
       DeviationInstanceWrapper dev = PerformanceMatcher3.extractDeviation(
           score, pfm);
       dev.finalizeDocument();

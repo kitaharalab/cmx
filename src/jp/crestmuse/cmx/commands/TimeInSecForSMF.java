@@ -61,9 +61,8 @@ public class TimeInSecForSMF {
         j++;
       } else {
         MIDIEvent me = notelist[i];
-        // TODO ctrl num 64
         if (me.messageType().startsWith("Note")
-            || (me.messageType().equals("ControlChange") && me.value(0) == 64)) {
+            || (me.messageType().equals("ControlChange") && (me.value(0) == 64 || me.value(0) == 67))) {
           double t = (double) (tick1 - currentTempoTick) * 60.0
               / ((double) ticksPerBeat * currentTempo) + currentTempoTimeInSec;
           l.add(new NoteEvent(t, notelist[i]));
@@ -208,9 +207,8 @@ class TimeInSecForSMF2 {
     for (int i = 0; i < notelist.length; i++) {
       int tick = notelist[i].deltaTime() + currentTick;
       MIDIEvent me = notelist[i];
-      // TODO ctrl num 64
       if (me.messageType().startsWith("Note")
-          || (me.messageType().equals("ControlChange") && me.value(0) == 64)) {
+          || (me.messageType().equals("ControlChange") && (me.value(0) == 64 || me.value(0) == 67))) {
         double t = (double) tick * 60.0 / ((double) ticksPerBeat * TEMPO);
         l.add(new NoteEvent(t, notelist[i]));
       }
