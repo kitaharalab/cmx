@@ -1089,7 +1089,8 @@ public class PerformanceMatcher3 {
       DeviationInstanceWrapper dev = PerformanceMatcher3.extractDeviation(
           score, pfm);
       dev.finalizeDocument();
-      dev.toSCCXML(480).toMIDIXML().writefileAsSMF("out.mid");
+      // dev.toSCCXML(480).toMIDIXML().writefileAsSMF("out.mid");
+      dev.write(System.out);
     } catch (Exception e) {
       e.printStackTrace();
     }
