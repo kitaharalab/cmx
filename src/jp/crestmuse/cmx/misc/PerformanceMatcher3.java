@@ -198,7 +198,7 @@ public class PerformanceMatcher3 {
     return indexlist;
   }
 
-  private void writePathToFile(String filename) throws IOException {
+  public void writePathToFile(String filename) throws IOException {
     PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
         filename)));
     writer.println(score2pfm.length);
