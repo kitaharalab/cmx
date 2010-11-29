@@ -178,7 +178,7 @@ public class MusicApexDataSet {
       group = new NoteGroupType1();
       break;
     default:
-      throw new IllegalStateException(String.format("illegal type: %d", type));
+      throw new ExceptionIllegalType();
     }
     for (Note n : notes)
       group.addNote(n);
@@ -213,12 +213,12 @@ public class MusicApexDataSet {
    * XMLテキスト上に出力されるグループの順番は、親グループに先に追加されたものが先に記述されます。
    * 
    * @return このMusicApexDataSetを元にしたMusicApexWrapperオブジェクト
-   * @throws RuntimeException
+   * @throws ExceptionNoTopGroup
    *           トップレベルグループが作られていない、MusicXMLが指定されていない場合
    */
   public MusicApexWrapper toWrapper() {
     if (topGroup == null)
-      throw new RuntimeException("TopLevelGroup not created.");
+      throw new ExceptionNoTopGroup();
     MusicApexWrapper mawxml = MusicApexWrapper.createMusicApexWrapperFor(musicxml);
     mawxml.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink",
         "http://www.w3.org/1999/xlink");
@@ -233,7 +233,7 @@ public class MusicApexDataSet {
   private void writeApexDataGroup(MusicApexWrapper mawxml, NoteGroup group) {
     mawxml.addChild("group");
     if (group.depth() == -1)
-      throw new RuntimeException("Invalid GroupDepth");
+      throw new ExceptionInvalidGroupDepth();
     mawxml.setAttribute("depth", group.depth());
     if (group.isImplicit())
       mawxml.setAttribute("implicit", "yes");
@@ -247,7 +247,7 @@ public class MusicApexDataSet {
         mawxml.returnToParent();
       }
     else
-      throw new RuntimeException("Creating No Notes Group");
+      throw new ExceptionEmptyNoteGroup();
     // write apex
     // if (group.getApex() != null) {
     // mawxml.addChild("apex");
@@ -335,7 +335,7 @@ public class MusicApexDataSet {
 
     public void setApexStart(Note n, double time) {
       if (inheritedApexFromParent)
-        throw new IllegalStateException("apex inherited from parent");
+        throw new ExceptionSetApex();
       Note prevNote = apexStart;
       double prevTime = apexStartTime;
       apexStart = n;
@@ -359,7 +359,7 @@ public class MusicApexDataSet {
 
     public void setApexStop(Note n, double time) {
       if (inheritedApexFromParent)
-        throw new IllegalStateException("apex inherited from parent");
+        throw new ExceptionSetApex();
       Note prevNote = apexStop;
       double prevTime = apexStopTime;
       apexStop = n;
@@ -380,7 +380,7 @@ public class MusicApexDataSet {
     public Note getApex() {
       if (apexStart != apexStop)
         return apexStart;
-      throw new IllegalStateException("apexStart don't match apexStart");
+      throw new ExceptionGetApex();
     }
 
     public void setApex(Note n) {
@@ -389,7 +389,7 @@ public class MusicApexDataSet {
 
     public void setApex(Note n, boolean clearInheritedApex) {
       if (inheritedApexFromParent)
-        throw new IllegalStateException("apex inherited from parent");
+        throw new ExceptionSetApex();
       apexStart = apexStop = n;
       apexStartTime = 0;
       if (n == null) {
@@ -425,7 +425,7 @@ public class MusicApexDataSet {
         }
         if (apexOnset < onset && onset < apexOffset || apexOnset < offset
             && offset < apexOffset)
-          throw new IllegalStateException("can't set apex");
+          throw new ExceptionSetApexOverSubgroups();
         if (onset <= apexOnset && apexOffset <= offset) {
           ((AbstractGroup) ng).inheritedApexFromParent = false;
           ng.setApexStart(apexStart, apexStartTime);
@@ -557,10 +557,9 @@ public class MusicApexDataSet {
       // if (isImplicit())
       // throw new IllegalStateException("group is implicit");
       if (!subGroups.isEmpty())
-        throw new IllegalStateException("group already has sub group");
+        throw new ExceptionAddSubgroup();
       if (!isContinuation(g.getAllNotes()))
-        throw new IllegalArgumentException(
-            "argument group is not continuous note sequence");
+        throw new ExceptionAddSubgroupNotContinuous();
       addSubgroupForce(g, ownNotes);
     }
 
@@ -600,14 +599,12 @@ public class MusicApexDataSet {
 
     public NoteGroup makeSubgroup(List<Note> notes) {
       if (!isContinuation(notes))
-        throw new IllegalArgumentException(
-            "argument group is not continuous note sequence");
+        throw new ExceptionAddSubgroupNotContinuous();
       for (Note n : notes)
         if (!underNotes.contains(n))
-          throw new IllegalArgumentException(
-              "The specified notes are separated into more than one groups.");
+          new ExceptionMakeSubgroup();
       if (inherited && !validApex(notes))
-        throw new IllegalArgumentException("invalid apex");
+        throw new ExceptionInvalidApex();
       if (!subGroups.isEmpty()) {
         IllegalArgumentException iae = new IllegalArgumentException();
         for (NoteGroup ng : subGroups)
@@ -651,7 +648,7 @@ public class MusicApexDataSet {
 
     public void removeNote(Note n) {
       if (depth == 1)
-        throw new IllegalStateException("can't remove from top group");
+        throw new ExceptionRemoveTopGroup();
       int TPB = 480;
       NoteGroup prev, current = this.parent;
       while (!current.getSubgroups().isEmpty()) {
@@ -683,7 +680,7 @@ public class MusicApexDataSet {
 
     public void removeSubgroup(NoteGroup g) {
       if (!subGroups.contains(g))
-        throw new IllegalArgumentException("argument is not sub group");
+        throw new ExceptionRemoveSubGroup();
       if (g.getSubgroups().isEmpty()) {
         List<NoteGroup> brother = subGroups;
         if (brother.size() == 1) {
@@ -824,7 +821,7 @@ public class MusicApexDataSet {
 
     public void divide(Note note) {
       if (depth == 1)
-        throw new IllegalStateException("top group can't divide");
+        throw new ExceptionDivideTopGroup();
       parent.subGroups.remove(this);
       try {
         parseDivideGroup(parent, this, note);
@@ -848,7 +845,7 @@ public class MusicApexDataSet {
         else
           backward.add(n);
       if (inherited && (!validApex(forward) || !validApex(backward)))
-        throw new IllegalArgumentException("invalid apex");
+        throw new ExceptionInvalidApex();
       NoteGroupType1 fwdDst = null, bwdDst = null;
       if (!forward.isEmpty()) {
         fwdDst = (NoteGroupType1) createGroup(forward);
@@ -1016,7 +1013,7 @@ public class MusicApexDataSet {
 
     public void asSubGroup(NoteGroup dst) {
       if (depth == 1)
-        throw new IllegalStateException("top group has no parent");
+        throw new ExceptionAsSubGroup();
       parent.subGroups.remove(this);
       for (Note n : underNotes)
         ((NoteGroupType1) dst).underNotes.add(n);
@@ -1042,7 +1039,7 @@ public class MusicApexDataSet {
 
     public NoteGroup makeSuperGroup(List<NoteGroup> ng) {
       if (depth == 1)
-        throw new IllegalStateException("top group");
+        throw new ExceptionMakeSuperGroup();
       parent.subGroups.remove(this);
       for (NoteGroup nngg : ng)
         parent.subGroups.remove(nngg);
@@ -1080,7 +1077,7 @@ public class MusicApexDataSet {
           if (n.onset(TPB) < srcEdge.onset(TPB))
             moveNotes.add(n);
       if (inherited && !validApex(moveNotes))
-        throw new IllegalArgumentException("invalid apex");
+        throw new ExceptionInvalidApex();
       for (Note n : moveNotes)
         removeNoteWithoutForce(n);
       for (Note n : moveNotes)
@@ -1104,6 +1101,151 @@ public class MusicApexDataSet {
       }
     }
 
+  }
+
+  /**
+   * typeが0か1でなかったときcreateGroupで投げられる
+   */
+  private class ExceptionIllegalType extends IllegalStateException {
+    ExceptionIllegalType() {
+      super(String.format("illegal type: %d", type));
+    }
+  }
+
+  /**
+   * トップグループが無いときtoWrapperで投げられる
+   */
+  private class ExceptionNoTopGroup extends IllegalStateException {
+    ExceptionNoTopGroup() {
+      super("Top Group has not created");
+    }
+  }
+
+  /**
+   * 引数のNoteGroupのdepthが-1のときwriteApexDataGroupで投げられる
+   */
+  private class ExceptionInvalidGroupDepth extends IllegalArgumentException {
+    ExceptionInvalidGroupDepth() {
+      super("Invalid GroupDepth");
+    }
+  }
+
+  /**
+   * 引数のNoteGroupにNoteが入っていない場合writeApexDataGroupで投げられる
+   */
+  private class ExceptionEmptyNoteGroup extends IllegalArgumentException {
+    ExceptionEmptyNoteGroup() {
+      super("Empty NoteGroup");
+    }
+  }
+
+  /**
+   * 継承してるapexを変更しようとしたときsetApexStartおよびsetApexStopで投げられる
+   */
+  private class ExceptionSetApex extends IllegalStateException {
+    ExceptionSetApex() {
+      super("apex inherited from parent");
+    }
+  }
+
+  /**
+   * ApexStartとApexStopが同じノートを指していない場合getApexで投げられる
+   */
+  private class ExceptionGetApex extends IllegalStateException {
+    ExceptionGetApex() {
+      super("apex start and apex stop is not same");
+    }
+  }
+
+  /**
+   * inherited状態で二つのサブグループをまたぐようにapexを設定しようとしたときinheritedApexで投げられる
+   */
+  private class ExceptionSetApexOverSubgroups extends IllegalArgumentException {
+    ExceptionSetApexOverSubgroups() {
+      super("can't set apex");
+    }
+  }
+
+  /**
+   * 既にサブグループを持っているグループにサブグループを追加しようとしたとき NoteGroupType1のaddSubgroupで投げられる
+   */
+  private class ExceptionAddSubgroup extends IllegalStateException {
+    ExceptionAddSubgroup() {
+      super("group already has sub group");
+    }
+  }
+
+  /**
+   * 保持しているノートが連続していないグループを追加しようとしたとき NoteGroupType1のaddSubgroupで投げられる
+   */
+  private class ExceptionAddSubgroupNotContinuous extends
+      IllegalArgumentException {
+    ExceptionAddSubgroupNotContinuous() {
+      super("argument group is not continuous note sequence");
+    }
+  }
+
+  /**
+   * サブグループに無いノートでmakeSubgroupしようとしたときmakeSubgroupで投げられる
+   */
+  private class ExceptionMakeSubgroup extends IllegalArgumentException {
+    ExceptionMakeSubgroup() {
+      super("The specified notes are separated into more than one groups.");
+    }
+  }
+
+  /**
+   * inherited状態で既にsetされてるapexを分断しようとしたとき投げられる
+   */
+  private class ExceptionInvalidApex extends IllegalStateException {
+    ExceptionInvalidApex() {
+      super("invalid apex");
+    }
+  }
+
+  /**
+   * TopGroupをremoveしようとしたとき投げられる
+   */
+  private class ExceptionRemoveTopGroup extends IllegalStateException {
+    ExceptionRemoveTopGroup() {
+      super("can't remove from top group");
+    }
+  }
+
+  /**
+   * サブグループに含まれていないグループをremoveSubgroupしよとしたとき投げられる
+   */
+  private class ExceptionRemoveSubGroup extends IllegalArgumentException {
+    ExceptionRemoveSubGroup() {
+      super("argument is not sub group");
+    }
+  }
+
+  /**
+   * トップグループを分割しようとしたとき投げられる
+   */
+  private class ExceptionDivideTopGroup extends IllegalStateException {
+    ExceptionDivideTopGroup() {
+      super("top can't group divide");
+    }
+  }
+
+  /**
+   * トップグループをサブグループ化しようとしたとき投げられる
+   */
+  private class ExceptionAsSubGroup extends IllegalStateException {
+    ExceptionAsSubGroup() {
+      super("top group has no parent");
+    }
+  }
+
+  /**
+   * トップグループをmakeSuperGroupしようとしたとき投げられる
+   */
+  private class ExceptionMakeSuperGroup extends IllegalStateException {
+    ExceptionMakeSuperGroup() {
+      super("top group");
+    }
   }
 
   // /**
