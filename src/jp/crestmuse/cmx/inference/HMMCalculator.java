@@ -43,7 +43,7 @@ public class HMMCalculator implements MusicLayerListener {
     this.mr = mr;
   }
 
-  public void calcViterbi(MusicRepresentation mr, int measure, int tick) {
+  private void loadObservations(MusicRepresentation mr, int measure, int tick) {
     int inputTiedLength = mr.getTiedLength(inputLayer);
     int division = mr.getDivision();
     int measureNum = mr.getMeasureNum() / nHMMs;
@@ -59,6 +59,64 @@ public class HMMCalculator implements MusicLayerListener {
 	  oseq.add(new ObservationInteger(e.getHighestProbIndex()));
       }
     }
+  }    
+
+  private void loadStates(MusicRepresentation mr, int measure, int tick) {
+    int inputTiedLength = mr.getTiedLength(inputLayer);
+    int division = mr.getDivision();
+    int measureNum = mr.getMeasureNum() / nHMMs;
+    int hmmindex = measure / measureNum;
+    int nChords = labels.size() / (measureNum * division);
+
+//      int stindex = ((measure%measureNum) * division + tick) * nChords + k;
+
+    sseq = new int[measureNum * division];
+    int k = 0;
+    for (int i = 0; i < measureNum; i++) {
+      for (int j = 0; j < division ; j += inputTiedLength) {
+	MusicElement e = mr.getMusicElement
+	  (outputLayer, i + hmmindex * measureNum, j);
+	int stFrom = 
+	  (i * division + j) * nChords;
+//	int stFrom = 
+//	  ((measure%measureNum) * division + tick) * nChords;
+	String label = 
+	  e.getLabel(e.getHighestProbIndex()).toString();
+	for (int l = stFrom; l < stFrom + nChords; l++) {
+	  if (labels.get(l).equals(label)) {
+	    sseq[k] = l;
+	    break;
+	  }
+	}
+//	sseq[k] = labels.indexOf
+//	  (e.getLabel(e.getHighestProbIndex()).toString());
+	System.err.println(sseq[k] + ":" + e.getLabel(e.getHighestProbIndex()));
+	k++;
+      }
+    }
+  }
+					  
+    
+
+  public void calcViterbi(MusicRepresentation mr, int measure, int tick) {
+/*
+    int inputTiedLength = mr.getTiedLength(inputLayer);
+    int division = mr.getDivision();
+    int measureNum = mr.getMeasureNum() / nHMMs;
+    hmmindex = measure / measureNum;
+    oseq = new ArrayList<ObservationInteger>();
+    for (int i = 0; i < measureNum; i++) {
+      for (int j = 0; j < division; j += inputTiedLength) {
+	MusicElement e = mr.getMusicElement(inputLayer, 
+					    i + hmmindex * measureNum, j);
+	if (e.rest()) 
+	  oseq.add(new ObservationInteger(rest));
+	else
+	  oseq.add(new ObservationInteger(e.getHighestProbIndex()));
+      }
+    }
+*/
+    loadObservations(mr, measure, tick);
     sseq = hmms[hmmindex].mostLikelyStateSequence(oseq);
   }
 
@@ -87,7 +145,8 @@ public class HMMCalculator implements MusicLayerListener {
     return s;
   }
 
-  public double[] tryDifferentStates(int measure, int tick, List<String> l) {
+  public double[] tryDifferentStates(int measure, int tick, List<String> l, 
+				     boolean reload) {
     int outputTiedLength = mr.getTiedLength(outputLayer);
     int division = mr.getDivision();
     int measureNum = mr.getMeasureNum() / nHMMs;
@@ -96,8 +155,13 @@ public class HMMCalculator implements MusicLayerListener {
     System.err.println(measure / measureNum);
     System.err.println(hmmindex);
 
-    if (measure / measureNum != hmmindex)
-      calcViterbi(mr, measure, tick);
+    if (reload || (measure / measureNum != hmmindex)) {
+      loadObservations(mr, measure, tick);
+      loadStates(mr, measure, tick);
+    }
+
+//    if (measure / measureNum != hmmindex)
+//      calcViterbi(mr, measure, tick);
 
     System.err.println(hmmindex);
 
