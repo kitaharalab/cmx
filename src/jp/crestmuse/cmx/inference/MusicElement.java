@@ -2,24 +2,61 @@ package jp.crestmuse.cmx.inference;
 import java.util.*;
 
 public interface MusicElement {
+  /** @deprecated */
   void setProb(int index, double value);
-//  void setProb(int index, double value, boolean update);
+
+  void setProbV(Object label, double value);
+  void setProbH(Object label, double value);
+  void setPriorProb(Object label, double value);
+
+  void setLogProbV(Object label, double value);
+  void setLogProbH(Object label, double value);
+  void setLogPriorProb(Object label, double value);
+
+  double getProb(Object label);
+  double getProbV(Object label);
+  double getProbH(Object label);
+  double getPriorProb(Object label);
+
+  double getLogProb(Object label);
+  double getLogProbV(Object label);
+  double getLogProbH(Object label);
+  double getLogPriorProb(Object label);
+
+
+  /** @deprecated */
   void setLogLikelihood(int index, double value);
-//  void setLogLikelihood(int index, double value, boolean update);
+
+  /** @deprecated */
   double getLogLikelihood(int index);
+
+  /** @deprecated */
   double getProb(int index);
+  /** @deprecated */
   double[] getAllProbs();
+
+  /** @deprcated */
   int getHighestProbIndex();
+
+  Object getHighestProbLabel();
+
+  Object[] getLabels();
+  int getNumOfLabels();
   Object getLabel(int index);
   int getIndexOf(Object label);
+  
+  /** @deprecated */
   int getProbLength();
+
   void setEvidence(int index);
   boolean hasEvidence();
   void removeEvidence();
+
+  /** @deprecated */
   void update();
-  int getBackPointer(int index);
-  void setBackPointer(int index, int value);
-  void setBackPointerTo(MusicElement e);
+//  int getBackPointer(int index);
+//  void setBackPointer(int index, int value);
+//  void setBackPointerTo(MusicElement e);
   int measure();
   int tick();
   int tiedLength();

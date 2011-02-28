@@ -51,6 +51,10 @@ public class MusicRepresentationImpl implements MusicRepresentation {
     name2layer.get(name).setTiedLength(tiedLength);
   }
 
+  public String[] getLabels(String layer) {
+    return name2layer.get(layer).labels;
+  }
+
   public MusicElement getMusicElement(String layer, int index) {
     return name2layer.get(layer).getElement(index);
   }
@@ -73,6 +77,11 @@ public class MusicRepresentationImpl implements MusicRepresentation {
 
   /** NOTE: always throws UnsupportedOperationException */
   public void addMusicLayerListener(String layer, MusicLayerListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  /** NOTE: always throws UnsupportedOperationException */
+  public void addVerticalMusicCalculator(String layer, MusicCalculator listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -146,17 +155,17 @@ public class MusicRepresentationImpl implements MusicRepresentation {
     }
     
     /** Always throws UnsupportedOperationException */
-    public void setBackPointerTo(MusicElement e) {
-      throw new UnsupportedOperationException();
-    }
+//    public void setBackPointerTo(MusicElement e) {
+//      throw new UnsupportedOperationException();
+//    }
     /** Always throws UnsupportedOperationException */
-    public void setBackPointer(int index, int value) {
-      throw new UnsupportedOperationException();
-    }
+//    public void setBackPointer(int index, int value) {
+//      throw new UnsupportedOperationException();
+//    }
     /** Always throws UnsupportedOperationException */
-    public int getBackPointer(int index) {
-      throw new UnsupportedOperationException();
-    }
+//    public int getBackPointer(int index) {
+//      throw new UnsupportedOperationException();
+//    }
     /** Always throws UnsupportedOperationException */
     public void update() {
       throw new UnsupportedOperationException();
@@ -321,6 +330,91 @@ public class MusicRepresentationImpl implements MusicRepresentation {
       labels = ee.labels.clone();
     }
 
+
+    /** NOTE: Always throws UnsupportedOperationException. */
+    public void setProbV(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException */
+    public void setProbH(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public void setPriorProb(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException. */
+    public void setLogProbV(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException */
+    public void setLogProbH(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public void setLogPriorProb(Object label, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public double getProb(Object label) {
+      return getProb(getIndexOf(label));
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException. */
+    public double getProbV(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException */
+    public double getProbH(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public double getPriorProb(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    public double getLogProb(Object label) {
+      return Math.log(getProb(getIndexOf(label)));
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException. */
+    public double getLogProbV(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always throws UnsupportedOperationException */
+    public double getLogProbH(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public double getLogPriorProb(Object label) {
+      throw new UnsupportedOperationException();
+    }
+
+    public Object getHighestProbLabel() {
+      return getLabel(getHighestProbIndex());
+    }
+
+    public Object[] getLabels() {
+      return labels;
+    }
+
+    public int getNumOfLabels() {
+      return labels.length;
+    }
+
+
+
+
+
   }
 
   private class MusicLayer {
@@ -377,6 +471,9 @@ public class MusicRepresentationImpl implements MusicRepresentation {
       for (Calculator c : calculators)
         c.update(musRep, elements[index], index);
     }
+
+
+
 
   }
 

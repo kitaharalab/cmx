@@ -1,11 +1,11 @@
 package jp.crestmuse.cmx.inference;
 
 import java.util.*;
+import static java.lang.Math.*;
 
 import jp.crestmuse.cmx.sound.SequencerManager;
 
-/** @deprecated */
-public class MusicRepresentation3 implements MusicRepresentation {
+class MusicRepresentationImpl4 implements MusicRepresentation {
 
   private int measureNum;
   private int division;
@@ -13,7 +13,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
   private boolean changeFlag;
   private boolean updateEnabled = true;
 
-  public MusicRepresentation3(int measureNum, int division) {
+  MusicRepresentationImpl4(int measureNum, int division) {
     this.measureNum = measureNum;
     this.division = division;
     name2layer = new HashMap<String, MusicLayer>();
@@ -45,39 +45,40 @@ public class MusicRepresentation3 implements MusicRepresentation {
     return getMusicLayer(layername).getTiedLength();
   }
 
-  public void addMusicLayerListener(String layername, MusicLayerListener calc) {
-    getMusicLayer(layername).addListener(calc);
-  }
-
   /** NOTE: Always throws UnsupportedOperationException */
-  public void addVerticalMusicCalculator(String layername, MusicCalculator calc) {
+  public void addMusicLayerListener(String layername, MusicLayerListener l) {
     throw new UnsupportedOperationException();
   }
 
-  public void setUpdateChainLimit(String layername, int updateChainLimit) {
-    getMusicLayer(layername).setUpdateChainLimit(updateChainLimit);
+  public void addVerticalMusicCalculator(String layername, MusicCalculator calc) {
+    getMusicLayer(layername).addMusicCalculator(calc);
   }
+
+//  public void addMusicLayerListener(String layername, MusicLayerListener calc) {
+//    getMusicLayer(layername).addListener(calc);
+//  }
+
+//  public void setUpdateChainLimit(String layername, int updateChainLimit) {
+//    getMusicLayer(layername).setUpdateChainLimit(updateChainLimit);
+//  }
 
   public MusicElement getMusicElement(String layername, int measure, int tick) {
     return getMusicLayer(layername).getElement(measure, tick);
   }
 
-  /** @deprecated */    
-  public Object getLayerLabel(String layername, int index) {
-    return getMusicLayer(layername).getLabel(index);
-  }
-
-  public Object getLabel(String layername, int index) {
-    return getLayerLabel(layername, index);
-  }
-
-  public int getNumOfLabels(String layername) {
-    return getMusicLayer(layername).getNumOfLabels();
-  }
-
   public Object[] getLabels(String layername) {
     return getMusicLayer(layername).labels;
   }
+
+/*    
+  public Object getLabel(String layername, int index) {
+    return getMusicLayer(layername).labels[index];
+  }
+
+  public int getNumOfLabels(String layername) {
+    return getMusicLayer(layername).labels.length;
+  }
+*/
 
   public boolean isChanged() {
     return changeFlag;
@@ -88,24 +89,24 @@ public class MusicRepresentation3 implements MusicRepresentation {
   }
 
 /** Probably not tested yet. */
-  public void applyBackPointers(String layer) {
-    getMusicLayer(layer).applyBackPointers();
-  }
+//  public void applyBackPointers(String layer) {
+//    getMusicLayer(layer).applyBackPointers();
+//  }
 
-  public void update(String layer, int measure, int tick) {
-    MusicLayer l = name2layer.get(layer);
-    l.update(l.getElement(measure, tick));
-  }
+//  public void update(String layer, int measure, int tick) {
+//    MusicLayer l = name2layer.get(layer);
+//    l.update(l.getElement(measure, tick));
+//  }
 
-  public void updateAll(String layer) {
-    MusicLayer l = name2layer.get(layer);
-    int m = getMeasureNum();
-    int n = getDivision();
-    int d = getTiedLength(layer);
-    for (int i = 0; i < m; i++)
-      for (int j = 0; j < n; j += d) 
-	l.update(l.getElement(i, j));
-  }
+///  public void updateAll(String layer) {
+//    MusicLayer l = name2layer.get(layer);
+//    int m = getMeasureNum();
+//    int n = getDivision();
+//    int d = getTiedLength(layer);
+//    for (int i = 0; i < m; i++)
+//      for (int j = 0; j < n; j += d) 
+//	l.update(l.getElement(i, j));
+//  }
 
   public void suspendUpdate() {
     updateEnabled = false;
@@ -120,14 +121,15 @@ public class MusicRepresentation3 implements MusicRepresentation {
 
     protected int tiedLength;
     protected MusicElement[] elements;
-    private List<MusicLayerListener> listeners;
-    private int updateChainLimit = Integer.MAX_VALUE;
-    private int updateChainCount = 0;
+    private List<MusicCalculator> calcs;
+//    private List<MusicLayerListener> listeners;
+//    private int updateChainLimit = Integer.MAX_VALUE;
+//    private int updateChainCount = 0;
 
     MusicLayer(Object[] labels, int tiedLength) {
       this.tiedLength = tiedLength;
       this.elements = new MusicElement[getMeasureNum() * getDivision()];
-      this.listeners = new LinkedList<MusicLayerListener>();
+      this.calcs = new LinkedList<MusicCalculator>();
       this.labels = labels;
       MusicElement e = null;
       int k = 0;
@@ -143,10 +145,20 @@ public class MusicRepresentation3 implements MusicRepresentation {
       return tiedLength;
     }
 
-    void addListener(MusicLayerListener listener) {
-      listeners.add(listener);
+    void addMusicCalculator(MusicCalculator calc) {
+      calcs.add(calc);
     }
-    
+
+//    void addListener(MusicLayerListener listener) {
+//      listeners.add(listener);
+//    }
+
+
+    /* TODO 要検討*/
+    private void update(MusicElement me) {
+      throw new UnsupportedOperationException("not implemented yet");
+    }
+/*
     private void update(MusicElement me) {
       changeFlag = true;
       if (updateChainCount >= updateChainLimit)
@@ -163,6 +175,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
       }
       updateChainCount = 0;
     }
+*/
 
     MusicElement getElement(int measure, int index) {
       if (index >= getDivision())
@@ -171,6 +184,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
 //      return elements[(getDivision() * measure + index) / getTiedLength()];
     }
 
+/*
     Object getLabel(int index) {
       // kari
       return labels[index];
@@ -180,6 +194,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
     int getNumOfLabels() {
       return labels.length;
     }
+*/
 
     int getIndexOf(Object label) {
       for (int i = 0; i < labels.length; i++)
@@ -189,10 +204,11 @@ public class MusicRepresentation3 implements MusicRepresentation {
       //	    return Arrays.binarySearch(labels, label);
     }
 
-    void setUpdateChainLimit(int updateChainLimit) {
-      this.updateChainLimit = updateChainLimit;
-    }
+//    void setUpdateChainLimit(int updateChainLimit) {
+//      this.updateChainLimit = updateChainLimit;
+//    }
 
+/*
     void applyBackPointers() {
       MusicElementImpl e = (MusicElementImpl)getElement(getMeasureNum()-1, getDivision()-1);
       int lastindex = e.argmax;
@@ -204,29 +220,40 @@ public class MusicRepresentation3 implements MusicRepresentation {
 	e = (MusicElementImpl)e.backpoint;
       }
     }
-
+*/
 
   }
 
 
 
+  private class Value {
+    int index;
+    double logPriorProb = Double.NEGATIVE_INFINITY;
+    double logProbV = Double.NEGATIVE_INFINITY;
+    double logProbH = Double.NEGATIVE_INFINITY;
+    Value(int i) {
+      index = i;
+    }
+  }
 
 
-  class MusicElementImpl implements MusicElement {
-    private ElementProbPair[] pairs;
-    private ElementProbPair[] sortedPairs;
+  private class MusicElementImpl implements MusicElement {
+    private Value[] values;
+
+//    private ElementProbPair[] pairs;
+//    private ElementProbPair[] sortedPairs;
 //    private ArrayList<ElementProbPair> pairs;
-    private int evidenceIndex = -1;
-    private boolean setflag = false;
+    private int evidence = -1;
+//    private boolean setflag = false;
     // TODO 固定の要素の場合最初にペアを突っ込むことになりそうなので一応フラグ
     private MusicLayer parent;
     private int indexInMusRep;
-    private double maxLL = Double.NEGATIVE_INFINITY;
-    private int argmax = -1;
+//    private double maxLL = Double.NEGATIVE_INFINITY;
+//    private int argmax = -1;
       //      private int bpmeasure = -1;
       //      private int bptick = -1;
-    private MusicElement backpoint = null;
-    private int duration;
+//    private MusicElement backpoint = null;
+//    private int duration;
     private Map<String,String> attrs = new HashMap<String,String>();
     private boolean tiedFromPrevious = false;
     private boolean rest = false;
@@ -234,11 +261,13 @@ public class MusicRepresentation3 implements MusicRepresentation {
     private MusicElementImpl(MusicLayer parent, int indexInMusRep) {
       this.parent = parent;
       this.indexInMusRep = indexInMusRep;
-      pairs = new ElementProbPair[parent.getNumOfLabels()];
-      for (int i = 0; i < parent.getNumOfLabels(); i++)
-	pairs[i] = new ElementProbPair(i, Double.NEGATIVE_INFINITY);
-      sortedPairs = null;
-      duration = tiedLength();
+//      pairs = new ElementProbPair[parent.labels.length];
+      values = new Value[parent.labels.length];
+      for (int i = 0; i < parent.labels.length; i++)
+        values[i] = new Value(i);
+//	pairs[i] = new ElementProbPair(i, Double.NEGATIVE_INFINITY);
+//      sortedPairs = null;
+//      duration = tiedLength();
     }
 			   
 /*
@@ -278,13 +307,13 @@ public class MusicRepresentation3 implements MusicRepresentation {
       return parent.getTiedLength();
     }
 
-    public int duration() {
-      return duration;
-    }
+//    public int duration() {
+//      return duration;
+//    }
 
-    public void setDuration(int d) {
-      this.duration = d;
-    }
+//    public void setDuration(int d) {
+//      this.duration = d;
+//    }
 
     public void setAttribute(String key, String value) {
       attrs.put(key, value);
@@ -326,6 +355,105 @@ public class MusicRepresentation3 implements MusicRepresentation {
       rest = b;
     }
 
+    /** @deprecated */
+    public void setProb(int index, double value) {
+      setLogLikelihood(index, log(value));
+    }
+
+    public void setProbV(Object label, double value) {
+      setLogProbV(label, log(value));
+    }
+
+    public void setProbH(Object label, double value) {
+      setLogProbH(label, log(value));
+    }
+
+    public void setPriorProb(Object label, double value) {
+      setLogPriorProb(label, value);
+    }
+
+    public void setLogProbV(Object label, double value) {
+      values[getIndexOf(label)].logProbV = value;
+    }
+
+    public void setLogProbH(Object label, double value) {
+      values[getIndexOf(label)].logProbH = value;
+    }
+
+    public void setLogPriorProb(Object label, double value) {
+      values[getIndexOf(label)].logPriorProb = value;
+    }
+
+    public double getProb(Object label) {
+      return exp(getLogProb(label));
+    }
+
+    public double getProbV(Object label) {
+      return exp(getLogProbV(label));
+    }
+
+    public double getProbH(Object label) {
+      return exp(getLogProbH(label));
+    }
+
+    public double getPriorProb(Object label) {
+      return exp(getLogPriorProb(label));
+    }
+
+    public double getLogProb(Object label) {
+      int i = getIndexOf(label);
+      if (evidence >= 0)
+        return evidence == i ? 0.0 : Double.NEGATIVE_INFINITY;
+      else
+        return values[i].logProbV + values[i].logProbH + values[i].logPriorProb;
+    }
+
+    public double getLogProbV(Object label) {
+      return values[getIndexOf(label)].logProbV;
+    }
+
+    public double getLogProbH(Object label) {
+      return values[getIndexOf(label)].logProbH;
+    }
+
+    public double getLogPriorProb(Object label) {
+      int i = getIndexOf(label);
+      if (evidence >= 0)
+        return evidence == i ? 0.0 : Double.NEGATIVE_INFINITY;
+      else
+        return values[getIndexOf(label)].logPriorProb;
+    }
+
+    /** @deprecated 仮 */
+    public void setLogLikelihood(int i, double value) {
+      values[i].logProbV = 0;
+      values[i].logProbH = 0;
+      values[i].logPriorProb = value;
+    }
+
+    /** @deprecated */
+    public double getLogLikelihood(int i) {
+      if (evidence >= 0)
+        return evidence == i ? 0.0 : Double.NEGATIVE_INFINITY;
+      else
+        return values[i].logProbV + values[i].logProbH + values[i].logPriorProb;
+    }
+
+    /** @deprecated */
+    public double getProb(int i) {
+      return exp(getLogLikelihood(i));
+    }
+
+    /** @deprecated */
+    public double[] getAllProbs() {
+      double[] allprobs = new double[values.length];
+      for (int i = 0; i < values.length; i++)
+        allprobs[i] = getProb(i);
+      return allprobs;
+    }
+
+    
+/*
     public double[] getAllProbs() {
       double[] allprobs = new double[pairs.length];
       for (int i = 0; i < pairs.length; i++)
@@ -333,14 +461,26 @@ public class MusicRepresentation3 implements MusicRepresentation {
       //  System.err.println(allprobs[i] = pairs.get(i).prob);
       return allprobs;
     }
+*/
 
+/*
     public double getLogLikelihood(int index) {
       if (evidenceIndex != -1)
 	return evidenceIndex == index ? 0.0 : Double.NEGATIVE_INFINITY;
       else
 	return pairs[index].loglik;
     }
-	  
+*/
+
+
+    
+/*
+    public double getProb(int index) {
+      return exp(values[i].logPriorProb + values[i].logProvH + values[i].logProbV);
+    }
+*/
+
+/*	  
     public double getProb(int index) {
       if (evidenceIndex != -1) 
 	return evidenceIndex == index ? 1.0 : 0.0;
@@ -352,17 +492,37 @@ public class MusicRepresentation3 implements MusicRepresentation {
       //    public E getElement(int index) {
       //      return pairs.get(index).element;
       //    }
+      */
 
+    /** @deprecated */
     public int getHighestProbIndex() {
-      if (evidenceIndex != -1)
-	return evidenceIndex;
-      else if (argmax != -1)
-	return argmax;
-      else
-	return getRankedProbIndex(0);
-      //	    return getRankedProbIndex(0);
+      if (evidence >= 0)
+        return evidence;
+//      else if (argmax != -1)
+//	return argmax;
+      else {
+        double max = Double.NEGATIVE_INFINITY;
+        int argmax = -1;
+        for (int i = 0; i < values.length; i++) {
+          double logP = 
+            values[i].logProbV + values[i].logProbH + values[i].logPriorProb;
+          if (logP > max) {
+            max = logP;
+            argmax = i;
+          }
+          
+        }
+        return argmax;
+//	return getRankedProbIndex(0);
+        //	    return getRankedProbIndex(0);
+      }
     }
 
+    public Object getHighestProbLabel() {
+      return parent.labels[getHighestProbIndex()];
+    }
+
+/*
     public int getRankedProbIndex(int rank) {
       if (sortedPairs == null) {
 	sortedPairs = pairs.clone();
@@ -406,31 +566,36 @@ public class MusicRepresentation3 implements MusicRepresentation {
 //	      nbest[i] = rankedpairs.get(i).index;
 	  return nbest;
       }
+*/
 
+    /** @deprecated */
     public int getProbLength() {
-      return pairs.length;
+      return values.length;
     }
 
+/*
     public boolean set() {
       return setflag;
     }
+*/
 
     public boolean hasEvidence() {
-      return evidenceIndex != -1 ? true : false;
+      return evidence >= 0;
     }
 
     public void setEvidence(int i) {
-      this.evidenceIndex = i;
-      sortedPairs = null;
+      evidence = i;
+//      sortedPairs = null;
       if (updateEnabled)
 	parent.update(this);
     }
 
     public void removeEvidence() {
-      sortedPairs = null;
-      evidenceIndex = -1;
+//      sortedPairs = null;
+      evidence = -1;
     }
 
+/*
     private void setLogLikelihood(int i, double value, boolean update) {
       sortedPairs = null;
       evidenceIndex = -1;
@@ -455,6 +620,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
       setLogLikelihood(i, value, true);
     }
 
+
     private void setProb(int i, double value, boolean update) {
       setLogLikelihood(i, Math.log(value), update);
 	//	pairs.get(i).dist = -Math.log(value);
@@ -465,11 +631,14 @@ public class MusicRepresentation3 implements MusicRepresentation {
     public void setProb(int i, double value) {
       setProb(i, value, true);
     }
+*/
 
+    /** @deprecated */
     public void update() {
       parent.update(this);
     }
 
+/*
     public int getBackPointer(int i) {
       return pairs[i].backpointer;
     }
@@ -481,88 +650,7 @@ public class MusicRepresentation3 implements MusicRepresentation {
     public void setBackPointerTo(MusicElement e) {
       backpoint = e;
     }
-
-    public Object getLabel(int index) {
-      return parent.getLabel(index);
-    }
-      
-    public int getIndexOf(Object label) {
-      return parent.getIndexOf(label);
-    }
-
-
-
-    /** NOTE: Always throws UnsupportedOperationException. */
-    public void setProbV(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException */
-    public void setProbH(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always thorows UnsupportedOperationException */
-    public void setPriorProb(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException. */
-    public void setLogProbV(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException */
-    public void setLogProbH(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always thorows UnsupportedOperationException */
-    public void setLogPriorProb(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    public double getProb(Object label) {
-      return getProb(getIndexOf(label));
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException. */
-    public double getProbV(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException */
-    public double getProbH(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always thorows UnsupportedOperationException */
-    public double getPriorProb(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    public double getLogProb(Object label) {
-      return Math.log(getProb(getIndexOf(label)));
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException. */
-    public double getLogProbV(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always throws UnsupportedOperationException */
-    public double getLogProbH(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    /** NOTE: Always thorows UnsupportedOperationException */
-    public double getLogPriorProb(Object label) {
-      throw new UnsupportedOperationException();
-    }
-
-    public Object getHighestProbLabel() {
-      return getLabel(getHighestProbIndex());
-    }
+*/
 
     public Object[] getLabels() {
       return parent.labels;
@@ -572,9 +660,15 @@ public class MusicRepresentation3 implements MusicRepresentation {
       return parent.labels.length;
     }
 
+    public Object getLabel(int index) {
+      return parent.labels[index];
+    }
+      
+    public int getIndexOf(Object label) {
+      return parent.getIndexOf(label);
+    }
 
-
-
+/*
     private class ElementProbPair implements Comparable<ElementProbPair> {
       private int index;
       //	  private double prob;
@@ -591,12 +685,13 @@ public class MusicRepresentation3 implements MusicRepresentation {
 	  return 1;
 	else
 	  return 0;  
-        /*
-         * たぶんこれ昇順 if(this.prob == arg0.prob) return 0; return (this.prob -
-         * arg0.prob) > 0 ? 1 : -1 ;
-         */   
+//        
+//         たぶんこれ昇順 if(this.prob == arg0.prob) return 0; return (this.prob -
+//         arg0.prob) > 0 ? 1 : -1 ;
+//           
       }
     }
+*/
   }
 
 
