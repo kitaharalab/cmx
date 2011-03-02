@@ -6,22 +6,22 @@ public interface MusicElement {
   void setProb(int index, double value);
 
   void setProbV(Object label, double value);
-  void setProbH(Object label, double value);
+//  void setProbH(Object label, double value);
   void setPriorProb(Object label, double value);
 
   void setLogProbV(Object label, double value);
-  void setLogProbH(Object label, double value);
+//  void setLogProbH(Object label, double value);
   void setLogPriorProb(Object label, double value);
 
   double getProb(Object label);
-  double getProbV(Object label);
-  double getProbH(Object label);
-  double getPriorProb(Object label);
+//  double getProbV(Object label);
+//  double getProbH(Object label);
+//  double getPriorProb(Object label);
 
   double getLogProb(Object label);
-  double getLogProbV(Object label);
-  double getLogProbH(Object label);
-  double getLogPriorProb(Object label);
+//  double getLogProbV(Object label);
+//  double getLogProbH(Object label);
+//  double getLogPriorProb(Object label);
 
 
   /** @deprecated */
@@ -38,17 +38,23 @@ public interface MusicElement {
   /** @deprcated */
   int getHighestProbIndex();
 
-  Object getHighestProbLabel();
+  Object getMostLikelyLabel();
+//  Object getHighestProbLabel();
 
   Object[] getLabels();
+  /** @deprecated */
   int getNumOfLabels();
+  /** @deprecated */
   Object getLabel(int index);
+  /** @deprecated */
   int getIndexOf(Object label);
   
   /** @deprecated */
   int getProbLength();
 
+  /** @deprecated */
   void setEvidence(int index);
+  void setEvidence(Object label);
   boolean hasEvidence();
   void removeEvidence();
 
@@ -70,4 +76,6 @@ public interface MusicElement {
   void removeAttribute(String key);
   Map<String,String> getAllAttributes();
   void setAllAttributes(Map<String,String> map);
+  MusicElement next();
+  MusicElement previous();
 }

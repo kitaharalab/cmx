@@ -41,6 +41,15 @@ public class MusicRepresentation3 implements MusicRepresentation {
     name2layer.put(name, mlb); 
   }
 
+  public void addMusicLayer(String name, List<Object> labels) {
+    addMusicLayer(name, labels, 1);
+  }
+
+  public void addMusicLayer(String name, List<Object> labels, 
+                            int tiedLength) {
+    addMusicLayer(name, labels.toArray(), tiedLength);
+  }
+
   public int getTiedLength(String layername) {
     return getMusicLayer(layername).getTiedLength();
   }
@@ -51,6 +60,11 @@ public class MusicRepresentation3 implements MusicRepresentation {
 
   /** NOTE: Always throws UnsupportedOperationException */
   public void addVerticalMusicCalculator(String layername, MusicCalculator calc) {
+    throw new UnsupportedOperationException();
+  }
+
+  /** NOTE: Always throws UnsupportedOperationException */
+  public void setTransProbMatrix(String layername, TransProbMatrix trans) {
     throw new UnsupportedOperationException();
   }
 
@@ -114,6 +128,17 @@ public class MusicRepresentation3 implements MusicRepresentation {
   public void resumeUpdate() {
     updateEnabled = true;
   }
+
+  /** NOTE: always throws UnsupportedOperationException */
+  public void setBackTraceEnabled(boolean b) {
+    throw new UnsupportedOperationException();
+  }
+
+  /** NOTE: always throws UnsupportedOperationException */
+  public boolean getBackTraceEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
 
   private class MusicLayer {
     Object[] labels;
@@ -419,6 +444,11 @@ public class MusicRepresentation3 implements MusicRepresentation {
       return evidenceIndex != -1 ? true : false;
     }
 
+    public void setEvidence(Object label) {
+      setEvidence(getIndexOf(label));
+    }
+
+
     public void setEvidence(int i) {
       this.evidenceIndex = i;
       sortedPairs = null;
@@ -498,9 +528,9 @@ public class MusicRepresentation3 implements MusicRepresentation {
     }
 
     /** NOTE: Always throws UnsupportedOperationException */
-    public void setProbH(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
+//    public void setProbH(Object label, double value) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always thorows UnsupportedOperationException */
     public void setPriorProb(Object label, double value) {
@@ -513,9 +543,9 @@ public class MusicRepresentation3 implements MusicRepresentation {
     }
 
     /** NOTE: Always throws UnsupportedOperationException */
-    public void setLogProbH(Object label, double value) {
-      throw new UnsupportedOperationException();
-    }
+//    public void setLogProbH(Object label, double value) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always thorows UnsupportedOperationException */
     public void setLogPriorProb(Object label, double value) {
@@ -527,40 +557,40 @@ public class MusicRepresentation3 implements MusicRepresentation {
     }
 
     /** NOTE: Always throws UnsupportedOperationException. */
-    public double getProbV(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getProbV(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always throws UnsupportedOperationException */
-    public double getProbH(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getProbH(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always thorows UnsupportedOperationException */
-    public double getPriorProb(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getPriorProb(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
     public double getLogProb(Object label) {
       return Math.log(getProb(getIndexOf(label)));
     }
 
     /** NOTE: Always throws UnsupportedOperationException. */
-    public double getLogProbV(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getLogProbV(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always throws UnsupportedOperationException */
-    public double getLogProbH(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getLogProbH(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
     /** NOTE: Always thorows UnsupportedOperationException */
-    public double getLogPriorProb(Object label) {
-      throw new UnsupportedOperationException();
-    }
+//    public double getLogPriorProb(Object label) {
+//      throw new UnsupportedOperationException();
+//    }
 
-    public Object getHighestProbLabel() {
+    public Object getMostLikelyLabel() {
       return getLabel(getHighestProbIndex());
     }
 
@@ -570,6 +600,16 @@ public class MusicRepresentation3 implements MusicRepresentation {
 
     public int getNumOfLabels() {
       return parent.labels.length;
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public MusicElement next() {
+      throw new UnsupportedOperationException();
+    }
+
+    /** NOTE: Always thorows UnsupportedOperationException */
+    public MusicElement previous() {
+      throw new UnsupportedOperationException();
     }
 
 

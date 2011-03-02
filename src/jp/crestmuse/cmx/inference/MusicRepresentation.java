@@ -1,10 +1,13 @@
 package jp.crestmuse.cmx.inference;
+import java.util.*;
 
 public interface MusicRepresentation {
   int getMeasureNum();
   int getDivision();
   void addMusicLayer(String name, Object[] labels);
   void addMusicLayer(String name, Object[] labels, int tiedLength);
+  void addMusicLayer(String name, List<Object> labels);
+  void addMusicLayer(String name, List<Object> labels, int tiedLength);
   MusicElement getMusicElement(String layer, int measure, int tick);
   int getTiedLength(String layer);
   Object[] getLabels(String layer);
@@ -12,12 +15,15 @@ public interface MusicRepresentation {
     /** deprecated */
   void addMusicLayerListener(String layername, MusicLayerListener listener);
 
-    void addVerticalMusicCalculator(String layername, MusicCalculator calc);
-
+  void addVerticalMusicCalculator(String layername, MusicCalculator calc);
+  void setTransProbMatrix(String layername, TransProbMatrix trans);
 
   boolean isChanged();
   void resetChangeFlag();
   void suspendUpdate();
   void resumeUpdate();
+
+  void setBackTraceEnabled(boolean b);
+  boolean getBackTraceEnabled();
 
 }
