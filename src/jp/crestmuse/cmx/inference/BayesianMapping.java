@@ -51,6 +51,31 @@ public class BayesianMapping {
 
 
 
+    protected MusicRepresentation.MusicElement 
+    mappedElement(MusicRepresentation mr, 
+                  int currentMeasure, int currentTick) {
+	if (musRepPosition == 0)
+          return mr.getMusicElement
+            (layer, currentMeasure*mr.getDivision()+currentTick);
+	int inc = 1;
+	if ((option & BY_TIED_LENGTH) == BY_TIED_LENGTH) 
+	    inc = mr.getTiedLength(layer);
+	int division = mr.getDivision();
+	int newindex = currentMeasure * division + currentTick 
+	    + musRepPosition * inc;
+	if (newindex >= 0) {
+	    int newmeasure = newindex / division;
+	    int newtick;
+	    if ((option & MEASURE_HEAD) == MEASURE_HEAD)
+		newtick = 0;
+	    else
+		newtick = newindex % division;
+	    return mr.getMusicElement(layer, newmeasure*division+newtick);
+	} else {
+	    return null;
+	}
+    }
+
     protected MusicElement mappedElement(MusicRepresentation2 mr, 
 					 int currentMeasure, int currentTick) {
 	if (musRepPosition == 0)
@@ -61,7 +86,6 @@ public class BayesianMapping {
 	int division = mr.getDivision();
 	int newindex = currentMeasure * division + currentTick 
 	    + musRepPosition * inc;
-	System.err.println("newindex: " + newindex);
 	if (newindex >= 0) {
 	    int newmeasure = newindex / division;
 	    int newtick;
@@ -69,7 +93,6 @@ public class BayesianMapping {
 		newtick = 0;
 	    else
 		newtick = newindex % division;
-	    System.err.println(layer + " " + newindex);
 	    return mr.getMusicElement(layer, newmeasure, newtick);
 	} else {
 	    return null;
