@@ -602,7 +602,7 @@ public class MusicApexDataSet {
         throw new ExceptionAddSubgroupNotContinuous();
       for (Note n : notes)
         if (!underNotes.contains(n))
-          new ExceptionMakeSubgroup();
+          throw new ExceptionMakeSubgroup();
       if (inherited && !validApex(notes))
         throw new ExceptionInvalidApex();
       if (!subGroups.isEmpty()) {
