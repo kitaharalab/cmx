@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/sh -x
 
 INSTALL_DIR=/usr/local
 PACKAGE_NAME=cmx
-RELEASE_NAME=cmx-0.52
+RELEASE_NAME=cmx-0.53
 SYMLINK_NAME=cmx
 BIN_DIR=bin
 BIN_NAME=cmx
@@ -79,5 +79,5 @@ ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/$BIN_NAME \
   $INSTALL_DIR/$BIN_DIR/$BIN_NAME
 
 mkdir -p ~/.groovy/lib
-ln -s $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/cmx.jar ~/.groovy/lib/
-ln -s $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/lib/*.jar ~/.groovy/lib/
+ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/cmx.jar ~/.groovy/lib/
+ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/lib/*.jar ~/.groovy/lib/

@@ -25,6 +25,8 @@ public class WindowSlider extends SPModule {
 //  private DoubleArray wavM = null, wavL = null, wavR = null;
 //  private boolean isStereo;
 
+  private TickTimer ticktimer = null;
+
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
@@ -64,6 +66,10 @@ public class WindowSlider extends SPModule {
   
   public AudioDataCompatible getTargetWaveform() {
     return audiodata;
+  }
+
+  public void setTickTimer(TickTimer timer) {
+    ticktimer = timer;
   }
 
 /*public void setInputData(AudioDataCompatible audiodata, int from, 
@@ -136,21 +142,22 @@ public class WindowSlider extends SPModule {
 
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
+    long ticktime = ticktimer != null ? ticktimer.getTickPosition() : -1;
       if (audiodata.hasNext(winsize)) {
       try {
         DoubleArray[] wav = audiodata.readNext(winsize, winsize - shift_);
         for (int i = 0; i < chTarget.length; i++) {
-          DoubleArray w;
+          DoubleArrayWithTicktime w;
           if (chTarget[i] == -2)
-            w = mean(wav);
+            w = new DoubleArrayWithTicktime(mean(wav), ticktime);
           else
-            w = wav[chTarget[i]];
+            w = new DoubleArrayWithTicktime(wav[chTarget[i]], ticktime);
           dest[i].add(w);
         }
       } catch (IOException e) {
         throw new SPException(e);
       }
-    } else {
+    } else { 
       for (int i = 0; i < chTarget.length; i++)
         dest[i].add(SPTerminator.getInstance());
     }

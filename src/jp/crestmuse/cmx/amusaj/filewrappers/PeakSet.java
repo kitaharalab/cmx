@@ -10,6 +10,7 @@ public class PeakSet implements Encodable {
   private DoubleArray phase;
   private DoubleArray iid;
   private DoubleArray ipd;
+  public long music_position;             // is 'public' really ok?
 
     //  private boolean hasNext = true;
 
