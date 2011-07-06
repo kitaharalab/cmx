@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.inference;
 import java.util.*;
+import static java.lang.Math.*;
 
 public class NaiveMusicCalculator {
   private String stateLayer, emitLayer;
@@ -21,20 +22,34 @@ public class NaiveMusicCalculator {
   }
 
 
-  public double getLog(Object state, Object emit) {
-    return log(getLog(state, emit));
+//  public double getLog(Object state, Object emit) {
+//    return log(getLog(state, emit));
+//  }
+
+//  public double get(Object state, Object emit) {
+//    return get(indexOfState(state), indexOfEmission(emit));
+//  }
+
+  public void set(int stateIndex, double[] values) {
+    for (int j = 0; j < n; j++)
+      probs[stateIndex * m + j] = values[j];
   }
 
-  public double get(Object state, Object emit) {
-    return get(indexOfState(state), indexOfEmission(emit));
+  public void setLog(int stateIndex, double[] values) {
+    for (int j = 0; j < n; j++)
+      probs[stateIndex * m + j] = log(values[j]);
   }
 
   double get(int stateIndex, int emitIndex) {
     return probs[stateIndex * m + emitIndex];
   }
 
+  double getLog(int stateIndex, int emitIndex) {
+    return log(probs[stateIndex * m + emitIndex]);
+  }
+
   private int indexOfState(Object label) {
-    for (int i = 0 i < m; i++)
+    for (int i = 0; i < m; i++)
       if (label.equals(stateLabels[i]))
         return i;
     throw new IllegalStateException("no label: " + label);

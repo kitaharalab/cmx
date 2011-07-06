@@ -148,7 +148,7 @@ public class Operations {
   }
 
     public static DoubleArray multiply(DoubleArray x, DoubleArray y) {
-	return multiply(x,y);
+	return mul(x,y);
     }
 
     public static void mulX(DoubleArray x, DoubleArray y) {
