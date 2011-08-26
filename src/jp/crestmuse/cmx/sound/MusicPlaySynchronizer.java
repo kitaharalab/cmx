@@ -23,6 +23,8 @@ public class MusicPlaySynchronizer implements Runnable {
   private MusicPlayer player;
   private List<MusicPlaySynchronized> synclist = 
     new ArrayList<MusicPlaySynchronized>();
+  private List<MusicListener> listeners = 
+    new ArrayList<MusicListener>();
   private boolean playerThreadStarted = false;
   private boolean syncThreadStarted = false;
   private boolean stoppedByUser = false;
@@ -32,8 +34,13 @@ public class MusicPlaySynchronizer implements Runnable {
     this.player = player;
   }
 
+  @Deprecated
   public void addSynchronizedComponent(MusicPlaySynchronized c) {
     synclist.add(c);
+  }
+
+  public void addMusicListener(MusicListener l) {
+    listeners.add(l);
   }
 
   public void play() {
@@ -67,6 +74,8 @@ public class MusicPlaySynchronizer implements Runnable {
   public void run() {
     for (MusicPlaySynchronized sync : synclist)
       sync.start(this);
+    for (MusicListener l : listeners)
+      l.musicStarted(this);
     while (isNowPlaying() || isStoppedByUser()) {
       if (isNowPlaying()) {
         long currentTick = -1;
@@ -77,6 +86,8 @@ public class MusicPlaySynchronizer implements Runnable {
         double t = (double)currentPosition / 1000000.0;
         for (MusicPlaySynchronized sync : synclist)
           sync.synchronize(t, currentTick, this);
+        for (MusicListener l : listeners)
+          l.synchronize(t, currentTick, this);
       }
       try {
         Thread.sleep(sleeptime);
