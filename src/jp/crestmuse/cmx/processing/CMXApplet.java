@@ -4,8 +4,10 @@ import processing.core.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.sound.*;
+import java.awt.*;
+import java.io.*;
 
-public class CMXApplet extends PApplet implements MusicListener {
+public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   private static final CMXController ctrl = CMXController.getInstance();
 
@@ -13,8 +15,12 @@ public class CMXApplet extends PApplet implements MusicListener {
     return ctrl.createDocument(toptag);
   }
 
-  public static CMXFileWrapper readfile(String filename) {
-    return ctrl.readfile(filename);
+  public CMXFileWrapper readfile(String filename) {
+    return ctrl.read(createInput(filename));
+  }
+
+  public CMXFileWrapper read(InputStream input) {
+    return ctrl.read(input);
   }
 
   public void addSPModule(ProducerConsumerCompatible module) {
@@ -37,7 +43,6 @@ public class CMXApplet extends PApplet implements MusicListener {
   }
 
   public void playMusic() {
-    System.err.println("a");
     ctrl.playMusic();
   }
 
@@ -49,16 +54,16 @@ public class CMXApplet extends PApplet implements MusicListener {
     return ctrl.isNowPlaying();
   }
 
-  public long musicPosition() {
-    return ctrl.musicPosition();
+  public long getMicrosecondPosition() {
+    return ctrl.getMicrosecondPosition();
   }
 
-  public long tickPosition() {
-    return ctrl.tickPosition();
+  public long getTickPosition() {
+    return ctrl.getTickPosition();
   }
 
-  public int ticksPerBeat() {
-    return ctrl.ticksPerBeat();
+  public int getTicksPerBeat() {
+    return ctrl.getTicksPerBeat();
   }
 
   public void musicStarted(MusicPlaySynchronizer ms) {
@@ -86,6 +91,34 @@ public class CMXApplet extends PApplet implements MusicListener {
     // do nothing
   }
 
+  public MidiInputModule createVirtualKeyboard() {
+    if (this instanceof Component)
+      return ctrl.createVirtualKeyboard(this);
+    else
+      return ctrl.createVirtualKeyboard();
+  }
+
+  public MidiOutputModule createMidiOut() {
+    return ctrl.createMidiOut();
+  }
+
+  public WindowSlider createMic() {
+    return ctrl.createMic();
+  }
+
+  public WindowSlider createMic(int fs) {
+    return ctrl.createMic(fs);
+  }
+
+  public void readConfig(String filename) {
+    ctrl.readConfig(createInput(filename));
+  }
+
+  public void readConfig(InputStream input) {
+    ctrl.readConfig(input);
+  }
+
+
   public void handleDraw() {
     if (frameCount == 1) {
       autostart();
@@ -100,5 +133,7 @@ public class CMXApplet extends PApplet implements MusicListener {
     ctrl.startSP();
   }
 
-
+  public static void main(String className) {
+    main(new String[]{className});
+  }
 }

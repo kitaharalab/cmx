@@ -63,6 +63,8 @@ class DefaultDoubleArray extends AbstractDoubleArrayImpl {
 */
 
   public DoubleArray subarrayX(int from, int thru) {
+    if (from < 0 || thru > length())
+      throw new ArrayIndexOutOfBoundsException(from + ":" + thru);
     DefaultDoubleArray newarray = new DefaultDoubleArray(values);
     newarray.from = this.from + from;
     newarray.thru = this.from + thru;

@@ -54,9 +54,17 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
     throw new UnsupportedOperationException();
   }
 
-  public boolean supportsWholeWaveformGetter() {
+  public boolean supportsRandomAccess() {
     return false;
   }
+
+  public DoubleArray[] read(long microsecond, int sampleSize) {
+    throw new UnsupportedOperationException();
+  }
+
+//  public boolean supportsWholeWaveformGetter() {
+//    return false;
+//  }
 
   /** 8 bit only */
   public DoubleArray[] readNext(int sampleSize, int nOverlap) 

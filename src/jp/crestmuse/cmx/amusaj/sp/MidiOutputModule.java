@@ -14,6 +14,10 @@ public class MidiOutputModule extends SPModule {
 	this(dev.getReceiver());
     }
 
+  public MidiOutputModule() throws MidiUnavailableException {
+    this(MidiSystem.getReceiver());
+  }
+
     public MidiOutputModule(Receiver rec) {
       this(rec, null);
     }

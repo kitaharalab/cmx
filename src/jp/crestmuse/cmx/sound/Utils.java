@@ -16,7 +16,7 @@ public class Utils {
     int thru;
     DoubleArray[] waveform = null;
     MyAudioData(AudioDataCompatible audiodata, int from, int thru) {
-      if (!audiodata.supportsWholeWaveformGetter())
+      if (!audiodata.supportsRandomAccess())
         throw new IllegalStateException();
       org = audiodata;
       this.from = from;
@@ -52,58 +52,101 @@ public class Utils {
     public boolean hasNext(int sampleSize) {
       return next + sampleSize <= waveform[0].length();
     }
-    public boolean supportsWholeWaveformGetter() {
-      return true;
-//      return org.supportsWholeWaveformGetter();
+    public DoubleArray[] read(long microsecond, int sampleSize) {
+      DoubleArray[] array = new DoubleArray[channels()];
+      int from = (int)(sampleRate() * microsecond / 1000000);
+      for (int i = 0; i < array.length; i++)
+        array[i] = getDoubleArrayWaveform()[i].subarrayX(from, from+sampleSize);
+      return array;
     }
+    public boolean supportsRandomAccess() {
+      return true;
+    }
+//    public boolean supportsWholeWaveformGetter() {
+//      return true;
+//      return org.supportsWholeWaveformGetter();
   }
 
-    //    public static enum MidiDeviceType {INPUT, OUTPUT};
-
-    public static List<MidiDevice.Info> getMidiDeviceInfo(MidiDeviceType t) 
-	throws MidiUnavailableException {
-	MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
-	List<MidiDevice.Info> l = new ArrayList<MidiDevice.Info>();
-	for (MidiDevice.Info info : infoarray) {
-	    System.out.println(info);
-	    MidiDevice device = MidiSystem.getMidiDevice(info);
-	    if (t.equals(MidiDeviceType.INPUT) 
-		&& device.getMaxTransmitters() != 0)
-		l.add(info);
-	    else if (t.equals(MidiDeviceType.OUTPUT) 
-		     && device.getMaxReceivers() != 0)
-		l.add(info);
-	}
-	return l;
-    }
-
-    public static MidiDevice getMidiDevice(int index, MidiDeviceType t) 
+  //    public static enum MidiDeviceType {INPUT, OUTPUT};
+  
+  @Deprecated
+  public static List<MidiDevice.Info> getMidiDeviceInfo(MidiDeviceType t) 
     throws MidiUnavailableException {
-	List<MidiDevice.Info> l = getMidiDeviceInfo(t);
-	return MidiSystem.getMidiDevice(l.get(index));
+    MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
+    List<MidiDevice.Info> l = new ArrayList<MidiDevice.Info>();
+    for (MidiDevice.Info info : infoarray) {
+      System.out.println(info);
+      MidiDevice device = MidiSystem.getMidiDevice(info);
+      if (t.equals(MidiDeviceType.INPUT) 
+          && device.getMaxTransmitters() != 0)
+        l.add(info);
+      else if (t.equals(MidiDeviceType.OUTPUT) 
+               && device.getMaxReceivers() != 0)
+        l.add(info);
     }
+    return l;
+  }
 
-    public static MidiDevice getMidiDeviceByName(String name, 
-						 MidiDeviceType t) 
-	throws MidiUnavailableException {
-	MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
-	for (MidiDevice.Info info : infoarray) {
-	    if (info.getName().contains(name)) {
-		MidiDevice device = MidiSystem.getMidiDevice(info);
-		if (t.equals(MidiDeviceType.INPUT) 
-		    && device.getMaxTransmitters() != 0)
-		    return device;
-		else if (t.equals(MidiDeviceType.OUTPUT) 
-			 && device.getMaxReceivers() != 0)
-		    return device;
-		else
-		    continue;
-	    }
-	}
-	return null;
+  public static MidiDevice getMidiOutDevice(int index) 
+    throws MidiUnavailableException {
+    return getMidiDevice(index, MidiDeviceType.OUTPUT);
+  }
+
+  public static MidiDevice getMidiInDevice(int index) 
+    throws MidiUnavailableException {
+    return getMidiDevice(index, MidiDeviceType.INPUT);
+  }
+
+  @Deprecated
+  public static MidiDevice getMidiDevice(int index, MidiDeviceType t) 
+    throws MidiUnavailableException {
+    List<MidiDevice.Info> l = getMidiDeviceInfo(t);
+	return MidiSystem.getMidiDevice(l.get(index));
+  }
+
+  public static MidiDevice getMidiOutDeviceByName(String name) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByName(name, MidiDeviceType.OUTPUT);
+  }
+
+  public static MidiDevice getMidiInDeviceByName(String name) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByName(name, MidiDeviceType.INPUT);
+  }
+
+  @Deprecated
+  public static MidiDevice getMidiDeviceByName(String name, 
+                                               MidiDeviceType t) 
+    throws MidiUnavailableException {
+    MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
+    for (MidiDevice.Info info : infoarray) {
+      if (info.getName().contains(name)) {
+        MidiDevice device = MidiSystem.getMidiDevice(info);
+        if (t.equals(MidiDeviceType.INPUT) 
+            && device.getMaxTransmitters() != 0)
+          return device;
+        else if (t.equals(MidiDeviceType.OUTPUT) 
+                 && device.getMaxReceivers() != 0)
+          return device;
+        else
+          continue;
+      }
     }
-    
-    public static MidiDevice getMidiDeviceByDescription(String description, 
+    return null;
+  }
+
+  public static MidiDevice getMidiOutDeviceByDescription(String description) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByDescription(description, MidiDeviceType.OUTPUT);
+  }
+
+  public static MidiDevice getMidiInDeviceByDescription(String description) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByDescription(description, MidiDeviceType.INPUT);
+  }
+
+  @Deprecated
+  public static MidiDevice getMidiDeviceByDescription(String description, 
 						 MidiDeviceType t) 
 	throws MidiUnavailableException {
 	MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
@@ -121,37 +164,48 @@ public class Utils {
 	    }
 	}
 	return null;
-    }
-    
-    public static MidiDevice getMidiDeviceByVendor(String vendor, 
+  }
+
+  public static MidiDevice getMidiOutDeviceByVendor(String vendor) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByVendor(vendor, MidiDeviceType.OUTPUT);
+  }
+
+  public static MidiDevice getMidiInDeviceByVendor(String vendor) 
+    throws MidiUnavailableException {
+    return getMidiDeviceByVendor(vendor, MidiDeviceType.INPUT);
+  }
+
+  @Deprecated
+  public static MidiDevice getMidiDeviceByVendor(String vendor, 
 						 MidiDeviceType t) 
-	throws MidiUnavailableException {
-	MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
-	for (MidiDevice.Info info : infoarray) {
-	    if (info.getVendor().contains(vendor)) {
-		MidiDevice device = MidiSystem.getMidiDevice(info);
-		if (t.equals(MidiDeviceType.INPUT) 
-		    && device.getMaxTransmitters() > 0)
-		    return device;
-		else if (t.equals(MidiDeviceType.OUTPUT) 
-			 && device.getMaxReceivers() > 0)
-		    return device;
-		else
-		    continue;
-	    }
-	}
-	return null;
+    throws MidiUnavailableException {
+    MidiDevice.Info[] infoarray = MidiSystem.getMidiDeviceInfo();
+    for (MidiDevice.Info info : infoarray) {
+      if (info.getVendor().contains(vendor)) {
+        MidiDevice device = MidiSystem.getMidiDevice(info);
+        if (t.equals(MidiDeviceType.INPUT) 
+            && device.getMaxTransmitters() > 0)
+          return device;
+        else if (t.equals(MidiDeviceType.OUTPUT) 
+                 && device.getMaxReceivers() > 0)
+          return device;
+        else
+          continue;
+      }
     }
+    return null;
+  }
     
-    public static List<String> toStringList(List<MidiDevice.Info> infolist) {
-	List<String> strlist = new ArrayList<String>();
-	int i = 0;
-	for (MidiDevice.Info info : infolist) 
-	    strlist.add(i++ + ": " + info.getName() + " (" + info.getVendor()
-			+ " / " + info.getDescription()+ ")" );
-        return strlist;
-    }
-	    
+  public static List<String> toStringList(List<MidiDevice.Info> infolist) {
+    List<String> strlist = new ArrayList<String>();
+    int i = 0;
+    for (MidiDevice.Info info : infolist) 
+      strlist.add(i++ + ": " + info.getName() + " (" + info.getVendor()
+                  + " / " + info.getDescription()+ ")" );
+    return strlist;
+  }
+  
 	
 	    
     /*

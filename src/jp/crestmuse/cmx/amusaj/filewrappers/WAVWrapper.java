@@ -49,7 +49,11 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     return fmt.samplesPerSec;
   }
 
-  public boolean supportsWholeWaveformGetter() {
+//  public boolean supportsWholeWaveformGetter() {
+//    return true;
+//  }
+
+  public boolean supportsRandomAccess() {
     return true;
   }
 
@@ -70,6 +74,14 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
 
   public AudioFormat getAudioFormat() {
     return fmt.getAudioFormat();
+  }
+
+  public DoubleArray[] read(long microsecond, int sampleSize) {
+    DoubleArray[] array = new DoubleArray[channels()];
+    int from = (int)(sampleRate() * microsecond / 1000000);
+    for (int i = 0; i < array.length; i++)
+      array[i] = getDoubleArrayWaveform()[i].subarrayX(from, from+sampleSize);
+    return array;
   }
 
   private int next = 0;
@@ -156,11 +168,20 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     DataInputStream datain = new DataInputStream(
         new BufferedInputStream(new FileInputStream(filename)));
     wav.filename = filename;
-    wav.read(datain);
+    wav.read2(datain);
     return wav;
   }
 
-  private void read(DataInputStream datain) throws IOException {
+  public static WAVWrapper read(InputStream input) throws IOException {
+    WAVWrapper wav = new WAVWrapper();
+    DataInputStream datain = new DataInputStream(
+      new BufferedInputStream(input));
+    wav.filename = null;
+    wav.read2(datain);
+    return wav;
+  }
+
+  private void read2(DataInputStream datain) throws IOException {
 //      System.err.print("Reading the wave file ");
     readRIFFHeader(datain);
     byte[] buff = new byte[4];

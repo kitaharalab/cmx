@@ -108,20 +108,20 @@ public class WAVPlayer implements MusicPlayer {
      try {
        if (isNowPlaying()) {
          int sleepTime = (BUFFER_SIZE / sampleRate / 2) * 1000;
-         System.out.println(sleepTime);
+//         System.out.println(sleepTime);
          byte[] buff;
          int index = (int)(startposition * framesize / 1000000);
 //         int index = (int)(startposition * samplesPerSec / 1000000);
 //         int index = (int)(startposition * framesize * framerate / 1000000);
          do {
-             System.out.println(line.available());
+//             System.out.println(line.available());
            buff = toByteArray(waveform, index, BUFFER_SIZE * framesize);
            if (buff != null) {
              index += BUFFER_SIZE * framesize;
              line.write(buff, 0, buff.length);
              Thread.currentThread().sleep(sleepTime);
            }
-             System.out.println(line.available());
+//             System.out.println(line.available());
          } while (buff != null && isNowPlaying());
 //           line.drain();
          while (line.isActive()) {

@@ -1201,6 +1201,40 @@ public class Operations {
   }
   
 
+  public static DoubleArray abs(DoubleArray x) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = Math.abs(x.get(i));
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray abs(ComplexArray x) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) {
+      double a = x.getReal(i);
+      double b = x.getReal(i);
+      z[i] = Math.sqrt(a * a + b * b);
+    }
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray dB(DoubleArray x, double base) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = 10 * (Math.log(x.get(i)) - Math.log(base)) / Math.log(10);
+    return factory.createArray(z);
+  }
+      
+  public static DoubleArray sigmoid(DoubleArray x, double gain) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = 1 / (1 + Math.exp(-gain * x.get(i)));
+    return factory.createArray(z);
+  }
 	
 }
 

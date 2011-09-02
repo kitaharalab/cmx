@@ -13,19 +13,19 @@ import java.io.*;
 
 public class WindowSlider extends SPModule {
 
-  private int winsize = 0;
+  int winsize = 0;
   private double shift = Double.NaN;
   private int shift_;
-  private int[] chTarget = null;
+  int[] chTarget = null;
 
   private double[] buff;
   private int fs;
-  private AudioDataCompatible audiodata;
+  AudioDataCompatible audiodata;
 //  private DoubleArray[] wav;
 //  private DoubleArray wavM = null, wavL = null, wavR = null;
 //  private boolean isStereo;
 
-  private TickTimer ticktimer = null;
+  TickTimer ticktimer = null;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
