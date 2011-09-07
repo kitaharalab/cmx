@@ -116,6 +116,10 @@ public class CMXController implements TickTimer {
     return musicPlayer.isNowPlaying();
   }
 
+  public void setMicrosecondPosition(long t) {
+    musicPlayer.setMicrosecondPosition(0);
+  }
+
   public long getMicrosecondPosition() {
     return musicPlayer.getMicrosecondPosition();
   }
@@ -132,6 +136,15 @@ public class CMXController implements TickTimer {
     musicSync.addMusicListener(l);
   }
       
+  public void waitForMusicStopped() {
+    try {
+      while (isNowPlaying()) {
+        Thread.currentThread().sleep(100);
+      }
+    } catch (InterruptedException e) {
+      return;
+    }
+  }
 
   public MidiInputModule createVirtualKeyboard() {
     try {

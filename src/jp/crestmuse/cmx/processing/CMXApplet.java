@@ -58,6 +58,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     return ctrl.getMicrosecondPosition();
   }
 
+  public void setMicrosecondPosition(long t) {
+    ctrl.setMicrosecondPosition(t);
+  }
+
   public long getTickPosition() {
     return ctrl.getTickPosition();
   }
@@ -108,6 +112,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   public WindowSlider createMic(int fs) {
     return ctrl.createMic(fs);
+  }
+
+  public SynchronizedWindowSlider createWaveCapture(boolean isStereo) {
+    return ctrl.createWaveCapture(isStereo);
   }
 
   public void readConfig(String filename) {

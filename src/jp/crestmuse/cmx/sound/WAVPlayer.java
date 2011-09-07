@@ -21,6 +21,7 @@ public class WAVPlayer implements MusicPlayer {
 
   private long startposition;
   private long lengthProcessed;
+  private long timebase;
 
   private boolean nowPlaying;
 
@@ -71,7 +72,11 @@ public class WAVPlayer implements MusicPlayer {
         line.addLineListener(listener);
     }
     lengthInSec = waveform.length / framesize;
-    changeStartPosition(0.0);
+    changeStartPosition(0L);
+  }
+
+  public void setMicrosecondPosition(long t) {
+    changeStartPositionInMicrosecond(t);
   }
 
   public void changeStartPositionInMicrosecond(long t) {
@@ -113,6 +118,7 @@ public class WAVPlayer implements MusicPlayer {
          int index = (int)(startposition * framesize / 1000000);
 //         int index = (int)(startposition * samplesPerSec / 1000000);
 //         int index = (int)(startposition * framesize * framerate / 1000000);
+         timebase = System.nanoTime() / 1000;
          do {
 //             System.out.println(line.available());
            buff = toByteArray(waveform, index, BUFFER_SIZE * framesize);
@@ -124,8 +130,13 @@ public class WAVPlayer implements MusicPlayer {
 //             System.out.println(line.available());
          } while (buff != null && isNowPlaying());
 //           line.drain();
+         long ptime = -1, ctime = -1;
          while (line.isActive()) {
            Thread.currentThread().sleep(SLEEP_TIME);
+           ptime = ctime;
+           ctime = line.getMicrosecondPosition();
+           if (ptime > 0 && ctime > 0 && ptime == ctime)
+             break;
          }
          line.stop();
          line.flush();
@@ -142,7 +153,8 @@ public class WAVPlayer implements MusicPlayer {
   }
 
   public long getMicrosecondPosition() {
-    return line.getMicrosecondPosition() - lengthProcessed + startposition;
+    return System.nanoTime() / 1000 - timebase + startposition;
+//    return line.getMicrosecondPosition() - lengthProcessed + startposition;
   }
 
   public boolean isNowPlaying() {
@@ -151,8 +163,11 @@ public class WAVPlayer implements MusicPlayer {
   }
 
   public void play() {
+//    timebase = 0;
+    timebase = System.nanoTime() / 1000;
     line.start();
-    lengthProcessed = line.getMicrosecondPosition();
+//    lengthProcessed = line.getMicrosecondPosition();
+//    timebase = System.nanoTime() / 1000;
     nowPlaying = true;
   }
 
