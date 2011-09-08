@@ -95,6 +95,8 @@ public class MusicPlaySynchronizer implements Runnable {
         break;
       }
     }
+    for (MusicListener l : listeners)
+      l.musicStopped(this);
     for (MusicPlaySynchronized sync : synclist)
       sync.stop(this);
     syncThreadStarted = false;
