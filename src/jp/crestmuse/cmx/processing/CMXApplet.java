@@ -33,12 +33,17 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   }
 
   public void wavread(String filename) {
-    ctrl.wavread(filename);
+    ctrl.wavread(createInput(filename));
+    ctrl.addMusicListener(this);
+  }
+
+  public void mp3read(String filename) {
+    ctrl.mp3read(createInput(filename));
     ctrl.addMusicListener(this);
   }
 
   public void smfread(String filename) {
-    ctrl.smfread(filename);
+    ctrl.smfread(createInput(filename));
     ctrl.addMusicListener(this);
   }
 

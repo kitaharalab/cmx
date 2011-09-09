@@ -69,7 +69,8 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
   }
 
   public byte[] getByteArrayWaveform() {
-    return data.bytearray;
+    return data.getByteArray();
+//    return data.bytearray;
   }
 
   public AudioFormat getAudioFormat() {
@@ -379,7 +380,7 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
     private long size;
     private DoubleArray[] data = null;
     private short[] dataInShort = null;
-    private byte[] bytearray = null;
+    private byte[] bytearray= null;
 
     private void setWaveform(DoubleArray[] waveform) {
       data = waveform;
@@ -457,6 +458,18 @@ public class WAVWrapper implements FileWrapperCompatible,AudioDataCompatible {
             dataInShort[t * i] = (short)(getWaveform()[i].get(i) * 32768.0);
       }
       return dataInShort;
+    }
+
+    private byte[] getByteArray() {
+      if (bytearray == null) {
+        short[] shortarray = getShortArray();
+        bytearray = new byte[shortarray.length * 2];
+        ByteBuffer bb = ByteBuffer.wrap(bytearray);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < shortarray.length; i++) 
+          bb.putShort(shortarray[i]);
+      }
+      return bytearray;
     }
 
     private void write(DataOutputStream dataout) throws IOException {

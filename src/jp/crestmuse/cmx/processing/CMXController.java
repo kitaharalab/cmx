@@ -9,6 +9,7 @@ import javax.sound.sampled.*;
 import java.io.*;
 import java.util.*;
 import java.awt.*;
+import javazoom.jl.decoder.*;
 
 public class CMXController implements TickTimer {
 
@@ -18,7 +19,7 @@ public class CMXController implements TickTimer {
   private MusicPlayer musicPlayer = null;
   private MusicPlaySynchronizer musicSync = null;
   private AudioInputStreamWrapper mic = null;
-  private WAVWrapper wav = null;
+  private AudioDataCompatible wav = null;
 
   private CMXController() {
 
@@ -90,6 +91,36 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void mp3read(String filename) {
+    try {
+      musicPlayer = new WAVPlayer(wav = MP3Wrapper.readfile(filename));
+      musicSync = new MusicPlaySynchronizer(musicPlayer);
+    } catch (IOException e) {
+      throw new IllegalStateException("Cannot read file: " + filename);
+    } catch (DecoderException e) {
+      throw new IllegalStateException("Cannot decode MP3 file: " + filename);
+    } catch (BitstreamException e) {
+      throw new IllegalStateException("Cannot decode MP3 file: " + filename);
+    } catch (javax.sound.sampled.LineUnavailableException e) {
+      throw new DeviceNotAvailableException("Audio device not available");
+    }
+  }
+
+  public void mp3read(InputStream input) {
+    try {
+      musicPlayer = new WAVPlayer(wav = MP3Wrapper.read(input));
+      musicSync = new MusicPlaySynchronizer(musicPlayer);
+    } catch (IOException e) {
+      throw new IllegalStateException("Cannot read file");
+    } catch (DecoderException e) {
+      throw new IllegalStateException("Cannot decode MP3 file");
+    } catch (BitstreamException e) {
+      throw new IllegalStateException("Cannot decode MP3 file");
+    } catch (javax.sound.sampled.LineUnavailableException e) {
+      throw new DeviceNotAvailableException("Audio device not available");
+    }
+  }
+
   public void smfread(String filename) {
     try {
       musicPlayer =new SMFPlayer();
@@ -101,6 +132,20 @@ public class CMXController implements TickTimer {
       throw new DeviceNotAvailableException("MIDI device not available");
     } catch (javax.sound.midi.InvalidMidiDataException e) {
       throw new IllegalArgumentException("Invalid MIDI data: " + filename);
+    }
+  }
+
+  public void smfread(InputStream input) {
+    try {
+      musicPlayer =new SMFPlayer();
+      ((SMFPlayer)musicPlayer).readSMF(input);
+      musicSync = new MusicPlaySynchronizer(musicPlayer);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    } catch (javax.sound.midi.MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    } catch (javax.sound.midi.InvalidMidiDataException e) {
+      throw new IllegalArgumentException("Invalid MIDI data");
     }
   }
 
