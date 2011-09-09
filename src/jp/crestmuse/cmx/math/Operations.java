@@ -1052,9 +1052,10 @@ public class Operations {
     }
 
     public static DoubleMatrix[] eig(DoubleMatrix x) {
-	EigenDecomposition 
-	    eig = new EigenDecompositionImpl(toRealMatrix(x), 
-					     MathUtils.SAFE_MIN);
+      EigenDecomposition 
+        eig = new EigenDecompositionImpl
+        (toRealMatrix(x), 
+         org.apache.commons.math.util.MathUtils.SAFE_MIN);
 	DoubleMatrix[] result = new DoubleMatrix[2];
 	result[0] = toDoubleMatrix(eig.getV());
 	result[1] = toDoubleMatrix(eig.getD());

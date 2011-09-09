@@ -6,6 +6,7 @@ import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.sound.*;
 import java.awt.*;
 import java.io.*;
+import javax.swing.*;
 
 public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
@@ -107,8 +108,20 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       return ctrl.createVirtualKeyboard();
   }
 
+  public MidiInputModule createMidiIn() {
+    return ctrl.createMidiIn();
+  }
+
   public MidiOutputModule createMidiOut() {
     return ctrl.createMidiOut();
+  }
+  
+  public void showMidiInChooser() {
+    ctrl.showMidiInChooser(this);
+  }
+
+  public void showMidiOutChooser() {
+    ctrl.showMidiOutChooser(this);
   }
 
   public WindowSlider createMic() {

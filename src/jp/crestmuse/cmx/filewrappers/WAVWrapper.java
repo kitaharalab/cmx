@@ -1,5 +1,4 @@
-package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.filewrappers.*;
+package jp.crestmuse.cmx.filewrappers;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.sound.*;
 import java.io.*;

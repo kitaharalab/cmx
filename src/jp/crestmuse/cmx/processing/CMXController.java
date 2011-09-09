@@ -9,6 +9,7 @@ import javax.sound.sampled.*;
 import java.io.*;
 import java.util.*;
 import java.awt.*;
+import javax.swing.*;
 import javazoom.jl.decoder.*;
 
 public class CMXController implements TickTimer {
@@ -20,6 +21,10 @@ public class CMXController implements TickTimer {
   private MusicPlaySynchronizer musicSync = null;
   private AudioInputStreamWrapper mic = null;
   private AudioDataCompatible wav = null;
+
+  private MidiDevice.Info midiin = null;
+  private MidiDevice.Info midiout = null;
+
 
   private CMXController() {
 
@@ -211,14 +216,63 @@ public class CMXController implements TickTimer {
       throw new DeviceNotAvailableException("MIDI device not available");
     }
   }
-  
-  public MidiOutputModule createMidiOut() {
+
+  public MidiInputModule createMidiIn() {
     try {
-      return new MidiOutputModule();
+      if (midiin == null) {
+        throw new IllegalStateException
+          ("MIDI IN device has not been selected yet");
+      } else {
+        return new MidiInputModule(
+          SoundUtils.getMidiInDeviceByName(midiin.getName()));
+      }
     } catch (MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
     }
   }
+
+  public MidiOutputModule createMidiOut() {
+    try {
+      if (midiout == null) {
+        return new MidiOutputModule();
+      } else {
+        MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
+        dev.open();
+        return new MidiOutputModule(dev);
+      }
+    } catch (MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    }
+  }
+
+  public void showMidiInChooser(Component parent) {
+    try {
+      Object selected = 
+        JOptionPane.showInputDialog(
+          parent, "Select MIDI IN Device.", "Select MIDI IN Device...", 
+          JOptionPane.PLAIN_MESSAGE, null, 
+          SoundUtils.getMidiInDeviceInfo().toArray(), null);
+      if (selected != null)
+        midiin = (MidiDevice.Info)selected;
+    } catch (MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    }
+  }
+
+  public void showMidiOutChooser(Component parent) {
+    try {
+      Object selected = 
+        JOptionPane.showInputDialog(
+          parent, "Select MIDI OUT Device.", "Select MIDI OUT Device...", 
+          JOptionPane.PLAIN_MESSAGE, null, 
+          SoundUtils.getMidiOutDeviceInfo().toArray(), null);
+      if (selected != null)
+        midiout = (MidiDevice.Info)selected;
+    } catch (MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    }
+  }
+    
 
   public WindowSlider createMic() {
     return createMic(16000);

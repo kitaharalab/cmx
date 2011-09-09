@@ -1,0 +1,12 @@
+package jp.crestmuse.cmx.amusaj.filewrappers;
+
+/*********************************************************************
+ *@Deprecated Use jp.crestmuse.cmx.filewrappers.WAVWrapper instead.
+ *********************************************************************/
+
+/*
+public class WAVWrapper extends jp.crestmuse.cmx.filewrappers.WAVWrapper {
+
+
+}
+*/
