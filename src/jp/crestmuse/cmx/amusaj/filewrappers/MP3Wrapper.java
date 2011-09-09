@@ -53,7 +53,7 @@ public class MP3Wrapper implements AudioDataCompatible {
     int k = 0;
     for (int i = 0; i < nFrames; i++) {
       for (int j = 0; j < blocksize; j++) {
-        dataInDouble[k % ch].set(k / ch, data.get(i)[j] / 32768);
+        dataInDouble[k % ch].set(k / ch, (double)data.get(i)[j] / 32768);
         bb.putShort(data.get(i)[j]);
 //        bytearray[2 * k] = (byte)(data.get(i)[j] / 256);
 //        bytearray[2 * k + 1] = (byte)(data.get(i)[j] % 256);
