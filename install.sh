@@ -1,22 +1,22 @@
-#!/bin/sh -x
+#!/bin/sh
 
-INSTALL_DIR=/usr/local
-PACKAGE_NAME=cmx
-RELEASE_NAME=cmx-0.53
-SYMLINK_NAME=cmx
-BIN_DIR=bin
-BIN_NAME=cmx
+#################################################################
+# This installer copies jar files to /usr/local/ in default.    #
+# Execute this as superuser (e.g., with the sudo command).      #
+#################################################################
 
+usr=/usr/local
+branch=cmx-0.54
 
 srcdir=$(cd $(dirname $0) && pwd)
 
-mkdir -p $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME
-cp -r $srcdir/* $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/
+mkdir -p $usr/cmx/$branch
+cp -r $srcdir/* $usr/cmx/$branch/
 
-cat <<EOF > $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/$BIN_NAME
+cat <<EOF > $usr/cmx/$branch/cmx
 #!/bin/sh
 
-CMX_HOME=$INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME
+CMX_HOME=$usr/cmx/$branch
 
 myclasspath=\$CMX_HOME/cmx.jar
 for jarfile in \$CMX_HOME/lib/*.jar
@@ -26,58 +26,86 @@ done
 CLASSPATH=\$CLASSPATH:\$myclasspath
 export CLASSPATH
 
-if [ -z \$1 ]; then
-  echo No command specified. Type \"$BIN_NAME help\" for help.
-  exit 1
-fi
+#if [ -z \$1 ]; then
+#  echo No command specified. Type \"$cmd help\" for help.
+#  exit 1
+#fi
 
-cmd=\$1
-shift 1
+options=
 
-if [ "\$cmd" = "help" ]; then 
-  cat \$CMX_HOME/help
-elif [ "\$cmd" = "dev2midi" ]; then 
-  java jp.crestmuse.cmx.commands.ApplyDeviationInstance \$*
-elif [ "\$cmd" = "addtempo" ]; then
-  java jp.crestmuse.cmx.commands.ApplyCSVTempoDeviation \$*
-elif [ "\$cmd" = "mkdev" ]; then
-  java jp.crestmuse.cmx.commands.DeviationInstanceExtractor \$*
-elif [ "\$cmd" = "midi2scc" ]; then
-  java jp.crestmuse.cmx.commands.MIDIXML2SCC \$*
-elif [ "\$cmd" = "midi2smf" ]; then
-  java jp.crestmuse.cmx.commands.MIDIXML2SMF \$*
-elif [ "\$cmd" = "mkdeadpan" ]; then
-  java jp.crestmuse.cmx.commands.MakeDeadpanSCC \$*
-elif [ "\$cmd" = "scc2midi" ]; then
-  java jp.crestmuse.cmx.commands.SCC2MIDI \$*
-elif [ "\$cmd" = "smf2midi" ]; then
-  java jp.crestmuse.cmx.commands.SMF2MIDIXML \$*
-elif [ "\$cmd" = "smf2scc" ]; then
-  java jp.crestmuse.cmx.commands.SMF2SCC \$*
-elif [ "\$cmd" = "smfoverlap-check" ]; then
-  java jp.crestmuse.cmx.commands.SMFOverlapChecker \$*
-elif [ "\$cmd" = "smfoverlap-remove" ]; then
-  java jp.crestmuse.cmx.commands.SMFOverlapRemover \$*
-elif [ "\$cmd" = "smfoverlap-remove2" ]; then
-  java jp.crestmuse.cmx.commands.SMFOverlapRemover2 \$*
-elif [ "\$cmd" = "wav2chroma" ]; then
-  java jp.crestmuse.cmx.amusaj.commands.ChromaExtractor \$*
-elif [ "\$cmd" = "wav2fpd" ]; then
-  java jp.crestmuse.cmx.amusaj.commands.WAV2FPD \$*
-elif [ "\$cmd" = "wav2spd" ]; then
-  java jp.crestmuse.cmx.amusaj.commands.WAV2SPD \$*
-else
-  echo Invalid command. Please type \"$BIN_NAME help\" for help.
-  exit 1
-fi
+while [ \$# -ge 1 ]
+do
+  cmd=\$1
+  shift
+  echo \$cmd
+  echo \$options
+  if [ "\$cmd" = "help" -o "\$cmd" = "-help" ]; then 
+    cat \$CMX_HOME/help
+    break
+  elif [ "\$cmd" = "dev2midi" ]; then 
+    java \$options jp.crestmuse.cmx.commands.ApplyDeviationInstance \$*
+    break
+  elif [ "\$cmd" = "addtempo" ]; then
+    java \$options jp.crestmuse.cmx.commands.ApplyCSVTempoDeviation \$*
+    break
+  elif [ "\$cmd" = "mkdev" ]; then
+    java \$options jp.crestmuse.cmx.commands.DeviationInstanceExtractor \$*
+    break
+  elif [ "\$cmd" = "midi2scc" ]; then
+    java \$options jp.crestmuse.cmx.commands.MIDIXML2SCC \$*
+    break
+  elif [ "\$cmd" = "midi2smf" ]; then
+    java \$options jp.crestmuse.cmx.commands.MIDIXML2SMF \$*
+    break
+  elif [ "\$cmd" = "mkdeadpan" ]; then
+    java \$options jp.crestmuse.cmx.commands.MakeDeadpanSCC \$*
+    break
+  elif [ "\$cmd" = "scc2midi" ]; then
+    java \$options jp.crestmuse.cmx.commands.SCC2MIDI \$*
+    break
+  elif [ "\$cmd" = "smf2midi" ]; then
+    java \$options jp.crestmuse.cmx.commands.SMF2MIDIXML \$*
+    break
+  elif [ "\$cmd" = "smf2scc" ]; then
+    java \$options jp.crestmuse.cmx.commands.SMF2SCC \$*
+    break
+  elif [ "\$cmd" = "smfoverlap-check" ]; then
+    java \$options jp.crestmuse.cmx.commands.SMFOverlapChecker \$*
+    break
+  elif [ "\$cmd" = "smfoverlap-remove" ]; then
+    java \$options jp.crestmuse.cmx.commands.SMFOverlapRemover \$*
+    break
+  elif [ "\$cmd" = "smfoverlap-remove2" ]; then
+    java \$options jp.crestmuse.cmx.commands.SMFOverlapRemover2 \$*
+    break
+  elif [ "\$cmd" = "wav2chroma" ]; then
+    java \$options jp.crestmuse.cmx.amusaj.commands.ChromaExtractor \$*
+    break
+  elif [ "\$cmd" = "wav2fpd" ]; then
+    java \$options jp.crestmuse.cmx.amusaj.commands.WAV2FPD \$*
+    braek
+  elif [ "\$cmd" = "wav2spd" ]; then
+    java $options jp.crestmuse.cmx.amusaj.commands.WAV2SPD \$*
+    break
+  else
+    if [ \$# -eq 1 ]; then
+      echo No command or invalid command specified. 
+      echo Please type \"cmx help\" for help.
+      exit 1
+    fi
+  fi
+  options="\$options \$cmd"
+done
 EOF
 
-chmod +x $INSTALL_DIR/$PACKAGE_NAME/$RELEASE_NAME/$BIN_NAME
-(cd $INSTALL_DIR/$PACKAGE_NAME ; rm $SYMLINK_NAME ; ln -s $RELEASE_NAME $SYMLINK_NAME)
-mkdir -p $INSTALL_DIR/$BIN_DIR
-ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/$BIN_NAME \
-  $INSTALL_DIR/$BIN_DIR/$BIN_NAME
+chmod +x $usr/cmx/$branch/cmx
+mkdir -p $usr_local/$bin
+ln -sf $usr/cmx/$branch/cmx $usr/bin/cmx
 
 mkdir -p ~/.groovy/lib
-ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/cmx.jar ~/.groovy/lib/
-ln -sf $INSTALL_DIR/$PACKAGE_NAME/$SYMLINK_NAME/lib/*.jar ~/.groovy/lib/
+ln -sf $usr/cmx/$branch/cmx.jar ~/.groovy/lib/
+ln -sf $usr/cmx/$branch/lib/*.jar ~/.groovy/lib/
+
+mkdir -p ~/sketchbook/libraries/cmx/library
+ln -sf $usr/cmx/$branch/cmx.jar ~/sketchbook/libraries/cmx/library/
+ln -sf $usr/cmx/$branch/lib/*.jar ~/sketchbook/libraries/cmx/library/

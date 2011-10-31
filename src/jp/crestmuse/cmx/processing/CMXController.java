@@ -4,6 +4,7 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.sound.*;
+import jp.crestmuse.cmx.inference.*;
 import javax.sound.midi.*;
 import javax.sound.sampled.*;
 import java.io.*;
@@ -299,6 +300,10 @@ public class CMXController implements TickTimer {
     return winslider;
   }
 
+  public MidiEventSender createMidiEventSender() {
+    return new MidiEventSender();
+  }
+
   public void readConfig(String filename) {
     try {
       AmusaParameterSet.getInstance().setAnotherParameterSet(
@@ -316,6 +321,12 @@ public class CMXController implements TickTimer {
       throw new IllegalArgumentException("Cannot read config file");
     }
   }
+
+  public MusicRepresentation 
+  createMusicRepresentation(int measure, int division) {
+    return MusicRepresentationFactory.create(measure, division);
+  }
+
 
 
 }

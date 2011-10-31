@@ -57,4 +57,29 @@ public class MidiEventWithTicktime extends MidiEvent {
       msg.setMessage(ShortMessage.NOTE_OFF + ch, nn, vel);
       return new MidiEventWithTicktime(msg, 0, position);
   }
+
+  public static MidiEventWithTicktime createShortMessageEvent(long position, 
+                                                              int ch, int st,
+                                                              int d1, int d2) 
+    throws InvalidMidiDataException {
+    ShortMessage msg = new ShortMessage();
+    msg.setMessage(st + ch, d1, d2);
+    return new MidiEventWithTicktime(msg, 0, position);
+  }
+
+  public static MidiEventWithTicktime createControlChangeEvent(long position,
+                                                               int ch, int type,
+                                                               int value) 
+    throws InvalidMidiDataException {
+    return createShortMessageEvent(position, ch, ShortMessage.CONTROL_CHANGE,
+                                   type, value);
+  }
+
+  public static MidiEventWithTicktime createProgramChangeEvent(long position,
+                                                               int ch, 
+                                                               int value)
+    throws InvalidMidiDataException {
+    return createShortMessageEvent(position, ch, ShortMessage.PITCH_BEND, 
+                                   value, 0);
+  }
 }

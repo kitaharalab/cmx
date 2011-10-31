@@ -4,6 +4,7 @@ import processing.core.*;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.sound.*;
+import jp.crestmuse.cmx.inference.*;
 import java.awt.*;
 import java.io.*;
 import javax.swing.*;
@@ -144,6 +145,9 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     ctrl.readConfig(input);
   }
 
+  public MidiEventSender createMidiEventSender() {
+    return ctrl.createMidiEventSender();
+  }
 
   public void handleDraw() {
     if (frameCount == 1) {
@@ -161,5 +165,14 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   public static void main(String className) {
     main(new String[]{className});
+  }
+
+  public static void start(String className) {
+    main(new String[]{className});
+  }
+
+  public MusicRepresentation 
+  createMusicRepresentation(int measure, int division) {
+    return ctrl.createMusicRepresentation(measure, division);
   }
 }
