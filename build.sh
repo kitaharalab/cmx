@@ -5,6 +5,7 @@ setopt null_glob
 release=`basename $PWD`
 JAR_FILE=cmx.jar
 
+rm $JAR_FILE
 mkdir classes
 javac -d classes -target 1.5 -source 1.5 -sourcepath src src/**/*.java
 ( cd classes ; jar cvf ../${JAR_FILE} * )
