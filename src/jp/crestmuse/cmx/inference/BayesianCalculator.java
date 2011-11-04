@@ -16,7 +16,6 @@ public class BayesianCalculator implements MusicCalculator {
 
   public void updated(int measure, int tick, String layer, 
                      MusicRepresentation musRep) {
-    try {
 //      int divisions = musRep.getDivision();
 //      int measure = index / divisions;
 //      int tick = index % divisions;
@@ -30,7 +29,12 @@ public class BayesianCalculator implements MusicCalculator {
 //          bayesNet.setEvidence(bm.bayesnetIndex, e.getHighestProbIndex());
         }
       }
+    try {
       bayesNet.update();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new BayesNetException(e.toString());
+    }
       for (BayesianMapping bm : writeMappings) {
         MusicElement e = bm.mappedElement(musRep, measure, tick);
         if (e != null) {
@@ -41,9 +45,6 @@ public class BayesianCalculator implements MusicCalculator {
 	  }
         }
       }
-    } catch (Exception e) {
-      throw new BayesNetException(e.toString());
-    }
   }
 
 

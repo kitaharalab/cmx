@@ -98,6 +98,20 @@ do
 done
 EOF
 
+cp ~/.bashrc ~/.bashrc.backup
+cat <<EOF >> ~/.bashrc
+
+  ##### The following is automatically added by $branch
+  ##### Please remove this when uninstalling $branch
+  CLASSPATH=$usr/cmx/$branch/cmx.jar:\$CLASSPATH
+  for jarfile in $usr/cmx/$branch/lib/*.jar
+  do
+    CLASSPATH=\$jarfile:\$CLASSPATH
+  done
+  export CLASSPATH
+
+EOF
+
 chmod +x $usr/cmx/$branch/cmx
 mkdir -p $usr_local/$bin
 ln -sf $usr/cmx/$branch/cmx $usr/bin/cmx
@@ -109,3 +123,4 @@ ln -sf $usr/cmx/$branch/lib/*.jar ~/.groovy/lib/
 mkdir -p ~/sketchbook/libraries/cmx/library
 ln -sf $usr/cmx/$branch/cmx.jar ~/sketchbook/libraries/cmx/library/
 ln -sf $usr/cmx/$branch/lib/*.jar ~/sketchbook/libraries/cmx/library/
+

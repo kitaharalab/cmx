@@ -39,6 +39,7 @@ public class BayesianMapping {
 	this.musRepPosition = musRepPosition;
 	this.option = option;
 	this.bayesnetIndex = bn.getNode(bayesNodeName);
+        System.err.println("BAYES INDEX: " + bayesnetIndex);
 	this.evidenceOnly = evidenceOnly;
     }
 

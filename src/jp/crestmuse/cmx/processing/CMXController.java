@@ -13,6 +13,14 @@ import java.awt.*;
 import javax.swing.*;
 import javazoom.jl.decoder.*;
 
+/**********************************************************************
+このクラスは，CrestMuse Toolkit (CMX)の主要な機能を簡単に呼び出せるようにしたクラスです．
+ただし，現時点ではCMXのすべての機能を呼び出せるようになっているわけではありません．
+
+このクラスを利用する際には，getInstanceメソッドでインスタンスを取得してから，各種メソッドを
+利用します．
+ **********************************************************************/
+
 public class CMXController implements TickTimer {
 
   private static final CMXController me = new CMXController();
@@ -31,10 +39,14 @@ public class CMXController implements TickTimer {
 
   }
 
+  /** このクラスのインスタンスを返します．*/
   public static CMXController getInstance() {
     return me;
   }
 
+  /** CMXが対応しているXML形式の文書オブジェクトを生成します．
+      たとえば，SCCXML形式の文書オブジェクトを生成する際には，
+      <tt> createDocument(SCCXMLWrapper.TOP_TAG) </tt> とします．*/
   public static CMXFileWrapper createDocument(String toptag) {
     try {
       return CMXFileWrapper.createDocument(toptag);
@@ -43,6 +55,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** CMXが対応しているXML形式の文書を読み込みます．*/
   public static CMXFileWrapper readfile(String filename) {
     try {
       return CMXFileWrapper.readfile(filename);
@@ -51,6 +64,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** CMXが対応しているXML形式の文書を読み込みます．*/
   public static CMXFileWrapper read(InputStream input) {
     try {
       return CMXFileWrapper.read(input);
@@ -59,22 +73,28 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** リアルタイム処理用の「モジュール」を登録します．*/
   public void addSPModule(ProducerConsumerCompatible module) {
     if (spexec == null)
       spexec = new SPExecutor();
     spexec.addSPModule(module);
   }
 
+  /** 登録済みの「モジュール」の接続方法を定義します．*/
   public void connect(ProducerConsumerCompatible output, int ch1, 
                       ProducerConsumerCompatible input, int ch2) {
     spexec.connect(output, ch1, input, ch2);
   }
 
+  /** 登録済みの「モジュール」を実行開始します．*/
   public void startSP() {
     if (mic != null) mic.getLine().start();
     if (spexec != null) spexec.start();
   }
 
+  /** 指定されたWAVファイルを読み込みます．読み込まれたWAVファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void wavread(String filename) {
     try {
       musicPlayer = new WAVPlayer(wav = WAVWrapper.readfile(filename));
@@ -86,6 +106,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 指定されたWAVファイルを読み込みます．読み込まれたWAVファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void wavread(InputStream input) {
     try {
       musicPlayer = new WAVPlayer(wav = WAVWrapper.read(input));
@@ -97,6 +120,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void mp3read(String filename) {
     try {
       musicPlayer = new WAVPlayer(wav = MP3Wrapper.readfile(filename));
@@ -112,6 +138,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void mp3read(InputStream input) {
     try {
       musicPlayer = new WAVPlayer(wav = MP3Wrapper.read(input));
@@ -127,6 +156,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 指定された標準MIDIファイルを読み込みます．読み込まれた標準MIDIファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void smfread(String filename) {
     try {
       musicPlayer =new SMFPlayer();
@@ -141,6 +173,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 指定された標準MIDIファイルを読み込みます．読み込まれた標準MIDIファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void smfread(InputStream input) {
     try {
       musicPlayer =new SMFPlayer();
@@ -155,30 +190,45 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** すでに読み込まれた音楽データの再生を開始します．*/
   public void playMusic() {
     musicSync.play();
   }
 
+  /** 再生中の音楽を停止します．*/
   public void stopMusic() {
     musicSync.stop();
   }
 
+  /** 現在，音楽を再生中かどうかを返します．*/
   public boolean isNowPlaying() {
     return musicPlayer.isNowPlaying();
   }
 
+  /** 次回再生時の音楽の再生開始箇所をマイクロ秒単位で指定します．
+      ただし，このメソッドは音楽停止中しか使用できません．*/
   public void setMicrosecondPosition(long t) {
     musicPlayer.setMicrosecondPosition(0);
   }
 
+  /** 現在の再生中の音楽データにおける現在の再生箇所をマイクロ秒単位で
+      返します．*/
   public long getMicrosecondPosition() {
     return musicPlayer.getMicrosecondPosition();
   }
 
+  /** 現在の再生中の音楽データにおける現在の再生箇所をティック単位で
+      返します．
+      ただし，このメソッドは読み込み済みのデータがMIDIデータのときしか
+      使用できません．*/
   public long getTickPosition() {
     return musicPlayer.getTickPosition();
   }
 
+  /** 現在読み込まれているMIDIデータのTicks Per Beat（1拍あたりの
+      ティック数）を返します．
+      このメソッドは読み込み済みのデータがMIDIデータのときしか
+      使用できません．*/
   public int getTicksPerBeat() {
     return musicPlayer.getTicksPerBeat();
   }
@@ -186,7 +236,8 @@ public class CMXController implements TickTimer {
   public void addMusicListener(MusicListener l) {
     musicSync.addMusicListener(l);
   }
-      
+
+  /** 音楽の再生が停止されるまで，スレッドを停止します．*/
   public void waitForMusicStopped() {
     try {
       while (isNowPlaying()) {
@@ -197,6 +248,8 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 仮想鍵盤を表示し，キーボードのキーを押すと，対応するMIDIイベントが
+      出力される「モジュール」を生成します，*/
   public MidiInputModule createVirtualKeyboard() {
     try {
       VirtualKeyboard vkb = new VirtualKeyboard();
@@ -208,6 +261,8 @@ public class CMXController implements TickTimer {
     }
   }
   
+  /** 仮想鍵盤を表示し，キーボードのキーを押すと，対応するMIDIイベントが
+      出力される「モジュール」を生成します，*/
   public MidiInputModule createVirtualKeyboard(Component c) {
     try {
       VirtualKeyboard vkb = new VirtualKeyboard(c);
@@ -218,6 +273,10 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 認識済みのMIDI入力デバイスからMIDIイベントを受け付けてそのまま出力する
+      「モジュール」を生成して返します．
+      このメソッドは，<tt>showMidiInChooser</tt>メソッドによって
+      MIDI入力デバイスを選択した後でしか使用できません．*/
   public MidiInputModule createMidiIn() {
     try {
       if (midiin == null) {
@@ -232,6 +291,8 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 認識済みのMIDI出力デバイスに，入力されたMIDIイベントを出力する「モジュール」を
+      生成して返します．*/
   public MidiOutputModule createMidiOut() {
     try {
       if (midiout == null) {
@@ -246,6 +307,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 認識済みのMIDI入力デバイスの選択ダイアログを表示します．
+      表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には
+      <tt>null</tt>を指定することもできます．*/
   public void showMidiInChooser(Component parent) {
     try {
       Object selected = 
@@ -260,6 +324,9 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 認識済みのMIDI出力デバイスの選択ダイアログを表示します．
+      表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には
+      <tt>null</tt>を指定することもできます．*/
   public void showMidiOutChooser(Component parent) {
     try {
       Object selected = 
@@ -274,11 +341,16 @@ public class CMXController implements TickTimer {
     }
   }
     
-
+  /** マイクから波形データを受け取って，短区間ごとに区切った波形断片を次々と
+      出力する「モジュール」を生成します．
+      サンプリング周波数は16kHzとします．*/
   public WindowSlider createMic() {
     return createMic(16000);
   }
 
+  /** マイクから波形データを受け取って，短区間ごとに区切った波形断片を次々と
+      出力する「モジュール」を生成します．
+      <tt>fs</tt>にはサンプリング周波数をHz単位で指定します．*/
   public WindowSlider createMic(int fs) {
     try {
       AudioInputStreamWrapper mic = 
@@ -292,6 +364,8 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 現在サウンドカードから再生中の音を受け取って，その波形データを短区間ごとに区切った
+      波形断片を次々と出力する「モジュール」を生成します．*/
   public SynchronizedWindowSlider createWaveCapture(boolean isStereo) {
     SynchronizedWindowSlider winslider = 
       new SynchronizedWindowSlider(isStereo);
@@ -304,6 +378,8 @@ public class CMXController implements TickTimer {
     return new MidiEventSender();
   }
 
+  /** 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます．
+      <tt>createMic</tt>などを使用する際には必須です．*/
   public void readConfig(String filename) {
     try {
       AmusaParameterSet.getInstance().setAnotherParameterSet(
@@ -313,6 +389,8 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます．
+      <tt>createMic</tt>などを使用する際には必須です．*/
   public void readConfig(InputStream input) {
     try {
       AmusaParameterSet.getInstance().setAnotherParameterSet(
@@ -322,6 +400,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 音楽推論用のオブジェクトを返します．*/
   public MusicRepresentation 
   createMusicRepresentation(int measure, int division) {
     return MusicRepresentationFactory.create(measure, division);
