@@ -39,7 +39,7 @@ public class SMFPlayer implements MusicPlayer {
   public void readSMF(InputStream instream) throws InvalidMidiDataException, 
     IOException {
     stop();
-    sequence = MidiSystem.getSequence(instream);
+    sequence = MidiSystem.getSequence(new BufferedInputStream(instream));
     sequencer.setSequence(sequence);
   }
 

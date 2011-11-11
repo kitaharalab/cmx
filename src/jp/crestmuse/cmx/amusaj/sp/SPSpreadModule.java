@@ -2,8 +2,6 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.util.Arrays;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
-
 public class SPSpreadModule extends SPModule {
 
   private int spreadNum;

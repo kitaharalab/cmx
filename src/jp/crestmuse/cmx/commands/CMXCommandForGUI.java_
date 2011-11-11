@@ -1,0 +1,30 @@
+package jp.crestmuse.cmx.commands;
+
+import java.io.*;
+import java.util.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import org.xml.sax.*;
+import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.misc.*;
+
+/** @deprecated
+ *OBSOLETE!!! */
+public abstract class CMXCommandForGUI extends CMXCommand {
+  protected int requiredFiles() {
+    return 0;
+  }
+//  int getLeastNumOfArgs() {
+//    return 0;
+//  }
+  void runAll() throws IOException, ParserConfigurationException, 
+    TransformerException, SAXException, InvalidFileTypeException, 
+    InvalidOptionException {
+    preproc();
+    run();
+    postproc();
+  }
+  protected String[] getFileList() {
+    return super.getFileList();
+  }
+}

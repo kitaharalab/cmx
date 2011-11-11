@@ -16,6 +16,7 @@ public class MidiRecorder extends SPModule {
       track = seq.createTrack();
     } catch (InvalidMidiDataException e) {
       e.printStackTrace();
+      throw new IllegalArgumentException();
     }
     this.filename = filename;
     this.ticksPerBeat = ticksPerBeat;

@@ -11,6 +11,9 @@ import java.io.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.xml.transform.*;
+import javax.xml.parsers.*;
+import org.xml.sax.*;
 import javazoom.jl.decoder.*;
 
 /**********************************************************************
@@ -70,6 +73,84 @@ public class CMXController implements TickTimer {
       return CMXFileWrapper.read(input);
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file");
+    }
+  }
+
+  public static void writefile(CMXFileWrapper f, String filename) {
+    try {
+      f.writefile(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file: " + filename);
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error: " + filename);
+    }
+  }
+
+  public static void write(CMXFileWrapper f, OutputStream output) {
+    try {
+      f.write(output);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file");
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error");
+    }
+  }
+
+  public static void writefileAsSMF(SCCXMLWrapper f, String filename) {
+    try {
+      f.toMIDIXML().writefile(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file: " + filename);
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error: " + filename);
+    } catch (ParserConfigurationException e) {
+      throw new IllegalStateException("Parser error: " + filename);
+    } catch (TransformerException e) {
+      throw new IllegalArgumentException("XML error: " + filename);
+    }
+  }
+
+  public static void writefileAsSMF(MIDIXMLWrapper f, String filename) {
+    try {
+      f.writefile(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file: " + filename);
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error: " + filename);
+    }
+  }
+
+  public static void writeAsSMF(SCCXMLWrapper f, OutputStream output) {
+    try {
+      f.toMIDIXML().write(output);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file");
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error");
+    } catch (ParserConfigurationException e) {
+      throw new IllegalStateException("Parser error");
+    } catch (TransformerException e) {
+      throw new IllegalArgumentException("XML error");
+    }
+  }
+
+  public static void writeAsSMF(MIDIXMLWrapper f, OutputStream output) {
+    try {
+      f.write(output);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file");
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error");
+    }
+  }
+
+  public static void println(CMXFileWrapper f) {
+    try {
+      f.write(System.out);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("I/O Error");
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error");
     }
   }
 
@@ -189,6 +270,58 @@ public class CMXController implements TickTimer {
       throw new IllegalArgumentException("Invalid MIDI data");
     }
   }
+
+  public void smfread(MIDIXMLWrapper midi) {
+    try {
+      smfread(midi.getMIDIInputStream());
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Invalid MIDIXML data");
+    }
+  }
+
+  public void smfread(SCCXMLWrapper scc) {
+    try {
+      smfread(scc.getMIDIInputStream());
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Invalid SCCXML data");
+    } catch (ParserConfigurationException e) {
+      throw new IllegalStateException("parser error");
+    } catch (TransformerException e) {
+      throw new IllegalArgumentException("XML error");
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error");
+    }
+  }
+
+
+/*
+  public void midiread(MIDIXMLWrapper midi) {
+    try {
+      PipedOutputStream pout = new PipedOutputStream();
+      PipedInputStream pin = new PipedInputStream(pout);
+      midi.writeAsSMF(pout);
+      musicPlayer = new SMFPlayer();
+      ((SMFPlayer)musicPlayer).readSMF(pin);
+      musicSync = new MusicPlaySynchronizer(musicPlayer);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    } catch (javax.sound.midi.MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    } catch (javax.sound.midi.InvalidMidiDataException e) {
+      throw new IllegalArgumentException("Invalid MIDI data");
+    }
+  }
+*/
+
+/*
+  public void sccread(SCCXMLWrapper scc) {
+    try {
+      midiread(scc.toMIDIXML());
+    } catch (ParserConfigurationException e) {
+      throw IllegalStateExcpetion("parser configuration exception");
+    } 
+  }
+*/
 
   /** すでに読み込まれた音楽データの再生を開始します．*/
   public void playMusic() {
@@ -407,5 +540,11 @@ public class CMXController implements TickTimer {
   }
 
 
+  public void sleep(long ms) {
+    try {
+      Thread.currentThread().sleep(ms);
+    } catch (InterruptedException e) {}
+  }
+    
 
 }

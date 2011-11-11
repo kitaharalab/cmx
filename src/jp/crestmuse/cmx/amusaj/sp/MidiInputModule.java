@@ -9,7 +9,6 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.sound.TickTimer;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 

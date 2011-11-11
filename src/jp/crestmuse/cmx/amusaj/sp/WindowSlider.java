@@ -6,7 +6,7 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.sound.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 import static jp.crestmuse.cmx.sound.Utils.*;
 import java.util.*;
 import java.io.*;

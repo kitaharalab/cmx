@@ -175,6 +175,12 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     writeAsSMF(dataout);
   }
 
+  public void writeAsSMF(OutputStream out) throws IOException {
+    DataOutputStream dataout = new DataOutputStream
+      (new BufferedOutputStream(out));
+    writeAsSMF(dataout);
+  }
+
   void writeAsSMF(DataOutputStream dataout) throws IOException {
     // write header chunk
     dataout.writeBytes("MThd");
@@ -399,7 +405,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
         try {
           writeAsSMF(dataout);
         } catch (IOException e) {
-          new RuntimeException(e.toString());
+          throw new IllegalArgumentException("I/O Error");
         }
       }
     })).start();

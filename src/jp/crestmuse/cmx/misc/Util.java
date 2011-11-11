@@ -3,7 +3,7 @@ package jp.crestmuse.cmx.misc;
 import java.io.File;
 import javax.swing.ImageIcon;
 
-public class Util {
+class Util {
 	public final static String SEPARATOR = ".";
 
 	public static final String TAB = "\t";

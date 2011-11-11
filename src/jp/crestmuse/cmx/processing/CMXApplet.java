@@ -34,6 +34,34 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     return ctrl.read(input);
   }
 
+  public void writefile(CMXFileWrapper f, String filename) {
+    ctrl.write(f, createOutput(filename));
+  }
+
+  public void write(CMXFileWrapper f, OutputStream output) {
+    ctrl.write(f, output);
+  }
+
+  public void writefileAsSMF(SCCXMLWrapper f, String filename) {
+    ctrl.writefileAsSMF(f, filename);
+  }
+
+  public void writefileAsSMF(MIDIXMLWrapper f, String filename) {
+    ctrl.writefileAsSMF(f, filename);
+  }
+
+  public void writeAsSMF(SCCXMLWrapper f, OutputStream output) {
+    ctrl.writeAsSMF(f, output);
+  }
+
+  public void writeAsSMF(MIDIXMLWrapper f, OutputStream output) {
+    ctrl.writeAsSMF(f, output);
+  }
+
+  public void println(CMXFileWrapper f) {
+    ctrl.println(f);
+  }
+
   /** リアルタイム処理用の「モジュール」を登録します．*/
   public void addSPModule(ProducerConsumerCompatible module) {
     ctrl.addSPModule(module);
@@ -66,6 +94,16 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       読み込まれます．*/
   public void smfread(String filename) {
     ctrl.smfread(createInput(filename));
+    ctrl.addMusicListener(this);
+  }
+
+  public void smfread(MIDIXMLWrapper midixml) {
+    ctrl.smfread(midixml);
+    ctrl.addMusicListener(this);
+  }
+
+  public void smfread(SCCXMLWrapper sccxml) {
+    ctrl.smfread(sccxml);
     ctrl.addMusicListener(this);
   }
 
@@ -245,4 +283,11 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   createMusicRepresentation(int measure, int division) {
     return ctrl.createMusicRepresentation(measure, division);
   }
+
+  public void sleep(long ms) {
+    try {
+      Thread.currentThread().sleep(ms);
+    } catch (InterruptedException e) {}
+  }
+    
 }

@@ -11,7 +11,7 @@ import org.xml.sax.*;
 import java.io.*;
 import java.util.*;
 
-public class SMFOverlapRemover extends 
+class SMFOverlapRemover extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 
   private static final double ON_ON = 0.1;

@@ -11,7 +11,7 @@ import org.xml.sax.*;
 import java.io.*;
 import java.util.*;
 
-public class SMFOverlapChecker extends 
+class SMFOverlapChecker extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 
   MIDIEventWithTime[][] last1 = new MIDIEventWithTime[128][16];

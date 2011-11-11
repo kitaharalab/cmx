@@ -8,9 +8,6 @@ import java.util.Map;
 
 import jp.crestmuse.cmx.sound.SequencerManager;
 
-/** @deprecated 
- This class remains just for the compatibility to legacy software. 
- Don't use this class if you are developing new software. */
 class MusicRepresentationImpl implements MusicRepresentation {
 
   private int measureNum;
@@ -191,7 +188,7 @@ class MusicRepresentationImpl implements MusicRepresentation {
 
     public int indexOf(Object s) {
       for(int i=0; i<parent.labels.length; i++) {
-        System.err.println(parent.labels[i] + "--" + s + ":" + parent.labels[i].equals(s));
+//        System.err.println(parent.labels[i] + "--" + s + ":" + parent.labels[i].equals(s));
         if(parent.labels[i].equals(s))
           return i;
       }

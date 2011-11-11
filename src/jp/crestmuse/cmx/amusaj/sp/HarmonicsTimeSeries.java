@@ -4,7 +4,7 @@ import jp.crestmuse.cmx.math.*;
 //import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 
 public class HarmonicsTimeSeries {
   private PeakSet[] peaks;

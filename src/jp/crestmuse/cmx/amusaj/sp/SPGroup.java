@@ -2,8 +2,6 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.util.LinkedList;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.MutableTimeSeries;
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 import jp.crestmuse.cmx.misc.QueueReader;
 
 

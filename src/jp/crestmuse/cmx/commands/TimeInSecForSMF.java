@@ -3,7 +3,7 @@ import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
 import java.util.*;
 
-public class TimeInSecForSMF {
+class TimeInSecForSMF {
   MIDIEvent[] tempolist;
   int currentTick0 = 0;
   MIDIEvent[] notelist;

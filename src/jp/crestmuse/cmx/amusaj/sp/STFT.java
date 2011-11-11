@@ -5,7 +5,7 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 import java.util.*;
 
 /*********************************************************************

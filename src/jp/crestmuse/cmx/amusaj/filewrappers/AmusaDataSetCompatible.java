@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
 import java.util.*;
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.amusaj.sp.*;
 
 public interface AmusaDataSetCompatible<D extends TimeSeriesCompatible> 
     extends FileWrapperCompatible {

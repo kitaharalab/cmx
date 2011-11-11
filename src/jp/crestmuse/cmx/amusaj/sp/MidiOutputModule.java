@@ -1,8 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
 import javax.sound.midi.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
-import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
 public class MidiOutputModule extends SPModule {
 
