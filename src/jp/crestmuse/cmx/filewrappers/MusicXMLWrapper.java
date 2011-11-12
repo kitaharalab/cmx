@@ -83,9 +83,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
   private boolean startsWithZerothMeasure;
   private boolean zerothMeasureChecked = false;
 
-  static final int INTERNAL_TICKS_PER_BEAT = 15360 * 7;
+//  static final int INTERNAL_TICKS_PER_BEAT = 15360 * 7;
 
-  // static final int INTERNAL_TICKS_PER_BEAT = 10080;
+   static final int INTERNAL_TICKS_PER_BEAT = 10080;
   // static final int INTERNAL_TICKS_PER_BEAT = 1920;
 
   // private DeviationInstanceWrapper dev;
