@@ -14,7 +14,7 @@ public class MathUtils {
   private static final ComplexArrayFactory cfactory = 
       ComplexArrayFactory.getFactory();
 
-  MathUtils() { }
+  public MathUtils() { }
 
   public static DoubleArray cloneArray(DoubleArray x) {
     try {
