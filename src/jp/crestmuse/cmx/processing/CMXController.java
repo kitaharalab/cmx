@@ -335,7 +335,7 @@ public class CMXController implements TickTimer {
 
   /** 現在，音楽を再生中かどうかを返します．*/
   public boolean isNowPlaying() {
-    return musicPlayer.isNowPlaying();
+    return musicPlayer != null && musicPlayer.isNowPlaying();
   }
 
   /** 次回再生時の音楽の再生開始箇所をマイクロ秒単位で指定します．
@@ -347,7 +347,10 @@ public class CMXController implements TickTimer {
   /** 現在の再生中の音楽データにおける現在の再生箇所をマイクロ秒単位で
       返します．*/
   public long getMicrosecondPosition() {
-    return musicPlayer.getMicrosecondPosition();
+    if (musicPlayer == null)
+      return 0;
+    else
+      return musicPlayer.getMicrosecondPosition();
   }
 
   /** 現在の再生中の音楽データにおける現在の再生箇所をティック単位で
@@ -355,7 +358,10 @@ public class CMXController implements TickTimer {
       ただし，このメソッドは読み込み済みのデータがMIDIデータのときしか
       使用できません．*/
   public long getTickPosition() {
-    return musicPlayer.getTickPosition();
+    if (musicPlayer == null)
+      return 0;
+    else
+      return musicPlayer.getTickPosition();
   }
 
   /** 現在読み込まれているMIDIデータのTicks Per Beat（1拍あたりの
@@ -363,7 +369,10 @@ public class CMXController implements TickTimer {
       このメソッドは読み込み済みのデータがMIDIデータのときしか
       使用できません．*/
   public int getTicksPerBeat() {
-    return musicPlayer.getTicksPerBeat();
+    if (musicPlayer == null)
+      return 0;
+    else
+      return musicPlayer.getTicksPerBeat();
   }
 
   public void addMusicListener(MusicListener l) {
@@ -491,6 +500,7 @@ public class CMXController implements TickTimer {
       WindowSlider winslider = new WindowSlider(false);
       winslider.setInputData(mic);
       winslider.setTickTimer(this);
+      mic.getLine().start();
       return winslider;
     } catch (LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
