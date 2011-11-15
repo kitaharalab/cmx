@@ -61,7 +61,7 @@ import groovy.lang.*;
  * 現在のバージョンでは声部にまたがるスラーは対応しておらず, 無視されます.
  *</p>
  * 
- *@author Tetsuro Kitahara (t.kitahara@ksc.kwansei.ac.jp)
+ *@author Tetsuro Kitahara
  *@version 0.21
  *********************************************************************/
 public class MusicXMLWrapper extends CMXFileWrapper implements
@@ -105,6 +105,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
     }
   }
+
 
   /**********************************************************************
    *<p>
@@ -168,6 +169,12 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     }
   }
 
+  public void eachpart(Closure closure) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      closure.call(new Object[]{part});
+    }
+  }
 
   public void eachnote(Closure closure) throws TransformerException {
       Part[] partlist = getPartList();
@@ -217,6 +224,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     return dest;
   }
 
+  /** @deprecated */
   public void makeDeadpanSCCXML(final SCCXMLWrapper dest, final int ticksPerBeat)
       throws IOException {
     DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(this);
@@ -411,6 +419,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     return l;
   }
 
+  /** @deprecated */
   public InputStream getMIDIInputStream() throws IOException,
       TransformerException, SAXException, ParserConfigurationException {
     return makeDeadpanSCCXML(INTERNAL_TICKS_PER_BEAT).toMIDIXML().getMIDIInputStream();
@@ -689,6 +698,28 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return "part";
     }
 
+    public void eachmeasure(Closure closure) throws TransformerException {
+      Measure[] measurelist = getMeasureList();
+      for (Measure measure : measurelist) {
+        closure.call(new Object[]{measure});
+      }
+    }
+
+    public void eachnote(Closure closure) throws TransformerException {
+      Measure[] measurelist = getMeasureList();
+      for (Measure measure : measurelist) {
+        MusicData[] mdlist = measure.getMusicDataList();
+        for (MusicData md : mdlist) {
+          if (md instanceof Note) {
+            Note note = (Note)md;
+            if (!note.rest())
+              closure.call(new Object[]{note});
+          }
+        }
+      }
+    }
+
+
     /**********************************************************************
      *<p>
      * Returns the array of the measure elements included in this part element.
@@ -836,6 +867,24 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     @Override
     protected final String getSupportedNodeName() {
       return "measure";
+    }
+
+    public void eachdata(Closure closure) throws TransformerException {
+      MusicData[] mdlist = getMusicDataList();
+      for (MusicData md : mdlist) {
+        closure.call(new Object[]{md});
+      }
+    }
+
+    public void eachnote(Closure closure) throws TransformerException {
+      MusicData[] mdlist = getMusicDataList();
+      for (MusicData md : mdlist) {
+        if (md instanceof Note) {
+          Note note = (Note)md;
+          if (!note.rest())
+            closure.call(new Object[]{note});
+        }
+      }
     }
 
     // changed int -> long 20080609

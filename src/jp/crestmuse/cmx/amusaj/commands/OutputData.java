@@ -2,7 +2,7 @@ package jp.crestmuse.cmx.amusaj.commands;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import java.util.*;
 
-  class OutputData {
+public class OutputData {
     ProducerConsumerCompatible module;
     int ch;
 //    Map<String,String> attrs;

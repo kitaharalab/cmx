@@ -143,6 +143,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 
 //  private static DoubleArrayFactory doubleArrayFactory = null;
 
+  /** @deprecated */
   public static String catalogFileName = null;
 
   private static final String PACKAGE_BASE = "jp.crestmuse.cmx.filewrappers";
@@ -164,7 +165,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 
   private boolean finalized = false;
 
-  public static final NodeLinkManager linkmanager = new NodeLinkManager();
+  static final NodeLinkManager linkmanager = new NodeLinkManager();
 
   static {
     try {
@@ -252,6 +253,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
       throw new ExternalLibraryException(e.toString());
     }
   }
+
 
   static String getDefaultPackageName() {
     return PACKAGE_BASE;

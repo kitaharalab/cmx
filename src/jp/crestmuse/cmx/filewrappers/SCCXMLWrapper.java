@@ -201,7 +201,13 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 	}
       }
   }
-	
+
+  public void eachpart(Closure closure) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      closure.call(new Object[]{part});
+    }
+  }
 
 
     public void addPitchBend(int onset, int offset, int value) {
@@ -587,6 +593,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     return dest;
   }
 
+  /** @deprecated */
   public void toMIDIXML(final MIDIXMLWrapper dest)
     throws ParserConfigurationException,TransformerException,
     SAXException,IOException {
@@ -725,6 +732,14 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     protected final String getSupportedNodeName() {
       return "part";
     }
+
+    public void eachnote(Closure closure) throws TransformerException {
+      Note[] notelist = getNoteList();
+      for (Note note : notelist) {
+        closure.call(new Object[]{note});
+      }
+    }
+
 
 //    public NodeList getNoteList() {
 //      return selectNodeList(node(), "note");
@@ -1098,7 +1113,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       
   }
   
-  public class EasyChord{
+  class EasyChord{
     public int onset;
     public int offset;
     public String chord;
@@ -1109,7 +1124,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     	this.chord = chord;
     }
   }
-    
+
       
 /*
   static class EasyNote {
@@ -1136,6 +1151,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     }
   }
 */
+
+/*
   public static void main(String[] args){
     try {
       DeviationInstanceWrapper dev =
@@ -1151,4 +1168,6 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       e.printStackTrace();
     }
   }
+
+*/
 }

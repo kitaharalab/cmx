@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * @deprecated 
  * ひとつの和音を扱うクラスです。
  * 
  * @author R.Tokuami

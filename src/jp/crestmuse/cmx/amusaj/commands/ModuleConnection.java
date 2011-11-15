@@ -2,7 +2,7 @@ package jp.crestmuse.cmx.amusaj.commands;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 
-class ModuleConnection {
+public class ModuleConnection {
   ProducerConsumerCompatible inModule;
   ProducerConsumerCompatible outModule;
   int inCh;

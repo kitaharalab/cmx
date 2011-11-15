@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.misc;
 
+/** @deprecated */
 public class ChordOperator {
 
   

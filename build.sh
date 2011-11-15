@@ -26,7 +26,7 @@ if [ -e doc ] ; then
 else
   mkdir doc
 fi
-javadoc -d doc -protected -version -author src/**/*.java
+javadoc -d doc -protected -version -author -nodeprecated src/**/*.java
 
 ( cd ../ ; if [ -e ${release}.zip ] ; then rm ${release}.zip ; fi ; zip -r ${release}.zip $release -x ${release}/**/.svn/**/{*,.*} ${release}**/*~ )
 
