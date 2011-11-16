@@ -14,6 +14,7 @@ public class DeviationDataSet {
   private Control last = null;
   private double initSil = 0.0;
 
+  /** @deprecated */
   public DeviationDataSet(DeviationInstanceWrapper devxml) {
     this.devxml = devxml;
     nonPartwise = new TreeView<Control>();
@@ -30,6 +31,7 @@ public class DeviationDataSet {
     extraNotes = new HashMap<String,TreeView<ExtraNote>>();
   }
 
+  /** @drprecated */
   public DeviationInstanceWrapper getTargetDeviationInstanceWrapper() {
     return devxml;
   }

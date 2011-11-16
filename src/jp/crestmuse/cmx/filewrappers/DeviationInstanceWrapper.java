@@ -672,8 +672,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     dest.finalizeDocument();
   }
 
-  public SCCXMLWrapper toSCCXML(int ticksPerBeat) throws TransformerException,
-      IOException, ParserConfigurationException, SAXException {
+  public SCCXMLWrapper toSCCXML(int ticksPerBeat) throws IOException {
     SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper
         .createDocument(SCCXMLWrapper.TOP_TAG);
     toSCCXML(dest, ticksPerBeat);

@@ -103,10 +103,10 @@ public class CMXController implements TickTimer {
       throw new IllegalArgumentException("Cannot write file: " + filename);
     } catch (SAXException e) {
       throw new IllegalArgumentException("XML error: " + filename);
-    } catch (ParserConfigurationException e) {
-      throw new IllegalStateException("Parser error: " + filename);
-    } catch (TransformerException e) {
-      throw new IllegalArgumentException("XML error: " + filename);
+//    } catch (ParserConfigurationException e) {
+//      throw new IllegalStateException("Parser error: " + filename);
+//    } catch (TransformerException e) {
+//      throw new IllegalArgumentException("XML error: " + filename);
     }
   }
 
@@ -127,10 +127,10 @@ public class CMXController implements TickTimer {
       throw new IllegalArgumentException("Cannot write file");
     } catch (SAXException e) {
       throw new IllegalArgumentException("XML error");
-    } catch (ParserConfigurationException e) {
-      throw new IllegalStateException("Parser error");
-    } catch (TransformerException e) {
-      throw new IllegalArgumentException("XML error");
+//    } catch (ParserConfigurationException e) {
+//      throw new IllegalStateException("Parser error");
+//    } catch (TransformerException e) {
+//      throw new IllegalArgumentException("XML error");
     }
   }
 

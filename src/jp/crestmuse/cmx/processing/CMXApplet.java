@@ -26,7 +26,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   /** CMXが対応しているXML形式の文書を読み込みます．*/
   public CMXFileWrapper readfile(String filename) {
-    return ctrl.read(createInput(filename));
+//    return ctrl.read(createInput(filename));
+    return ctrl.readfile(filename);
   }
 
   /** CMXが対応しているXML形式の文書を読み込みます．*/
@@ -35,7 +36,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   }
 
   public void writefile(CMXFileWrapper f, String filename) {
-    ctrl.write(f, createOutput(filename));
+//    ctrl.write(f, createOutput(filename));
+    ctrl.writefile(f, filename);
   }
 
   public void write(CMXFileWrapper f, OutputStream output) {
@@ -77,7 +79,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
   public void wavread(String filename) {
-    ctrl.wavread(createInput(filename));
+//    ctrl.wavread(createInput(filename));
+    ctrl.wavread(filename);
     ctrl.addMusicListener(this);
   }
 
@@ -85,7 +88,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
   public void mp3read(String filename) {
-    ctrl.mp3read(createInput(filename));
+//    ctrl.mp3read(createInput(filename));
+    ctrl.mp3read(filename);
     ctrl.addMusicListener(this);
   }
 
@@ -93,7 +97,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
   public void smfread(String filename) {
-    ctrl.smfread(createInput(filename));
+//    ctrl.smfread(createInput(filename));
+    ctrl.smfread(filename);
     ctrl.addMusicListener(this);
   }
 
@@ -240,7 +245,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   /** 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます．
       <tt>createMic</tt>などを使用する際には必須です．*/
   public void readConfig(String filename) {
-    ctrl.readConfig(createInput(filename));
+//    ctrl.readConfig(createInput(filename));
+    ctrl.readConfig(filename);
   }
 
   /** 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます．

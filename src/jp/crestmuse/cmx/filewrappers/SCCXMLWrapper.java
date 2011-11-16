@@ -584,19 +584,27 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     return toMIDIXML().getMIDIInputStream();
   }
 
-  public MIDIXMLWrapper toMIDIXML() 
-    throws ParserConfigurationException,TransformerException,
-    SAXException,IOException {
-    MIDIXMLWrapper dest = 
-      (MIDIXMLWrapper)CMXFileWrapper.createDocument(MIDIXMLWrapper.TOP_TAG);
-    toMIDIXML(dest);
-    return dest;
+  public MIDIXMLWrapper toMIDIXML() {
+    try {
+      MIDIXMLWrapper dest = 
+        (MIDIXMLWrapper)CMXFileWrapper.createDocument(MIDIXMLWrapper.TOP_TAG);
+      toMIDIXML(dest);
+      return dest;
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (InvalidFileTypeException e) {
+      throw new ProgramBugException(e.toString());
+    }
   }
 
   /** @deprecated */
   public void toMIDIXML(final MIDIXMLWrapper dest)
     throws ParserConfigurationException,TransformerException,
-    SAXException,IOException {
+    SAXException {
     dest.addElementsFirstForFormat1(getPartList().length + 1, getDivision());
     processNotes(new SCCHandler() {
         private int currentTrack = 1;
@@ -627,7 +635,11 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
         public final void processNote(Note note, SCCXMLWrapper w) {
         }
       });
-    dest.finalizeDocument();
+    try {
+      dest.finalizeDocument();
+    } catch (IOException e) {
+      throw new ProgramBugException(e.toString());
+    }
   }
 
   public SCCXMLWrapper replaceVelocity(List<List<Byte>> vellist, boolean sorted) 
