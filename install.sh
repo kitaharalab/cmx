@@ -6,7 +6,7 @@
 #################################################################
 
 usr=/usr/local
-branch=cmx-0.54
+branch=cmx-0.60
 
 srcdir=$(cd $(dirname $0) && pwd)
 

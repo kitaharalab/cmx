@@ -216,6 +216,20 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     return midixml;
   }
 
+  public static MIDIXMLWrapper readSMF(InputStream input)
+    throws IOException,javax.xml.parsers.ParserConfigurationException,
+    org.xml.sax.SAXException,javax.xml.transform.TransformerException  {
+    MIDIXMLWrapper midixml = 
+      (MIDIXMLWrapper)createDocument("MIDIFile");
+    DataInputStream datain = 
+      new DataInputStream(new BufferedInputStream(input));
+    midixml.readSMF(datain);
+    midixml.finalizeDocument();
+//    midixml.smfFileName = filename;
+    return midixml;
+  }
+  
+  
   private void readSMF(DataInputStream datain) throws IOException {
     byte[] headbuff = new byte[4];
     byte[] buff = new byte[256];

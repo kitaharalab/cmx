@@ -624,6 +624,8 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
           currentTime = timestamp;
         }
         public final void beginPart(Part part, SCCXMLWrapper w) {
+          if (part.channel() < 1 || part.channel() > 16)
+            throw new InvalidElementException("Channel should be between 1 and 16.");
           dest.newTrack(currentTrack);
           MIDIEventList el = part.toMIDIEventList();
           dest.addMIDIChannelMessages(el);

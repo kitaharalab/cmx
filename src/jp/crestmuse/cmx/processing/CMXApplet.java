@@ -25,14 +25,22 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   }
 
   /** CMXが対応しているXML形式の文書を読み込みます．*/
-  public CMXFileWrapper readfile(String filename) {
+  public static CMXFileWrapper readfile(String filename) {
 //    return ctrl.read(createInput(filename));
     return ctrl.readfile(filename);
   }
 
   /** CMXが対応しているXML形式の文書を読み込みます．*/
-  public CMXFileWrapper read(InputStream input) {
+  public static CMXFileWrapper read(InputStream input) {
     return ctrl.read(input);
+  }
+
+  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+    return ctrl.readSMFAsMIDIXML(filename);
+  }
+
+  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+    return ctrl.readSMFAsMIDIXML(input);
   }
 
   public void writefile(CMXFileWrapper f, String filename) {
@@ -274,6 +282,7 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     ctrl.startSP();
   }
 
+  /** @deprecated */
   public static void main(String className) {
     main(new String[]{className});
   }
@@ -285,9 +294,25 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   }
 
   /** 音楽推論用のオブジェクトを返します．*/
-  public MusicRepresentation 
+  public static MusicRepresentation 
   createMusicRepresentation(int measure, int division) {
     return ctrl.createMusicRepresentation(measure, division);
+  }
+
+  public static MidiEventWithTicktime createControlChangeEvent(long position, int ch, int type, int value) {
+    return ctrl.createControlChangeEvent(position, ch, type, value);
+  }
+
+  public static MidiEventWithTicktime createNoteOffEvent(long position, int ch, int nn, int vel) {
+    return ctrl.createNoteOffEvent(position, ch, nn, vel);
+  }
+
+  public static MidiEventWithTicktime createNoteOnEvent(long position, int ch, int nn, int vel) {
+    return ctrl.createNoteOnEvent(position, ch, nn, vel);
+  }
+
+  public static MidiEventWithTicktime createProgramChangeEvent(long position, int ch, int value) {
+    return ctrl.createProgramChangeEvent(position, ch, value);
   }
 
   public void sleep(long ms) {

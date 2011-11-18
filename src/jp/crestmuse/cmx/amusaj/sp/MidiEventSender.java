@@ -20,7 +20,10 @@ public class MidiEventSender extends SPModule {
   }
 
   public void sendNoteOn(long position, int ch, int nn, int vel) {
-    src_queue.add(createNoteOnEvent(position, ch, nn, vel));
+    try {
+      src_queue.put(createNoteOnEvent(position, ch, nn, vel));
+    } catch (InterruptedException e) {
+    }
   }
 
   public void sendNoteOnDelayed(final long position, final int ch, 
@@ -37,7 +40,10 @@ public class MidiEventSender extends SPModule {
   }
 
   public void sendNoteOff(long position, int ch, int nn, int vel) {
-    src_queue.add(createNoteOffEvent(position, ch, nn, vel));
+    try {
+      src_queue.put(createNoteOffEvent(position, ch, nn, vel));
+    } catch (InterruptedException e) {
+    }
   }
 
   public void sendNoteOffDelayed(final long position, final int ch, 
@@ -55,7 +61,10 @@ public class MidiEventSender extends SPModule {
   }
 
   public void sendControlChange(long position, int ch, int type, int value) {
-    src_queue.add(createControlChangeEvent(position, ch, type, value));
+    try {
+      src_queue.put(createControlChangeEvent(position, ch, type, value));
+    } catch (InterruptedException e) {
+    }
   }
 
   public void sendControlChangeDelayed(final long position, final int ch, 
@@ -73,7 +82,10 @@ public class MidiEventSender extends SPModule {
   }
 
   public void sendProgramChange(long position, int ch, int value) {
-    src_queue.add(createProgramChangeEvent(position, ch, value));
+    try {
+      src_queue.put(createProgramChangeEvent(position, ch, value));
+    } catch (InterruptedException e) {
+    }
   }
 
   public void sendProgramChangeDelayed(final long position, final int ch, 
@@ -92,7 +104,9 @@ public class MidiEventSender extends SPModule {
 
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
-    dest[0].add(src_queue.take());
+    while (true) {
+      dest[0].add(src_queue.take());
+    } 
   }
 
   public Class[] getInputClasses() {

@@ -16,7 +16,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
+//import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
 
 public class MidiSequenceSender extends SPModule {
 
@@ -39,7 +39,7 @@ public class MidiSequenceSender extends SPModule {
     getSequencer().getTransmitter().setReceiver(new Receiver() {
 
       public void send(MidiMessage message, long timeStamp) {
-        queue.add(new MidiEvent(message, timeStamp));
+        queue.add(new MidiEventWithTicktime(message, timeStamp, timeStamp));
       }
 
       public void close() {
@@ -60,7 +60,7 @@ public class MidiSequenceSender extends SPModule {
   }
 
   public Class[] getOutputClasses() {
-    return new Class[] { MidiEvent.class };
+    return new Class[] { MidiEventWithTicktime.class };
   }
 
   public void start() {
@@ -71,6 +71,7 @@ public class MidiSequenceSender extends SPModule {
     return sequencer;
   }
 
+/*
   public static void main(String[] args) throws MidiUnavailableException,
       InvalidMidiDataException, IOException {
     SPExecutor sp = new SPExecutor();
@@ -97,5 +98,6 @@ public class MidiSequenceSender extends SPModule {
     sp.start();
     mss.start();
   }
+*/
 
 }

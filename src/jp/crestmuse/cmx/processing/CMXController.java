@@ -76,6 +76,37 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** 標準MIDIファイルをMIDIXML形式で読み込みます． */
+  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+    try {
+      return MIDIXMLWrapper.readSMF(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file: " + filename);
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
+
+  /** 標準MIDIファイルをMIDIXML形式で読み込みます． */
+  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+    try {
+      return MIDIXMLWrapper.readSMF(input);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
+
+  /** CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します．*/
   public static void writefile(CMXFileWrapper f, String filename) {
     try {
       f.writefile(filename);
@@ -86,6 +117,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** CMXFileWrapperオブジェクトを，対応するXML形式で出力ストリームに書き出します．*/
   public static void write(CMXFileWrapper f, OutputStream output) {
     try {
       f.write(output);
@@ -96,6 +128,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** SCCXMLドキュメントを標準MIDIファイルとしてファイルに保存します．*/
   public static void writefileAsSMF(SCCXMLWrapper f, String filename) {
     try {
       f.toMIDIXML().writefile(filename);
@@ -110,6 +143,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** MIDIXMLドキュメントを標準MIDIファイルとしてファイルに保存します．*/
   public static void writefileAsSMF(MIDIXMLWrapper f, String filename) {
     try {
       f.writefile(filename);
@@ -120,6 +154,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** SCCXMLドキュメントを標準MIDIファイルとして出力ストリームに書き出します．*/
   public static void writeAsSMF(SCCXMLWrapper f, OutputStream output) {
     try {
       f.toMIDIXML().write(output);
@@ -134,6 +169,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** MIDIXMLドキュメントを標準MIDIファイルとして出力ストリームに書き出します．*/
   public static void writeAsSMF(MIDIXMLWrapper f, OutputStream output) {
     try {
       f.write(output);
@@ -144,6 +180,7 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** CMXFileWrapperオブジェクトをXML形式で標準出力に書き出します．*/
   public static void println(CMXFileWrapper f) {
     try {
       f.write(System.out);
@@ -242,7 +279,14 @@ public class CMXController implements TickTimer {
       読み込まれます．*/
   public void smfread(String filename) {
     try {
-      musicPlayer =new SMFPlayer();
+      System.err.println(midiout);
+      if (midiout == null) {
+        musicPlayer =new SMFPlayer();
+      } else {
+        MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
+        dev.open();
+        musicPlayer = new SMFPlayer(dev);
+      }
       ((SMFPlayer)musicPlayer).readSMF(filename);
       musicSync = new MusicPlaySynchronizer(musicPlayer);
     } catch (IOException e) {
@@ -259,7 +303,13 @@ public class CMXController implements TickTimer {
       読み込まれます．*/
   public void smfread(InputStream input) {
     try {
-      musicPlayer =new SMFPlayer();
+      if (midiout == null) {
+        musicPlayer =new SMFPlayer();
+      } else {
+        MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
+        dev.open();
+        musicPlayer = new SMFPlayer(dev);
+      }
       ((SMFPlayer)musicPlayer).readSMF(input);
       musicSync = new MusicPlaySynchronizer(musicPlayer);
     } catch (IOException e) {
@@ -271,6 +321,10 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** MIDIXMLドキュメントを標準MIDIファイルに変換して読み込みます．
+      読み込まれた標準MIDIファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void smfread(MIDIXMLWrapper midi) {
     try {
       smfread(midi.getMIDIInputStream());
@@ -279,6 +333,10 @@ public class CMXController implements TickTimer {
     }
   }
 
+  /** SCCXMLドキュメントを標準MIDIファイルに変換して読み込みます．
+      読み込まれた標準MIDIファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
   public void smfread(SCCXMLWrapper scc) {
     try {
       smfread(scc.getMIDIInputStream());
@@ -544,9 +602,25 @@ public class CMXController implements TickTimer {
   }
 
   /** 音楽推論用のオブジェクトを返します．*/
-  public MusicRepresentation 
+  public static MusicRepresentation 
   createMusicRepresentation(int measure, int division) {
     return MusicRepresentationFactory.create(measure, division);
+  }
+
+  public static MidiEventWithTicktime createControlChangeEvent(long position, int ch, int type, int value) {
+    return MidiEventWithTicktime.createControlChangeEvent(position, ch, type, value);
+  }
+
+  public static MidiEventWithTicktime createNoteOffEvent(long position, int ch, int nn, int vel) {
+    return MidiEventWithTicktime.createNoteOffEvent(position, ch, nn, vel);
+  }
+
+  public static MidiEventWithTicktime createNoteOnEvent(long position, int ch, int nn, int vel) {
+    return MidiEventWithTicktime.createNoteOnEvent(position, ch, nn, vel);
+  }
+
+  public static MidiEventWithTicktime createProgramChangeEvent(long position, int ch, int value) {
+    return MidiEventWithTicktime.createProgramChangeEvent(position, ch, value);
   }
 
 
