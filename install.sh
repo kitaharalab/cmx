@@ -113,14 +113,24 @@ cat <<EOF >> ~/.bashrc
 EOF
 
 chmod +x $usr/cmx/$branch/cmx
-mkdir -p $usr_local/$bin
+mkdir -p $usr/$bin
 ln -sf $usr/cmx/$branch/cmx $usr/bin/cmx
 
 mkdir -p ~/.groovy/lib
 ln -sf $usr/cmx/$branch/cmx.jar ~/.groovy/lib/
 ln -sf $usr/cmx/$branch/lib/*.jar ~/.groovy/lib/
 
-mkdir -p ~/sketchbook/libraries/cmx/library
-ln -sf $usr/cmx/$branch/cmx.jar ~/sketchbook/libraries/cmx/library/
-ln -sf $usr/cmx/$branch/lib/*.jar ~/sketchbook/libraries/cmx/library/
+if [ -e ~/sketchbook/ ]
+then
+  mkdir -p ~/sketchbook/libraries/cmx/library
+  ln -sf $usr/cmx/$branch/cmx.jar ~/sketchbook/libraries/cmx/library/
+  ln -sf $usr/cmx/$branch/lib/*.jar ~/sketchbook/libraries/cmx/library/
+fi
+
+if [ -e ~/Documents/Processing/ ]
+then
+  mkdir -p ~/Documents/Processing/libraries/cmx/library
+  ln -sf $usr/cmx/$branch/cmx.jar ~/Documents/Processing/libraries/cmx/library/
+  ln -sf $usr/cmx/$branch/lib/*.jar ~/Documents/Processing/libraries/cmx/library/
+fi
 
