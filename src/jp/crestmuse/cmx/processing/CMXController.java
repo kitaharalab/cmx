@@ -553,17 +553,23 @@ public class CMXController implements TickTimer {
       <tt>fs</tt>にはサンプリング周波数をHz単位で指定します．*/
   public WindowSlider createMic(int fs) {
     try {
-      AudioInputStreamWrapper mic = 
-        AudioInputStreamWrapper.createWrapper8(fs);
+      mic = 
+        AudioInputStreamWrapper.createWrapper16(fs);
       WindowSlider winslider = new WindowSlider(false);
       winslider.setInputData(mic);
       winslider.setTickTimer(this);
-      mic.getLine().start();
+//      mic.getLine().start();
       return winslider;
     } catch (LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
     }
   }
+
+  public void closeMic() {
+    if (mic != null)
+      mic.getLine().close();
+  }
+
 
   /** 現在サウンドカードから再生中の音を受け取って，その波形データを短区間ごとに区切った
       波形断片を次々と出力する「モジュール」を生成します．*/
@@ -623,6 +629,13 @@ public class CMXController implements TickTimer {
     return MidiEventWithTicktime.createProgramChangeEvent(position, ch, value);
   }
 
+
+  public TappingModule createTappingModule(Component c) {
+    TappingModule tap = new TappingModule();
+    tap.setTickTimer(this);
+    c.addKeyListener(tap);
+    return tap;
+  }
 
   public void sleep(long ms) {
     try {

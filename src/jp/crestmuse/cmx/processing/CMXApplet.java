@@ -17,6 +17,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   private static final CMXController ctrl = CMXController.getInstance();
 
+  private boolean autostart = true;
+
   /** CMXが対応しているXML形式の文書オブジェクトを生成します．
       たとえば，SCCXML形式の文書オブジェクトを生成する際には，
       <tt> createDocument(SCCXMLWrapper.TOP_TAG) </tt> とします．*/
@@ -244,6 +246,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     return ctrl.createMic(fs);
   }
 
+  public void closeMic() {
+    ctrl.closeMic();
+  }
+
   /** 現在サウンドカードから再生中の音を受け取って，その波形データを短区間ごとに区切った
       波形断片を次々と出力する「モジュール」を生成します．*/
   public SynchronizedWindowSlider createWaveCapture(boolean isStereo) {
@@ -278,8 +284,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   }
 
   private void autostart() {
-    println("SPExector automatically started.");
-    ctrl.startSP();
+    if (autostart) { 
+      println("SPExector automatically started.");
+      ctrl.startSP();
+    }
   }
 
   /** @deprecated */
@@ -313,6 +321,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
 
   public static MidiEventWithTicktime createProgramChangeEvent(long position, int ch, int value) {
     return ctrl.createProgramChangeEvent(position, ch, value);
+  }
+
+  public TappingModule createTappingModule() {
+    return ctrl.createTappingModule(this);
   }
 
   public void sleep(long ms) {
