@@ -1236,7 +1236,15 @@ public class Operations {
       z[i] = 1 / (1 + Math.exp(-gain * x.get(i)));
     return factory.createArray(z);
   }
-	
+
+  public static DoubleArray autocorr(DoubleArray x) {
+    int length = x.length();
+    double[] z = new double[length/2];
+    for (int t = 0; t < length / 2; t++) 
+      for (int tau = 0; tau < length / 2; tau++)  
+        z[tau] += x.get(t) * x.get(t + tau);
+    return factory.createArray(z);
+  }
 }
 
 
