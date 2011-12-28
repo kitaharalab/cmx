@@ -4,7 +4,7 @@ import org.apache.commons.math.linear.*;
 import org.apache.commons.math.util.*;
 import static java.lang.Math.*;
 import java.util.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+import static jp.crestmuse.cmx.math.MathUtils.*;
 
 public class Operations {
 

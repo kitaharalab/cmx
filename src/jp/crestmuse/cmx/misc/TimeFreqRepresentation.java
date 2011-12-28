@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.misc;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.elements.*;
 import java.util.*;
 import javax.xml.transform.*;
 import javax.xml.parsers.*;

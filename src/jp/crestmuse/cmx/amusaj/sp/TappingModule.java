@@ -9,7 +9,8 @@ import java.awt.event.*;
 
 public class TappingModule extends SPModule implements KeyListener {
   private TickTimer tt = null;
-  private BlockingQueue src_queue = new SynchronousQueue();
+  private BlockingQueue src_queue = new LinkedBlockingQueue();
+//  private BlockingQueue src_queue = new SynchronousQueue();
 
   public TappingModule() {
 

@@ -1,4 +1,4 @@
-package jp.crestmuse.cmx.misc;
+package jp.crestmuse.cmx.elements;
 
 public class MutableControlChange extends MutableMusicEvent {
   public MutableControlChange(int timestamp, int ctrlnum, int value, 

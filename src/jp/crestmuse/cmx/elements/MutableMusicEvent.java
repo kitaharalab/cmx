@@ -1,12 +1,12 @@
-package jp.crestmuse.cmx.misc;
+package jp.crestmuse.cmx.elements;
 
 public abstract class MutableMusicEvent 
-  implements Comparable<MutableMusicEvent> {
+  implements Comparable<MutableMusicEvent>, NoteCompatible {
 
   int onset, offset, value1, value2, value3;
   int ticksPerBeat;
   Type type;
-  enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND} 
+  enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND, ANNOTATION};
 
   MutableMusicEvent(Type type, int onset, int offset, int ticksPerBeat) {
     this.type = type;
@@ -35,12 +35,13 @@ public abstract class MutableMusicEvent
       return onset * ticksPerBeat / this.ticksPerBeat;
   }
 
-  public int onsetInMilliSec() {
+  /**@deprecated*/
+  public int onsetInMSec() {
     throw new UnsupportedOperationException();
   }
 
-  /**@deprecated*/
-  public int onsetInMSec() {
+
+  public int onsetInMilliSec() {
     throw new UnsupportedOperationException();
   }
 
@@ -95,5 +96,13 @@ public abstract class MutableMusicEvent
         : type.ordinal() - another.type.ordinal())
        : offset - another.offset)
       : onset - another.onset;
+  }
+
+  public int velocity() {
+    throw new UnsupportedOperationException();
+  }
+
+  public int notenum() {
+    throw new UnsupportedOperationException();
   }
 }

@@ -10,10 +10,12 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.elements.*;
 
 import groovy.lang.*;
 
-public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible {
+public class SCCXMLWrapper extends CMXFileWrapper 
+  implements SCC, PianoRollCompatible {
 	/** newOutputData()に指定するトップタグ名．スペルミス防止．
 	 * 
 	 * @author Hashida
@@ -210,14 +212,29 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
 
 
-    public void addPitchBend(int onset, int offset, int value) {
-	checkElementAddition(partStarted);
-	addChild("pitch-bend");
-	addText(onset + " " + offset + " " + value);
-	returnToParent();
-    }
+  public void addPitchBend(int time, int value) {
+    checkElementAddition(partStarted);
+    addChild("pitch-bend");
+    addText(time + " " + time + " " + value);
+    returnToParent();
+  }
 	
+  @Deprecated
+  public void addPitchBend(int onset, int offset, int value) {
+    checkElementAddition(partStarted);
+    addChild("pitch-bend");
+    addText(onset + " " + offset + " " + value);
+    returnToParent();
+  }
+	
+  public void addControlChange(int time, int ctrlnum, int value) {
+    checkElementAddition(partStarted);
+    addChild("control");
+    addText(time + " " + time + " " + ctrlnum + " " + value);
+    returnToParent();
+  }
 
+  @Deprecated
   public void addControlChange(int onset, int offset, 
                                int ctrlnum, int value) {
     checkElementAddition(partStarted);
@@ -336,7 +353,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     //    chordprogStarted = false;
     //  }
 
-  public class Annotation extends NodeInterface{
+  public class Annotation extends NodeInterface implements MusicAnnotation {
     private int onset;
     private int offset;
     private String content;
@@ -350,9 +367,28 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     protected String getSupportedNodeName() {
       return "chord|barline|lyrics";
     }
-    public int onset(){ return onset; }
-    public int offset(){ return offset; }
-    public String content(){ return content; }
+    public final int onset(){ return onset; }
+    public final int offset(){ return offset; }
+    public final String content(){ return content; }
+
+    public final int onset(int ticksPerBeat) {
+      if (ticksPerBeat == getDivision())
+        return onset;
+      else
+        return onset * ticksPerBeat / getDivision();
+    }
+
+    public final int offset(int ticksPerBeat) {
+      if (ticksPerBeat == getDivision())
+        return offset;
+      else
+        return offset * ticksPerBeat / getDivision();
+    }
+    
+    public final String name() {
+      return getNodeName();
+    }
+
   }
   
     public Annotation[] getChordList() {
@@ -385,6 +421,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
 	}
     }
 
+  
     /*
   public Annotation[] getChordList() {
     if(chordproglist == null){
@@ -401,7 +438,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
   }
     */
 
-  public class HeaderElement extends NodeInterface {
+  public class HeaderElement extends NodeInterface implements SCC.HeaderElement {
     private int timestamp;
     private String name;
     private String content;
@@ -733,7 +770,7 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
     return newscc;
   }
     
-  public class Part extends NodeInterface {
+  public class Part extends NodeInterface implements SCC.Part {
     private Note[] notelist = null;
     private List<Note> noteonlylist = null;
     private String xpath;
@@ -943,9 +980,13 @@ public class SCCXMLWrapper extends CMXFileWrapper implements PianoRollCompatible
       return getAttributeInt(node(), "vol");
     }
 
-      public final int panpot() {
-	  return getAttributeInt(node(), "pan");
-      }
+    public final int panpot() {
+      return getAttributeInt(node(), "pan");
+    }
+
+    public final String name() {
+      return getAttribute(node(), "name");
+    }
 
     public final String getXPathExpression() {
       return xpath;

@@ -2,7 +2,7 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import jp.crestmuse.cmx.math.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+import static jp.crestmuse.cmx.math.MathUtils.*;
 import java.math.*;
 import java.util.*;
 

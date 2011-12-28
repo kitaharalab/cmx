@@ -3,7 +3,7 @@ package jp.crestmuse.cmx.math;
 public abstract class AbstractDoubleMatrixImpl implements DoubleMatrix,Cloneable {
 
   public Object clone() throws CloneNotSupportedException {
-      DoubleMatrix newmatrix = Utils.createDoubleMatrix(nrows(), ncols());
+      DoubleMatrix newmatrix = MathUtils.createDoubleMatrix(nrows(), ncols());
       for (int i = 0; i < nrows(); i++)
 	  for (int j = 0; j < ncols(); j++)
 	      newmatrix.set(i, j, get(i, j));
@@ -11,7 +11,7 @@ public abstract class AbstractDoubleMatrixImpl implements DoubleMatrix,Cloneable
   }
 
   public String encode() {
-    return Utils.toString2(this);
+    return MathUtils.toString2(this);
   }
 
 }

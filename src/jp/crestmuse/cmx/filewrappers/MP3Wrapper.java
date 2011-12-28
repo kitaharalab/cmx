@@ -7,7 +7,7 @@ import java.nio.*;
 import java.util.*;
 import javax.sound.sampled.*;
 import javazoom.jl.decoder.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+import static jp.crestmuse.cmx.math.MathUtils.*;
 import static javazoom.jl.decoder.Header.*;
 
 public class MP3Wrapper implements AudioDataCompatible {

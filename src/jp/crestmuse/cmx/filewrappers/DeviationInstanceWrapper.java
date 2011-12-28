@@ -13,6 +13,7 @@ import jp.crestmuse.cmx.misc.TimeFreqRepresentation.TimeFreqElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.elements.*;
 
 /*******************************************************************************
  * The <tt>DeviationInstanceWrapper</tt> class wraps a DeviationInstance

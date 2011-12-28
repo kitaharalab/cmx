@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.misc;
 import java.util.*;
+import jp.crestmuse.cmx.elements.*;
 
 public class SimpleNoteList implements Iterable<NoteCompatible> {
   private int serial = 0; 

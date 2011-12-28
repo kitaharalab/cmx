@@ -8,6 +8,7 @@ import javax.xml.transform.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.elements.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 

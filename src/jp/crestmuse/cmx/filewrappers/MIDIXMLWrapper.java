@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.elements.*;
 import static jp.crestmuse.cmx.misc.MIDIConst.*;
 import java.util.*;
 import java.io.*;
