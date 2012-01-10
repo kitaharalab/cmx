@@ -70,7 +70,7 @@ public class PerformanceMatcher3 {
     partid = part0.id();
     SCCXMLWrapper scoreSCC = score.makeDeadpanSCCXML(ticksPerBeat);
     SCCXMLWrapper pfmSCC = pfm.toSCCXML();
-    barlines = scoreSCC.getBarlineList();
+    barlines = (Annotation[])scoreSCC.getBarlineList();
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
     calcMusicXMLNote2Index();
     pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);

@@ -6,6 +6,7 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 
+/*
 @Deprecated
 public interface PianoRollCompatible { 
   void processNotes(CommonNoteHandler h) 
@@ -17,3 +18,5 @@ public interface PianoRollCompatible {
   InputStream getMIDIInputStream() throws IOException, TransformerException,
     ParserConfigurationException, SAXException;
 }
+
+*/

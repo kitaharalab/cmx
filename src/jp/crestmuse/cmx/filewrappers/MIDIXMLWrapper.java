@@ -13,7 +13,7 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatible {
+public class MIDIXMLWrapper extends CMXFileWrapper {
 	/** newOutputData() トップタグの追加 
 	 * @author Hashida
 	 * @since 2007.7.18
@@ -399,6 +399,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
     }
   }
 
+/*
   public void processNotes(CommonNoteHandler h) throws TransformerException, 
                  IOException, ParserConfigurationException, SAXException {
     toSCCXML().processNotes(h);
@@ -409,7 +410,9 @@ public class MIDIXMLWrapper extends CMXFileWrapper implements PianoRollCompatibl
   SAXException   {
     return toSCCXML().getPartwiseNoteList(ticksPerBeat);
   }
+*/
 
+  @Deprecated
   public InputStream getMIDIInputStream() throws IOException {
     PipedInputStream pipein = new PipedInputStream();
     PipedOutputStream pipeout = new PipedOutputStream();

@@ -7,10 +7,14 @@ public interface SCC {
   public int getDivision();
   public void eachnote(Closure c) throws TransformerException;
   public void eachpart(Closure c) throws TransformerException;
-  public MusicAnnotation[] getBarlineList();
-  public MusicAnnotation[] getChordList();
+  public void eachchord(Closure c) throws TransformerException;
+  public Annotation[] getAnnotationList();
+  public Annotation[] getBarlineList();
+  public Annotation[] getChordList();
   public HeaderElement[] getHeaderElementList();
   public Part[] getPartList() throws TransformerException;
+  public SCCXMLWrapper toWrapper() throws TransformerException;
+  public SCCDataSet toDataSet() throws TransformerException;
 
   public interface HeaderElement {
     String content();
@@ -25,10 +29,30 @@ public interface SCC {
     public int prognum();
     public int serial();
     public int volume();
-    public NoteCompatible[] getNoteList();
-    public NoteCompatible[] getNoteOnlyList();
-    public NoteCompatible[] getSortedNoteList();
-    public NoteCompatible[] getSortedNoteOnlyList();
+    public Note[] getNoteList();
+    public Note[] getNoteOnlyList();
+    public Note[] getSortedNoteList();
+    public Note[] getSortedNoteOnlyList();
     public void eachnote(Closure c) throws TransformerException;
   }
+
+  public interface Note {
+    int onset(int ticksPerBeat);
+    int onsetInMilliSec();
+    int offset(int ticksPerBeat);
+    int offsetInMilliSec();
+    int duration(int ticksPerBeat);
+    int notenum();
+    int velocity();
+    int offVelocity();
+    String word();
+  }
+
+  public interface Annotation {
+    int onset(int ticksPerBeat);
+    int offset(int ticksPerBeat);
+    String type();
+    String content();
+}
+
 }

@@ -725,7 +725,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           for (byte b : tfr.get(j).values())
             if (b > 0)
               velocity += Math.exp(b);
-          for (NoteCompatible n : tfr.get(j).data()) {
+          for (SCC.Note n : tfr.get(j).data()) {
             try {
               NoteDeviation nd = getNoteDeviation(((Note) n)
                   .getMusicXMLWrapperNote());

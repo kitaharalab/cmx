@@ -1,11 +1,6 @@
 package jp.crestmuse.cmx.elements;
+import jp.crestmuse.cmx.filewrappers.*;
 
-public interface NoteCompatible {
-  int onset(int ticksPerBeat);
-  int onsetInMilliSec();
-  int offset(int ticksPerBeat);
-  int offsetInMilliSec();
-  int duration(int ticksPerBeat);
-  int notenum();
-  int velocity();
+@Deprecated
+public interface NoteCompatible extends SCC.Note {
 }

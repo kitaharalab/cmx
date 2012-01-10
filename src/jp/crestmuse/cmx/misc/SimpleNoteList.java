@@ -2,6 +2,8 @@ package jp.crestmuse.cmx.misc;
 import java.util.*;
 import jp.crestmuse.cmx.elements.*;
 
+/*
+@Deprecated
 public class SimpleNoteList implements Iterable<NoteCompatible> {
   private int serial = 0; 
   private String name = "";
@@ -72,3 +74,5 @@ public class SimpleNoteList implements Iterable<NoteCompatible> {
     return nnTop;
   }
 }
+
+*/

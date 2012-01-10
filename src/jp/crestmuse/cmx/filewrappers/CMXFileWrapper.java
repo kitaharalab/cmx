@@ -534,13 +534,13 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     return doc.getDocumentURI();
   }
 
-    public final void println() throws SAXException {
-	try {
-	    write(System.out);
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
+  public final void println() throws SAXException {
+    try {
+      write(System.out);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+  }
 
   /**********************************************************************
    *<p>Writes the document wrapped by this object 

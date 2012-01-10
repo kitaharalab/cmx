@@ -102,7 +102,15 @@ public abstract class MutableMusicEvent
     throw new UnsupportedOperationException();
   }
 
+  public int offVelocity() {
+    throw new UnsupportedOperationException();
+  }
+
   public int notenum() {
+    throw new UnsupportedOperationException();
+  }
+
+  public String word() {
     throw new UnsupportedOperationException();
   }
 }

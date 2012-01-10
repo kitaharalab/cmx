@@ -65,8 +65,7 @@ import groovy.lang.*;
  *@author Tetsuro Kitahara
  *@version 0.21
  *********************************************************************/
-public class MusicXMLWrapper extends CMXFileWrapper implements
-    PianoRollCompatible {
+public class MusicXMLWrapper extends CMXFileWrapper {
 
   // public static final enum Dynamics {p, pp, ppp, pppp, ppppp, pppppp,
   // f, ff, fff, ffff, fffff, ffffff, mp, mf, sf, sfp, sfpp,
@@ -152,6 +151,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     }
   }
 
+/*
   public void processNotes(CommonNoteHandler h) {
     Part[] partlist = getPartList();
     for (Part part : partlist) {
@@ -169,6 +169,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       h.endPart(part.id(), this);
     }
   }
+*/
 
   public void eachpart(Closure closure) throws TransformerException {
     Part[] partlist = getPartList();
@@ -388,6 +389,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
    * INTERNAL_TICKS_PER_BEAT); } }
    */
 
+/*
   public List<SimpleNoteList> getPartwiseNoteList(final int ticksPerBeat)
       throws TransformerException {
     final List<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
@@ -419,6 +421,8 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     });
     return l;
   }
+*/
+
 
   /** @deprecated */
   public InputStream getMIDIInputStream() throws IOException,
@@ -1162,7 +1166,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
               / (float) INTERNAL_TICKS_PER_BEAT);
     }
 
-    public int offset(int ticksPerBeat) {
+    public int offet(int ticksPerBeat) {
       return onset(ticksPerBeat) + duration(ticksPerBeat);
     }
 
@@ -1186,7 +1190,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
    * 自分でDOMメソッドを用いる必要があります. なお, notationsについては, 現状では最初に出現したものだけしか扱えません.
    * </p>
    *********************************************************************/
-  public class Note extends MusicData implements NoteCompatible {
+  public class Note extends MusicData {
     private String pitchStep;
     private int pitchOctave;
     private int pitchAlter = 0;
@@ -1490,27 +1494,31 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
     }
 
-    public int velocity() {
-      throw new UnsupportedOperationException();
-    }
+//    public int velocity() {
+//      throw new UnsupportedOperationException();
+//    }
 
-    public int onsetInMilliSec() {
-      throw new UnsupportedOperationException();
-    }
+//    public int offVelocity() {
+//      throw new UnsupportedOperateionException();
+//  }
 
-    /**@deprecated*/
-    public int onsetInMSec() {
-      throw new UnsupportedOperationException();
-    }
-
-    public int offsetInMilliSec() {
-      throw new UnsupportedOperationException();
-    }
+//    public int onsetInMilliSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
     /**@deprecated*/
-    public int offsetInMSec() {
-      throw new UnsupportedOperationException();
-    }
+//    public int onsetInMSec() {
+//      throw new UnsupportedOperationException();
+//    }
+
+//    public int offsetInMilliSec() {
+//      throw new UnsupportedOperationException();
+//    }
+
+    /**@deprecated*/
+//    public int offsetInMSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
     public String toString() {
       return "Note[" + measure().number() + ": " + onsetWithinMeasure() + "--"
