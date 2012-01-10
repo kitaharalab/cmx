@@ -36,7 +36,7 @@ public class CMXController implements TickTimer {
 
   private MidiDevice.Info midiin = null;
   private MidiDevice.Info midiout = null;
-
+  private Mixer.Info mixer = null;
 
   private CMXController() {
 
@@ -507,6 +507,15 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void showAudioMixerChooser(Component parent) {
+    Object selected = JOptionPane.showInputDialog(
+      parent, "Select Audio Mixer.", "Select Audio Mixer...", 
+      JOptionPane.PLAIN_MESSAGE, null, 
+      AudioSystem.getMixerInfo(), null);
+    if (selected != null)
+      mixer = (Mixer.Info)selected;
+  }
+    
   /** 認識済みのMIDI入力デバイスの選択ダイアログを表示します．
       表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には
       <tt>null</tt>を指定することもできます．*/
@@ -554,7 +563,7 @@ public class CMXController implements TickTimer {
   public WindowSlider createMic(int fs) {
     try {
       mic = 
-        AudioInputStreamWrapper.createWrapper16(fs);
+        AudioInputStreamWrapper.createWrapper16(fs, mixer);
       WindowSlider winslider = new WindowSlider(false);
       winslider.setInputData(mic);
       winslider.setTickTimer(this);

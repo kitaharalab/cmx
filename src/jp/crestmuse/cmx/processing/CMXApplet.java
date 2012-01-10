@@ -222,6 +222,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     return ctrl.createMidiOut();
   }
   
+  public void showAudioMixerChooser() {
+    ctrl.showAudioMixerChooser(this);
+  }
+
   /** 認識済みのMIDI入力デバイスの選択ダイアログを表示します．*/
   public void showMidiInChooser() {
     ctrl.showMidiInChooser(this);

@@ -91,6 +91,7 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
         array[ch].set(i, cache[next + (i - nOverlap) * channels + ch]);
     audioin.read(buff, 0, bytesPerSample * n * channels);
     ByteBuffer bb = ByteBuffer.wrap(buff);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < n; i++) {
       for (int ch = 0; ch < channels; ch++) {
         if (bitsPerSample == 8) {
@@ -100,7 +101,7 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
           cache[next + i * channels + ch] = (double)b / 256;
           //  = (double)(buff[i * channels + ch] ) ;
         } else if (bitsPerSample == 16) {
-          cache[next + i * channels + ch] = (double)bb.getShort();
+          cache[next + i * channels + ch] = (double)bb.getShort() / 65536;
         } else {
           throw new UnsupportedOperationException("Unsupported audio format: " + fmt);
         }
@@ -171,23 +172,38 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
   }
 
 
-  public static AudioInputStreamWrapper createWrapper8(int fs) 
+  public static AudioInputStreamWrapper createWrapper8(int fs, 
+                                                       Mixer.Info mixer) 
     throws LineUnavailableException {
     AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED, 
                                       (float)fs, 8, 1, 1, (float)fs, true);
     DataLine.Info info = new DataLine.Info(TargetDataLine.class, fmt);
-    TargetDataLine line = (TargetDataLine)AudioSystem.getLine(info);
+//    TargetDataLine line = (TargetDataLine)AudioSystem.getLine(info);
+    TargetDataLine line;
+    if (mixer != null) {
+      Mixer m = AudioSystem.getMixer(mixer);
+      line = (TargetDataLine)m.getLine(info);
+    } else {
+      line = (TargetDataLine)AudioSystem.getLine(info);
+    }
     line.open(fmt);
     AudioInputStreamWrapper audio = new AudioInputStreamWrapper(line);
     return audio;
   }
 
-  public static AudioInputStreamWrapper createWrapper16(int fs)
+  public static AudioInputStreamWrapper createWrapper16(int fs, 
+                                                        Mixer.Info mixer)
     throws LineUnavailableException {
     AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
-                                      (float)fs, 16, 1, 2, (float)fs, true);
+                                      (float)fs, 16, 1, 2, (float)fs, false);
     DataLine.Info info = new DataLine.Info(TargetDataLine.class, fmt);
-    TargetDataLine line = (TargetDataLine)AudioSystem.getLine(info);
+    TargetDataLine line;
+    if (mixer != null) {
+      Mixer m = AudioSystem.getMixer(mixer);
+      line = (TargetDataLine)m.getLine(info);
+    } else {
+      line = (TargetDataLine)AudioSystem.getLine(info);
+    }
     line.open(fmt);
     AudioInputStreamWrapper audio = new AudioInputStreamWrapper(line);
     return audio;
