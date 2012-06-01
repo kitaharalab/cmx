@@ -106,4 +106,17 @@ public class SMFPlayer implements MusicPlayer {
     return sequencer.getTickPosition();
   }
 
+    /*
+    public float getTempoInBPM() {
+	return sequencer.getTempoInBPM();
+    }
+
+    public void setTempoInBPM(float t) {
+	sequencer.setTempoInBPM(t);
+    }
+
+    public void setTempoInBPM(double t) {
+	setTempoInBPM((float)t);
+    }
+    */
 }

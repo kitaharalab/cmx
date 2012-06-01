@@ -1,12 +1,10 @@
-CrestMuseXML Development Project
+CrestMuse Toolkit Development Team
 
 Project leader & main coder: 
-        Tetsuro Kitahara <t.kitahara[at]kwansei.ac.jp>
+        Tetsuro Kitahara <kitahara [at] kthrlab.jp>
 
 Coders:
         Naoyuki Totani
-	Ryosuke Tokuami
-        Mitsuyo Hashida
 
 Advisor:
         Haruhiro Katayose

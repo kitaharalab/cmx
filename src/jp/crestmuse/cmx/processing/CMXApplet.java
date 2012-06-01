@@ -311,6 +311,25 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
     return ctrl.createMusicRepresentation(measure, division);
   }
 
+
+    /*
+    public static MidiEventWithTicktime
+	createShortMessageEvent(java.util.List<? extends Number> message, 
+				int tick, int position) {
+	return createShortMessageEvent(message, (long)tick, (long)position);
+    }
+    */
+
+    public static MidiEventWithTicktime 
+	createShortMessageEvent(byte[] message, long tick, long position) {
+	return ctrl.createShortMessageEvent(message, tick, position);
+    }
+
+    public static MidiEventWithTicktime createShortMessageEvent
+	(java.util.List<? extends Number> message, long tick, long position) {
+	return ctrl.createShortMessageEvent(message, tick, position);
+    }
+
   public static MidiEventWithTicktime createControlChangeEvent(long position, int ch, int type, int value) {
     return ctrl.createControlChangeEvent(position, ch, type, value);
   }
@@ -336,5 +355,38 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
       Thread.currentThread().sleep(ms);
     } catch (InterruptedException e) {}
   }
-    
+
+
+    // support double vaeriables for Processing functions
+
+    /*
+    public void curve(double x1, double y1, double x2, double y2, 
+		      double x3, double y3, double x4, double y4) {
+	curve((float)x1, (float)y1, (float)x2, (float)y2, 
+	      (float)x3, (float)y3, (float)y4, (float)y4);
+    }
+
+    public void curve(double x1, double y1, double z1, 
+		      double x2, double y2, double z2, 
+		      double x3, double y3, double z3, 
+		      double x4, double y4, double z4) {
+	curve((float)x1, (float)y1, (float)z1, 
+	      (float)x2, (float)y2, (float)x2, 
+	      (float)x3, (float)y3, (float)z3, 
+	      (float)x4, (float)y4, (float)z4);
+
+    }
+    */
+
+    public void line(double x1, double y1, double x2, double y2) {
+	line((float)x1, (float)y1, (float)x2, (float)y2);
+    }
+
+    public void rect(double a, double b, double c, double d) {
+	rect((float)a, (float)b, (float)c, (float)d);
+    }
+
+    public void textSize(double s) {
+	textSize((float)s);
+    }
 }

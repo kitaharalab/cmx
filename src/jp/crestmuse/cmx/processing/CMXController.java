@@ -622,6 +622,18 @@ public class CMXController implements TickTimer {
     return MusicRepresentationFactory.create(measure, division);
   }
 
+    public static MidiEventWithTicktime 
+	createShortMessageEvent(byte[] message, long tick, long position) {
+	return MidiEventWithTicktime.createShortMessageEvent(message, tick, 
+							     position);
+    }
+
+    public static MidiEventWithTicktime createShortMessageEvent
+	(java.util.List<? extends Number> message, long tick, long position) {
+	return MidiEventWithTicktime.createShortMessageEvent(message, tick, 
+							     position);
+    }
+
   public static MidiEventWithTicktime createControlChangeEvent(long position, int ch, int type, int value) {
     return MidiEventWithTicktime.createControlChangeEvent(position, ch, type, value);
   }

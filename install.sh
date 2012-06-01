@@ -6,12 +6,18 @@
 #################################################################
 
 usr=/usr/local
-branch=cmx-0.60
+branch=cmx-0.61
 
 srcdir=$(cd $(dirname $0) && pwd)
 
 mkdir -p $usr/cmx/$branch
 cp -r $srcdir/* $usr/cmx/$branch/
+
+cat <<EOF > $usr/cmx/$branch/cmxscript
+#!/bin/sh
+
+groovy $usr/cmx/$branch/scripts/cmxscript.groovy \$*
+EOF
 
 cat <<EOF > $usr/cmx/$branch/cmx
 #!/bin/sh
@@ -113,8 +119,10 @@ cat <<EOF >> ~/.bashrc
 EOF
 
 chmod +x $usr/cmx/$branch/cmx
-mkdir -p $usr/$bin
+chmod +x $usr/cmx/$branch/cmxscript
+mkdir -p $usr/bin
 ln -sf $usr/cmx/$branch/cmx $usr/bin/cmx
+ln -sf $usr/cmx/$branch/cmxscript $usr/bin/cmxscript
 
 mkdir -p ~/.groovy/lib
 ln -sf $usr/cmx/$branch/cmx.jar ~/.groovy/lib/

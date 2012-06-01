@@ -17,7 +17,7 @@ export CLASSPATH
 
 rm $JAR_FILE
 mkdir classes
-javac -d classes -target 1.5 -source 1.5 -sourcepath src src/**/*.java
+javac -d classes -target 1.5 -source 1.5 -encoding utf-8 -sourcepath src src/**/*.java
 ( cd classes ; jar cvf ../${JAR_FILE} * )
 rm -r classes
 
@@ -26,7 +26,7 @@ if [ -e doc ] ; then
 else
   mkdir doc
 fi
-javadoc -d doc -protected -version -author -nodeprecated src/**/*.java
+javadoc -d doc -protected -version -author -nodeprecated -encoding utf-8 src/**/*.java
 
 ( cd ../ ; if [ -e ${release}.zip ] ; then rm ${release}.zip ; fi ; zip -r ${release}.zip $release -x ${release}/**/.svn/**/{*,.*} ${release}**/*~ )
 
