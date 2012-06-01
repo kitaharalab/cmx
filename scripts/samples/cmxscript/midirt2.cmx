@@ -1,0 +1,30 @@
+class PrintModule extends MySPModule {
+  def execute(src, dest) {
+    def (status, data1, data2) = src[0].getMessageInByteArray()
+    println(status + " " + data1 + " " + data2)
+    dest[0].add(src[0])
+  }
+
+  def inputs() {
+    [MidiEventWithTicktime.class]
+  }
+
+  def outputs() {
+    [MidiEventWithTicktime.class]
+  }
+}
+
+void setup() {
+  def vk = createVirtualKeyboard()
+  def pm = new PrintModule()
+  def mo = createMidiOut()
+  addSPModule(vk)
+  addSPModule(pm)
+  addSPModule(mo)
+  connect(vk, 0, pm, 0)
+  connect(pm, 0, mo, 0)
+}
+
+void draw() {
+  // do nothing
+}

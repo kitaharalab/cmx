@@ -1,0 +1,13 @@
+void setup() {
+  def scc = readSMFAsMIDIXML("sample1.mid").toSCCXML()
+  scc.eachpart() { p -> 
+    p.eachnote { n ->
+      println(n.onset() + " " + n.offset() + " " + 
+              n.notenum() + " " + n.velocity())
+    }
+  }
+}
+
+void draw() {
+  // do nothing
+}

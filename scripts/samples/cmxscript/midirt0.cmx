@@ -1,0 +1,11 @@
+void setup() {
+  def vk = createVirtualKeyboard()
+  def mo = createMidiOut()
+  addSPModule(vk)
+  addSPModule(mo)
+  connect(vk, 0, mo, 0)
+}
+
+void draw() {
+  // do nothing
+}

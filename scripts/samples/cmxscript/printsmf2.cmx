@@ -1,0 +1,9 @@
+void setup() {
+  def mid = readSMFAsMIDIXML("sample1.mid")
+  def scc = mid.toSCCXML()
+  scc.println()
+}
+
+void draw() {
+  // do nothing
+}

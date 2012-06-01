@@ -1,0 +1,18 @@
+void setup() {
+  wavread("sample1.wav")
+}
+
+void draw() {
+  // do nothing
+}
+
+void keyPressed() {
+  if (key == 'p')
+    playMusic()
+  else if (key == 's')
+    stopMusic()
+}
+
+void mouseClicked() {
+  println(getMicrosecondPosition())
+}

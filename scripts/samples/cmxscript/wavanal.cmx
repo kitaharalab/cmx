@@ -1,0 +1,44 @@
+class Visualizer extends MySPModule {
+  def execute(src, dest) {
+    def a = sigmoid(abs(src[0]), 0.4)
+    background(255)
+    for (int i = 0; i < a.length(); i++) {
+      int x = width * i / a.length()
+      int w = width / a.length()
+      int y = (1.0-(a[i] - 0.5)*2) * height
+      int h = height - y
+      rect(x, y, w, h)
+    }
+  }
+  def inputs() {
+    [ComplexArray.class, ComplexArray.class, 
+     ComplexArray.class]
+  }
+  def outputs() {
+    []
+  }
+}
+
+void setup() {
+  size(640, 200)
+  readConfig("config.xml")
+  def mic = createMic()
+  addSPModule(mic)
+  def stft = new STFT(false)
+  addSPModule(stft)
+  connect(mic, 0, stft, 0)
+  def vis = new Visualizer()
+  addSPModule(vis)
+  connect(stft, 0, vis, 0)
+  connect(stft, 1, vis, 1)
+  connect(stft, 2, vis, 2)
+}
+
+void draw(){
+  // do nothing
+}
+
+void keyPressed() {
+  closeMic()
+  exit()
+}

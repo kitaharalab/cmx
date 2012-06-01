@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE config PUBLIC "-//CrestMuse//DTD CrestMuseXML 0.40 ConfigXML//EN" 
+                        "http://www.crestmuse.jp/cmx/dtds/config.dtd">
+<config>
+  <param>
+     <category name="fft">
+       <meta name="WINDOW_SIZE" content="1024" />
+       <meta name="WINDOW_TYPE" content="hamming" />
+       <meta name="SHIFT" content="0.05" />
+       <meta name="POWER_THRESHOLD" content="0.005" />
+       <meta name="RELATIVE_POWER_THRESHOLD" content="0.002" />
+     </category>
+     <category name="f0pdf">
+       <meta name="ITERATION_STOP_THRESHOLD" content="0.00001" />
+       <meta name="MAX_ITERATION" content="40" />
+       <meta name="NOTENUMBER_FROM" content="45" />
+       <meta name="NOTENUMBER_THRU" content="81" />
+       <meta name="STEP" content="1.0" />
+     </category>
+     <category name="harmonics">
+       <meta name="F0_SEARCH_RANGE" content="1.06" />
+       <meta name="HARMONICS_SEARCH_RANGE" content="0.05" />
+       <meta name="NUM_OF_FRAMES_FOR_INTERPOLATE" content="10" />
+       <meta name="NUM_OF_HARMONICS_FOR_F0_CALC" content="5" />
+       <meta name="NUM_OF_HARMONICS" content="10" />
+       <meta name="POWER_THRESHOLD" content="0.01" />
+       <meta name="NUM_OF_FRAMES" content="50" />
+     </category>
+     <category name="feature">
+       <meta name="NOTENUMBER_FROM" content="45" />
+       <meta name="NOTENUMBER_THRU" content="81" />
+       <meta name="STEP" content="1.0" />
+     </category>
+   </param>
+   <filters>
+     <filter name="off">
+       <meta name="LOW_CUT_FILTER" content="off" />
+       <meta name="LOW_CUT_BUTTOM" content="0" />
+       <meta name="LOW_CUT_TOP" content="0" />
+       <meta name="HIGH_CUT_FILTER" content="off" />
+       <meta name="HIGH_CUT_TOP" content="0" />
+       <meta name="HIGH_CUT_BUTTOM" content="0" />
+     </filter>
+     <filter name="bass">
+       <meta name="LOW_CUT_FILTER" content="off" />
+       <meta name="LOW_CUT_BUTTOM" content="0" />
+       <meta name="LOW_CUT_TOP" content="0" />
+       <meta name="HIGH_CUT_FILTER" content="on" />
+       <meta name="HIGH_CUT_TOP" content="220" />
+       <meta name="HIGH_CUT_BUTTOM" content="262" />
+     </filter>
+     <filter name="melody">
+       <meta name="LOW_CUT_FILTER" content="on" />
+       <meta name="LOW_CUT_BUTTOM" content="262" />
+       <meta name="LOW_CUT_TOP" content="523" />
+       <meta name="HIGH_CUT_FILTER" content="off" />
+       <meta name="HIGH_CUT_TOP" content="0" />
+       <meta name="HIGH_CUT_BUTTOM" content="0" />
+     </filter>
+  </filters>
+</config>

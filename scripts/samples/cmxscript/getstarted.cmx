@@ -1,0 +1,8 @@
+void setup() {
+  wavread("sample1.wav")
+  playMusic()
+}
+
+void draw() {
+  // do nothing
+}
