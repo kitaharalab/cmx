@@ -210,6 +210,16 @@ public class CMXController implements TickTimer {
     if (spexec != null) spexec.start();
   }
 
+  public void wavread(AudioDataCompatible wav) {
+    try {
+      this.wav = wav;
+      musicPlayer = new WAVPlayer(wav);
+      musicSync = new MusicPlaySynchronizer(musicPlayer);
+    } catch (javax.sound.sampled.LineUnavailableException e) {
+      throw new DeviceNotAvailableException("Audio device not available");
+    }
+  }
+
   /** 指定されたWAVファイルを読み込みます．読み込まれたWAVファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
