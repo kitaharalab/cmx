@@ -15,6 +15,7 @@ import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import javazoom.jl.decoder.*;
+import groovy.lang.Closure;
 
 /**********************************************************************
 このクラスは，CrestMuse Toolkit (CMX)の主要な機能を簡単に呼び出せるようにしたクラスです．
@@ -199,6 +200,63 @@ public class CMXController implements TickTimer,MIDIConsts {
       spexec = new SPExecutor();
     spexec.addSPModule(module);
   }
+
+    public ProducerConsumerCompatible newSPModule(Map args) 
+	throws ClassNotFoundException {
+	final Closure execute = (Closure)args.get("execute");
+	final Class[] inputClasses = getClassArray(args.get("inputs"));
+	final Class[] outputClasses = getClassArray(args.get("outputs"));
+	SPModule module = new SPModule() {
+		public void execute(Object[] src, TimeSeriesCompatible[] dest) {
+		    execute.call(new Object[]{src, dest});
+		}
+		public Class[] getInputClasses() {
+		    return inputClasses;
+		}
+		public Class[] getOutputClasses() {
+		    return outputClasses;
+		}
+	    };
+	addSPModule(module);
+	return module;
+    }
+
+    private Class[] getClassArray(Object inputs) throws ClassNotFoundException {
+	Class[] classes;
+	if (inputs == null) {
+	    classes = new Class[0];
+	} else if (inputs instanceof Class) {
+	    classes = new Class[]{(Class)inputs};
+	} else if (inputs instanceof String) {
+	    classes = new Class[]{Class.forName((String)inputs)};
+	} else if (inputs instanceof Object[]) {
+	    Object[] a = (Object[])inputs;
+	    classes = new Class[a.length];
+	    for (int i = 0; i < a.length; i++) {
+		if (a[i] instanceof Class)
+		    classes[i] = (Class)a[i];
+		else if (a[i] instanceof String)
+		    classes[i] = Class.forName((String)a[i]);
+		else
+		    throw new IllegalArgumentException("Illegal argument: " + a[i]);
+	    }
+	} else if (inputs instanceof java.util.List) {
+	    java.util.List l = (java.util.List)inputs;
+	    classes = new Class[l.size()];
+	    for (int i = 0; i < l.size(); i++) {
+		if (l.get(i) instanceof Class)
+		    classes[i] = (Class)l.get(i);
+		else if (l.get(i) instanceof String)
+		    classes[i] = Class.forName((String)l.get(i));
+		else
+		    throw new IllegalArgumentException("Illegal argument: " + l.get(i));
+	    }
+	} else {
+	    throw new IllegalArgumentException("Illegal argument: " + inputs);
+	}
+	return classes;
+    }
+
 
   /** 登録済みの「モジュール」の接続方法を定義します．*/
   public void connect(ProducerConsumerCompatible output, int ch1, 
@@ -573,6 +631,7 @@ public class CMXController implements TickTimer,MIDIConsts {
       VirtualKeyboard vkb = new VirtualKeyboard();
       MidiInputModule midiin = new MidiInputModule(vkb);
       midiin.setTickTimer(this);
+      addSPModule(midiin);
       return midiin;
     } catch (MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
@@ -585,6 +644,8 @@ public class CMXController implements TickTimer,MIDIConsts {
     try {
       VirtualKeyboard vkb = new VirtualKeyboard(c);
       MidiInputModule midiin = new MidiInputModule(vkb);
+      midiin.setTickTimer(this);
+      addSPModule(midiin);
       return midiin;
     } catch (MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
@@ -601,8 +662,9 @@ public class CMXController implements TickTimer,MIDIConsts {
         throw new IllegalStateException
           ("MIDI IN device has not been selected yet");
       } else {
-        return new MidiInputModule(
-          SoundUtils.getMidiInDeviceByName(midiin.getName()));
+	  MidiInputModule midiin2 = new MidiInputModule(SoundUtils.getMidiInDeviceByName(midiin.getName()));
+	  addSPModule(midiin2);
+	  return midiin2;
       }
     } catch (MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
@@ -614,11 +676,15 @@ public class CMXController implements TickTimer,MIDIConsts {
   public MidiOutputModule createMidiOut() {
     try {
       if (midiout == null) {
-        return new MidiOutputModule();
+	  MidiOutputModule midiout2 = new MidiOutputModule();
+	  addSPModule(midiout2);
+	  return midiout2;
       } else {
         MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
         dev.open();
-        return new MidiOutputModule(dev);
+	MidiOutputModule midiout2 = new MidiOutputModule(dev);
+	addSPModule(midiout2);
+	return midiout2;
       }
     } catch (MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
@@ -686,6 +752,7 @@ public class CMXController implements TickTimer,MIDIConsts {
       winslider.setInputData(mic);
       winslider.setTickTimer(this);
 //      mic.getLine().start();
+      addSPModule(winslider);
       return winslider;
     } catch (LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
@@ -706,11 +773,14 @@ public class CMXController implements TickTimer,MIDIConsts {
       new SynchronizedWindowSlider(isStereo);
     winslider.setInputData(wav);
     addMusicListener(winslider);
+    addSPModule(winslider);
     return winslider;
   }
 
   public MidiEventSender createMidiEventSender() {
-    return new MidiEventSender();
+    MidiEventSender evtsender = new MidiEventSender();
+    addSPModule(evtsender);
+    return evtsender;
   }
 
   /** 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます．
@@ -774,6 +844,7 @@ public class CMXController implements TickTimer,MIDIConsts {
     TappingModule tap = new TappingModule();
     tap.setTickTimer(this);
     c.addKeyListener(tap);
+    addSPModule(tap);
     return tap;
   }
 

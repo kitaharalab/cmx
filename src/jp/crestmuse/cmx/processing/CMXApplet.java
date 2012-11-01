@@ -7,7 +7,9 @@ import jp.crestmuse.cmx.sound.*;
 import jp.crestmuse.cmx.inference.*;
 import java.awt.*;
 import java.io.*;
+import java.util.*;
 import javax.swing.*;
+import groovy.lang.Closure;
 
 /** このクラスは，CMXの主要な機能をあたかもProcessingの一機能のように使えるようにした
 基底クラスです．このクラスのサブクラスを作成し，<tt>start</tt>メソッドを呼び出すことで
@@ -78,6 +80,11 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
   public void addSPModule(ProducerConsumerCompatible module) {
     ctrl.addSPModule(module);
   }
+
+    public ProducerConsumerCompatible newSPModule(Map args)
+	throws ClassNotFoundException {
+	return ctrl.newSPModule(args);
+    }
 
   /** 登録済みの「モジュール」の接続方法を定義します．*/
   public void connect(ProducerConsumerCompatible output, int ch1, 
@@ -298,6 +305,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
     }
   }
 
+    //    public void startSP() {
+    //	ctrl.startSP();
+    //    }
+
   /** @deprecated */
   public static void main(String className) {
     main(new String[]{className});
@@ -392,5 +403,12 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 
     public void textSize(double s) {
 	textSize((float)s);
+    }
+
+    public Button button(String title) {
+	Button b = new Button(title);
+	b.addKeyListener(this);
+        add(b);
+	return b;
     }
 }

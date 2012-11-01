@@ -89,8 +89,12 @@ public class SPExecutor {
       spm.src.add(null);
     */
     // lastThread.modules.add(spm);
-    modules.add(spm);
-    map.put(module, spm);
+    //    if (modules.contains(spm)) {
+    //	System.err.println(module + "has already been added. Addition was skipped.");
+    //    } else {
+	modules.add(spm);
+	map.put(module, spm);
+	//    }
   }
 
   /*
