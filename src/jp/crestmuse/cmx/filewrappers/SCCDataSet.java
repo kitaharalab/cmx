@@ -41,6 +41,10 @@ public class SCCDataSet implements SCC {
       volume = vol;
       this.name = name;
     }
+
+    public boolean remove(MutableMusicEvent e) {
+      return notes.remove(e);
+    }
     
     public void addNoteElement(int onset, int offset, int notenum, 
                                int velocity, int offVelocity) {
@@ -48,6 +52,14 @@ public class SCCDataSet implements SCC {
                                 division));
     }
 
+    public void addNoteElement(int onset, int offset, int notenum, 
+                               int velocity, int offVelocity, 
+                               Map<String,String> attr) {
+      notes.add(new MutableNote(onset, offset, notenum, velocity, offVelocity,
+                                division, attr));
+    }
+
+    /** @deprecated */
     public void addNoteElementWithWord(String word, int onset, int offset, 
                                        int notenum, 
                                        int velocity, int offVelocity) {
@@ -219,6 +231,20 @@ public class SCCDataSet implements SCC {
     return SCCUtils.getBarlineList(this);
   }
 
+
+  public boolean removeAnnotation(MutableAnnotation a) {
+    return annotations.remove(a);
+  }
+
+  public boolean removeHeaderElement(HeaderElement e) {
+    return headers.remove(e);
+  }
+
+  public boolean removePart(Part p) {
+    return parts.remove(p);
+  }
+
+
   public int getDivision() {
     return division;
   }
@@ -272,14 +298,18 @@ public class SCCDataSet implements SCC {
             MutablePitchBend pb = (MutablePitchBend)n;
             newscc.addPitchBend(pb.onset(div), pb.value());
           } else {
-            if (n.word() == null)
-              newscc.addNoteElement(n.onset(div), n.offset(div), n.notenum(), 
-                                    n.velocity(), n.offVelocity());
-            else 
-              newscc.addNoteElementWithWord(n.word(), n.onset(div), 
-                                            n.offset(div),
-                                            n.notenum(), n.velocity(), 
-                                            n.offVelocity());
+            newscc.addNoteElement(
+              n.onset(div), n.offset(div), n.notenum(), n.velocity(), 
+              n.offVelocity(), n.getAttributes()
+            );
+//            if (n.word() == null)
+//              newscc.addNoteElement(n.onset(div), n.offset(div), n.notenum(), 
+//                                    n.velocity(), n.offVelocity());
+//            else 
+//              newscc.addNoteElementWithWord(n.word(), n.onset(div), 
+//                                            n.offset(div),
+//                                            n.notenum(), n.velocity(), 
+//                                            n.offVelocity());
           }
         }
         newscc.endPart();

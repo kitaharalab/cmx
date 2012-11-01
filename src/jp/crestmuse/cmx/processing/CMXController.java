@@ -24,13 +24,15 @@ import javazoom.jl.decoder.*;
 利用します．
  **********************************************************************/
 
-public class CMXController implements TickTimer {
+public class CMXController implements TickTimer,MIDIConsts {
 
   private static final CMXController me = new CMXController();
 
   private SPExecutor spexec = null;
-  private MusicPlayer musicPlayer = null;
-  private MusicPlaySynchronizer musicSync = null;
+  private MusicPlayer[] musicPlayer = new MusicPlayer[256];
+//  private MusicPlayer musicPlayer = null;
+  private MusicPlaySynchronizer[] musicSync = new MusicPlaySynchronizer[256];
+//  private MusicPlaySynchronizer musicSync = null;
   private AudioInputStreamWrapper mic = null;
   private AudioDataCompatible wav = null;
 
@@ -210,23 +212,32 @@ public class CMXController implements TickTimer {
     if (spexec != null) spexec.start();
   }
 
-  public void wavread(AudioDataCompatible wav) {
+  public void wavread(AudioDataCompatible w) {
+    wavread(0, w);
+  }
+
+  public void wavread(int i, AudioDataCompatible w) {
     try {
-      this.wav = wav;
-      musicPlayer = new WAVPlayer(wav);
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      wav = w;
+      musicPlayer[i] = new WAVPlayer(wav);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (javax.sound.sampled.LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
     }
   }
 
+  public void wavread(String filename) {
+    wavread(0, filename);
+  }
+
   /** 指定されたWAVファイルを読み込みます．読み込まれたWAVファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void wavread(String filename) {
+  public void wavread(int i, String filename) {
     try {
-      musicPlayer = new WAVPlayer(wav = WAVWrapper.readfile(filename));
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      wav = WAVWrapper.readfile(filename);
+      musicPlayer[i] = new WAVPlayer(wav);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file: " + filename);
     } catch (javax.sound.sampled.LineUnavailableException e) {
@@ -234,13 +245,18 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void wavread(InputStream input) {
+    wavread(0, input);
+  }
+
   /** 指定されたWAVファイルを読み込みます．読み込まれたWAVファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void wavread(InputStream input) {
+  public void wavread(int i, InputStream input) {
     try {
-      musicPlayer = new WAVPlayer(wav = WAVWrapper.read(input));
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      wav = WAVWrapper.read(input);
+      musicPlayer[i] = new WAVPlayer(wav);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file");
     } catch (javax.sound.sampled.LineUnavailableException e) {
@@ -248,13 +264,18 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void mp3read(String filename) {
+    mp3read(0, filename);
+  }
+
   /** 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void mp3read(String filename) {
+  public void mp3read(int i, String filename) {
     try {
-      musicPlayer = new WAVPlayer(wav = MP3Wrapper.readfile(filename));
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      wav = MP3Wrapper.readfile(filename);
+      musicPlayer[i] = new WAVPlayer(wav);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalStateException("Cannot read file: " + filename);
     } catch (DecoderException e) {
@@ -269,10 +290,11 @@ public class CMXController implements TickTimer {
   /** 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void mp3read(InputStream input) {
+  public void mp3read(int i, InputStream input) {
     try {
-      musicPlayer = new WAVPlayer(wav = MP3Wrapper.read(input));
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      wav = MP3Wrapper.read(input);
+      musicPlayer[i] = new WAVPlayer(wav);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalStateException("Cannot read file");
     } catch (DecoderException e) {
@@ -284,21 +306,25 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void smfread(String filename) {
+    smfread(0, filename);
+  }
+
   /** 指定された標準MIDIファイルを読み込みます．読み込まれた標準MIDIファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void smfread(String filename) {
+  public void smfread(int i, String filename) {
     try {
-      System.err.println(midiout);
+//      System.err.println(midiout);
       if (midiout == null) {
-        musicPlayer =new SMFPlayer();
+        musicPlayer[i] =new SMFPlayer();
       } else {
         MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
         dev.open();
-        musicPlayer = new SMFPlayer(dev);
+        musicPlayer[i] = new SMFPlayer(dev);
       }
-      ((SMFPlayer)musicPlayer).readSMF(filename);
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      ((SMFPlayer)musicPlayer[i]).readSMF(filename);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file: " + filename);
     } catch (javax.sound.midi.MidiUnavailableException e) {
@@ -308,20 +334,47 @@ public class CMXController implements TickTimer {
     }
   }
 
-  /** 指定された標準MIDIファイルを読み込みます．読み込まれた標準MIDIファイルは，
-      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
-      読み込まれます．*/
   public void smfread(InputStream input) {
+    smfread(0, input);
+  }
+
+  public void smfread(int i, Sequence seq) {
     try {
+//      System.err.println(midiout);
       if (midiout == null) {
-        musicPlayer =new SMFPlayer();
+        musicPlayer[i] =new SMFPlayer();
       } else {
         MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
         dev.open();
-        musicPlayer = new SMFPlayer(dev);
+        musicPlayer[i] = new SMFPlayer(dev);
       }
-      ((SMFPlayer)musicPlayer).readSMF(input);
-      musicSync = new MusicPlaySynchronizer(musicPlayer);
+      ((SMFPlayer)musicPlayer[i]).readSMF(seq);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+    } catch (javax.sound.midi.MidiUnavailableException e) {
+      throw new DeviceNotAvailableException("MIDI device not available");
+    } catch (javax.sound.midi.InvalidMidiDataException e) {
+      throw new IllegalArgumentException("Invalid MIDI data");
+    }
+  }
+
+  public void smfread(Sequence seq) {
+    smfread(0, seq);
+  }
+  
+  /** 指定された標準MIDIファイルを読み込みます．読み込まれた標準MIDIファイルは，
+      このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
+      読み込まれます．*/
+  public void smfread(int i, InputStream input) {
+    try {
+      if (midiout == null) {
+        musicPlayer[i] =new SMFPlayer();
+      } else {
+        MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiout.getName());
+        dev.open();
+        musicPlayer[i] = new SMFPlayer(dev);
+      }
+      ((SMFPlayer)musicPlayer[i]).readSMF(input);
+      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file");
     } catch (javax.sound.midi.MidiUnavailableException e) {
@@ -331,25 +384,33 @@ public class CMXController implements TickTimer {
     }
   }
 
+  public void smfread(MIDIXMLWrapper midi) {
+    smfread(0, midi);
+  }
+
   /** MIDIXMLドキュメントを標準MIDIファイルに変換して読み込みます．
       読み込まれた標準MIDIファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void smfread(MIDIXMLWrapper midi) {
+  public void smfread(int i, MIDIXMLWrapper midi) {
     try {
-      smfread(midi.getMIDIInputStream());
+      smfread(i, midi.getMIDIInputStream());
     } catch (IOException e) {
       throw new IllegalArgumentException("Invalid MIDIXML data");
     }
+  }
+
+  public void smfread(SCCXMLWrapper scc) {
+    smfread(0, scc);
   }
 
   /** SCCXMLドキュメントを標準MIDIファイルに変換して読み込みます．
       読み込まれた標準MIDIファイルは，
       このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに
       読み込まれます．*/
-  public void smfread(SCCXMLWrapper scc) {
+  public void smfread(int i, SCCXMLWrapper scc) {
     try {
-      smfread(scc.getMIDIInputStream());
+      smfread(i, scc.getMIDIInputStream());
     } catch (IOException e) {
       throw new IllegalArgumentException("Invalid SCCXML data");
     } catch (ParserConfigurationException e) {
@@ -393,64 +454,111 @@ public class CMXController implements TickTimer {
 
   /** すでに読み込まれた音楽データの再生を開始します．*/
   public void playMusic() {
-    musicSync.play();
+    playMusic(0);
+  }
+
+  public void playMusic(int i) {
+    musicSync[i].play();
   }
 
   /** 再生中の音楽を停止します．*/
   public void stopMusic() {
-    musicSync.stop();
+    stopMusic(0);
+  }
+
+  public void stopMusic(int i) {
+    musicSync[i].stop();
+  }
+
+  public boolean isNowPlaying() {
+    return isNowPlaying(0);
   }
 
   /** 現在，音楽を再生中かどうかを返します．*/
-  public boolean isNowPlaying() {
-    return musicPlayer != null && musicPlayer.isNowPlaying();
+  public boolean isNowPlaying(int i) {
+    return musicPlayer[i] != null && musicPlayer[i].isNowPlaying();
+  }
+
+  public void setMusicLoop(boolean b) {
+    setMusicLoop(0, b);
+  }
+
+  public void setMusicLoop(int i, boolean b) {
+    if (musicPlayer[i] != null)
+      musicPlayer[i].setLoopEnabled(b);
+    else
+      throw new IllegalStateException("setMusicLoop should be called after a music file is read.");
+  }
+
+  public void setMicrosecondPosition(long t) {
+    setMicrosecondPosition(0, t);
   }
 
   /** 次回再生時の音楽の再生開始箇所をマイクロ秒単位で指定します．
       ただし，このメソッドは音楽停止中しか使用できません．*/
-  public void setMicrosecondPosition(long t) {
-    musicPlayer.setMicrosecondPosition(0);
+  public void setMicrosecondPosition(int i, long t) {
+    musicPlayer[i].setMicrosecondPosition(0);
+  }
+
+  public long getMicrosecondPosition() {
+    return getMicrosecondPosition(0);
   }
 
   /** 現在の再生中の音楽データにおける現在の再生箇所をマイクロ秒単位で
       返します．*/
-  public long getMicrosecondPosition() {
-    if (musicPlayer == null)
+  public long getMicrosecondPosition(int i) {
+    if (musicPlayer[i] == null)
       return 0;
     else
-      return musicPlayer.getMicrosecondPosition();
+      return musicPlayer[i].getMicrosecondPosition();
+  }
+
+  public long getTickPosition() {
+    return getTickPosition(0);
   }
 
   /** 現在の再生中の音楽データにおける現在の再生箇所をティック単位で
       返します．
       ただし，このメソッドは読み込み済みのデータがMIDIデータのときしか
       使用できません．*/
-  public long getTickPosition() {
-    if (musicPlayer == null)
+  public long getTickPosition(int i) {
+    if (musicPlayer[i] == null)
       return 0;
     else
-      return musicPlayer.getTickPosition();
+      return musicPlayer[i].getTickPosition();
+  }
+
+  public int getTicksPerBeat() {
+    return getTicksPerBeat(0);
   }
 
   /** 現在読み込まれているMIDIデータのTicks Per Beat（1拍あたりの
       ティック数）を返します．
       このメソッドは読み込み済みのデータがMIDIデータのときしか
       使用できません．*/
-  public int getTicksPerBeat() {
-    if (musicPlayer == null)
+  public int getTicksPerBeat(int i) {
+    if (musicPlayer[i] == null)
       return 0;
     else
-      return musicPlayer.getTicksPerBeat();
+      return musicPlayer[i].getTicksPerBeat();
   }
 
   public void addMusicListener(MusicListener l) {
-    musicSync.addMusicListener(l);
+    addMusicListener(0, l);
+  }
+   
+  public void addMusicListener(int i, MusicListener l) {
+    musicSync[i].addMusicListener(l);
+  }
+
+  public void waitForMusicStopped() {
+    waitForMusicStopped(0);
   }
 
   /** 音楽の再生が停止されるまで，スレッドを停止します．*/
-  public void waitForMusicStopped() {
+  public void waitForMusicStopped(int i) {
     try {
-      while (isNowPlaying()) {
+      while (isNowPlaying(i)) {
         Thread.currentThread().sleep(100);
       }
     } catch (InterruptedException e) {
@@ -591,7 +699,8 @@ public class CMXController implements TickTimer {
 
 
   /** 現在サウンドカードから再生中の音を受け取って，その波形データを短区間ごとに区切った
-      波形断片を次々と出力する「モジュール」を生成します．*/
+      波形断片を次々と出力する「モジュール」を生成します．
+      （新しいwavreadへの対応は要チェック）*/
   public SynchronizedWindowSlider createWaveCapture(boolean isStereo) {
     SynchronizedWindowSlider winslider = 
       new SynchronizedWindowSlider(isStereo);

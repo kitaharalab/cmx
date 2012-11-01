@@ -33,6 +33,9 @@ public abstract class NodeInterface {
 //  private NodeList children = null;
 //  private int nChildren;
 
+  private Set<String> attrkeys = new TreeSet<String>();
+  private Map<String,String> attrs = new TreeMap<String,String>();
+
   /**********************************************************************
    *<p>Constructs an node interface for the specified node. 
    *When the specified node is not supported, 
@@ -61,6 +64,13 @@ public abstract class NodeInterface {
 //      }
       throw new UnsupportedNodeException
 			("Unsupported node: " + node.getNodeName());
+    }
+    NamedNodeMap map = node.getAttributes();
+    int n = map.getLength();
+    for (int i = 0; i < n; i++) {
+      Node item = map.item(i);
+      attrkeys.add(item.getNodeName());
+      attrs.put(item.getNodeName(), item.getNodeValue());
     }
   }
 
@@ -157,6 +167,14 @@ public abstract class NodeInterface {
 
   public double getAttributeDouble(String key) {
     return Double.parseDouble(getAttribute(key));
+  }
+
+  public Set<String> getAttributeKeys() {
+    return attrkeys;
+  }
+
+  public Map<String,String> getAttributes() {
+    return attrs;
   }
 
   /**********************************************************************

@@ -55,6 +55,12 @@ public class SMFPlayer implements MusicPlayer {
     sequencer.setSequence(sequence);
   }
 
+  public void readSMF(Sequence s) throws InvalidMidiDataException {
+    stop();
+    sequence = s;
+    sequencer.setSequence(s);
+  }
+
   /** play SMF file */
   public void play() {
     if (sequencer.getSequence() != null) {
@@ -76,6 +82,10 @@ public class SMFPlayer implements MusicPlayer {
       sequencer.stop();
   }
   
+  public void setLoopEnabled(boolean b) {
+    throw new UnsupportedOperationException("not implemented yet");
+  }
+
   public long getMicrosecondLength(){
     return sequencer.getMicrosecondLength();
   }

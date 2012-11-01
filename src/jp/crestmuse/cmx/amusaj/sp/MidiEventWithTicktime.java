@@ -5,6 +5,7 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.InvalidMidiDataException;
 import java.util.*;
+import static jp.crestmuse.cmx.misc.MIDIConst.*;
 
 public class MidiEventWithTicktime extends MidiEvent {
   public long music_position;
@@ -22,6 +23,31 @@ public class MidiEventWithTicktime extends MidiEvent {
   public byte[] getMessageInByteArray() {
     return getMessage().getMessage();
   }
+
+  public int status() {
+    return getMessage().getStatus() & 0xF0;
+  }
+
+  public int channel() {
+    return getMessage().getStatus() & 0x0F;
+  }
+
+  public boolean hasData1() {
+    return getMessage().getMessage().length >= 2;
+  }
+
+  public int data1() {
+    return getMessage().getMessage()[1];
+  }
+
+  public boolean hasData2() {
+    return getMessage().getMessage().length >= 3;
+  }
+
+  public int data2() {
+    return getMessage().getMessage()[2];
+  }
+
 
   public static MidiEventWithTicktime 
   createShortMessageEvent(byte[] message, long tick, long position) {

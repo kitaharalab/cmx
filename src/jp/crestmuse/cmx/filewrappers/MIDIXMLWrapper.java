@@ -136,6 +136,36 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     returnToParent();
   }
 
+  private void addStringMetaEvent(String type, int timestamp, byte[] content) {
+    checkElementAddition(trackStarted);
+    addChild("Event");
+    if (timestampType == TIMESTAMP_DELTA)
+      addChild("Delta");
+    else if (timestampType == TIMESTAMP_ABSOLUTE) // note supported
+      addChild("Absolute");
+    else
+      throw new InvalidElementException("TimestampType is invalid");
+    addText(String.valueOf(timestamp));
+    if (isSupportedMetaEvent(type)) {
+      addSibling(type);
+      try {
+        char[] cc = new String(content, "Shift_JIS").toCharArray();
+        for (int i = 0; i < cc.length; i++) {
+          if (!Character.isLetterOrDigit(cc[i]))
+            cc[i] = ' ';
+        }
+        addText(new String(cc));
+//        addText(new String(new String(content, "Shift_JIS").getBytes("UTF-8"), "UTF-8"));     // kari
+      } catch (UnsupportedEncodingException e) {
+//        addText("");
+      }
+    } else {
+      throw new InvalidElementException("Unsupported meta event: " + type);
+    }
+    returnToParent();
+    returnToParent();
+  }
+
   public void addMetaEvent(String type, int timestamp, int... content) {
     checkElementAddition(trackStarted);
     addChild("Event");
@@ -308,7 +338,11 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     buff.get(bytedata);
     if (isSupportedMetaEvent(evttype)) {
       String evtname = metaEventTypeToName(evttype);
+      boolean hasString = isStringMetaEvent(evtname);
       String[] attlist = getAttributeList(evtname);
+      if (hasString) {
+        addStringMetaEvent(evtname, delta + ignoredDelta, bytedata);
+      } else {
       byte l = getByteLength(evtname);
       int[] content = new int[attlist.length];
       for (int i = 0; i < attlist.length; i++) {
@@ -319,6 +353,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
         }
       }
       addMetaEvent(evtname, delta + ignoredDelta, content);
+      }
       ignoredDelta = 0;
     } else {
       ignoredDelta += delta;
@@ -448,13 +483,26 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     toSCCXML(dest, chords, null);
   }
     
-    public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords, String key) 
+  private class Header {
+    int time;
+    String name;
+    String content;
+    Header(int time, String name, String content) {
+      this.time = time;
+      this.name = name;
+      this.content = content;
+    }
+  }
+
+  public void toSCCXML(final SCCXMLWrapper dest, 
+                       SCCXMLWrapper.EasyChord[] chords, String key) 
     throws TransformerException, IOException, 
     ParserConfigurationException, SAXException {
     dest.setDivision(ticksPerBeat);
     final Map<Byte, ArrayList<MutableMusicEvent>> channelToNotes = 
-        new HashMap<Byte, ArrayList<MutableMusicEvent>>();
-    final ArrayList<Integer> headerList = new ArrayList<Integer>();
+      new HashMap<Byte, ArrayList<MutableMusicEvent>>();
+//    final ArrayList<Integer> headerList = new ArrayList<Integer>();
+    final List<Header> headerList = new ArrayList<Header>();
     processMIDIEvent(new MIDIHandler(){
         private int totalTime;
         private MutableNote[] onNotes;
@@ -467,11 +515,23 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
         public void processMIDIEvent(MIDIEvent midiEvent, MIDIXMLWrapper w) {
           totalTime += midiEvent.deltaTime();
           String messageType = midiEvent.messageType();
-          if(midiEvent.messageType().equals("SetTempo")){
-            headerList.add(totalTime);
-            headerList.add(60*1000*1000/midiEvent.value(0));
+          if(messageType.equals("SetTempo")){
+            headerList.add(new Header(
+                             totalTime, "TEMPO", 
+                             String.valueOf(60*1000*1000/midiEvent.value(0))));
+//            headerList.add(totalTime);
+//            headerList.add(60*1000*1000/midiEvent.value(0));
             return;
           }
+          if (messageType.equals("KeySignature")) {
+            headerList.add(new Header(
+                             totalTime, "KEY", 
+                             (midiEvent.value(0) > 0 ? "+" : "") + 
+                             String.valueOf(midiEvent.value(0)) + " " + 
+                             (midiEvent.value(1) == 0 ? "major" : 
+                              (midiEvent.value(1) == 1 ? "minor" : "unknown"))));
+            return;
+          }                                          
           if(isSupportedMetaEvent(midiEvent.messageType())) return;
           short statusNo = msgNameToStatusNo(messageType);
           if((statusNo == NOTE_ON) && (midiEvent.value(1) > 0)){
@@ -485,43 +545,43 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
           } else if (statusNo == CONTROL_CHANGE) {
             MutableControlChange c = 
               new MutableControlChange(totalTime, midiEvent.value(0), 
-                                  midiEvent.value(1), ticksPerBeat());
+                                       midiEvent.value(1), ticksPerBeat());
             addControlChange(c, midiEvent, channelToNotes);
           } else if (statusNo == PITCH_BEND_CHANGE) {
-	      MutablePitchBend c = 
-		  new MutablePitchBend(totalTime, 
-				       midiEvent.value(0),				       
-				       //				       midiEvent.value(0)+128*midiEvent.value(1),				       
-				       ticksPerBeat());
-	      addControlChange(c, midiEvent, channelToNotes);
+            MutablePitchBend c = 
+              new MutablePitchBend(totalTime, 
+                                   midiEvent.value(0),				       
+                                   //				       midiEvent.value(0)+128*midiEvent.value(1),				       
+                                   ticksPerBeat());
+            addControlChange(c, midiEvent, channelToNotes);
 	  }
 	}
-	    private void addControlChange(MutableMusicEvent c, 
-					  MIDIEvent e, 
-					  Map<Byte,ArrayList<MutableMusicEvent>> 					  chnlwiseNotes) {
-		if (!chnlwiseNotes.containsKey(e.channel()))
-		    chnlwiseNotes.put(e.channel(), new ArrayList<MutableMusicEvent>());
-		chnlwiseNotes.get(e.channel()).add(c);
-	    }
-
-	    private void addNote(MutableNote note, MIDIEvent event, 
-                     Map<Byte,ArrayList<MutableMusicEvent>> chnlwiseNotes,
-                     MutableNote[] onNotes) {
+        private void addControlChange(MutableMusicEvent c, 
+                                      MIDIEvent e, 
+                                      Map<Byte,ArrayList<MutableMusicEvent>> 					  chnlwiseNotes) {
+          if (!chnlwiseNotes.containsKey(e.channel()))
+            chnlwiseNotes.put(e.channel(), new ArrayList<MutableMusicEvent>());
+          chnlwiseNotes.get(e.channel()).add(c);
+        }
+        
+        private void addNote(MutableNote note, MIDIEvent event, 
+                             Map<Byte,ArrayList<MutableMusicEvent>> chnlwiseNotes,
+                             MutableNote[] onNotes) {
           int notenum = note.notenum();
           if (onNotes[notenum] != null)
             onNotes[notenum].setOffset(note.onset() - 1);
           if (!chnlwiseNotes.containsKey(event.channel()))
             chnlwiseNotes.put(event.channel(), 
-                               new ArrayList<MutableMusicEvent>());
+                              new ArrayList<MutableMusicEvent>());
           chnlwiseNotes.get(event.channel()).add(note);
           onNotes[note.notenum()] = note;
         }
         private void addNoteOff(int offset, MIDIEvent event, 
-                     Map<Byte,ArrayList<MutableMusicEvent>> chnlwiseNotes) {
+                                Map<Byte,ArrayList<MutableMusicEvent>> chnlwiseNotes) {
           int notenum = event.value(0);
           if (onNotes[notenum] != null) {
-             onNotes[notenum].setOffset(offset);
-             onNotes[notenum] = null;
+            onNotes[notenum].setOffset(offset);
+            onNotes[notenum] = null;
           }
 //          if (chnlwiseNotes.containsKey(event.channel())) {
 //            ArrayList<MutableMusicEvent> notes = 
@@ -540,9 +600,12 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
         }
       });
     dest.beginHeader();
-    for(int i=0;i<headerList.size();i+=2){
-      dest.addHeaderElement(headerList.get(i), "TEMPO", headerList.get(i+1));
+    for (Header h : headerList) {
+      dest.addHeaderElement(h.time, h.name, h.content);
     }
+//    for(int i=0;i<headerList.size();i+=2){
+//      dest.addHeaderElement(headerList.get(i), "TEMPO", headerList.get(i+1));
+//    }
     if(key != null) dest.addHeaderElement(0, "KEY", key);
     dest.endHeader();
     Map.Entry<Byte, ArrayList<MutableMusicEvent>> mapent;
@@ -563,8 +626,8 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
           dest.addControlChange(cc.onset(), cc.offset(), cc.ctrlnum(), 
                                 cc.value());
         } else if (e instanceof MutablePitchBend) {
-	    MutablePitchBend pb = (MutablePitchBend)e;
-	    dest.addPitchBend(pb.onset(), pb.offset(), pb.value());
+          MutablePitchBend pb = (MutablePitchBend)e;
+          dest.addPitchBend(pb.onset(), pb.offset(), pb.value());
 	}
       }
       dest.endPart();
@@ -572,11 +635,11 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     if(chords != null){
       dest.beginAnnotations();
       for(SCCXMLWrapper.EasyChord c : chords)
-    	  //String[] chords の要素がnullの時は追加しない処理を追加
-    	  if(c != null){
-    		  dest.addChord(c.onset, c.offset, c.chord);
-    	  }
-   
+        //String[] chords の要素がnullの時は追加しない処理を追加
+        if(c != null){
+          dest.addChord(c.onset, c.offset, c.chord);
+        }
+      
       dest.endAnnotations();
     }
     dest.finalizeDocument();

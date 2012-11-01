@@ -19,6 +19,16 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
 
   private static final DoubleArrayFactory factory =
     DoubleArrayFactory.getFactory();
+
+  public AudioInputStreamWrapper(InputStream stream, AudioFormat fmt, long length) {
+    line = null;
+    audioin = new AudioInputStream(stream, fmt, length);
+    this.fmt = fmt;
+    channels = fmt.getChannels();
+    sampleRate = (int)fmt.getSampleRate();
+    bitsPerSample = fmt.getSampleSizeInBits();
+    bytesPerSample = bitsPerSample / 8;
+  }
   
 
   AudioInputStreamWrapper(TargetDataLine line) {
@@ -35,6 +45,7 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
     return audioin;
   }
 
+  /** 要チェック */
   public TargetDataLine getLine() {
     return line;
   }
@@ -166,9 +177,10 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
   }
 */
 
-          
+  /** 要チェック */          
   public boolean hasNext(int sampleSize) {
-    return line.isOpen();
+    return line != null ? line.isOpen() : true;
+//    return line != null ? line.isOpen() : audioin.available() >= sampleSize;
   }
 
 

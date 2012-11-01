@@ -17,6 +17,7 @@ export CLASSPATH
 
 rm $JAR_FILE
 mkdir classes
+#javac -d classes -sourcepath src src/**/*.java
 javac -d classes -target 1.5 -source 1.5 -encoding utf-8 -sourcepath src src/**/*.java
 ( cd classes ; jar cvf ../${JAR_FILE} * )
 rm -r classes

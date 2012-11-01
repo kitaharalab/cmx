@@ -13,7 +13,7 @@ import javax.swing.*;
 基底クラスです．このクラスのサブクラスを作成し，<tt>start</tt>メソッドを呼び出すことで
 作成したプログラムの実行が始まります．このクラスはPAppletクラスを継承していますので，
 <tt>ellipseなどのProcessing用のメソッドも利用できます．*/
-public class CMXApplet extends PApplet implements MusicListener,TickTimer {
+public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDIConsts  {
 
   private static final CMXController ctrl = CMXController.getInstance();
 
@@ -135,6 +135,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer {
   /** 現在，音楽を再生中かどうかを返します．*/
   public boolean isNowPlaying() {
     return ctrl.isNowPlaying();
+  }
+  
+  public void setMusicLoop(boolean b) {
+    ctrl.setMusicLoop(b);
   }
 
   /** 現在の再生中の音楽データにおける現在の再生箇所をマイクロ秒単位で

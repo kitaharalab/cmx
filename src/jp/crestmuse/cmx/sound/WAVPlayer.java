@@ -25,6 +25,10 @@ public class WAVPlayer implements MusicPlayer {
 
   private boolean nowPlaying;
 
+  private boolean loop = false;
+
+  private int index;
+
   private static final int BUFFER_SIZE = 256 * 1024;
   private static final long SLEEP_TIME = 1000;
 
@@ -79,6 +83,10 @@ public class WAVPlayer implements MusicPlayer {
     changeStartPositionInMicrosecond(t);
   }
 
+  public void setLoopEnabled(boolean b) {
+    loop = b;
+  }
+
   public void changeStartPositionInMicrosecond(long t) {
     if (isNowPlaying()) {
       line.stop();
@@ -113,23 +121,22 @@ public class WAVPlayer implements MusicPlayer {
      try {
        if (isNowPlaying()) {
          int sleepTime = (BUFFER_SIZE / sampleRate / 2) * 1000;
-//         System.out.println(sleepTime);
          byte[] buff;
-         int index = (int)(startposition * framesize / 1000000);
-//         int index = (int)(startposition * samplesPerSec / 1000000);
-//         int index = (int)(startposition * framesize * framerate / 1000000);
+         index = (int)(startposition * framesize / 1000000);
          timebase = System.nanoTime() / 1000;
          do {
-//             System.out.println(line.available());
-           buff = toByteArray(waveform, index, BUFFER_SIZE * framesize);
+           buff = toByteArray(waveform, BUFFER_SIZE * framesize);
+//           if (buff == null && loop) {
+//             index = 0;
+//             buff = toByteArray(waveform, BUFFER_SIZE * framesize);
+//           }
            if (buff != null) {
-             index += BUFFER_SIZE * framesize;
+//             index += BUFFER_SIZE * framesize;
+//             index += buff.length;
              line.write(buff, 0, buff.length);
              Thread.currentThread().sleep(sleepTime);
            }
-//             System.out.println(line.available());
          } while (buff != null && isNowPlaying());
-//           line.drain();
          long ptime = -1, ctime = -1;
          while (line.isActive()) {
            Thread.currentThread().sleep(SLEEP_TIME);
@@ -169,6 +176,7 @@ public class WAVPlayer implements MusicPlayer {
 //    lengthProcessed = line.getMicrosecondPosition();
 //    timebase = System.nanoTime() / 1000;
     nowPlaying = true;
+    new Thread(this).start();
   }
 
   public void stop() {
@@ -193,13 +201,31 @@ public class WAVPlayer implements MusicPlayer {
     line.close();
   }
 
-  private byte[] toByteArray(byte[] x, int from, int length) {
-    if (from >= x.length) return null;
-    else if (length > x.length - from) length = x.length - from;
-    ByteBuffer buff = ByteBuffer.allocate(length);
-    buff.order(fmt.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < length; i++) 
-      buff.put(x[i + from]);
+  private byte[] toByteArray(byte[] x, int length) {
+    ByteBuffer buff;
+    if (index >= x.length) return null;
+    if (loop) {
+      buff = ByteBuffer.allocate(length);
+      buff.order
+        (fmt.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+      for (int i = index; i < index + length; i++) {
+        buff.put(x[i % x.length]);
+      }
+      index = (index + length) % x.length;
+    } else {
+      if (length > x.length - index)
+        length = x.length - index;
+      buff = ByteBuffer.allocate(length);
+      buff.order
+        (fmt.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+      for (int i = 0; i < length; i++) 
+        buff.put(x[i + index]);
+      index += length;
+      if (index >= x.length) {
+        nowPlaying = false;
+        index = 0;
+      }
+    }
     return buff.array();
   }
 

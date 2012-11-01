@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.filewrappers;
 import groovy.lang.*;
 import javax.xml.transform.*;
 import jp.crestmuse.cmx.elements.*;
+import java.util.*;
 
 public interface SCC {
   public int getDivision();
@@ -45,7 +46,14 @@ public interface SCC {
     int notenum();
     int velocity();
     int offVelocity();
+    /** @deprecated */
     String word();
+    boolean hasAttribute(String key);
+    String getAttribute(String key);
+    int getAttributeInt(String key);
+    double getAttributeDouble(String key);
+    Set<String> getAttributeKeys();
+    Map<String,String> getAttributes();
   }
 
   public interface Annotation {

@@ -264,9 +264,10 @@ public class SCCXMLWrapper extends CMXFileWrapper
 
   public void addNoteElement(int onset, int offset,
                              int notenum, int velocity) {
-    addNoteElement(onset, offset, notenum, velocity, null);
+    addNoteElement(onset, offset, notenum, velocity, velocity);
   }
 
+/*
   public void addNoteElement(int onset, int offset, 
                              int notenum, int velocity, 
                              MusicXMLWrapper.Note note) {
@@ -280,17 +281,32 @@ public class SCCXMLWrapper extends CMXFileWrapper
 //                                  getDivision()), note);
     returnToParent();
   }
+*/
 
   public void addNoteElement(int onset, int offset, int notenum, 
                              int velocity, int offVelocity) {
     addNoteElement(onset, offset, notenum, velocity, offVelocity, null);
   }
-
+  
+  public void addNoteElement(int onset, int offset, int notenum,
+                             int velocity, int offVelocity, 
+                             Map<String,String> attr) {
+    addNoteElement(onset, offset, notenum, velocity, offVelocity, attr, null);
+  }
+  
   public void addNoteElement(int onset, int offset, int notenum, 
                              int velocity, int offVelocity, 
+                             Map<String,String> attr, 
                              MusicXMLWrapper.Note note) {
     checkElementAddition(partStarted);
     addChild("note");
+    if (attr != null) {
+      for (Map.Entry<String,String> e : attr.entrySet()) {
+        setAttribute(e.getKey(), e.getValue());
+      }
+    }
+    if (note != null) 
+      setAttribute("voice", note.voice());
     addText(onset + " " + offset + " " + notenum + " " + velocity
             + " " + offVelocity);
     if (note != null)
@@ -783,7 +799,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
       throw new ProgramBugException(e.toString());
     }
   }
-  
+
+  /** @Deprecated */
   public SCCXMLWrapper replaceVelocity(List<List<Byte>> vellist, 
                                        boolean sorted) 
     throws TransformerException, InvalidFileTypeException, 
@@ -820,7 +837,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
         } else {
           byte velocity = it2.next();
           newscc.addNoteElement(note.onset(), note.offset(), 
-                                note.notenum(), velocity, 
+                                note.notenum(), velocity, velocity, 
+                                note.getAttributes(),
                                 note.getMusicXMLWrapperNote());
         }
       }
@@ -833,6 +851,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
     return newscc;
   }
 
+  /** @Deprecated */
   public SCCXMLWrapper changeVelocity(List<List<Byte>> diff, boolean sorted)
     throws TransformerException, InvalidFileTypeException, 
     ParserConfigurationException, SAXException, IOException {
@@ -869,7 +888,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
           byte diffvel = it2.next();
           int vel = Math.max(Math.min(note.velocity + diffvel, 127), 0);
           newscc.addNoteElement(note.onset(), note.offset(), 
-                                note.notenum(), vel, 
+                                note.notenum(), vel, vel, note.getAttributes(),
                                 note.getMusicXMLWrapperNote());
         }
       }
@@ -1374,13 +1393,16 @@ public class SCCXMLWrapper extends CMXFileWrapper
         } else if (n instanceof PitchBend) {
           PitchBend pb = (PitchBend)n;
           newpart.addPitchBend(pb.onset(), pb.value());
-        } else if (n.word() == null) {
-          newpart.addNoteElement(n.onset(div), n.offset(div), n.notenum(), 
-                                 n.velocity(), n.offVelocity());
+//        } else if (n.word() == null) {
+//          newpart.addNoteElement(n.onset(div), n.offset(div), n.notenum(), 
+//                                 n.velocity(), n.offVelocity());
         } else {
-          newpart.addNoteElementWithWord(n.word(), n.onset(div), n.offset(div),
-                                         n.notenum(), n.velocity(), 
-                                         n.offVelocity());
+          newpart.addNoteElement(n.onset(div), n.offset(div), 
+                                 n.notenum(), n.velocity(), 
+                                 n.offVelocity(), n.getAttributes());
+//          newpart.addNoteElementWithWord(n.word(), n.onset(div), n.offset(div),
+//                                         n.notenum(), n.velocity(), 
+//                                         n.offVelocity());
         }
       }
     }

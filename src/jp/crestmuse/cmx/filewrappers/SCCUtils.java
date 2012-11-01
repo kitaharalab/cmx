@@ -42,7 +42,7 @@ class SCCUtils {
     return barlines;
   }
 
-
+/*
   static SCCXMLWrapper toWrapper(SCC scc) throws TransformerException {
     try {
     SCCXMLWrapper newscc = 
@@ -87,6 +87,8 @@ class SCCUtils {
       throw new TransformerException(e.toString());
     }
   }
+*/
+
 
 /*
   static SCCDataSet toDataSet(SCC scc) throws TransformerException {

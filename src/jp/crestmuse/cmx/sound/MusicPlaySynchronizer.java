@@ -45,8 +45,8 @@ public class MusicPlaySynchronizer implements Runnable {
 
   public void play() {
     player.play();
-    if (!playerThreadStarted)
-      new Thread(player).start();
+//        if (!playerThreadStarted)
+//      new Thread(player).start();
     if(!syncThreadStarted)
       new Thread(this).start();
     playerThreadStarted = true;

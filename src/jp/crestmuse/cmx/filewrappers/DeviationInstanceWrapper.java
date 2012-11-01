@@ -626,7 +626,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             offVelocity = (int) (baseVelocity * baseDynamics * note.offDynamics);
           }
           dest.addNoteElement(note.onset(), note.offset(), note.notenum(),
-              velocity, offVelocity, note.note);
+                              velocity, offVelocity, note.getAttributes(), 
+                              note.note);
         } else if (e instanceof MutableControlChange) {
           dest.addControlChange(e.onset(), e.offset(),
               ((MutableControlChange) e).ctrlnum(), ((MutableControlChange) e)

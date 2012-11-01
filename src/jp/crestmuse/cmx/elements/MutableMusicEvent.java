@@ -1,4 +1,5 @@
 package jp.crestmuse.cmx.elements;
+import java.util.*;
 
 public abstract class MutableMusicEvent 
   implements Comparable<MutableMusicEvent>, NoteCompatible {
@@ -7,6 +8,9 @@ public abstract class MutableMusicEvent
   int ticksPerBeat;
   Type type;
   enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND, ANNOTATION};
+
+  Map<String,String> attr = new TreeMap<String,String>();
+
 
   MutableMusicEvent(Type type, int onset, int offset, int ticksPerBeat) {
     this.type = type;
@@ -110,7 +114,45 @@ public abstract class MutableMusicEvent
     throw new UnsupportedOperationException();
   }
 
+  /** @deprecated */
   public String word() {
     throw new UnsupportedOperationException();
   }
+
+  public boolean hasAttribute(String key) {
+    return attr.containsKey(key);
+  }
+
+  public void setAttribute(String key, String value) {
+    attr.put(key, value);
+  }
+
+  public void setAttribute(String key, int value) {
+    attr.put(key, String.valueOf(value));
+  }
+
+  public void setAttribute(String key, double value) {
+    attr.put(key, String.valueOf(value));
+  }
+
+  public String getAttribute(String key) {
+    return attr.get(key);
+  }
+
+  public int getAttributeInt(String key) {
+    return Integer.parseInt(attr.get(key));
+  }
+
+  public double getAttributeDouble(String key) {
+    return Double.parseDouble(attr.get(key));
+  }
+
+  public Set<String> getAttributeKeys() {
+    return attr.keySet();
+  }
+
+  public Map<String,String> getAttributes() {
+    return attr;
+  }
+
 }
