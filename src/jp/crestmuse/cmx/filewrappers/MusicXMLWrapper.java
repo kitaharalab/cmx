@@ -220,13 +220,16 @@ public class MusicXMLWrapper extends CMXFileWrapper {
     return partlist;
   }
 
-  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException {
-    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
-    makeDeadpanSCCXML(dest, ticksPerBeat);
-    return dest;
+  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException,TransformerException {
+//    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
+//    makeDeadpanSCCXML(dest, ticksPerBeat);
+//    return dest;
+    DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(this);
+    dev.finalizeDocument();
+    return dev.toSCCXML(ticksPerBeat);
   }
 
-  /** @deprecated */
+  /*
   public void makeDeadpanSCCXML(final SCCXMLWrapper dest, final int ticksPerBeat)
       throws IOException {
     DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(this);
@@ -234,6 +237,7 @@ public class MusicXMLWrapper extends CMXFileWrapper {
     dev.toSCCXML(dest, ticksPerBeat);
     dest.finalizeDocument();
   }
+  */
 
   /**********************************************************************
    *<p>

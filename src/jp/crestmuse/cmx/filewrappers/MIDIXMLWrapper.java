@@ -405,7 +405,7 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
 //    return new MIDIEvent(node);
 //  }
     
-    /**
+    /** @deprecated
      * toSCCXML内で呼び出されます
      * @param h
      * @author totani
@@ -473,10 +473,12 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     return dest;
   }
   
+  @Deprecated
   public void toSCCXML(final SCCXMLWrapper dest) throws TransformerException, IOException, ParserConfigurationException, SAXException{
     toSCCXML(dest, null);
   }
 
+  @Deprecated 
   public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords) 
     throws TransformerException, IOException, 
     ParserConfigurationException, SAXException {

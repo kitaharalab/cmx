@@ -6,7 +6,7 @@
 #################################################################
 
 usr=/usr/local
-branch=cmx-0.61
+branch=cmx-0.62
 
 srcdir=$(cd $(dirname $0) && pwd)
 
@@ -29,7 +29,7 @@ for jarfile in \$CMX_HOME/lib/*.jar
 do
   myclasspath=\$myclasspath:\$jarfile
 done
-CLASSPATH=\$CLASSPATH:\$myclasspath
+CLASSPATH=\$myclasspath:\$CLASSPATH
 export CLASSPATH
 
 #if [ -z \$1 ]; then

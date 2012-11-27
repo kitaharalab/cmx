@@ -398,6 +398,49 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         + (int) (beat * ticksPerBeat);
   }
 
+  private void processControl(Control c, SCCDataSet scc) throws IOException {
+    int ticksPerBeat = scc.getDivision();
+    if (c != null) {
+      if (c.type().equals("tempo")) {
+        currentTempo = c.value();
+        Control nextTempoDev = tctrlview.lookAhead("tempo-deviation");
+        if (nextTempoDev == null || c.measure() != nextTempoDev.measure()
+            || c.beat() != nextTempoDev.beat()) {
+          scc.addHeaderElement(c.timestamp(ticksPerBeat), "TEMPO",
+                               currentTempo);
+          lastTempo = currentTempo;
+        }
+      } else if (c.type().equals("tempo-deviation")) {
+        int time = c.timestamp(ticksPerBeat);
+        double value = currentTempo * c.value();
+        String curve = null;
+        if(c.containsAttributeInChild("curve"))
+          curve = c.getChildAttribute("curve");
+        if(curve != null && curve.equals("linear")){
+          int timeDiv = ticksPerBeat / linearDivision;
+          double tempoDiv = (value - lastTempo) / linearDivision;
+          for(int i = linearDivision - 1; i >= 1; i--)
+            scc.addHeaderElement(time - timeDiv * i, "TEMPO", value - tempoDiv * i);
+        }
+        scc.addHeaderElement(time, "TEMPO", value);
+        lastTempo = currentTempo * c.value();
+        Control nextTempoDev = tctrlview.lookAhead("tempo", "tempo-deviation");
+        if (nextTempoDev == null
+            || requiresTempoDevReturn(c, nextTempoDev, ticksPerBeat)) {
+          // if (nextTempoDev == null || nextTempoDev.measure() > c.measure()
+          // || nextTempoDev.beat() > Math.floor(c.beat()) + 1) {
+          int cumulativeTicks = getTargetMusicXML().getCumulativeTicks(
+            c.measure(), ticksPerBeat);
+          int t2 = initticks + cumulativeTicks + ticksPerBeat
+            * (int) (Math.floor(c.beat()));
+          scc.addHeaderElement(t2, "TEMPO", currentTempo);
+          lastTempo = currentTempo;
+        }
+      }
+    }
+  }
+
+    /*
   private void controlToSCCHeader(Control c, SCCXMLWrapper dest,
       int ticksPerBeat) throws IOException {
     if (c != null) {
@@ -439,6 +482,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       }
     }
   }
+*/
+
 
   /*
    * private void controlToSCCHeader(Control c, SCCXMLWrapper dest, int
@@ -460,6 +505,19 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
    * "TEMPO", currentTempo); } } } }
    */
 
+  private void processNonPartwiseControls(SCCDataSet scc) throws IOException {
+    TimewiseControlView tctrlview = getTimewiseControlView();
+    if (initticks > 0)
+      scc.addHeaderElement(0, "TEMPO", 120);
+    processControl(tctrlview.getRoot(), scc);
+    while (tctrlview.hasElementsAtNextTime()) {
+      processControl(tctrlview.getFirstElementAtNextTime(), scc);
+      while (tctrlview.hasMoreElementsAtSameTime())
+        processControl(tctrlview.getNextElementAtSameTime(), scc);
+    }
+  }
+
+    /*
   private void nonPartwiseControlsToSCCHeader(SCCXMLWrapper dest,
       int ticksPerBeat) throws IOException {
     TimewiseControlView tctrlview = getTimewiseControlView();
@@ -476,7 +534,20 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     }
     dest.endHeader();
   }
+    */
 
+  private void processPartwise(String partid, SCCDataSet scc) throws IOException {
+    TreeView<Control> ctrlview = getPartwiseControlView(partid);
+    SCCDataSet.Part part = scc.getPart(partid);
+    processPartwiseControl(ctrlview.getRoot(), part);
+    while (ctrlview.hasElementsAtNextTime()) {
+      processPartwiseControl(ctrlview.getFirstElementAtNextTime(), part);
+      while (ctrlview.hasMoreElementsAtSameTime())
+        processPartwiseControl(ctrlview.getNextElementAtSameTime(), part);
+    }
+  }
+  
+/*
   private void processPartwiseForSCC(String partid, int ticksPerBeat,
       Map<String, NoteListForSCC> partwiseNoteList) throws IOException {
     TreeView<Control> ctrlview = getPartwiseControlView(partid);
@@ -490,7 +561,19 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             ticksPerBeat, notelist);
     }
   }
+*/
+  private void processExtraNotes(String partid, SCCDataSet scc) throws IOException {
+    TreeView<ExtraNote> enview = getExtraNoteView(partid);
+    SCCDataSet.Part part = scc.getPart(partid);
+    processExtraNote(enview.getRoot(), part);
+    while (enview.hasElementsAtNextTime()) {
+      processExtraNote(enview.getFirstElementAtNextTime(), part);
+      while (enview.hasMoreElementsAtSameTime())
+        processExtraNote(enview.getNextElementAtSameTime(), part);
+    }
+  }
 
+/*
   private void processExtraNotesForSCC(String partid, int ticksPerBeat,
       Map<String, NoteListForSCC> partwiseNoteList) throws IOException {
     TreeView<ExtraNote> enview = getExtraNoteView(partid);
@@ -504,7 +587,23 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
             ticksPerBeat, notelist);
     }
   }
+*/
 
+  private void processExtraNote(ExtraNote en, SCCDataSet.Part part) throws IOException {
+    if (en != null) {
+      int onset = en.timestamp(part.division());
+      int offset = onset + (int) (en.duration() * part.division());
+//      int velocity = (int) (baseVelocity * en.dynamics());
+//      int offVelocity = (int) (baseVelocity * en.endDynamics());
+      MutableNote note = part.addNoteElement(onset, offset, en.notenum(), 
+                                             -1, -1);
+      note.setAttribute("dynamics", en.dynamics());
+      note.setAttribute("end-dynamics", en.endDynamics());
+      note.setAttribute("dynamics-type", en.dynamicsType());
+    }
+  }
+
+/*
   private void processExtraNoteForSCCNoteList(ExtraNote en, int ticksPerBeat,
       NoteListForSCC notelist) throws IOException {
     if (en != null) {
@@ -517,7 +616,30 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           ticksPerBeat, null));
     }
   }
+*/
+  private void processPartwiseControl(Control c, SCCDataSet.Part part) throws IOException {
+    if (c != null) {
+      if (c.type().equals("pedal")) {
+        String action = c.getChildAttribute("action");
+        int depth;
+        if (action.equals("on") || action.equals("continue")) {
+          if (c.containsAttributeInChild("depth"))
+            depth = (int) (127 * c.getChildAttributeDouble("depth"));
+          else
+            depth = 127;
+        } else if (action.equals("off")) {
+          depth = 0;
+        } else {
+          throw new InvalidElementException();
+        }
+        part.addControlChange(c.timestamp(part.division()), 64, depth);
+      } else if (c.type().equals("base-dynamics")) {
+        part.addBaseDynamics(c.timestamp(part.division()), c.value());
+      }
+    }
+  }
 
+/*
   private void processControlForSCCNoteList(Control c, int ticksPerBeat,
       NoteListForSCC notelist) throws IOException {
     if (c != null) {
@@ -542,7 +664,83 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       }
     }
   }
+*/
+  private void processNotewise(final SCCDataSet scc) throws IOException {
+    final int ticksPerBeat = scc.getDivision();
+    getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise() {
+        static final int DEFAULT_PROG_NUM = 0;
+        static final int DEFAULT_VOLUME = 100;
+        SCCDataSet.Part currentPart;
+        int serial = 0;
 
+      public void beginPart(MusicXMLWrapper.Part part, MusicXMLWrapper w) {
+        serial++;
+        currentPart = scc.addPart(serial, serial, DEFAULT_PROG_NUM, 
+                                  DEFAULT_VOLUME, part.id());
+      }
+
+      public void endPart(MusicXMLWrapper.Part part, MusicXMLWrapper w) {
+        MusicXMLWrapper.Measure[] measures = part.getMeasureList();
+        MusicXMLWrapper.Measure last = measures[measures.length - 1];
+        scc.addBarline(last.cumulativeTicks(ticksPerBeat) + 
+                       last.duration(ticksPerBeat), "");
+      }
+
+      public void beginMeasure(MusicXMLWrapper.Measure m, MusicXMLWrapper w) {
+        scc.addBarline(m.cumulativeTicks(ticksPerBeat), "");
+      }
+
+      public void endMeasure(MusicXMLWrapper.Measure m, MusicXMLWrapper w) {
+        // do nothing
+      }
+
+      public void processMusicData(MusicXMLWrapper.MusicData md,
+          MusicXMLWrapper w) {
+        if (md instanceof MusicXMLWrapper.Note) {
+          MusicXMLWrapper.Note note = (MusicXMLWrapper.Note) md;
+          NoteDeviationInterface cd = getChordDeviation(note);
+          if (cd == null)
+            cd = getDefaultNoteDeviation();
+          NoteDeviationInterface nd = getNoteDeviation(note);
+
+          if (nd == null)
+            nd = getDefaultNoteDeviation();
+          int attack = (int) (ticksPerBeat * (cd.attack() + nd.attack()));
+          int release = (int) (ticksPerBeat * (cd.release() + nd.release()));
+          int dynamics = (int) (baseVelocity * cd.dynamics() * nd.dynamics());
+          int endDynamics = (int) (baseVelocity * cd.endDynamics() * nd
+              .endDynamics());
+          if (!note.rest() && getMissNote(note) == null
+              && !"none".equals(note.notehead())
+              && !note.containsTieType("stop")) {
+            int onset = initticks
+            // + note.measure().cumulativeTicks(ticksPerBeat)
+                + note.onset(ticksPerBeat);
+            int offset = initticks + note.offset(ticksPerBeat);
+            // int offset = note.actualDuration(ticksPerBeat) + onset;
+            MutableNote newnote = currentPart.addNoteElement(
+              onset + attack, offset + release, note.notenum(), -1, -1, 
+              note);
+            newnote.setAttribute("dynamics", nd.dynamics() * cd.dynamics());
+            newnote.setAttribute("end-dynamics", 
+                                 nd.endDynamics() * cd.endDynamics());
+            newnote.setAttribute("dynamics-type", nd.dynamicsType());
+            newnote.setAttribute("voice", note.voice());
+          }
+        } else if (md instanceof MusicXMLWrapper.Attributes) {
+          MusicXMLWrapper.Attributes a = (MusicXMLWrapper.Attributes)md;
+          int fifths = a.fifths();
+          scc.addHeaderElement(a.onset(ticksPerBeat), 
+                               "KEY", 
+                               (fifths > 0 ? "+" + fifths : fifths)
+                               + " " + 
+                               (a.mode() == null ? "unknown" : a.mode()));
+        }
+      }
+    });
+  }
+
+/*
   private void processNotewiseForSCC(final int ticksPerBeat,
       final Map<String, NoteListForSCC> partwiseNoteList) throws IOException {
     getTargetMusicXML().processNotePartwise(new NoteHandlerPartwise() {
@@ -597,7 +795,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       }
     });
   }
+*/
 
+
+/*
   private void addNoteListToSCC(SCCXMLWrapper dest,
       Map<String, NoteListForSCC> partwiseNoteList) {
     SortedSet<NoteListForSCC> ss = new TreeSet<NoteListForSCC>(
@@ -639,7 +840,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       dest.endPart();
     }
   }
+*/
 
+/*
   private void addBarlinesToSCC(SCCXMLWrapper dest, MusicXMLWrapper musicxml,
       int ticksPerBeat) {
     MusicXMLWrapper.Measure[] measurelist = musicxml.getPartList()[0]
@@ -652,7 +855,11 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
                     + lastm.duration(ticksPerBeat), "");
     dest.endAnnotations();
   }
+*/
 
+
+/*
+    @Deprecated
   public void toSCCXML(SCCXMLWrapper dest, final int ticksPerBeat)
       throws IOException {
     MusicXMLWrapper musicxml = getTargetMusicXML();
@@ -673,13 +880,72 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
     addBarlinesToSCC(dest, musicxml, ticksPerBeat);
     dest.finalizeDocument();
   }
+*/
 
+/*
   public SCCXMLWrapper toSCCXML(int ticksPerBeat) throws IOException {
     SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper
         .createDocument(SCCXMLWrapper.TOP_TAG);
     toSCCXML(dest, ticksPerBeat);
     return dest;
   }
+*/
+
+  public SCCXMLWrapper toSCCXML(int ticksPerBeat) throws IOException,TransformerException {
+  return toSCCDataSet(ticksPerBeat).toWrapper();
+}
+
+  public SCCDataSet toSCCDataSet(int ticksPerBeat) throws IOException, TransformerException {
+	//	MusicXMLWrapper musicxml = getTargetMusicXML();
+	if (!alreadyAnalyzed)
+	    analyze();
+	double initSil = getInitialSilence();
+	initticks = (int)Math.round(initSil * ticksPerBeat * 2);
+	SCCDataSet scc = new SCCDataSet(ticksPerBeat);
+	processNonPartwiseControls(scc);
+	processNotewise(scc);
+	for (SCCDataSet.Part part : scc.getPartList()) {
+	    processExtraNotes(part.name(), scc);
+	    processPartwise(part.name(), scc);
+	}
+        processBaseDynamics(scc);
+	return scc;
+    }
+
+  void processBaseDynamics(SCCDataSet scc) {
+    for (SCCDataSet.Part part : scc.getPartList()) {
+      double baseDynamics = 1.0;
+      for (MutableMusicEvent e : part.getSortedNoteList()) {
+        if (e instanceof MutableNote) {
+          MutableNote note = (MutableNote)e;
+          if (note.getAttribute("dynamics-type").equals("diff")) {
+            note.setVelocity(
+              (int)(baseVelocity * 
+                    (baseDynamics - note.getAttributeDouble("dynamics"))));
+            note.setOffVelocity(
+              (int)(baseVelocity * 
+                    (baseDynamics - note.getAttributeDouble("end-dynamics"))));
+          } else {
+            if (!note.getAttribute("dynamics-type").equals("rate")) {
+              System.err.println("warning: supported dynamics type: " + 
+                                 note.getAttribute("dynamics-type"));
+              System.err.println("dynamics type regarded as 'rate'");
+            }
+            note.setVelocity((int)(baseVelocity * baseDynamics * 
+                                   note.getAttributeDouble("dynamics")));
+            note.setOffVelocity((int)(baseVelocity * baseDynamics * 
+                                   note.getAttributeDouble("end-dynamics")));
+          }
+          note.removeAttribute("dynamics");
+          note.removeAttribute("end-dynamics");
+          note.removeAttribute("dynamics-type");
+        } else if (e instanceof BaseDynamicsEvent) {
+          baseDynamics = ((BaseDynamicsEvent)e).getValue();
+          part.remove(e);
+        }
+      }
+    }
+  }      
 
   public CSVWrapper toCSV(int divisionPerMeasure, int windowPerMeasure) {
     CSVWrapper result = new CSVWrapper();
@@ -863,7 +1129,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 			 en.dynamics(), en.endDynamics());
     }
 	    
-	       
+/*	       
   private class NoteListForSCC {
     private int serial;
     private int ch;
@@ -887,7 +1153,9 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       this(serial, ch, DEFAULT_PROG_NUM, DEFAULT_VOLUME);
     }
   }
+*/
 
+/*
   private class MyNote extends MutableNote {
     private MusicXMLWrapper.Note note;
     private double dynamics;
@@ -904,6 +1172,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       this.dynamicsType = dynamicsType;
     }
   }
+*/
 
   /*
    * private class MyControlChange extends MutableNote { int ctrlnum; int value;

@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.elements;
 import java.util.*;
+import jp.crestmuse.cmx.filewrappers.*;
 
 public abstract class MutableMusicEvent 
   implements Comparable<MutableMusicEvent>, NoteCompatible {
@@ -8,6 +9,7 @@ public abstract class MutableMusicEvent
   int ticksPerBeat;
   Type type;
   enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND, ANNOTATION};
+  MusicXMLWrapper.MusicData obj;
 
   Map<String,String> attr = new TreeMap<String,String>();
 
@@ -153,6 +155,18 @@ public abstract class MutableMusicEvent
 
   public Map<String,String> getAttributes() {
     return attr;
+  }
+
+  public void removeAttribute(String key) {
+    attr.remove(key);
+  }
+
+  public void setMusicXMLObject(MusicXMLWrapper.MusicData o) {
+    obj = o;
+  }
+
+  public MusicXMLWrapper.MusicData getMusicXMLObject() {
+    return obj;
   }
 
 }

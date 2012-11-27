@@ -3,9 +3,28 @@ import java.util.*;
 import java.util.regex.*;
 
 public final class ChordSymbol {
-  public static enum Root {C, D, E, F, G, A, B};
-  public static enum Sign {NONE, SHARP, FLAT;
+  public static enum Root {C(0), D(2), E(4), F(5), G(7), A(9), B(11);
+    private static final Root[] LIST_SHARP = 
+      {C, C, D, D, E, F, F, G, G, A, A, B};
+    private static final Root[] LIST_FLAT = 
+      {C, D, D, E, E, F, G, G, A, A, B, B};
+    private int value;
+    Root(int n) {
+      value = n;
+    }
+  }
+  public static enum Sign {NONE(0), SHARP(1), FLAT(-1);
+    private static final Sign[] LIST_SHARP = 
+      {NONE, SHARP, NONE, SHARP, NONE, NONE, SHARP, NONE, SHARP, NONE, 
+       SHARP, NONE};
+    private static final Sign[] LIST_FLAT = 
+      {NONE, FLAT, NONE, FLAT, NONE, NONE, FLAT, NONE, FLAT, NONE, 
+       FLAT, NONE};
+    private int value;
     static Map<String,String[]> strings = new HashMap<String,String[]>();
+    Sign(int n) {
+      value = n;
+    }
     public String toString(String key) {
       return strings.get(key)[ordinal()];
     }
@@ -44,6 +63,22 @@ public final class ChordSymbol {
     this.seventh = seventh;
   }
   
+  public ChordSymbol(int num, Mode mode, Seventh seventh, 
+                     boolean sharp) {
+    if (sharp) {
+      this.root = Root.LIST_SHARP[num];
+      this.sign = Sign.LIST_SHARP[num];
+      this.mode = mode;
+      this.seventh = seventh;
+    } else {
+      this.root = Root.LIST_FLAT[num];
+      this.sign = Sign.LIST_FLAT[num];
+      this.mode = mode;
+      this.seventh = seventh;
+    }
+  }
+    
+
   public static ChordSymbol[] getChordSymbolList(String[] cn) {
     ChordSymbol[] cs = new ChordSymbol[cn.length];
     for (int i = 0; i < cs.length; i++) {
@@ -178,5 +213,14 @@ public final class ChordSymbol {
 
   public String toString() {
     return encode();
+  }
+
+  public int getRootNoteNumBase() {
+    return root.value + sign.value;
+  }
+
+  public ChordSymbol transpose(int diff, boolean sharp) {
+    return new ChordSymbol((getRootNoteNumBase() + diff) % 12, 
+                           mode, seventh, sharp);
   }
 }

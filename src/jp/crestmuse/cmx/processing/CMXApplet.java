@@ -176,6 +176,18 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
     return ctrl.getTicksPerBeat();
   }
 
+    public float getTempoInBPM() {
+	return ctrl.getTempoInBPM();
+    }
+
+    public void setTempoInBPM(float bpm) {
+	ctrl.setTempoInBPM(bpm);
+    }
+
+    public void setTempoInBPM(double bpm) {
+	ctrl.setTempoInBPM(bpm);
+    }
+
   /** このメソッドは呼び出さないでください．*/
   public void musicStarted(MusicPlaySynchronizer ms) {
     musicStarted();

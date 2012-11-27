@@ -6,10 +6,10 @@ import java.io.*;
 import groovy.lang.*;
 import javax.xml.transform.*;
 
-public class SCCDataSet implements SCC {
+public class SCCDataSet implements SCC,Cloneable {
 
   public class HeaderElement implements SCC.HeaderElement {
-    private String content;
+    String content;
     private String name;
     private int time;
     private HeaderElement(int time, String name, String content) {
@@ -26,10 +26,30 @@ public class SCCDataSet implements SCC {
     public int time() {
       return time;
     }
+    public boolean equals(SCC.HeaderElement e) {
+      return time == e.time() && name.equals(e.name()) && 
+        content.equals(e.content());
+    }
+    public int compareTo(SCC.HeaderElement e) {
+      if (time != e.time())
+        return time - e.time();
+      else if (!name.equals(e.name()))
+        return name.compareTo(e.name());
+      else if (!content.equals(e.content()))
+        return content.compareTo(e.content());
+      else
+        return 0;
+    }
+  }
+
+  private class MyNumber {
+    int value = 0;
   }
 
   public class Part implements SCC.Part {
     private List<MutableMusicEvent> notes = new ArrayList<MutableMusicEvent>();
+    private Map<MutableMusicEvent,MyNumber> nOverlaps = 
+      new HashMap<MutableMusicEvent,MyNumber>();
     private byte channel;
     private int panpot, prognum, serial, volume;
     String name;
@@ -41,38 +61,76 @@ public class SCCDataSet implements SCC {
       volume = vol;
       this.name = name;
     }
-
+    
+    private void checkOverlap(MutableMusicEvent note) {
+      if (!nOverlaps.containsKey(note))
+        nOverlaps.put(note, new MyNumber());
+      nOverlaps.get(note).value++;
+      note.setAttribute("number", nOverlaps.get(note).value);
+    }
+    
     public boolean remove(MutableMusicEvent e) {
       return notes.remove(e);
     }
     
-    public void addNoteElement(int onset, int offset, int notenum, 
-                               int velocity, int offVelocity) {
-      notes.add(new MutableNote(onset, offset, notenum, velocity, offVelocity, 
-                                division));
+    MutableNote addNoteElement(int onset, int offset, int notenum, 
+                                      int velocity, int offVelocity, 
+                                      MusicXMLWrapper.MusicData md) {
+      MutableNote note = addNoteElement(onset, offset, notenum, 
+                                        velocity, offVelocity);
+      note.setMusicXMLObject(md);
+      return note;
     }
 
-    public void addNoteElement(int onset, int offset, int notenum, 
-                               int velocity, int offVelocity, 
-                               Map<String,String> attr) {
-      notes.add(new MutableNote(onset, offset, notenum, velocity, offVelocity,
-                                division, attr));
+    public MutableNote addNoteElement(int onset, int offset, int notenum, 
+                               int velocity, int offVelocity) {
+      MutableNote note = new MutableNote(onset, offset, notenum, velocity, 
+                                         offVelocity, division);
+      notes.add(note);
+      checkOverlap(note);
+      return note;
+    }
+    
+    public MutableNote addNoteElement(int onset, int offset, int notenum, 
+                                      int velocity, int offVelocity, 
+                                      Map<String,String> attr) {
+      MutableNote note = new MutableNote(onset, offset, notenum, velocity, 
+                                         offVelocity, division, attr);
+      notes.add(note);
+      checkOverlap(note);
+      return note;
     }
 
     /** @deprecated */
-    public void addNoteElementWithWord(String word, int onset, int offset, 
-                                       int notenum, 
+    public MutableNote addNoteElementWithWord(String word, int onset, 
+                                              int offset, int notenum, 
                                        int velocity, int offVelocity) {
-      notes.add(new MutableNote(onset, offset, notenum, velocity, offVelocity,
-                                word, division));
+      MutableNote note = new MutableNote(onset, offset, notenum, velocity, 
+                                         offVelocity, word, division);
+      notes.add(note);
+      checkOverlap(note);
+      return note;
     }
 
-    public void addControlChange(int time, int ctrl, int value) {
-      notes.add(new MutableControlChange(time, ctrl, value, division));
+
+    public MutableControlChange addControlChange(int time, int ctrl, int value) {
+      MutableControlChange cc = new MutableControlChange(time, ctrl, value, division);
+      notes.add(cc);
+      checkOverlap(cc);
+      return cc;
     }
 
-    public void addPitchBend(int time, int value) {
-      notes.add(new MutablePitchBend(time, value, division));
+    public MutablePitchBend addPitchBend(int time, int value) {
+      MutablePitchBend pb = new MutablePitchBend(time, value, division);
+      notes.add(pb);
+      checkOverlap(pb);
+      return pb;
+    }
+
+    BaseDynamicsEvent addBaseDynamics(int time, double value) {
+      BaseDynamicsEvent e = new BaseDynamicsEvent(time, value, division);
+      notes.add(e);
+      return e;
     }
 
     public void eachnote(Closure closure) throws TransformerException {
@@ -136,13 +194,17 @@ public class SCCDataSet implements SCC {
     public String name() {
       return name;
     }
+
+    int division() {
+      return division;
+    }
   }
 
   private int division;
 
-  private List<HeaderElement> headers = new ArrayList<HeaderElement>();
+  private Set<HeaderElement> headers = new TreeSet<HeaderElement>();
   private List<Part> parts = new ArrayList<Part>();
-  private List<MutableAnnotation> annotations = new ArrayList<MutableAnnotation>();
+  private Set<MutableAnnotation> annotations = new TreeSet<MutableAnnotation>();
 
   public SCCDataSet(int division) {
     this.division = division;
@@ -165,6 +227,14 @@ public class SCCDataSet implements SCC {
     headers.add(new HeaderElement(time, name, content));
   }
 
+  public void addHeaderElement(int time, String name, int content) {
+    addHeaderElement(time, name, String.valueOf(content));
+  }
+
+  public void addHeaderElement(int time, String name, double content) {
+    addHeaderElement(time, name, String.valueOf(content));
+  }
+
   public Part addPart(int serial, int ch, int pn, int vol) {
     return addPart(serial, ch, pn, vol, (String)null);
   }
@@ -183,6 +253,13 @@ public class SCCDataSet implements SCC {
                       Closure closure) {
     Part part = addPart(serial, ch, pn, vol, name);
     closure.call(new Object[]{part});
+  }
+
+  public Part getPart(String name) {
+    for (Part p : parts)
+      if (name.equals(p.name()))
+        return p;
+    return null;
   }
 
   public Part[] getPartList() {
@@ -289,8 +366,9 @@ public class SCCDataSet implements SCC {
       for (Part p : partlist) {
         newscc.newPart(p.serial(), p.channel(), p.prognum(), 
                        p.volume(), p.name());
-        SCC.Note[] notelist = p.getNoteList();
-        for (SCC.Note n : notelist) {
+        MutableMusicEvent[] notelist = p.getSortedNoteList();        // modified on 2012.11.19
+//////        SCC.Note[] notelist = p.getNoteList();
+        for (MutableMusicEvent n : notelist) {
           if (n instanceof MutableControlChange) {
             MutableControlChange cc = (MutableControlChange)n;
             newscc.addControlChange(cc.onset(div), cc.ctrlnum(), cc.value());
@@ -298,10 +376,16 @@ public class SCCDataSet implements SCC {
             MutablePitchBend pb = (MutablePitchBend)n;
             newscc.addPitchBend(pb.onset(div), pb.value());
           } else {
-            newscc.addNoteElement(
-              n.onset(div), n.offset(div), n.notenum(), n.velocity(), 
-              n.offVelocity(), n.getAttributes()
-            );
+            if (n.getMusicXMLObject() != null)
+              newscc.addNoteElement(
+                n.onset(div), n.offset(div), n.notenum(), n.velocity(), 
+                n.offVelocity(), n.getAttributes(), 
+                (MusicXMLWrapper.Note)n.getMusicXMLObject());
+            else
+              newscc.addNoteElement(
+                n.onset(div), n.offset(div), n.notenum(), n.velocity(), 
+                n.offVelocity(), n.getAttributes()
+              );
 //            if (n.word() == null)
 //              newscc.addNoteElement(n.onset(div), n.offset(div), n.notenum(), 
 //                                    n.velocity(), n.offVelocity());
@@ -330,7 +414,24 @@ public class SCCDataSet implements SCC {
       throw new TransformerException(e.toString());
     }
   }
-  
+
+  public SCCDataSet clone() {
+    try {
+      return (SCCDataSet)super.clone();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+      throw new InternalError(e.toString());
+    }
+  }
+
+  public SCC.HeaderElement getFirstTempo() {
+    return SCCUtils.getFirstHeader(this, "TEMPO");
+  }
+
+  public SCC.HeaderElement getFirstKey() {
+    return SCCUtils.getFirstHeader(this, "KEY");
+  }
+
 
 }
 

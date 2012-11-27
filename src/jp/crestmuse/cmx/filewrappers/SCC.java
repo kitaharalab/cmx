@@ -17,7 +17,7 @@ public interface SCC {
   public SCCXMLWrapper toWrapper() throws TransformerException;
   public SCCDataSet toDataSet() throws TransformerException;
 
-  public interface HeaderElement {
+  public interface HeaderElement extends Comparable<HeaderElement> {
     String content();
     String name();
     int time();

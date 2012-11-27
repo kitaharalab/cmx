@@ -601,6 +601,43 @@ public class CMXController implements TickTimer,MIDIConsts {
       return musicPlayer[i].getTicksPerBeat();
   }
 
+    public float getTempoInBPM() {
+	return getTempoInBPM(0);
+    }
+
+    public float getTempoInBPM(int i) {
+	if (musicPlayer[i] == null) {
+	    throw new IllegalStateException("Music player #" + i + " is null.");
+	} else if (musicPlayer[i] instanceof SMFPlayer) {
+	    return ((SMFPlayer)musicPlayer[i]).getTempoInBPM();
+	} else {
+	    throw new IllegalStateException("getTempoInBPM() can be used only for MIDI files.");
+	}
+    }
+
+    public void setTempoInBPM(float bpm) {
+	setTempoInBPM(0, bpm);
+    }
+
+    public void setTempoInBPM(double bpm) {
+	setTempoInBPM(0, (float)bpm);
+    }
+
+    public void setTempoInBPM(int i, float bpm) {
+	if (musicPlayer[i] == null) {
+	    throw new IllegalStateException("Music player #" + i + " is null.");
+	} else if (musicPlayer[i] instanceof SMFPlayer) {
+	    ((SMFPlayer)musicPlayer[i]).setTempoInBPM(bpm);
+	} else {
+	    throw new IllegalStateException("setTempoInBPM() can be used only for MIDI files.");
+	}
+    }
+
+    public void setTempoInBPM(int i, double bpm) {
+	setTempoInBPM(0, (float)bpm);
+    }
+
+
   public void addMusicListener(MusicListener l) {
     addMusicListener(0, l);
   }

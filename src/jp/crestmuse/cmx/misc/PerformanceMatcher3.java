@@ -46,7 +46,7 @@ public class PerformanceMatcher3 {
   private Measure[] measurelist;
   private Note[] scoreNotes, pfmNotes;
   private List<NoteInSameTime> compressedScore;
-  private Annotation[] barlines;
+  private SCC.Annotation[] barlines;
   // private DeviationDataSet dds;
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
@@ -70,7 +70,7 @@ public class PerformanceMatcher3 {
     partid = part0.id();
     SCCXMLWrapper scoreSCC = score.makeDeadpanSCCXML(ticksPerBeat);
     SCCXMLWrapper pfmSCC = pfm.toSCCXML();
-    barlines = (Annotation[])scoreSCC.getBarlineList();
+    barlines = scoreSCC.getBarlineList();
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
     calcMusicXMLNote2Index();
     pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);
@@ -147,6 +147,7 @@ public class PerformanceMatcher3 {
     for (j = 0; j < matched.length; j++)
       if (!matched[j]) {
         extraNotes.add(pfmNotes[j]);
+        System.err.println(j + "    " + pfmNotes[j]);
         extraNoteMap.put(pfmNotes[j], j);
       }
     return indexlist;
@@ -578,6 +579,9 @@ public class PerformanceMatcher3 {
       int scoreNN = scoreNote.notenum();
       for (int j = 0; j < extraNotes.size(); j++) {
         Note pfmNote = extraNotes.get(j);
+        System.err.println(j + " " + extraNotes.get(j));
+        if (pfmNote == null)
+          continue;
         int pfmNN = pfmNote.notenum();
         if (scoreNN != pfmNN)
           continue;
@@ -719,17 +723,17 @@ public class PerformanceMatcher3 {
     int i = 0;
     int measure = 0, beat = 1, currentTick = 0;
     for (int k = 0; k < barlines.length - 2; k++) {
-      Measure m = getMeasure(barlines[k].onset());
+      Measure m = getMeasure(((Annotation)barlines[k]).onset());
       measure = m.number();
       beat = (int) m.initialBeat();
       // measure = getMeasureNumber(barlines[k].onset());
       // beat = 1;
-      for (currentTick = barlines[k].onset(); currentTick < barlines[k + 1].onset(); currentTick += scoreTicksPerBeat) {
+      for (currentTick = ((Annotation)barlines[k]).onset(); currentTick < ((Annotation)barlines[k + 1]).onset(); currentTick += scoreTicksPerBeat) {
         i = addTempoAndTime(currentTick, measure, beat, i, tempolist);
         beat++;
       }
     }
-    currentTick = barlines[barlines.length - 2].onset();
+    currentTick = ((Annotation)barlines[barlines.length - 2]).onset();
     Measure m = getMeasure(currentTick);
     measure = m.number();
     beat = (int) m.initialBeat();
@@ -742,7 +746,7 @@ public class PerformanceMatcher3 {
       if (scoreNotes[ii].offset() > lastOffset)
         lastOffset = scoreNotes[ii].offset();
 
-    for (currentTick += scoreTicksPerBeat; currentTick < barlines[barlines.length - 1].onset(); currentTick += scoreTicksPerBeat) {
+    for (currentTick += scoreTicksPerBeat; currentTick < ((Annotation)barlines[barlines.length - 1]).onset(); currentTick += scoreTicksPerBeat) {
       i = addTempoAndTime(currentTick, measure, ++beat, i, tempolist);
     }
     // kari

@@ -1,10 +1,21 @@
 package jp.crestmuse.cmx.filewrappers;
 import jp.crestmuse.cmx.elements.*;
+import jp.crestmuse.cmx.misc.*;
 import groovy.lang.*;
 import javax.xml.transform.*;
 import java.io.*;
+import java.util.*;
 
-class SCCUtils {
+public class SCCUtils {
+
+  static SCC.HeaderElement getFirstHeader(SCC scc, String name) {
+    SCC.HeaderElement[] headers = scc.getHeaderElementList();
+    for (SCC.HeaderElement h : headers) {
+      if (h.name().equals(name))
+        return h;
+    }
+    return null;
+  }
 
   static SCC.Annotation[] getChordList(SCC scc) {
     SCC.Annotation[] ann = scc.getAnnotationList();
@@ -42,6 +53,75 @@ class SCCUtils {
     return barlines;
   }
 
+  public static SCC transpose(SCC scc, int diff, boolean sharp) throws TransformerException {
+    SCCDataSet scc2 = scc.toDataSet().clone();
+    int fifth = 0;
+    while (fifth * 7 % 12 != diff)
+      if (diff > 0) fifth++;
+      else fifth--;
+    SCCDataSet.HeaderElement[] headers = scc2.getHeaderElementList();
+    for (SCCDataSet.HeaderElement h : headers) {
+      if (h.name().equals("KEY")) {
+        String[] data = h.content.split(" ");
+        h.content = (Integer.parseInt(data[0]) + fifth) + 
+          " " + data[1];
+      }
+    }
+    SCCDataSet.Part[] parts = scc2.getPartList();
+    for (SCCDataSet.Part part : parts) {
+      if (part.channel() != 10) {
+        MutableMusicEvent[] events = part.getNoteList();
+        for (MutableMusicEvent e : events) {
+          if (e instanceof MutableNote) {
+            MutableNote note = (MutableNote)e;
+            note.setNoteNum(note.notenum() + diff);
+          }
+        }
+      }
+    }
+    SCC.Annotation[] chords = scc.getChordList();
+    for (SCC.Annotation chord : chords) {
+      MutableAnnotation c = (MutableAnnotation)chord;
+      c.setContent(ChordSymbol.parse(c.content()).transpose(diff, sharp).encode());
+    }
+    return scc2;
+  }
+
+  public static SCCDataSet createVoicewiseSCC(SCC scc) throws TransformerException {
+    int serial = 0;
+    Map<String,SCCDataSet.Part> newparts = 
+      new HashMap<String,SCCDataSet.Part>();
+    int div = scc.getDivision();
+    SCCDataSet newscc = new SCCDataSet(div);
+    SCC.HeaderElement[] headers = scc.getHeaderElementList();
+    for (SCC.HeaderElement h : headers)
+      newscc.addHeaderElement(h.time(), h.name(), h.content());
+    SCC.Part[] parts = scc.getPartList();
+    for (SCC.Part part : parts) {
+      SCC.Note[] notes = part.getNoteList();
+      for (SCC.Note note : notes) {
+        String name = part.name() + "; oldserial=" + part.serial() + 
+          (note.hasAttribute("voice") ? 
+           " voice=" + note.getAttribute("voice") : "");
+        SCCDataSet.Part newpart = newparts.get(name);
+        if (newpart == null) {
+          newpart = newscc.addPart(++serial, part.channel(), 
+                                   part.prognum(), part.volume(), name);
+          newparts.put(name, newpart);
+        }
+        newpart.addNoteElement(note.onset(div), note.offset(div), 
+                               note.notenum(), note.velocity(), 
+                               note.offVelocity(), note.getAttributes());
+      }
+    }
+    SCC.Annotation[] anns = scc.getAnnotationList();
+    for (SCC.Annotation ann : anns) {
+      newscc.addAnnotation(ann.type(), ann.onset(div), ann.offset(div), 
+                           ann.content());
+    }
+    return newscc;
+  }
+  
 /*
   static SCCXMLWrapper toWrapper(SCC scc) throws TransformerException {
     try {

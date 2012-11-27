@@ -26,4 +26,8 @@ public class MutableAnnotation extends MutableMusicEvent
       ", offset: " + offset() + 
       (content == null ? "" : ", content: " + content()) + "]";
   }
+  public boolean equals(MutableAnnotation another) {
+    return super.equals(another) && (name.equals(another.name)) || 
+      (content.equals(another.content));
+  }
 }
