@@ -1034,6 +1034,8 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         return new Forward(node, this);
       else if (nodename.equals("direction"))
         return new Direction(node, this);
+      else if (nodename.equals("barline")) 
+        return new BarLine(node, this);
       else
         return new MusicData(node, this);
     }

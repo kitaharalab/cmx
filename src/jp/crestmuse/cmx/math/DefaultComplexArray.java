@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.math;
 import jp.crestmuse.cmx.misc.*;
 
-class DefaultComplexArray implements ComplexArray {
+class DefaultComplexArray extends AbstractComplexArrayImpl {
   private double[] re, im;
   private int from, thru;
 
@@ -36,9 +36,9 @@ class DefaultComplexArray implements ComplexArray {
       return im[from + index];
   }
 
-    public ComplexNumber get(int index) {
-	return new ComplexNumber(getReal(index), getImag(index));
-    }
+//  public ComplexNumber get(int index) {
+//    return new ComplexNumber(getReal(index), getImag(index));
+//  }
 
   public void setReal(int index, double value) {
     re[from + index] = value;
@@ -50,14 +50,14 @@ class DefaultComplexArray implements ComplexArray {
     im[from + index] = value;
   }
 
-  public void set(int index, double re, double im) {
-    setReal(index, re);
-    setImag(index, im);
-  }
+//  public void set(int index, double re, double im) {
+//    setReal(index, re);
+//    setImag(index, im);
+//  }
 
-    public void set(int index, ComplexNumber value) {
-	set(index, value.real, value.imag);
-    }
+//    public void set(int index, ComplexNumber value) {
+//	set(index, value.real, value.imag);
+//    }
 
   public ComplexArray subarrayX(int from, int thru) {
     DefaultComplexArray newarray = new DefaultComplexArray(re, im);

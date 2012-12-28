@@ -16,8 +16,12 @@ public abstract class AbstractDoubleArrayImpl implements DoubleArray,Cloneable {
       return newarray;
   }
 
+  public String toString() {
+    return MathUtils.toString1(this);
+  }
+
   public String encode() {
-    return Utils.toString2(this);
+    return MathUtils.toString2(this);
   }
 
   public DoubleArray subarrayX(int from, int thru) {

@@ -10,6 +10,10 @@ public abstract class AbstractDoubleMatrixImpl implements DoubleMatrix,Cloneable
       return newmatrix;
   }
 
+  public String toString() {
+    return MathUtils.toString1(this);
+  }
+
   public String encode() {
     return MathUtils.toString2(this);
   }

@@ -3,6 +3,8 @@ import java.util.*;
 import java.util.regex.*;
 
 public final class ChordSymbol {
+
+/*
   public static enum Root {C(0), D(2), E(4), F(5), G(7), A(9), B(11);
     private static final Root[] LIST_SHARP = 
       {C, C, D, D, E, F, F, G, G, A, A, B};
@@ -29,6 +31,8 @@ public final class ChordSymbol {
       return strings.get(key)[ordinal()];
     }
   }
+*/
+
   public static enum Mode {MAJ, MIN, AUG, DIM;
     static Map<String,String[]> strings = new HashMap<String,String[]>();
     public String toString(String key) {
@@ -42,27 +46,38 @@ public final class ChordSymbol {
     }
   }
 
-  private Root root;
-  private Sign sign;
+  private NoteSymbol root;
+//  private Root root;
+//  private Sign sign;
   private Mode mode;
   private Seventh seventh;
-  
+  private NoteSymbol bass = null;
+   
   private static Pattern p = 
     Pattern.compile("([CDEFGAB])(|\\#|b)(|M|maj|major|m|min|minor|aug|augument|augumented|dim|diminish|diminished)(|7|M7|maj7|major7)");
-  
+
+  private static Pattern p2 = 
+    Pattern.compile("([CDEFGAB])(|\\#|b)");
+ 
   static {
     addStringMap("default", new String[]{"", "#", "b"}, 
 		 new String[]{"", "m", "aug", "dim"}, 
 		 new String[]{"", "7", "maj7"});
   }
   
-  public ChordSymbol(Root root, Sign sign, Mode mode, Seventh seventh) {
+  public ChordSymbol(NoteSymbol root, Mode mode, Seventh seventh) {
     this.root = root;
-    this.sign = sign;
     this.mode = mode;
     this.seventh = seventh;
   }
-  
+
+  public ChordSymbol(NoteSymbol root, Mode mode, Seventh seventh, NoteSymbol bass) {
+    this.root = root;
+    this.mode = mode;
+    this.seventh = seventh;
+    this.bass = bass;
+  }
+/*
   public ChordSymbol(int num, Mode mode, Seventh seventh, 
                      boolean sharp) {
     if (sharp) {
@@ -77,7 +92,7 @@ public final class ChordSymbol {
       this.seventh = seventh;
     }
   }
-    
+*/  
 
   public static ChordSymbol[] getChordSymbolList(String[] cn) {
     ChordSymbol[] cs = new ChordSymbol[cn.length];
@@ -92,22 +107,44 @@ public final class ChordSymbol {
   }
   
   public static ChordSymbol parse(String s, boolean seventhIgnored) {
-    s = s.trim();
-    Matcher m = p.matcher(s);
-    if (m.matches())
-      return new ChordSymbol(parseRoot(m.group(1)), 
-			     parseSign(m.group(2)),
-			     parseMode(m.group(3)), 
-			     seventhIgnored ? Seventh.NONE 
-			     : parseSeventh(m.group(4), m.group(3)));
-    else
-      throw new IllegalStateException("Invalid chord symbol: " + s);
+    String[] ss = s.trim().split("/");
+    Matcher m = p.matcher(ss[0]);
+    if (m.matches()) {
+      if (ss.length >= 2) {
+        Matcher m2 = p2.matcher(ss[1]);
+        if (m2.matches()) 
+          return 
+            new ChordSymbol(
+              new NoteSymbol(parseRoot(m.group(1)), 
+                             parseSign(m.group(2))), 
+              parseMode(m.group(3)), 
+              (seventhIgnored ? Seventh.NONE
+               : parseSeventh(m.group(4), m.group(3))), 
+              new NoteSymbol(parseRoot(m2.group(1)), 
+                             parseSign(m2.group(2))));
+        else
+          throw new IllegalStateException
+            ("Invalid chord symbol: " + s);
+      } else {
+        return new ChordSymbol(
+          new NoteSymbol(parseRoot(m.group(1)), 
+                         parseSign(m.group(2))), 
+          parseMode(m.group(3)), 
+          (seventhIgnored ? Seventh.NONE
+           : parseSeventh(m.group(4), m.group(3))));
+      }
+    } else {
+      throw new IllegalStateException
+        ("Invalid chord symbol: " + s);
+    }
   }
 
+
+  /** TO DO: string map for sign is not supported */
   public static void addStringMap(String name, 
 				  String[] sign, String[] mode, 
 				  String[] seventh) {
-    Sign.strings.put(name, sign);
+//    Sign.strings.put(name, sign);
     Mode.strings.put(name, mode);
     Seventh.strings.put(name, seventh);
   }
@@ -117,9 +154,9 @@ public final class ChordSymbol {
   }
   
   public String encode(String name, boolean seventhIgnored) {
-    return root.toString() + sign.toString(name)
-      + mode.toString(name) 
-      + (seventhIgnored ? "" : seventh.toString(name));
+    return root.toString() + mode.toString(name) 
+      + (seventhIgnored ? "" : seventh.toString(name))
+      + (bass == null ? "" : "/" + bass.toString());
   }
 
   public static String[] encodeAll(ChordSymbol[] cs) {
@@ -140,32 +177,32 @@ public final class ChordSymbol {
   }
     
 
-  private static Root parseRoot(String s) {
+  private static NoteSymbol.NoteName parseRoot(String s) {
     if (s.equals("C"))
-      return Root.C;
+      return NoteSymbol.NoteName.C;
     else if (s.equals("D"))
-      return Root.D;
+      return NoteSymbol.NoteName.D;
     else if (s.equals("E"))
-      return Root.E;
+      return NoteSymbol.NoteName.E;
     else if (s.equals("F"))
-      return Root.F;
+      return NoteSymbol.NoteName.F;
     else if (s.equals("G"))
-      return Root.G;
+      return NoteSymbol.NoteName.G;
     else if (s.equals("A"))
-      return Root.A;
+      return NoteSymbol.NoteName.A;
     else if (s.equals("B"))
-      return Root.B;
+      return NoteSymbol.NoteName.B;
     else
       throw new IllegalStateException("Invalid root note: " + s);
   }
 
-  private static Sign parseSign(String s) {
+  private static NoteSymbol.Sign parseSign(String s) {
     if (s.equals("")) 
-      return Sign.NONE;
+      return NoteSymbol.Sign.NONE;
     else if (s.equals("#"))
-      return Sign.SHARP;
+      return NoteSymbol.Sign.SHARP;
     else if (s.equals("b"))
-      return Sign.FLAT;
+      return NoteSymbol.Sign.FLAT;
     else
       throw new IllegalStateException("Invalid sign: " + s);
   }
@@ -199,7 +236,7 @@ public final class ChordSymbol {
   public boolean equals(Object o) {
     if (o != null && o instanceof ChordSymbol) {
       ChordSymbol a = (ChordSymbol)o;
-      return root.equals(a.root) && sign.equals(a.sign)
+      return root.equals(a.root) 
 	&& mode.equals(a.mode) && seventh.equals(a.seventh);
     } else {
       return false;
@@ -207,7 +244,7 @@ public final class ChordSymbol {
   }
 
   public int hashCode() {
-    return root.hashCode() + sign.hashCode() 
+    return root.hashCode() 
       +  mode.hashCode() + seventh.hashCode();
   }
 
@@ -215,12 +252,18 @@ public final class ChordSymbol {
     return encode();
   }
 
+/*
   public int getRootNoteNumBase() {
     return root.value + sign.value;
   }
-
+*/
   public ChordSymbol transpose(int diff, boolean sharp) {
-    return new ChordSymbol((getRootNoteNumBase() + diff) % 12, 
-                           mode, seventh, sharp);
+    System.err.println("diff: "+ diff);
+    System.err.println("num: " +root.number());
+    int newnumber = (root.number() + diff) % 12;
+    if (newnumber < 0)
+      newnumber += 12;
+    return new ChordSymbol(new NoteSymbol(newnumber, sharp), 
+                           mode, seventh);
   }
 }

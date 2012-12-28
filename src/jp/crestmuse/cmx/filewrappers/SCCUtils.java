@@ -63,9 +63,13 @@ public class SCCUtils {
     for (SCCDataSet.HeaderElement h : headers) {
       if (h.name().equals("KEY")) {
         String[] data = h.content.split(" ");
-        h.content = (Integer.parseInt(data[0]) + fifth) + 
-          " " + data[1];
-      }
+        int newfifth = Integer.parseInt(
+          data[0].startsWith("+") ? data[0].substring(1) : data[0]
+        ) + fifth;
+        h.content = 
+          (newfifth > 0 ? ("+" + newfifth) : newfifth) 
+          + " " + data[1];
+      } 
     }
     SCCDataSet.Part[] parts = scc2.getPartList();
     for (SCCDataSet.Part part : parts) {
@@ -79,7 +83,7 @@ public class SCCUtils {
         }
       }
     }
-    SCC.Annotation[] chords = scc.getChordList();
+    SCC.Annotation[] chords = scc2.getChordList();
     for (SCC.Annotation chord : chords) {
       MutableAnnotation c = (MutableAnnotation)chord;
       c.setContent(ChordSymbol.parse(c.content()).transpose(diff, sharp).encode());
@@ -90,7 +94,7 @@ public class SCCUtils {
   public static SCCDataSet createVoicewiseSCC(SCC scc) throws TransformerException {
     int serial = 0;
     Map<String,SCCDataSet.Part> newparts = 
-      new HashMap<String,SCCDataSet.Part>();
+      new TreeMap<String,SCCDataSet.Part>();
     int div = scc.getDivision();
     SCCDataSet newscc = new SCCDataSet(div);
     SCC.HeaderElement[] headers = scc.getHeaderElementList();

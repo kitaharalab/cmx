@@ -321,6 +321,9 @@ public class SCCDataSet implements SCC,Cloneable {
     return parts.remove(p);
   }
 
+  public void sortParts(Comparator<Part> c) {
+    Collections.sort(parts, c);
+  }
 
   public int getDivision() {
     return division;

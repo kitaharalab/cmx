@@ -13,6 +13,8 @@ public class MathUtils {
     DoubleMatrixFactory.getFactory();
   private static final ComplexArrayFactory cfactory = 
       ComplexArrayFactory.getFactory();
+  private static final ComplexMatrixFactory cmfactory = 
+    ComplexMatrixFactory.getFactory();
 
   public MathUtils() { }
 
@@ -106,6 +108,30 @@ public class MathUtils {
     return sb.toString();
   }
 
+  public static String toString1(ComplexMatrix x) {
+    return toString(x, ", ", ";\n", "{", "}");
+  }
+
+  public static String toString2(ComplexMatrix x) {
+    return toString(x, " ", "\n", "", "");
+  }
+
+  public static String toString(ComplexMatrix x, String sep1, String sep2, 
+                                String left, String right) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(left);
+    int nrows = x.nrows();
+    if (nrows >= 1) {
+      appendRowString(x, 0, sep1, sb);
+      for (int i = 1; i < nrows; i++) {
+        sb.append(sep2);
+        appendRowString(x, i, sep1, sb);
+      }
+    }
+    sb.append(right);
+    return sb.toString();
+  }
+
   private static void appendRowString(DoubleMatrix x, int i, 
                                         String sep, StringBuilder sb) {
     int ncols = x.ncols();
@@ -114,6 +140,20 @@ public class MathUtils {
       for (int j = 1; j < ncols; j++) {
         sb.append(sep);
         sb.append(String.valueOf(x.get(i, j)));
+      }
+    }
+  }
+
+  private static void appendRowString(ComplexMatrix x, int i, 
+                                      String sep, StringBuilder sb) {
+    int ncols = x.ncols();
+    if (ncols >= 1) {
+      sb.append(String.valueOf(x.getReal(i, 0))).append(" + ").
+        append(String.valueOf(x.getImag(i, 0))).append(" i");
+      for (int j = 1; j < ncols; j++) {
+        sb.append(sep);
+        sb.append(String.valueOf(x.getReal(i, j))).append(" + ").
+          append(String.valueOf(x.getImag(i, j))).append(" i");
       }
     }
   }
@@ -208,6 +248,10 @@ public class MathUtils {
 	}
 	return matrix;
     }
+
+  public static final ComplexMatrix createComplexMatrix(int nrows, int ncols) {
+    return cmfactory.createMatrix(nrows, ncols);
+  }
 
     public static final DoubleArray create1dimDoubleArray(double x) {
 	DoubleArray array = factory.createArray(1);
