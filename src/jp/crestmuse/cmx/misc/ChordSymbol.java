@@ -29,7 +29,7 @@ public final class ChordSymbol {
   private Seventh seventh;
   
   private static Pattern p = 
-    Pattern.compile("([CDEFGAB])(|\\#|b)(|M|maj|major|m|min|minor|aug|augument|augumented|dim|diminish|diminished)(|7|M7|maj7|major7)");
+    Pattern.compile("([CDEFGAB])(|\\#|b)(|M|maj|major|m|min|minor|aug|augument|augumented|dim|diminish|diminished)(|7|M7|maj7|major7|6)");
   
   static {
     addStringMap("default", new String[]{"", "#", "b"}, 
@@ -43,7 +43,7 @@ public final class ChordSymbol {
     this.mode = mode;
     this.seventh = seventh;
   }
-  
+
   public static ChordSymbol[] getChordSymbolList(String[] cn) {
     ChordSymbol[] cs = new ChordSymbol[cn.length];
     for (int i = 0; i < cs.length; i++) {
@@ -157,6 +157,8 @@ public final class ChordSymbol {
       return Seventh.DOM7;
     else if (s.startsWith("M7") || s.startsWith("maj"))
       return Seventh.MAJ7;
+    else if (s.equals("6"))
+      return Seventh.NONE;
     else 
       throw new IllegalStateException("Invalid seventh: " + s);
   }
