@@ -11,7 +11,6 @@ public class HarkObject {
     public int advance;
     public int count;
     private HD_Header(int type, int advance, int count) {
-      System.err.println("header");
       this.type = type;
       this.advance = advance;
       this.count = count;
@@ -230,6 +229,8 @@ public class HarkObject {
   public float[] mic_fft_imag;       // (f)
   public int src_num;                // (g)
   public SrcObject[] src;
+
+  public long music_position = 0;
   
   public HarkObject(InputStream in) throws IOException {
 //    System.err.println("hark");

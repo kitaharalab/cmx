@@ -70,6 +70,14 @@ public class SPExecutor {
   }
 */
 
+  public boolean containsModule(ProducerConsumerCompatible module) {
+    for (SPExecutorModule spm : modules) {
+      if (spm.module == module)
+        return true;
+    }
+    return false;
+  }
+
   /*********************************************************************
    *データ処理モジュールオブジェクトを登録します.
    *********************************************************************/
@@ -77,7 +85,8 @@ public class SPExecutor {
     // if (lastThread == null)
     // list.add(lastThread = new SPThread());
 //    module.setParams(params);
-    SPExecutorModule spm = new SPExecutorModule(module);
+    if (!containsModule(module)) {
+      SPExecutorModule spm = new SPExecutorModule(module);
     /*
     spm.module = module;
     int n = module.getOutputChannels();
@@ -92,8 +101,9 @@ public class SPExecutor {
     //    if (modules.contains(spm)) {
     //	System.err.println(module + "has already been added. Addition was skipped.");
     //    } else {
-	modules.add(spm);
-	map.put(module, spm);
+      modules.add(spm);
+      map.put(module, spm);
+    }
 	//    }
   }
 
@@ -318,7 +328,8 @@ public class SPExecutor {
             break;
           Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
-          e.printStackTrace();
+          System.err.println("The module '" + module.toString() + "' has been interrupted.");
+//          e.printStackTrace();
           break;
         }
       }

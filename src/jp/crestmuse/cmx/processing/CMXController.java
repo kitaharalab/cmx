@@ -270,6 +270,11 @@ public class CMXController implements TickTimer,MIDIConsts {
     if (spexec != null) spexec.start();
   }
 
+  public void stopSP() {
+    if (mic != null) mic.getLine().stop();
+    if (spexec != null) spexec.stop();
+  }
+
   public void wavread(AudioDataCompatible w) {
     wavread(0, w);
   }

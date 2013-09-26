@@ -2,7 +2,8 @@ package jp.crestmuse.cmx.misc;
 import java.util.*;
 import java.util.regex.*;
 
-public final class ChordSymbol {
+@Deprecated
+public class ChordSymbol {
 
 /*
   public static enum Root {C(0), D(2), E(4), F(5), G(7), A(9), B(11);
@@ -33,25 +34,28 @@ public final class ChordSymbol {
   }
 */
 
-  public static enum Mode {MAJ, MIN, AUG, DIM;
+  public static enum Mode {
+    MAJ, MIN, AUG, DIM, 
+      SUS4, SUS9;        // newly added
     static Map<String,String[]> strings = new HashMap<String,String[]>();
     public String toString(String key) {
       return strings.get(key)[ordinal()];
-    }
-  }
-  public static enum Seventh {NONE, DOM7, MAJ7;
+    }  }
+  public static enum Seventh {
+    NONE, DOM7, MAJ7, 
+      SIXTH, SEVENTH, MAJ_SEVENTH;    // newly added
     static Map<String,String[]> strings = new HashMap<String,String[]>();
     public String toString(String key) {
       return strings.get(key)[ordinal()];
     }
   }
 
-  private NoteSymbol root;
+  NoteSymbol root;
 //  private Root root;
 //  private Sign sign;
-  private Mode mode;
-  private Seventh seventh;
-  private NoteSymbol bass = null;
+  Mode mode;
+  Seventh seventh;
+  NoteSymbol bass = null;
    
   private static Pattern p = 
     Pattern.compile("([CDEFGAB])(|\\#|b)(|M|maj|major|m|min|minor|aug|augument|augumented|dim|diminish|diminished)(|7|M7|maj7|major7)");
@@ -61,16 +65,18 @@ public final class ChordSymbol {
  
   static {
     addStringMap("default", new String[]{"", "#", "b"}, 
-		 new String[]{"", "m", "aug", "dim"}, 
-		 new String[]{"", "7", "maj7"});
+		 new String[]{"", "m", "aug", "dim", "sus4", "sus9"}, 
+		 new String[]{"", "7", "maj7", "6", "7", "maj7"});
   }
-  
+
+  @Deprecated
   public ChordSymbol(NoteSymbol root, Mode mode, Seventh seventh) {
     this.root = root;
     this.mode = mode;
     this.seventh = seventh;
   }
 
+  @Deprecated
   public ChordSymbol(NoteSymbol root, Mode mode, Seventh seventh, NoteSymbol bass) {
     this.root = root;
     this.mode = mode;
@@ -94,6 +100,7 @@ public final class ChordSymbol {
   }
 */  
 
+  @Deprecated
   public static ChordSymbol[] getChordSymbolList(String[] cn) {
     ChordSymbol[] cs = new ChordSymbol[cn.length];
     for (int i = 0; i < cs.length; i++) {
@@ -102,10 +109,12 @@ public final class ChordSymbol {
     return cs;
   }
   
+  @Deprecated
   public static ChordSymbol parse(String s) {
     return parse(s, false);
   }
   
+  @Deprecated
   public static ChordSymbol parse(String s, boolean seventhIgnored) {
     String[] ss = s.trim().split("/");
     Matcher m = p.matcher(ss[0]);
@@ -141,6 +150,7 @@ public final class ChordSymbol {
 
 
   /** TO DO: string map for sign is not supported */
+  @Deprecated
   public static void addStringMap(String name, 
 				  String[] sign, String[] mode, 
 				  String[] seventh) {
@@ -149,16 +159,19 @@ public final class ChordSymbol {
     Seventh.strings.put(name, seventh);
   }
   
+  @Deprecated
   public String encode() {
     return encode("default", false);
   }
   
+  @Deprecated
   public String encode(String name, boolean seventhIgnored) {
     return root.toString() + mode.toString(name) 
       + (seventhIgnored ? "" : seventh.toString(name))
       + (bass == null ? "" : "/" + bass.toString());
   }
 
+  @Deprecated
   public static String[] encodeAll(ChordSymbol[] cs) {
     String[] ss = new String[cs.length];
     for (int i = 0; i < ss.length; i++) {
@@ -167,6 +180,7 @@ public final class ChordSymbol {
     return ss;
   }
 
+  @Deprecated
   public static String[] encodeAll(ChordSymbol[] cs, String name, 
 				   boolean seventhIgnored) {
     String[] ss = new String[cs.length];

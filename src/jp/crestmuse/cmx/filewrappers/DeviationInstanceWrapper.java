@@ -14,6 +14,7 @@ import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.elements.*;
+import jp.crestmuse.cmx.misc.ChordSymbol.*;
 
 /*******************************************************************************
  * The <tt>DeviationInstanceWrapper</tt> class wraps a DeviationInstance
@@ -682,6 +683,16 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       public void endPart(MusicXMLWrapper.Part part, MusicXMLWrapper w) {
         MusicXMLWrapper.Measure[] measures = part.getMeasureList();
         MusicXMLWrapper.Measure last = measures[measures.length - 1];
+        if (prevchord != null) {
+            scc.addChord(prevchord.onset(ticksPerBeat), 
+                         last.cumulativeTicks(ticksPerBeat) + 
+                         last.duration(ticksPerBeat), 
+                         parseChord(prevchord).encode());
+//                         ChordSymbol2.parse(prevchord.rootStep(), 
+//                                           prevchord.rootAlter(), 
+//                                           prevchord.kind()));
+            prevchord = null;
+        }
         scc.addBarline(last.cumulativeTicks(ticksPerBeat) + 
                        last.duration(ticksPerBeat), "");
       }
@@ -735,10 +746,72 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
                                (fifths > 0 ? "+" + fifths : fifths)
                                + " " + 
                                (a.mode() == null ? "unknown" : a.mode()));
+        } else if (md instanceof MusicXMLWrapper.Harmony) {
+          MusicXMLWrapper.Harmony h = (MusicXMLWrapper.Harmony)md;
+          if (prevchord != null) {
+            scc.addChord(prevchord.onset(ticksPerBeat), 
+                         h.onset(ticksPerBeat), 
+                         parseChord(prevchord).encode());
+//                         ChordSymbol2.parse(
+//                           new NoteSymbolprevchord.rootStep(), 
+//                                           prevchord.rootAlter(), 
+//                                           prevchord.kind()));
+          }
+          prevchord = h;
         }
       }
+        
+        private ChordSymbol2 parseChord(MusicXMLWrapper.Harmony h) {
+          NoteSymbol root = new NoteSymbol(h.rootStep(), h.rootAlter());
+          NoteSymbol bass = 
+            h.hasBass() ? new NoteSymbol(h.bassStep(), h.bassAlter()) : null;
+          ChordSymbol2 c = 
+            ChordSymbol2.parse(root, h.kind(), bass, CHORD_PARSE_RULE);
+          String encode = c.encode(ChordSymbol2.RULE1);
+          System.err.println(h.kind() + "\t" + encode
+                             + "\t" + ChordSymbol2.parse(encode).encode());
+          return c;
+        }
+        
+        MusicXMLWrapper.Harmony prevchord = null;
     });
   }
+
+  static final ChordSymbol2.ParseRule CHORD_PARSE_RULE = 
+    new ChordSymbol2.ParseRule() {
+      public Mode mode(String s) {
+        if (s.contains("major") || s.contains("dominant"))
+          return Mode.MAJ;
+        else if (s.contains("minor"))
+          return Mode.MIN;
+        else if (s.contains("augmented"))
+          return Mode.AUG;
+        else if (s.contains("diminished"))
+          return Mode.DIM;
+        else if (s.contains("suspended-fourth"))
+          return Mode.SUS4;
+        else if (s.contains("suspended-ninth"))
+          return Mode.SUS9;
+        else
+          throw new IllegalArgumentException("Unsupported chord: " + s);
+      }
+
+      public Seventh seventh(String s) {
+        if (s.contains("major-seventh") || s.contains("major-ninth"))
+          return Seventh.MAJ_SEVENTH;
+        else if (s.contains("dominant") || s.contains("seventh")
+                 || s.contains("ninth"))
+          return Seventh.SEVENTH;
+        else if (s.contains("sixth"))
+          return Seventh.SIXTH;
+        else 
+          return Seventh.NONE;
+      }
+
+      public String encode(Mode mode, Seventh seventh) {
+        throw new UnsupportedOperationException();
+      }
+    };
 
 /*
   private void processNotewiseForSCC(final int ticksPerBeat,

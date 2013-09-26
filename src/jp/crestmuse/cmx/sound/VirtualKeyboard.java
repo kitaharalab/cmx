@@ -128,7 +128,7 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
     return transmitter.keylistener;
   }
 
-  private class VirtualKeyboardTransmitter implements Transmitter {
+  private class VirtualKeyboardTransmitter implements Transmitter,KeyListener {
 
     private Receiver receiver = null;
     private HashMap<Character, Integer> key2num;
@@ -139,8 +139,14 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
       key2num = new HashMap<Character, Integer>();
       for (int i = 0; i < keys.length; i++)
         key2num.put(keys[i], i);
-      keylistener = new KeyListener() {
-          public void keyPressed(KeyEvent e) {
+      addKeyListener(this);
+      setVisible(true);
+    }
+
+//      keylistener = new KeyListener() {
+          public synchronized void keyPressed(KeyEvent e) {
+            System.err.println(pressed['a']);
+            System.err.println(receiver);
             if (receiver == null || !key2num.containsKey(e.getKeyChar()))
               return;
             if (pressed[e.getKeyChar()])
@@ -156,7 +162,8 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
             pressed[e.getKeyChar()] = true;
             repaint();
           }
-          public void keyReleased(KeyEvent e) {
+          public synchronized void keyReleased(KeyEvent e) {
+            System.err.println(pressed['a']);
             if (receiver == null || !key2num.containsKey(e.getKeyChar()))
               return;
             try {
@@ -172,14 +179,16 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
           }
           public void keyTyped(KeyEvent e) {
           }
-        };
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          addKeyListener(keylistener);
-          setVisible(true);
-        }
-      });
-    }
+//        };
+//      SwingUtilities.invokeLater(new Runnable() {
+//        public void run() {
+//          addKeyListener(keylistener);
+//          setVisible(true);
+//        }
+//      });
+//      addKeyListener(keylistener);
+//      setVisible(true);
+//    }
 
     public void close() {
       setVisible(false);

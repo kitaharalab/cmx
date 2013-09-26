@@ -317,6 +317,12 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
     }
   }
 
+  public void stop() {
+    super.stop();
+    println("SPExecutor automatically stopped.");
+    ctrl.stopSP();
+  }
+
     //    public void startSP() {
     //	ctrl.startSP();
     //    }

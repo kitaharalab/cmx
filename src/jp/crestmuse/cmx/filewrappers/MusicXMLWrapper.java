@@ -1036,6 +1036,8 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         return new Direction(node, this);
       else if (nodename.equals("barline")) 
         return new BarLine(node, this);
+      else if (nodename.equals("harmony"))
+        return new Harmony(node, this);
       else
         return new MusicData(node, this);
     }
@@ -1172,7 +1174,8 @@ public class MusicXMLWrapper extends CMXFileWrapper {
               / (float) INTERNAL_TICKS_PER_BEAT);
     }
 
-    public int offet(int ticksPerBeat) {
+    /** modified offet to offset on 2013.09.17 */
+    public int offset(int ticksPerBeat) {
       return onset(ticksPerBeat) + duration(ticksPerBeat);
     }
 
@@ -1186,6 +1189,55 @@ public class MusicXMLWrapper extends CMXFileWrapper {
       // return onset(INTERNAL_TICKS_PER_BEAT) - measureTick;
     }
   }
+
+
+  public class Harmony extends MusicData {
+
+    private Harmony(Node node, Measure measure) {
+      super(node, measure);
+    }
+    
+    protected String getSupportedNodeName() {
+      return "harmony";
+    }
+
+    public String rootStep() {
+      return getText(getChildByTagName("root-step", getChildByTagName("root")));
+    }
+
+    public int rootAlter() {
+      Node n = getChildByTagName("root-alter", getChildByTagName("root"));
+      if (n != null) {
+        return getTextInt(n);
+      } else {
+        return 0;
+      }
+    }
+
+    public boolean hasBass() {
+      return hasChild("bass", node());
+    }
+
+    public String bassStep() {
+      return getText(getChildByTagName("bass-step", getChildByTagName("bass")));
+    }
+
+    public int bassAlter() {
+      Node n = getChildByTagName("bass-alter", getChildByTagName("bass"));
+      if (n != null) {
+        return getTextInt(n);
+      } else {
+        return 0;
+      }
+    }
+
+    public String kind() {
+      return getChildText("kind");
+    }
+  }
+
+
+
 
   /**********************************************************************
    *<p>
