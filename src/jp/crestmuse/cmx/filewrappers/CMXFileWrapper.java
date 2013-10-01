@@ -18,6 +18,8 @@ import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.xml.processors.*;
 import jp.crestmuse.cmx.math.*;
 
+//  abbbbbbbbb
+
 /**********************************************************************
  *<p>The abstract class <tt>CMXFileWrapper</tt> is the common superclass 
  *of the classes that wrap XML documents; 
