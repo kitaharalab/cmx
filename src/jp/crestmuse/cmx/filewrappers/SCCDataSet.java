@@ -435,6 +435,13 @@ public class SCCDataSet implements SCC,Cloneable {
     return SCCUtils.getFirstHeader(this, "KEY");
   }
 
+  public String toString() {
+    try {
+      return toWrapper().toString();
+    } catch (TransformerException e) {
+      throw new InvalidElementException(e.toString());
+    }
+  }
 
 }
 

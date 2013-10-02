@@ -86,7 +86,10 @@ public class SCCUtils {
     SCC.Annotation[] chords = scc2.getChordList();
     for (SCC.Annotation chord : chords) {
       MutableAnnotation c = (MutableAnnotation)chord;
-      c.setContent(ChordSymbol.parse(c.content()).transpose(diff, sharp).encode());
+      String e;
+      c.setContent(e = ChordSymbol2.parse(c.content()).transpose(diff, sharp).encode());
+//      System.err.println(e);
+//      c.setContent(ChordSymbol.parse(c.content()).transpose(diff, sharp).encode());
     }
     return scc2;
   }

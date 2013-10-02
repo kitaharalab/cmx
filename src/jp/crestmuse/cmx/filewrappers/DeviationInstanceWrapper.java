@@ -15,6 +15,7 @@ import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.handlers.*;
 import jp.crestmuse.cmx.elements.*;
 import jp.crestmuse.cmx.misc.ChordSymbol.*;
+import jp.crestmuse.cmx.misc.ChordSymbol2.*;
 
 /*******************************************************************************
  * The <tt>DeviationInstanceWrapper</tt> class wraps a DeviationInstance
@@ -779,6 +780,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
   static final ChordSymbol2.ParseRule CHORD_PARSE_RULE = 
     new ChordSymbol2.ParseRule() {
+
       public Mode mode(String s) {
         if (s.contains("major") || s.contains("dominant"))
           return Mode.MAJ;
@@ -808,7 +810,29 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           return Seventh.NONE;
       }
 
-      public String encode(Mode mode, Seventh seventh) {
+      public ExtendedNote ninth(String s) {
+        if (s.contains("ninth")) {
+          System.err.println("warining: sharp ninth and flat ninth is not suppored");
+          return ExtendedNote.NATURAL;
+        } else 
+          return ExtendedNote.NONE;
+      }
+
+      public ExtendedNote eleventh(String s) {
+        throw new UnderConstructionException();
+      }
+
+      public ExtendedNote thirteenth(String s) {
+        throw new UnderConstructionException();
+      }       
+
+      public ExtendedNote fifth(String s) {
+        throw new UnderConstructionException();
+      }
+
+      public String encode(Mode mode, Seventh seventh, ExtendedNote ninth, 
+                           ExtendedNote eleventh, ExtendedNote thirteenth, 
+                           ExtendedNote fifth) {
         throw new UnsupportedOperationException();
       }
     };

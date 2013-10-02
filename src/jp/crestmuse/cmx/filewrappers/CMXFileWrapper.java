@@ -544,6 +544,18 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
     }
   }
 
+  public final String toString() {
+    try {
+      StringWriter w = new StringWriter();
+      write(w);
+      return w.toString();
+    } catch (IOException e) {
+      throw new InvalidElementException(e.toString());
+    } catch (SAXException e) {
+      throw new InvalidElementException(e.toString());
+    }
+  }
+
   /**********************************************************************
    *<p>Writes the document wrapped by this object 
    *to the specified stream.</p>
