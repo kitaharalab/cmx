@@ -54,7 +54,7 @@ public class ChordSymbol {
 //  private Root root;
 //  private Sign sign;
   Mode mode;
-  Seventh seventh;
+  Seventh seventh = Seventh.NONE;
   NoteSymbol bass = null;
    
   private static Pattern p = 
@@ -116,6 +116,7 @@ public class ChordSymbol {
   
   @Deprecated
   public static ChordSymbol parse(String s, boolean seventhIgnored) {
+    System.err.println("ChordSymbol has been deprecated");
     String[] ss = s.trim().split("/");
     Matcher m = p.matcher(ss[0]);
     if (m.matches()) {
@@ -272,8 +273,6 @@ public class ChordSymbol {
   }
 */
   public ChordSymbol transpose(int diff, boolean sharp) {
-    System.err.println("diff: "+ diff);
-    System.err.println("num: " +root.number());
     int newnumber = (root.number() + diff) % 12;
     if (newnumber < 0)
       newnumber += 12;

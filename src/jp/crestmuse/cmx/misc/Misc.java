@@ -58,7 +58,26 @@ public final class Misc {
       else
         l.add(o);
   }
-    
+
+  public static <K, V> Map<K, V>  createMap(K[] keys, V[] values) {
+    if (keys.length != values.length)
+      throw new IllegalArgumentException("invalid array size");
+    Map<K, V> map = new HashMap<K, V>();
+    for (int i = 0; i < keys.length; i++)
+      map.put(keys[i], values[i]);
+    return map;
+  }
+
+  public static String joinStrings(String separator, String[] data) {
+    String s = "";
+    for (int i = 0; i < data.length; i++) {
+      if (data[i].length() > 0 && s.length() > 0)
+        s += separator + data[i];
+      else
+        s += data[i];
+    }
+    return s;
+  }
 
 }
 
