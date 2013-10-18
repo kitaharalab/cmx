@@ -685,10 +685,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         MusicXMLWrapper.Measure[] measures = part.getMeasureList();
         MusicXMLWrapper.Measure last = measures[measures.length - 1];
         if (prevchord != null) {
-            scc.addChord(prevchord.onset(ticksPerBeat), 
+          scc.addChord(prevchordOnset, 
                          last.cumulativeTicks(ticksPerBeat) + 
                          last.duration(ticksPerBeat), 
-                         parseChord(prevchord).encode());
+                         prevchord.encode());
 //                         ChordSymbol2.parse(prevchord.rootStep(), 
 //                                           prevchord.rootAlter(), 
 //                                           prevchord.kind()));
@@ -750,15 +750,40 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
         } else if (md instanceof MusicXMLWrapper.Harmony) {
           MusicXMLWrapper.Harmony h = (MusicXMLWrapper.Harmony)md;
           if (prevchord != null) {
-            scc.addChord(prevchord.onset(ticksPerBeat), 
-                         h.onset(ticksPerBeat), 
-                         parseChord(prevchord).encode());
-//                         ChordSymbol2.parse(
-//                           new NoteSymbolprevchord.rootStep(), 
-//                                           prevchord.rootAlter(), 
-//                                           prevchord.kind()));
+            scc.addChord(prevchordOnset, h.onset(ticksPerBeat), 
+                         prevchord.encode());
           }
-          prevchord = h;
+          prevchord = parseChord(h);
+          prevchordOnset = h.onset(ticksPerBeat);
+//          if (prevchord != null) {
+//            scc.addChord(prevchord.onset(ticksPerBeat), 
+//                         h.onset(ticksPerBeat), 
+//                         parseChord(prevchord).encode());
+////                         ChordSymbol2.parse(
+////                           new NoteSymbolprevchord.rootStep(), 
+////                                           prevchord.rootAlter(), 
+////                                           prevchord.kind()));
+//          }
+//          prevchord = h;
+        } else if (md instanceof MusicXMLWrapper.Direction) {
+          MusicXMLWrapper.DirectionType[] types = 
+            ((MusicXMLWrapper.Direction)md).getDirectionTypeList();
+          if (types[0].name().equals("words")) {
+            try {
+              ChordSymbol2 c = ChordSymbol2.parse(types[0].text());
+              System.err.println(types[0].text());
+              System.err.println(c);
+              if (prevchord != null) {
+                scc.addChord(prevchordOnset, md.onset(ticksPerBeat), 
+                             prevchord.encode());
+              }
+              prevchord = c;
+              prevchordOnset = md.onset(ticksPerBeat);
+            } catch (InvalidChordSymbolException e) {
+              System.err.println("invalid chord exception: " + 
+                                 types[0].text());
+            }
+          }
         }
       }
         
@@ -774,7 +799,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           return c;
         }
         
-        MusicXMLWrapper.Harmony prevchord = null;
+//        MusicXMLWrapper.Harmony prevchord = null;
+        ChordSymbol2 prevchord = null;
+        int prevchordOnset = -1;
+        
     });
   }
 
@@ -812,22 +840,25 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
 
       public ExtendedNote ninth(String s) {
         if (s.contains("ninth")) {
-          System.err.println("warining: sharp ninth and flat ninth is not suppored");
+          System.err.println("warining: sharp ninth and flat ninth is not supported");
           return ExtendedNote.NATURAL;
         } else 
           return ExtendedNote.NONE;
       }
 
       public ExtendedNote eleventh(String s) {
-        throw new UnderConstructionException();
+        System.err.println("warning: eleventh is not supported");
+        return ExtendedNote.NONE;
       }
 
       public ExtendedNote thirteenth(String s) {
-        throw new UnderConstructionException();
+        System.err.println("warning: thirteenth is not supported");
+        return ExtendedNote.NONE;
       }       
 
       public ExtendedNote fifth(String s) {
-        throw new UnderConstructionException();
+        System.err.println("warning: fifth is not supported.");
+        return ExtendedNote.NONE;
       }
 
       public String encode(Mode mode, Seventh seventh, ExtendedNote ninth, 

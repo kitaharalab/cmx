@@ -209,6 +209,10 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
     Seventh seventh = r.seventh(kind);
     ChordSymbol2 c = new ChordSymbol2(root, mode, seventh);
     c.bass = bass;
+    c.ninth = r.ninth(kind);
+    c.eleventh = r.eleventh(kind);
+    c.thirteenth = r.thirteenth(kind);
+    c.fifth = r.fifth(kind);
     return c;
   }
 
@@ -229,20 +233,23 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
         if (m2.matches())
           bass = new NoteSymbol(m2.group(1), m2.group(2));
         else
-          throw new IllegalArgumentException("Invalid chord symbol: " + s);
+          throw new InvalidChordSymbolException("Invalid chord symbol: " + s);
+//          throw new IllegalArgumentException("Invalid chord symbol: " + s);
       }
       NoteSymbol root = new NoteSymbol(m1.group(1), m1.group(2));
-      Mode mode = r.mode(m1.group(3));
-      Seventh seventh = r.seventh(m1.group(3));
-      ChordSymbol2 c = new ChordSymbol2(root, mode, seventh);
-      c.bass = bass;
-      c.ninth = r.ninth(m1.group(3));
-      c.eleventh = r.eleventh(m1.group(3));
-      c.thirteenth = r.thirteenth(m1.group(3));
-      c.fifth = r.fifth(m1.group(3));
-      return c;
+      return parse(root, m1.group(3), bass, r);
+//      Mode mode = r.mode(m1.group(3));
+//      Seventh seventh = r.seventh(m1.group(3));
+//      ChordSymbol2 c = new ChordSymbol2(root, mode, seventh);
+//      c.bass = bass;
+//      c.ninth = r.ninth(m1.group(3));
+//      c.eleventh = r.eleventh(m1.group(3));
+//      c.thirteenth = r.thirteenth(m1.group(3));
+//      c.fifth = r.fifth(m1.group(3));
+//      return c;
     } else {
-      throw new IllegalArgumentException("Invalid chord symbol: " + s);
+          throw new InvalidChordSymbolException("Invalid chord symbol: " + s);
+//      throw new IllegalArgumentException("Invalid chord symbol: " + s);
     }
   }
 

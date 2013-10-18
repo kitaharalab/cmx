@@ -37,9 +37,9 @@ public class HarkObject {
   }
 
   public class HDH_SrcInfo {
-    int src_d;
-    float[] x;
-    float power;
+    public int src_d;
+    public float[] x;
+    public float power;
     private HDH_SrcInfo(int src_d, float x, float y, float z, float power) {
       this.src_d = src_d;
       this.x = new float[3];
@@ -55,8 +55,8 @@ public class HarkObject {
   }
 
   public class HDH_SrcData {
-    int length;
-    int data_bytes;
+    public int length;
+    public int data_bytes;
     private HDH_SrcData(int length, int data_bytes) {
       this.length = length;
       this.data_bytes = data_bytes;

@@ -282,10 +282,17 @@ public class CMXController implements TickTimer,MIDIConsts {
   public void wavread(int i, AudioDataCompatible w) {
     try {
       wav = w;
-      musicPlayer[i] = new WAVPlayer(wav);
+      if (musicPlayer[i] instanceof WAVPlayer2) 
+        ((WAVPlayer2)musicPlayer[i]).changeWaveform(wav);
+      else
+        musicPlayer[i] = new WAVPlayer2(wav);
       musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (javax.sound.sampled.LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
+    } catch (IOException e) {
+      throw new CMXIOException(e.toString());
+    } catch (UnsupportedAudioFileException e) {
+      throw new CMXIOException(e.toString());
     }
   }
 
@@ -298,13 +305,13 @@ public class CMXController implements TickTimer,MIDIConsts {
       読み込まれます．*/
   public void wavread(int i, String filename) {
     try {
-      wav = WAVWrapper.readfile(filename);
-      musicPlayer[i] = new WAVPlayer(wav);
-      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+      wavread(i, WAVWrapper.readfile(filename));
+//      musicPlayer[i] = new WAVPlayer(wav);
+//      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file: " + filename);
-    } catch (javax.sound.sampled.LineUnavailableException e) {
-      throw new DeviceNotAvailableException("Audio device not available");
+      throw new CMXIOException("Cannot read file: " + filename);
+//    } catch (javax.sound.sampled.LineUnavailableException e) {
+//      throw new DeviceNotAvailableException("Audio device not available");
     }
   }
 
@@ -317,13 +324,14 @@ public class CMXController implements TickTimer,MIDIConsts {
       読み込まれます．*/
   public void wavread(int i, InputStream input) {
     try {
-      wav = WAVWrapper.read(input);
-      musicPlayer[i] = new WAVPlayer(wav);
-      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+//      wav = WAVWrapper.read(input);
+//      musicPlayer[i] = new WAVPlayer(wav);
+//      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+      wavread(i, WAVWrapper.read(input));
     } catch (IOException e) {
       throw new IllegalArgumentException("Cannot read file");
-    } catch (javax.sound.sampled.LineUnavailableException e) {
-      throw new DeviceNotAvailableException("Audio device not available");
+//    } catch (javax.sound.sampled.LineUnavailableException e) {
+//      throw new DeviceNotAvailableException("Audio device not available");
     }
   }
 
@@ -336,17 +344,18 @@ public class CMXController implements TickTimer,MIDIConsts {
       読み込まれます．*/
   public void mp3read(int i, String filename) {
     try {
-      wav = MP3Wrapper.readfile(filename);
-      musicPlayer[i] = new WAVPlayer(wav);
-      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+      wavread(MP3Wrapper.readfile(filename));
+//      wav = MP3Wrapper.readfile(filename);
+//      musicPlayer[i] = new WAVPlayer(wav);
+//      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
-      throw new IllegalStateException("Cannot read file: " + filename);
+      throw new CMXIOException("Cannot read file: " + filename);
     } catch (DecoderException e) {
-      throw new IllegalStateException("Cannot decode MP3 file: " + filename);
+      throw new CMXIOException("Cannot decode MP3 file: " + filename);
     } catch (BitstreamException e) {
-      throw new IllegalStateException("Cannot decode MP3 file: " + filename);
-    } catch (javax.sound.sampled.LineUnavailableException e) {
-      throw new DeviceNotAvailableException("Audio device not available");
+      throw new CMXIOException("Cannot decode MP3 file: " + filename);
+//    } catch (javax.sound.sampled.LineUnavailableException e) {
+//      throw new DeviceNotAvailableException("Audio device not available");
     }
   }
 
@@ -355,17 +364,18 @@ public class CMXController implements TickTimer,MIDIConsts {
       読み込まれます．*/
   public void mp3read(int i, InputStream input) {
     try {
-      wav = MP3Wrapper.read(input);
-      musicPlayer[i] = new WAVPlayer(wav);
-      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+    wavread(MP3Wrapper.read(input));
+//      wav = MP3Wrapper.read(input);
+//      musicPlayer[i] = new WAVPlayer(wav);
+//      musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
-      throw new IllegalStateException("Cannot read file");
+      throw new CMXIOException("Cannot read file");
     } catch (DecoderException e) {
-      throw new IllegalStateException("Cannot decode MP3 file");
+      throw new CMXIOException("Cannot decode MP3 file");
     } catch (BitstreamException e) {
-      throw new IllegalStateException("Cannot decode MP3 file");
-    } catch (javax.sound.sampled.LineUnavailableException e) {
-      throw new DeviceNotAvailableException("Audio device not available");
+      throw new CMXIOException("Cannot decode MP3 file");
+//    } catch (javax.sound.sampled.LineUnavailableException e) {
+//      throw new DeviceNotAvailableException("Audio device not available");
     }
   }
 
@@ -389,11 +399,11 @@ public class CMXController implements TickTimer,MIDIConsts {
       ((SMFPlayer)musicPlayer[i]).readSMF(filename);
       musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file: " + filename);
+      throw new CMXIOException("Cannot read file: " + filename);
     } catch (javax.sound.midi.MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
     } catch (javax.sound.midi.InvalidMidiDataException e) {
-      throw new IllegalArgumentException("Invalid MIDI data: " + filename);
+      throw new CMXIOException("Invalid MIDI data: " + filename);
     }
   }
 
@@ -416,7 +426,7 @@ public class CMXController implements TickTimer,MIDIConsts {
     } catch (javax.sound.midi.MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
     } catch (javax.sound.midi.InvalidMidiDataException e) {
-      throw new IllegalArgumentException("Invalid MIDI data");
+      throw new CMXIOException("Invalid MIDI data");
     }
   }
 
@@ -439,11 +449,11 @@ public class CMXController implements TickTimer,MIDIConsts {
       ((SMFPlayer)musicPlayer[i]).readSMF(input);
       musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
     } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file");
+      throw new CMXIOException("Cannot read file");
     } catch (javax.sound.midi.MidiUnavailableException e) {
       throw new DeviceNotAvailableException("MIDI device not available");
     } catch (javax.sound.midi.InvalidMidiDataException e) {
-      throw new IllegalArgumentException("Invalid MIDI data");
+      throw new CMXIOException("Invalid MIDI data");
     }
   }
 
@@ -459,7 +469,7 @@ public class CMXController implements TickTimer,MIDIConsts {
     try {
       smfread(i, midi.getMIDIInputStream());
     } catch (IOException e) {
-      throw new IllegalArgumentException("Invalid MIDIXML data");
+      throw new CMXIOException("Invalid MIDIXML data");
     }
   }
 
@@ -475,13 +485,13 @@ public class CMXController implements TickTimer,MIDIConsts {
     try {
       smfread(i, scc.getMIDIInputStream());
     } catch (IOException e) {
-      throw new IllegalArgumentException("Invalid SCCXML data");
+      throw new CMXIOException("Invalid SCCXML data");
     } catch (ParserConfigurationException e) {
       throw new IllegalStateException("parser error");
     } catch (TransformerException e) {
-      throw new IllegalArgumentException("XML error");
+      throw new CMXIOException("XML error");
     } catch (SAXException e) {
-      throw new IllegalArgumentException("XML error");
+      throw new CMXIOException("XML error");
     }
   }
 
@@ -521,6 +531,7 @@ public class CMXController implements TickTimer,MIDIConsts {
   }
 
   public void playMusic(int i) {
+    stopMusic(i);
     musicSync[i].play();
   }
 
@@ -530,7 +541,8 @@ public class CMXController implements TickTimer,MIDIConsts {
   }
 
   public void stopMusic(int i) {
-    musicSync[i].stop();
+    if (musicSync != null && musicSync[i] != null)
+      musicSync[i].stop();
   }
 
   public boolean isNowPlaying() {
