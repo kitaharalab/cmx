@@ -812,6 +812,9 @@ public class SCCXMLWrapper extends CMXFileWrapper
           else if (name.equals("KEY")) {
             String[] data = content.trim().split(" ");
             dest.addMetaEvent("KeySignature", timestamp - currentTime, 
+//                              Integer.parseInt(data[0]), 
+                              data[0].startsWith("+") ? 
+                              Integer.parseInt(data[0].substring(1)) : 
                               Integer.parseInt(data[0]), 
                               data[1].toLowerCase().startsWith("min") ? 
                               1 : 0);
