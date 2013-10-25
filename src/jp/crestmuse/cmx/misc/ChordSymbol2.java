@@ -29,9 +29,10 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
 
   public static final ParseRule RULE1 = new ParseRule() {
       public Mode mode(String s) {
-//        System.err.print(s + "\t");
-        if (s.equals("") || s.startsWith("M") || 
-            s.toLowerCase().startsWith("maj"))
+        if (s.equals("") || s.startsWith("M") 
+            || s.toLowerCase().startsWith("maj")
+            || s.startsWith("7") || s.startsWith("9") || s.startsWith("11")
+            || s.startsWith("13") || s.startsWith("6"))
           return Mode.MAJ;
         else if (s.startsWith("m"))
           return Mode.MIN;
@@ -42,6 +43,8 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
         else if (s.toLowerCase().contains("sus") && s.endsWith("9"))
           return Mode.SUS9;
         else if (s.toLowerCase().contains("sus"))
+          return Mode.SUS4;
+        else if (s.startsWith("sus"))
           return Mode.SUS4;
         else
           return Mode.MAJ;
