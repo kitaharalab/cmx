@@ -245,6 +245,7 @@ public class HarkObject {
     }
     if (hasMicFFT()) {
       mic_fft_head = new HDH_MicData(readInt(in), readInt(in), readInt(in));
+      System.err.println(mic_fft_head.data_bytes);
       mic_fft_real = readFloatArray(in, mic_fft_head.data_bytes);
       mic_fft_imag = readFloatArray(in, mic_fft_head.data_bytes);
     } else {
@@ -254,6 +255,7 @@ public class HarkObject {
     }
     if (hasSrcInfo()) {
       src_num = readInt(in);
+      System.err.println(src_num);
       src = new SrcObject[src_num];
       for (int i = 0; i < src_num; i++)
         src[i] = new SrcObject(in);
@@ -268,7 +270,10 @@ public class HarkObject {
 
   private int readInt(InputStream in) throws IOException {
     in.read(bytearray);
-    return bytebuff.getInt(0);
+    int i = bytebuff.getInt(0);
+    System.err.println(i);
+    return i;
+//    return bytebuff.getInt(0);
   }
 
   private float readFloat(InputStream in) throws IOException {

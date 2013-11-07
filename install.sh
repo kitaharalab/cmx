@@ -91,7 +91,10 @@ do
     java \$options jp.crestmuse.cmx.amusaj.commands.WAV2FPD \$*
     braek
   elif [ "\$cmd" = "wav2spd" ]; then
-    java $options jp.crestmuse.cmx.amusaj.commands.WAV2SPD \$*
+    java \$options jp.crestmuse.cmx.amusaj.commands.WAV2SPD \$*
+    break
+  elif [ "\$cmd" = "mkmchwav" ]; then
+    java \$options jp.crestmuse.cmx.commands.MultiChannelWavMaker \$*
     break
   else
     if [ \$# -eq 1 ]; then

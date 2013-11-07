@@ -252,4 +252,27 @@ public class SoundUtils {
     return device;
   }
     */
+
+  public static AudioDataCompatible makeMultiChannelWaveform(List<? extends AudioDataCompatible> wav) {
+    return makeMultiChannelWaveform(
+      wav.toArray(new AudioDataCompatible[wav.size()])
+    );
+  }
+
+  public static AudioDataCompatible makeMultiChannelWaveform(AudioDataCompatible[] wav) {
+    int nCh = wav.length;
+    int sampleRate = wav[0].sampleRate();
+    int wavlength = wav[0].getDoubleArrayWaveform()[0].length();
+    DoubleArray[] newwaveform = new DoubleArray[nCh];
+    for (int i = 0; i < nCh; i++) {
+      if (wav[i].sampleRate() != sampleRate) 
+        throw new IllegalArgumentException("inconsistent sampling rate");
+      newwaveform[i] = wav[i].getDoubleArrayWaveform()[0];
+      if (newwaveform[i].length() != wavlength)
+        throw new IllegalArgumentException("inconsistant waveform length");
+    }
+    return  new MutableWaveform(newwaveform, sampleRate);
+  }
+    
+
 }
