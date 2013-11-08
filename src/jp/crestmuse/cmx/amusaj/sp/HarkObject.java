@@ -10,14 +10,20 @@ public class HarkObject {
     public int type;
     public int advance;
     public int count;
-    private HD_Header(int type, int advance, int count) {
+    public long tv_sec;
+    public long tv_usec;
+    private HD_Header(int type, int advance, int count, 
+                       long tv_sec, long tv_usec) {
       this.type = type;
       this.advance = advance;
       this.count = count;
+      this.tv_sec = tv_sec;
+      this.tv_usec = tv_usec;
     }
     public String toString() {
       return "type: " + type + ", advance: " + advance +
-        ", count: " + count;
+        ", count: " + count + 
+        ", tv_sec: " + tv_sec + ", tv_usec: " + tv_usec;
     }
   }
 
@@ -235,19 +241,25 @@ public class HarkObject {
   public HarkObject(InputStream in) throws IOException {
 //    System.err.println("hark");
     bytebuff.order(ByteOrder.LITTLE_ENDIAN);
-    header = new HD_Header(readInt(in), readInt(in), readInt(in));
+    header = new HD_Header(readInt(in), readInt(in), readInt(in),
+                            readLong(in), readLong(in));
+    System.err.println(header);
     if (hasMicWave()) {
       mic_wave_head = new HDH_MicData(readInt(in), readInt(in), readInt(in));
+      System.err.println("mic_wave_head:" + mic_wave_head);
       mic_wave_data = readFloatArray(in, mic_wave_head.data_bytes);
+      System.err.println("mic_wave_data:" + mic_wave_data.length);
     } else {
       mic_wave_head = null;
       mic_wave_data = null;
     }
     if (hasMicFFT()) {
       mic_fft_head = new HDH_MicData(readInt(in), readInt(in), readInt(in));
-      System.err.println(mic_fft_head.data_bytes);
+      System.err.println("mic_fft_head:" + mic_fft_head);
       mic_fft_real = readFloatArray(in, mic_fft_head.data_bytes);
+      System.err.println("mic_fft_real:" + mic_fft_real.length);
       mic_fft_imag = readFloatArray(in, mic_fft_head.data_bytes);
+      System.err.println("mic_fft_imag:" + mic_fft_imag.length);
     } else {
       mic_fft_head = null;
       mic_fft_real = null;
@@ -265,19 +277,25 @@ public class HarkObject {
     }
   }
 
-  private byte[] bytearray = new byte[4];
+  private byte[] bytearray = new byte[8];
+//  private byte[] bytearray = new byte[4];
   private ByteBuffer bytebuff = ByteBuffer.wrap(bytearray);
 
   private int readInt(InputStream in) throws IOException {
-    in.read(bytearray);
-    int i = bytebuff.getInt(0);
-    System.err.println(i);
-    return i;
-//    return bytebuff.getInt(0);
+//    in.read(bytearray);
+    in.read(bytearray, 0, 4);
+    return bytebuff.getInt(0);
+  }
+
+  private long readLong(InputStream in) throws IOException {
+//    in.read(bytearray);
+    in.read(bytearray, 0, 8);
+    return bytebuff.getLong(0);
   }
 
   private float readFloat(InputStream in) throws IOException {
-    in.read(bytearray);
+//    in.read(bytearray);
+    in.read(bytearray, 0, 4);
     return bytebuff.getFloat(0);
   }
     
