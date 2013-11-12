@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import groovy.lang.Closure;
+import javax.sound.sampled.*;
 
 /** このクラスは，CMXの主要な機能をあたかもProcessingの一機能のように使えるようにした
 基底クラスです．このクラスのサブクラスを作成し，<tt>start</tt>メソッドを呼び出すことで
@@ -429,4 +430,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
         add(b);
 	return b;
     }
+
+  public FloatControl getMasterGainControl() {
+    return ctrl.getMasterGainControl();
+  }
 }

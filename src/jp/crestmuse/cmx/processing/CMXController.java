@@ -907,6 +907,15 @@ public class CMXController implements TickTimer,MIDIConsts {
       Thread.currentThread().sleep(ms);
     } catch (InterruptedException e) {}
   }
-    
 
+  public FloatControl getMasterGainControl(int i) {
+    if (musicPlayer[i] instanceof WAVPlayer2) 
+      return ((WAVPlayer2)musicPlayer[i]).getMasterGainControl();
+    else
+      throw new UnsupportedOperationException("Only WAVPlayer2 supports getMasterGainControl()");
+  }
+
+  public FloatControl getMasterGainControl() {
+    return getMasterGainControl(0);
+  }
 }

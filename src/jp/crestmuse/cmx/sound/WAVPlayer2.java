@@ -14,6 +14,8 @@ public class WAVPlayer2 implements MusicPlayer {
   }
 
   public void changeWaveform(AudioDataCompatible wav) throws LineUnavailableException,IOException,UnsupportedAudioFileException {
+    if (clip != null)
+      clip.close();
     init(wav);
   }
 
@@ -91,6 +93,10 @@ public class WAVPlayer2 implements MusicPlayer {
 
   public long getTickPosition() {
     throw new UnsupportedOperationException();
+  }
+
+  public FloatControl getMasterGainControl() {
+    return (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
   }
 
 }
