@@ -28,4 +28,12 @@ class DefaultBooleanArray implements BooleanArray, Cloneable {
     public void set(int index, boolean value) {
 	values[index] = value;
     }
+
+  public String toString() {
+    return MathUtils.toString1(this);
+  }
+
+  public String encode() {
+    return MathUtils.toString2(this);
+  }
 }

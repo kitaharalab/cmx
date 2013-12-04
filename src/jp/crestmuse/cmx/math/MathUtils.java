@@ -46,15 +46,43 @@ public class MathUtils {
     return sb.toString();
   }
 
-    public static String toString(DoubleArray x) {
-	return toString1(x);
+  public static String toString(BooleanArray x, String sep, 
+                                String left, String right) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(left);
+    int length = x.length();
+    if (length >= 1) {
+      sb.append(String.valueOf(x.get(0)));
+      for (int i = 1; i < length; i++) {
+        sb.append(sep);
+        sb.append(String.valueOf(x.get(i)));
+      }
     }
+    sb.append(right);
+    return sb.toString();
+  }
+
+  public static String toString(DoubleArray x) {
+    return toString1(x);
+  }
+
+  public static String toString(BooleanArray x) {
+    return toString1(x);
+  }
 
   public static String toString1(DoubleArray x) {
     return toString(x, ", ", "{", "}");
   }
          
+  public static String toString1(BooleanArray x) {
+    return toString(x, ", ", "{", "}");
+  }
+         
   public static String toString2(DoubleArray x) {
+    return toString(x, " ", "", "");
+  }
+
+  public static String toString2(BooleanArray x) {
     return toString(x, " ", "", "");
   }
 
