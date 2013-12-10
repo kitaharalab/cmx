@@ -670,9 +670,9 @@ public class CMXController implements TickTimer,MIDIConsts {
   /** 音楽の再生が停止されるまで，スレッドを停止します．*/
   public void waitForMusicStopped(int i) {
     try {
-      while (isNowPlaying(i)) {
+      do {
         Thread.currentThread().sleep(100);
-      }
+      } while (isNowPlaying(i));
     } catch (InterruptedException e) {
       return;
     }

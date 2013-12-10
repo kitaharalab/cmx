@@ -210,6 +210,10 @@ public class Operations {
     return sum;
   }
 
+  public static double mean(DoubleArray x) {
+    return sum(x, 0, x.length()) / x.length();
+  }
+
   public static double sum(DoubleArray x) {
     return sum(x, 0, x.length());
 //    double sum = 0.0;
@@ -457,6 +461,26 @@ public class Operations {
 	    z.set(i, x.get(i) && y.get(i));
 	return z;
     }
+
+  public static DoubleArray remove(DoubleArray x, int index) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length - 1);
+    for (int i = 0; i < index ; i++) {
+      z.set(i, x.get(i));
+    }
+    for (int i = index; i < length - 1; i++) {
+      z.set(i, x.get(i+1));
+    }
+    return z;
+  }
+
+  public static DoubleArray removeX(DoubleArray x, int index) {
+    int length = x.length();
+    for (int i = index; i < length - 1; i++) {
+      x.set(i, x.get(i+1));
+    }
+    return x.subarrayX(0, length-1);
+  }
 
   public static DoubleArray removeMask(DoubleArray x, BooleanArray mask) {
 //    if (x.length() != mask.length())
