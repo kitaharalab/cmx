@@ -17,7 +17,8 @@ public class SynchronizedWindowSlider extends WindowSlider
   }
 
   private BlockingQueue<DoubleArray[]> queue = 
-    new LinkedBlockingQueue<DoubleArray[]>();
+//    new LinkedBlockingQueue<DoubleArray[]>();
+    new SynchronousQueue<DoubleArray[]>();
 
 
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
@@ -34,17 +35,18 @@ public class SynchronizedWindowSlider extends WindowSlider
   }
     
   public void musicStarted(MusicPlaySynchronizer musicSync) {
-
+    System.err.println("start");
   }
 
   public void musicStopped(MusicPlaySynchronizer musicSync) {
-
+    System.err.println("stop");
   }
 
   public void synchronize(double currentTime, long currentTick, 
                           MusicPlaySynchronizer musicSync) {
     long t = (long)(currentTime * 1000000);
     try {
+      System.err.print(".");
       queue.add(audiodata.read(t, winsize));
     } catch (IOException e) {
       throw new SPException(e);

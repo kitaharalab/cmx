@@ -47,7 +47,8 @@ public class MusicPlaySynchronizer implements Runnable {
     player.play();
 //        if (!playerThreadStarted)
 //      new Thread(player).start();
-    if(!syncThreadStarted)
+    // 試験的にコメントアウト
+//    if(!syncThreadStarted)
       new Thread(this).start();
     playerThreadStarted = true;
     syncThreadStarted = true;
@@ -76,7 +77,7 @@ public class MusicPlaySynchronizer implements Runnable {
       sync.start(this);
     for (MusicListener l : listeners)
       l.musicStarted(this);
-    while (isNowPlaying() || isStoppedByUser()) {
+    while (isNowPlaying() && !isStoppedByUser()) {
       if (isNowPlaying()) {
         long currentTick = -1;
         try {
