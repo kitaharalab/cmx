@@ -297,6 +297,19 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
     ctrl.readConfig(input);
   }
 
+/*
+  public SamplingRateChanger createSamplingRateChanger(int oldRate, 
+                                                       int newRate,
+                                                       boolean isStereo) {
+    return ctrl.createSamplingRateChanger(oldRate, newRate, isStereo);
+  }
+
+  public SamplingRateChanger createSamplingRateChanger(int oldRate, 
+                                                       int newRate, int nch) {
+    return ctrl.createSamplingRateChanger(oldRate, newRate, nch);
+  }
+*/
+
   public STFT createSTFT(boolean isStereo) {
     return ctrl.createSTFT(isStereo);
   }

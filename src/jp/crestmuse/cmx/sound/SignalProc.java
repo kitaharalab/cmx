@@ -7,6 +7,7 @@ public class SignalProc {
 
   private SignalProc() {}
 
+  // kari
   public static DoubleArray changeRate(DoubleArray x, 
                                        int orgrate, int newrate) {
     if (orgrate == newrate) {
@@ -34,6 +35,7 @@ public class SignalProc {
     DoubleArray z = createDoubleArray(x.length() / r);
     for (int i = 0; i < x.length() / r; i++)
       z.set(i, x.get(i * r));
+    System.err.println(z.length());
     return z;
   }
 

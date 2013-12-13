@@ -1236,7 +1236,6 @@ public class Operations {
 
   /** Important: Previous version had a bug in this method. */
   public static DoubleArray abs(ComplexArray x) {
-    System.err.println("DEBUG");
     int length = x.length();
     double[] z = new double[length];
     for (int i = 0; i < length; i++) {

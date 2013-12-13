@@ -62,17 +62,32 @@ public class MathUtils {
     return sb.toString();
   }
 
-  public static void println(DoubleArray x) {
+//  public static void println(DoubleArray x) {
+//    System.out.println(toString(x));
+//  }
+
+  public static void println(Array x) {
     System.out.println(toString(x));
+  }
+
+  public static String toString(Array x) {
+    if (x instanceof DoubleArray)
+      return toString((DoubleArray)x);
+    else if (x instanceof BooleanArray)
+      return toString((BooleanArray)x);
+    else if (x instanceof ComplexArray)
+      return toString((ComplexArray)x);
+    else
+      throw new UnsupportedOperationException(x.getClass() + ": toString not supported");
   }
 
   public static String toString(DoubleArray x) {
     return toString1(x);
   }
 
-  public static void println(BooleanArray x) {
-    System.out.println(toString(x));
-  }
+//  public static void println(BooleanArray x) {
+//    System.out.println(toString(x));
+//  }
 
   public static String toString(BooleanArray x) {
     return toString1(x);
@@ -112,9 +127,9 @@ public class MathUtils {
     return sb.toString();
   }
 
-  public static void println(ComplexArray x) {
-    System.out.println(toString(x));
-  }
+//  public static void println(ComplexArray x) {
+//    System.out.println(toString(x));
+//  }
 
   public static String toString(ComplexArray x) {
     return toString1(x);

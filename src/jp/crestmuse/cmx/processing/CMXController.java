@@ -844,6 +844,24 @@ public class CMXController implements TickTimer,MIDIConsts {
     return winslider;
   }
 
+/*
+  public SamplingRateChanger createSamplingRateChanger(int oldRate, 
+                                                       int newRate, 
+                                                       boolean isStereo) {
+    if (isStereo)
+      return createSamplingRateChanger(oldRate, newRate, 2);
+    else
+      return createSamplingRateChanger(oldRate, newRate, 1);
+  }
+
+  public SamplingRateChanger createSamplingRateChanger(int oldRate, 
+                                                       int newRate, int nch) {
+    SamplingRateChanger c = new SamplingRateChanger(oldRate, newRate, nch);
+    addSPModule(c);
+    return c;
+  }
+*/
+
   public STFT createSTFT(boolean isStereo) {
     STFT stft = new STFT(isStereo);
     addSPModule(stft);
