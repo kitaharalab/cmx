@@ -62,8 +62,16 @@ public class MathUtils {
     return sb.toString();
   }
 
+  public static void println(DoubleArray x) {
+    System.out.println(toString(x));
+  }
+
   public static String toString(DoubleArray x) {
     return toString1(x);
+  }
+
+  public static void println(BooleanArray x) {
+    System.out.println(toString(x));
   }
 
   public static String toString(BooleanArray x) {
@@ -104,9 +112,13 @@ public class MathUtils {
     return sb.toString();
   }
 
-    public static String toString(ComplexArray x) {
-	return toString1(x);
-    }
+  public static void println(ComplexArray x) {
+    System.out.println(toString(x));
+  }
+
+  public static String toString(ComplexArray x) {
+    return toString1(x);
+  }
 
   public static String toString1(ComplexArray x) {
     return toString(x, ", ", "{", "}");

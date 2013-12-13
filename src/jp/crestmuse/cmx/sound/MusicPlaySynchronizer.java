@@ -86,7 +86,7 @@ public class MusicPlaySynchronizer implements Runnable {
         double t = (double)currentPosition / 1000000.0;
         for (MusicPlaySynchronized sync : synclist)
           sync.synchronize(t, currentTick, this);
-        for (MusicListener l : listeners)
+        for (MusicListener l : listeners) 
           l.synchronize(t, currentTick, this);
       }
       try {

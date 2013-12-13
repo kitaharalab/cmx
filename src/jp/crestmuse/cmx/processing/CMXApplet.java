@@ -297,8 +297,20 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
     ctrl.readConfig(input);
   }
 
+  public STFT createSTFT(boolean isStereo) {
+    return ctrl.createSTFT(isStereo);
+  }
+
   public MidiEventSender createMidiEventSender() {
     return ctrl.createMidiEventSender();
+  }
+
+  public SPModule createSpectrumViewer(int w, int h, int m, double scale) {
+    return ctrl.createSpectrumViewer(w, h, m, scale);
+  }
+
+  public TrashOutModule createTrashOut() {
+    return ctrl.createTrashOut();
   }
 
   /** このメソッドは呼び出さないでください．*/
@@ -433,5 +445,9 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 
   public FloatControl getMasterGainControl() {
     return ctrl.getMasterGainControl();
+  }
+
+  public FloatControl getVolumeControl() {
+    return ctrl.getVolumeControl();
   }
 }

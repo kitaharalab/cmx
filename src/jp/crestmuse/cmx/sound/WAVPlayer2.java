@@ -95,8 +95,21 @@ public class WAVPlayer2 implements MusicPlayer {
     throw new UnsupportedOperationException();
   }
 
+  public Control getControl(Control.Type type) {
+    return clip.getControl(type);
+  }
+
+  public boolean isControlSupported(Control.Type type) {
+    return clip.isControlSupported(type);
+  }
+
+/*
   public FloatControl getMasterGainControl() {
     return (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
   }
 
+  public FloatControl getVolumeControl() {
+    return (FloatControl)clip.getControl(FloatControl.Type.VOLUME);
+  }
+*/
 }

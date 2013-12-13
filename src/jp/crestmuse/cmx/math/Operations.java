@@ -1234,12 +1234,14 @@ public class Operations {
     return factory.createArray(z);
   }
 
+  /** Important: Previous version had a bug in this method. */
   public static DoubleArray abs(ComplexArray x) {
+    System.err.println("DEBUG");
     int length = x.length();
     double[] z = new double[length];
     for (int i = 0; i < length; i++) {
       double a = x.getReal(i);
-      double b = x.getReal(i);
+      double b = x.getImag(i);
       z[i] = Math.sqrt(a * a + b * b);
     }
     return factory.createArray(z);

@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.processing;
 
 import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.sound.*;
@@ -16,6 +17,7 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import javazoom.jl.decoder.*;
 import groovy.lang.Closure;
+import processing.core.*;
 
 /**********************************************************************
 このクラスは，CrestMuse Toolkit (CMX)の主要な機能を簡単に呼び出せるようにしたクラスです．
@@ -36,6 +38,7 @@ public class CMXController implements TickTimer,MIDIConsts {
 //  private MusicPlaySynchronizer musicSync = null;
   private AudioInputStreamWrapper mic = null;
   private AudioDataCompatible wav = null;
+  private SynchronizedWindowSlider winslider = null;
 
   private MidiDevice.Info midiin = null;
   private MidiDevice.Info midiout = null;
@@ -281,12 +284,21 @@ public class CMXController implements TickTimer,MIDIConsts {
 
   public void wavread(int i, AudioDataCompatible w) {
     try {
-      wav = w;
       if (musicPlayer[i] instanceof WAVPlayer2) 
-        ((WAVPlayer2)musicPlayer[i]).changeWaveform(wav);
+        ((WAVPlayer2)musicPlayer[i]).changeWaveform(w);
       else
-        musicPlayer[i] = new WAVPlayer2(wav);
+        musicPlayer[i] = new WAVPlayer2(w);
       musicSync[i] = new MusicPlaySynchronizer(musicPlayer[i]);
+
+      // kari
+      if (i == 0) {
+        wav = w;
+        if (winslider != null) {
+          winslider.setInputData(wav);
+          addMusicListener(winslider);
+        }
+      }
+
     } catch (javax.sound.sampled.LineUnavailableException e) {
       throw new DeviceNotAvailableException("Audio device not available");
     } catch (IOException e) {
@@ -823,14 +835,106 @@ public class CMXController implements TickTimer,MIDIConsts {
       波形断片を次々と出力する「モジュール」を生成します．
       （新しいwavreadへの対応は要チェック）*/
   public SynchronizedWindowSlider createWaveCapture(boolean isStereo) {
-    SynchronizedWindowSlider winslider = 
-      new SynchronizedWindowSlider(isStereo);
-    winslider.setInputData(wav);
-    addMusicListener(winslider);
+    winslider = new SynchronizedWindowSlider(isStereo);
+    if (wav != null) {
+      winslider.setInputData(wav);
+      addMusicListener(winslider);
+    }
     addSPModule(winslider);
     return winslider;
   }
 
+  public STFT createSTFT(boolean isStereo) {
+    STFT stft = new STFT(isStereo);
+    addSPModule(stft);
+    return stft;
+  }
+
+  private class SpectrumViewerApplet extends PApplet {
+    int w, h, m;
+    double scale;
+    SPModule module;
+    DoubleArray x = null;
+    private SpectrumViewerApplet(final int w, final int h, 
+                                 final int m, final double scale) {
+      this.w = w;
+      this.h = h;
+      this.m = m;
+      this.scale = scale;
+      module = new SPModule() {
+          public Class[] getInputClasses() {
+            return new Class[]{ComplexArray.class};
+          }
+          public Class[] getOutputClasses() {
+            return new Class[]{ComplexArray.class};
+          }
+          public void execute(Object[] src, TimeSeriesCompatible[] dst) {
+            x = Operations.abs((ComplexArray)src[0]);
+            try {
+              dst[0].add(src[0]);
+            } catch (InterruptedException e) {}
+          }
+        };
+    }
+    public void setup() {
+      size(w, h);
+      frameRate(10);
+    }
+    public void draw() {
+      background(255);
+      if (x != null) {
+//        int m = x.length();
+        for (int i = 0; i < m; i++) {
+          int amp = (int)(scale * x.get(i));
+          rect(i * w / m, h - amp, w / m, amp);
+        }
+      }
+    }
+  }
+
+  // kari
+  public SPModule createSpectrumViewer(int w, int h, int m, 
+                                       double scale) {
+/*    PApplet app = new PApplet() {
+        SPModule module = new SPModule() {
+            public Class[] getInputClasses() {
+              return new Class[]{ComplexArray.class};
+            }
+            public Class[] getOutputClasses() {
+              return new Class[]{ComplexArray.class};
+            }
+            public void execute(Object[] src, TimeSeriesCompatible[] dst) {
+              DoubleArray x = Operations.abs((ComplexArray)src[0]);
+              int m = x.length();
+              for (int i = 0; i < m; i++) 
+                rect(i * w / m, h, (i+1) * w / m, (int)(h - scale * x.get(i)));
+              dst[0].add(src[0]);
+            }
+          };
+        public void setup() {
+          size(w, h);
+          noLoop();
+        }
+        public void draw() {
+          // do nothing
+        }
+        };*/
+    SpectrumViewerApplet app = new SpectrumViewerApplet(w, h, m, scale);
+    app.init();
+    Frame f = new Frame();
+    f.setSize(w, h);
+    f.add(app);
+    f.setVisible(true);
+    addSPModule(app.module);
+    return app.module;
+  }
+
+  public TrashOutModule createTrashOut() {
+    TrashOutModule tom = new TrashOutModule();
+    addSPModule(tom);
+    return tom;
+  }
+  
   public MidiEventSender createMidiEventSender() {
     MidiEventSender evtsender = new MidiEventSender();
     addSPModule(evtsender);
@@ -908,6 +1012,53 @@ public class CMXController implements TickTimer,MIDIConsts {
     } catch (InterruptedException e) {}
   }
 
+  public boolean isControlSupported(int i, javax.sound.sampled.Control.Type type) {
+    if (musicPlayer[i] instanceof WAVPlayer2) 
+      return ((WAVPlayer2)musicPlayer[i]).isControlSupported(type);
+    else 
+      throw new UnsupportedOperationException("Only WAVPlayer2 supports isControlSupported()");
+  }
+
+  public boolean isMasterGainControlSupported(int i) {
+    return isControlSupported(i, FloatControl.Type.MASTER_GAIN);
+  }
+
+  public boolean isMasterGainControlSupported() {
+    return isMasterGainControlSupported(0);
+  }
+
+  public boolean isVolumeControlSupported(int i) {
+    return isControlSupported(i, FloatControl.Type.VOLUME);
+  }
+
+  public boolean isVolumeControlSupported() {
+    return isVolumeControlSupported(0);
+  }
+
+  public javax.sound.sampled.Control getControl(int i, javax.sound.sampled.Control.Type type) {
+    if (musicPlayer[i] instanceof WAVPlayer2) 
+      return ((WAVPlayer2)musicPlayer[i]).getControl(type);
+    else
+      throw new UnsupportedOperationException("Only WAVPlayer2 supports getControl()");
+  }
+
+  public FloatControl getMasterGainControl(int i) {
+    return (FloatControl)getControl(i, FloatControl.Type.MASTER_GAIN);
+  }
+
+  public FloatControl getMasterGainControl() {
+    return getMasterGainControl(0);
+  }
+
+  public FloatControl getVolumeControl(int i) {
+    return (FloatControl)getControl(i, FloatControl.Type.VOLUME);
+  }
+
+  public FloatControl getVolumeControl() {
+    return getVolumeControl(0);
+  }
+
+/*
   public FloatControl getMasterGainControl(int i) {
     if (musicPlayer[i] instanceof WAVPlayer2) 
       return ((WAVPlayer2)musicPlayer[i]).getMasterGainControl();
@@ -918,4 +1069,7 @@ public class CMXController implements TickTimer,MIDIConsts {
   public FloatControl getMasterGainControl() {
     return getMasterGainControl(0);
   }
+*/
+
+
 }

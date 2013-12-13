@@ -213,16 +213,24 @@ public class HarkObject {
       return head.length;
     }
     public double getReal(int index) {
-      return real[index * head.nch + ch];
+// kari
+      return real[index + ch * head.length];
+//      return real[index * head.nch + ch];
     }
     public double getImag(int index) {
-      return imag[index * head.nch + ch];
+// kari
+      return imag[index + ch * head.length];
+//      return imag[index * head.nch + ch];
     }
     public void setReal(int index, double value) {
-      real[index * head.nch + ch] = (float)value;
+//kari 
+      real[index + ch * head.length] = (float)value;
+//      real[index * head.nch + ch] = (float)value;
     }
     public void setImag(int index, double value) {
-      imag[index * head.nch + ch] = (float)value;
+// kari
+      imag[index + ch * head.length] = (float)value;
+//      imag[index * head.nch + ch] = (float)value;
     }
   }
     
@@ -243,23 +251,23 @@ public class HarkObject {
     bytebuff.order(ByteOrder.LITTLE_ENDIAN);
     header = new HD_Header(readInt(in), readInt(in), readInt(in),
                             readLong(in), readLong(in));
-    System.err.println(header);
+//    System.err.println(header);
     if (hasMicWave()) {
       mic_wave_head = new HDH_MicData(readInt(in), readInt(in), readInt(in));
-      System.err.println("mic_wave_head:" + mic_wave_head);
+//      System.err.println("mic_wave_head:" + mic_wave_head);
       mic_wave_data = readFloatArray(in, mic_wave_head.data_bytes);
-      System.err.println("mic_wave_data:" + mic_wave_data.length);
+//      System.err.println("mic_wave_data:" + mic_wave_data.length);
     } else {
       mic_wave_head = null;
       mic_wave_data = null;
     }
     if (hasMicFFT()) {
       mic_fft_head = new HDH_MicData(readInt(in), readInt(in), readInt(in));
-      System.err.println("mic_fft_head:" + mic_fft_head);
+//      System.err.println("mic_fft_head:" + mic_fft_head);
       mic_fft_real = readFloatArray(in, mic_fft_head.data_bytes);
-      System.err.println("mic_fft_real:" + mic_fft_real.length);
+//      System.err.println("mic_fft_real:" + mic_fft_real.length);
       mic_fft_imag = readFloatArray(in, mic_fft_head.data_bytes);
-      System.err.println("mic_fft_imag:" + mic_fft_imag.length);
+//      System.err.println("mic_fft_imag:" + mic_fft_imag.length);
     } else {
       mic_fft_head = null;
       mic_fft_real = null;
@@ -267,7 +275,7 @@ public class HarkObject {
     }
     if (hasSrcInfo()) {
       src_num = readInt(in);
-      System.err.println(src_num);
+//      System.err.println(src_num);
       src = new SrcObject[src_num];
       for (int i = 0; i < src_num; i++)
         src[i] = new SrcObject(in);
