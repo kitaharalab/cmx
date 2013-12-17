@@ -43,8 +43,6 @@ while [ \$# -ge 1 ]
 do
   cmd=\$1
   shift
-  echo \$cmd
-  echo \$options
   if [ "\$cmd" = "help" -o "\$cmd" = "-help" ]; then 
     cat \$CMX_HOME/help
     break

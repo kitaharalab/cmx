@@ -480,21 +480,29 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
 //          outdata = run(files);
 //        }
 	if (outdata != null) {
-          String outfilename;
+//          String outfilename;
           if (isStdOut) {
             outdata.write(System.out);
           } else {
             File f = null;
-            if ((outfilename = getOutFileName()) != null) {
-              f = new File(outfilename);
-            } else if (destdir != null) {
-              if (ext != null)
-                f = new File(destdir, getBaseName(filename) + "." + ext);
+            String outfilename = getOutFileName();
+            if (outfilename != null) {
+              if (destdir == null)
+                f = new File(outfilename);
               else
-                f = new File(destdir, removeDirName(filename));
+                f = new File(destdir, outfilename);
+//            if ((outfilename = getOutFileName()) != null) {
+//              f = new File(outfilename);
             } else {
-              if (ext != null)
-                f = new File(removeExt(filename) + "." + ext);
+              if (destdir != null) {
+                if (ext != null)
+                  f = new File(destdir, getBaseName(filename) + "." + ext);
+                else
+                  f = new File(destdir, removeDirName(filename));
+              } else {
+                if (ext != null)
+                  f = new File(removeExt(filename) + "." + ext);
+              }
             }
             if (f == null)
               outdata.write(System.out);

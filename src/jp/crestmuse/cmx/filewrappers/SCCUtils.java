@@ -255,4 +255,52 @@ public class SCCUtils {
     }
   }
 
+  public static int[][] countNoteTransition(SCC.Part p, boolean octaveIgnored) {
+    if (octaveIgnored)
+      return countNoteTransition(p, new int[12][12], octaveIgnored);
+    else
+      return countNoteTransition(p, new int[128][128], octaveIgnored);
+  }
+
+  public static int[][] countNoteTransition(SCC.Part p, int[][] counts, 
+                                            boolean octaveIgnored) {
+//    int[][] counts = new int[12][12];
+    int d = octaveIgnored ? 12 : 128;
+    SCC.Note[] notelist = p.getNoteOnlyList();
+    for (int i = 0; i < notelist.length-1; i++) {
+      int n1 = notelist[i+1].notenum();
+      int n0 = notelist[i].notenum();
+      counts[n0 % d][n1 % d]++;
+    }
+    return counts;
+  }
+
+  public static int[][] countChordTransition(SCC scc, int[][] counts, 
+                                             ChordSymbol2[] cc, 
+                                             boolean root, boolean mode, 
+                                             boolean bass, boolean seventh, 
+                                             boolean ninth, boolean eleventh, 
+                                             boolean thirteenth, 
+                                             boolean ignoresSharpFlat) {
+    SCC.Annotation[] chords = scc.getChordList();
+    for (int i = 0; i < chords.length-1; i++) {
+      ChordSymbol2 c1 = ChordSymbol2.parse(chords[i+1].content());
+      System.out.println(c1);
+      ChordSymbol2 c0 = ChordSymbol2.parse(chords[i].content());
+      System.out.println(c0);
+      int m, n;
+      for (m = 0; m < cc.length; m++) 
+        if (c0.match(cc[m], root, mode, bass, seventh, ninth, 
+                     eleventh, thirteenth, ignoresSharpFlat))
+          break;
+      for (n = 0; n < cc.length; n++)
+        if (c1.match(cc[n], root, mode, bass, seventh, ninth, 
+                     eleventh, thirteenth, ignoresSharpFlat))
+          break;
+      if (m < cc.length && n < cc.length)
+        counts[m][n]++;
+    }
+    return counts;
+  }
+
 }

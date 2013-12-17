@@ -18,8 +18,6 @@ import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.xml.processors.*;
 import jp.crestmuse.cmx.math.*;
 
-//  abbbbbbbbb
-
 /**********************************************************************
  *<p>The abstract class <tt>CMXFileWrapper</tt> is the common superclass 
  *of the classes that wrap XML documents; 
@@ -443,6 +441,11 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
   public static CMXFileWrapper readfile(String filename, CMXInitializer init) 
     throws IOException {
     return readfile(new File(filename), init);
+  }
+
+  public static CMXFileWrapper readfile(File file) 
+    throws IOException {
+    return readfile(file, null);
   }
 
   public static CMXFileWrapper readfile(File file, CMXInitializer init) 

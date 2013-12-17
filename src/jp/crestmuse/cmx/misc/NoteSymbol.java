@@ -4,6 +4,45 @@ import java.util.*;
 import java.util.regex.*;
 
 public final class NoteSymbol {
+
+  public static final NoteSymbol C = new NoteSymbol(NoteName.C, Sign.NONE);
+  public static final NoteSymbol D = new NoteSymbol(NoteName.D, Sign.NONE);
+  public static final NoteSymbol E = new NoteSymbol(NoteName.E, Sign.NONE);
+  public static final NoteSymbol F = new NoteSymbol(NoteName.F, Sign.NONE);
+  public static final NoteSymbol G = new NoteSymbol(NoteName.G, Sign.NONE);
+  public static final NoteSymbol A = new NoteSymbol(NoteName.A, Sign.NONE);
+  public static final NoteSymbol B = new NoteSymbol(NoteName.B, Sign.NONE);
+
+  public static final NoteSymbol C_SHARP = 
+    new NoteSymbol(NoteName.C, Sign.SHARP);
+  public static final NoteSymbol D_SHARP = 
+    new NoteSymbol(NoteName.D, Sign.SHARP);
+  public static final NoteSymbol E_SHARP = 
+    new NoteSymbol(NoteName.E, Sign.SHARP);
+  public static final NoteSymbol F_SHARP = 
+    new NoteSymbol(NoteName.F, Sign.SHARP);
+  public static final NoteSymbol G_SHARP = 
+    new NoteSymbol(NoteName.G, Sign.SHARP);
+  public static final NoteSymbol A_SHARP = 
+    new NoteSymbol(NoteName.A, Sign.SHARP);
+  public static final NoteSymbol B_SHARP = 
+    new NoteSymbol(NoteName.B, Sign.SHARP);
+
+  public static final NoteSymbol C_FLAT = 
+    new NoteSymbol(NoteName.C, Sign.FLAT);
+  public static final NoteSymbol D_FLAT = 
+    new NoteSymbol(NoteName.D, Sign.FLAT);
+  public static final NoteSymbol E_FLAT = 
+    new NoteSymbol(NoteName.E, Sign.FLAT);
+  public static final NoteSymbol F_FLAT = 
+    new NoteSymbol(NoteName.F, Sign.FLAT);
+  public static final NoteSymbol G_FLAT = 
+    new NoteSymbol(NoteName.G, Sign.FLAT);
+  public static final NoteSymbol A_FLAT = 
+    new NoteSymbol(NoteName.A, Sign.FLAT);
+  public static final NoteSymbol B_FLAT = 
+    new NoteSymbol(NoteName.B, Sign.FLAT);
+  
   
   public static enum NoteName {
     C(0), D(2), E(4), F(5), G(7), A(9), B(11);
@@ -118,6 +157,13 @@ public final class NoteSymbol {
     } else {
       return false;
     }
+  }
+
+  public boolean equals(Object o, boolean ignoresSharpFloat) {
+    if (o != null && o instanceof NoteSymbol) 
+      return number() == ((NoteSymbol)o).number();
+    else
+      return equals(o);
   }
 
   public int hashCode() {
