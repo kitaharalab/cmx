@@ -159,6 +159,11 @@ public class WAVPlayer implements MusicPlayer {
    }
   }
 
+  /** always throws UnsupportedOperationException */
+  public long getMicrosecondLength() {
+    throw new UnsupportedOperationException();
+  }
+
   public long getMicrosecondPosition() {
     return System.nanoTime() / 1000 - timebase + startposition;
 //    return line.getMicrosecondPosition() - lengthProcessed + startposition;

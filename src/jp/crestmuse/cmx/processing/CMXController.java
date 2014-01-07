@@ -544,6 +544,9 @@ public class CMXController implements TickTimer,MIDIConsts {
 
   public void playMusic(int i) {
     stopMusic(i);
+    System.err.println("stop");
+    if (getMicrosecondPosition(i) == getMicrosecondLength(i))
+      setMicrosecondPosition(i, 0);
     musicSync[i].play();
   }
 
@@ -598,6 +601,14 @@ public class CMXController implements TickTimer,MIDIConsts {
       return 0;
     else
       return musicPlayer[i].getMicrosecondPosition();
+  }
+
+  public long getMicrosecondLength() {
+    return getMicrosecondLength(0);
+  }
+
+  public long getMicrosecondLength(int i) {
+    return musicPlayer[i].getMicrosecondLength();
   }
 
   public long getTickPosition() {

@@ -62,6 +62,9 @@ public class WAVPlayer2 implements MusicPlayer {
 
   }
 
+  public long getMicrosecondLength() {
+    return clip.getMicrosecondLength();
+  }
 
   public long getMicrosecondPosition() {
     return clip.getMicrosecondPosition();

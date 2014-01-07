@@ -3,11 +3,24 @@ import jp.crestmuse.cmx.math.*;
 
 public class SimplePrintModule extends SPModule {
 
-  public void execute(Object[] src, TimeSeriesCompatible[] dest) {
+  private boolean thru;
+
+  public SimplePrintModule(boolean thru) {
+    this.thru = thru;
+  }
+
+  public SimplePrintModule() {
+    this(false);
+  }
+
+  public void execute(Object[] src, TimeSeriesCompatible[] dest) 
+  throws InterruptedException {
     if (src[0] instanceof Array)
       MathUtils.println((Array)src[0]);
     else
       System.out.println(src[0]);
+    if (thru) 
+      dest[0].add(src[0]);
   }
 
   public Class[] getInputClasses() {
@@ -15,6 +28,6 @@ public class SimplePrintModule extends SPModule {
   }
 
   public Class[] getOutputClasses() {
-    return new Class[0];
+    return thru ? new Class[] { Object.class } : new Class[0];
   }
 }
