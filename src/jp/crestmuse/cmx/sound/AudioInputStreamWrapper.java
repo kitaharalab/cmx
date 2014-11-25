@@ -17,6 +17,10 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
   private int next = 0;
   private static final int CACHE_SIZE = 65536;
 
+  private MutableWaveform wav = null;
+//  private DoubleArray[] wav;
+  private int nextInWav = 0;
+
   private static final DoubleArrayFactory factory =
     DoubleArrayFactory.getFactory();
 
@@ -39,6 +43,10 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
     sampleRate = (int)fmt.getSampleRate();
     bitsPerSample = fmt.getSampleSizeInBits();
     bytesPerSample = bitsPerSample / 8;
+  }
+
+  public void recordTo(MutableWaveform wav) {
+    this.wav = wav;
   }
 
   public AudioInputStream getAudioInputStream() {
@@ -183,6 +191,10 @@ public class AudioInputStreamWrapper implements AudioDataCompatible {
 //    return line != null ? line.isOpen() : audioin.available() >= sampleSize;
   }
 
+
+  public void close() {
+    line.close();
+  }
 
   public static AudioInputStreamWrapper createWrapper8(int fs, 
                                                        Mixer.Info mixer) 
