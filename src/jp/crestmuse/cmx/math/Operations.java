@@ -37,13 +37,18 @@ public class Operations {
     return z;
   }
 
-    public static void putAt(DoubleArray x, int i, double value) {
-	x.set(i, value);
-    }
+  public static void putAt(DoubleArray x, int i, double value) {
+    x.set(i, value);
+  }
 
-    public static double getAt(DoubleArray x, int i) {
-	return x.get(i);
-    }
+  public static double getAt(DoubleArray x, int i) {
+    return x.get(i);
+  }
+
+  public static void set(DoubleArray x, int from, int thru, double value) {
+    for (int i = from; i < thru; i++)
+      x.set(i, value);
+  }
 
   public static DoubleArray add(DoubleArray x, DoubleArray y) {
     int length = x.length();
@@ -201,6 +206,10 @@ public class Operations {
     int length = x.length();
     for (int i = 0; i < length; i++)
       x.set(i, x.get(i) / y);
+  }
+
+  public static void divX(DoubleArray x, int i, double y) {
+    x.set(i, x.get(i) / y);
   }
 
   public static double sum(DoubleArray x, int from, int thru) {
