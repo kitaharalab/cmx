@@ -12,6 +12,8 @@ public interface SCC {
   public Annotation[] getAnnotationList();
   public Annotation[] getBarlineList();
   public Annotation[] getChordList();
+  // Added: 2014/11/18, Author: tama
+  public Annotation[] getLyricList();
   public HeaderElement[] getHeaderElementList();
   public Part[] getPartList() throws TransformerException;
   public SCCXMLWrapper toWrapper() throws TransformerException;
