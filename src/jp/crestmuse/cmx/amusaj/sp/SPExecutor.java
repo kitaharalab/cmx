@@ -1,10 +1,12 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
-import java.util.concurrent.*;
+import jp.crestmuse.cmx.misc.QueueReader;
 
 /************************************************************************
  *<p>
@@ -320,7 +322,7 @@ public class SPExecutor {
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
             module.terminated(dest);
             for (TimeSeriesCompatible tsc : dest)     
-		tsc.add(SPTerminator.getInstance());
+              tsc.add(SPTerminator.getInstance());
             break;
           }
           module.execute(inputElements, dest);
