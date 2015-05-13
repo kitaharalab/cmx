@@ -890,7 +890,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
 	}
-	
+
 	/**
 	 * 認識済みのMIDI入力デバイスの一覧から部分一致するデバイスを探し，セットします．
 	 * 
@@ -899,10 +899,9 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMidiInDevice(String deviceName) {
 		setMidiInDevice(0, deviceName);
 	}
-	
+
 	/**
-	 * 認識済みのMIDI入力デバイスの一覧から部分一致するデバイスを探し，
-	 * 指定された要素番号に対応するデバイスとしてセットします．<br>
+	 * 認識済みのMIDI入力デバイスの一覧から部分一致するデバイスを探し， 指定された要素番号に対応するデバイスとしてセットします．<br>
 	 * <br>
 	 * Note : 文字列が複数のデバイスに一致した場合でも，最初のデバイスをセットします．
 	 * その為，複数の同一デバイスに対してはこのメソッドは正常に動作しません．
@@ -913,20 +912,21 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMidiInDevice(int i, String deviceName) {
 		try {
 			boolean isMatch = false;
-			
-	    for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
-	    	if (info.getName().indexOf(deviceName) != -1) {
-	    		midiins[i] = info;
-	    		isMatch = true;
-	    	}
-	    }
-	    
-	    if (! isMatch) throw new DeviceNotAvailableException("MIDI device can't find");
-    } catch (MidiUnavailableException e) {
-    	throw new DeviceNotAvailableException("MIDI device not available");
-    }
+
+			for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
+				if (info.getName().toLowerCase().indexOf(deviceName.toLowerCase()) != -1) {
+					midiins[i] = info;
+					isMatch = true;
+				}
+			}
+
+			if (!isMatch)
+				throw new DeviceNotAvailableException("MIDI device can't find");
+		} catch (MidiUnavailableException e) {
+			throw new DeviceNotAvailableException("MIDI device not available");
+		}
 	}
-	
+
 	/**
 	 * 認識済みのMIDI出力デバイスの一覧から部分一致するデバイスを探し，セットします．
 	 * 
@@ -935,10 +935,9 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMidiOutDevice(String deviceName) {
 		setMidiOutDevice(0, deviceName);
 	}
-	
+
 	/**
-	 * 認識済みのMIDI出力デバイスの一覧から部分一致するデバイスを探し，
-	 * 指定された要素番号に対応するデバイスとしてセットします．<br>
+	 * 認識済みのMIDI出力デバイスの一覧から部分一致するデバイスを探し， 指定された要素番号に対応するデバイスとしてセットします．<br>
 	 * <br>
 	 * Note : 文字列が複数のデバイスに一致した場合でも，最初のデバイスをセットします．
 	 * その為，複数の同一デバイスに対してはこのメソッドは正常に動作しません．
@@ -949,20 +948,21 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMidiOutDevice(int i, String deviceName) {
 		try {
 			boolean isMatch = false;
-			
-	    for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
-	    	if (info.getName().indexOf(deviceName) != -1) {
-	    		midiouts[i] = info;
-	    		isMatch = true;
-	    	}
-	    }
-	    
-	    if (! isMatch) throw new DeviceNotAvailableException("MIDI device can't find");
-    } catch (MidiUnavailableException e) {
-    	throw new DeviceNotAvailableException("MIDI device not available");
-    }
+
+			for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
+				if (info.getName().toLowerCase().indexOf(deviceName.toLowerCase()) != -1) {
+					midiouts[i] = info;
+					isMatch = true;
+				}
+			}
+
+			if (!isMatch)
+				throw new DeviceNotAvailableException("MIDI device can't find");
+		} catch (MidiUnavailableException e) {
+			throw new DeviceNotAvailableException("MIDI device not available");
+		}
 	}
-	
+
 	/**
 	 * 接続されているMICデバイスの一覧から部分一致するデバイスを探し，設定します．
 	 * 
@@ -970,15 +970,16 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 */
 	public void setMicDevice(String deviceName) {
 		boolean isMatch = false;
-		
+
 		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-			if (info.getName().indexOf(deviceName) != -1) {
+			if (info.getName().toLowerCase().indexOf(deviceName.toLowerCase()) != -1) {
 				mixer = info;
 				isMatch = true;
 			}
 		}
-		
-		if (! isMatch) throw new DeviceNotAvailableException("MIC device can't find");
+
+		if (!isMatch)
+			throw new DeviceNotAvailableException("MIC device can't find");
 	}
 
 	/**
@@ -990,8 +991,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 	}
 
 	/**
-	 * 指定された要素番号に対応する認識済みのMIDI入力デバイスからMIDIイベントを受け付けて
-	 * そのまま出力する「モジュール」を生成して返します．<br>
+	 * 指定された要素番号に対応する認識済みのMIDI入力デバイスからMIDIイベントを受け付けて そのまま出力する「モジュール」を生成して返します．<br>
 	 * このメソッドは，<tt>showMidiInChooser</tt>メソッドによってMIDI入力デバイスを選択した後でしか使用できません．
 	 * 
 	 * @param i MIDI入力デバイスの要素番号(0-255)
@@ -1002,7 +1002,8 @@ public class CMXController implements TickTimer, MIDIConsts {
 				throw new IllegalStateException(
 				    "MIDI IN device has not been selected yet");
 			} else {
-				MidiInputModule midiin2 = new MidiInputModule(SoundUtils.getMidiInDeviceByName(midiins[i].getName()));
+				MidiInputModule midiin2 = new MidiInputModule(
+				    SoundUtils.getMidiInDeviceByName(midiins[i].getName()));
 				addSPModule(midiin2);
 				return midiin2;
 			}
