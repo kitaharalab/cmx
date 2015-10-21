@@ -70,7 +70,7 @@ import processing.core.PApplet;
  * このクラスは，CrestMuse Toolkit (CMX)の主要な機能を簡単に呼び出せるようにしたクラスです．
  * ただし，現時点ではCMXのすべての機能を呼び出せるようになっているわけではありません．
  * 
- * このクラスを利用する際には，getInstanceメソッドでインスタンスを取得してから，各種メソッドを 利用します．
+ * このクラスを利用する際には，getInstanceメソッドでインスタンスを取得してから，各種メソッドを利用します．
  **********************************************************************/
 
 public class CMXController implements TickTimer, MIDIConsts {
@@ -94,14 +94,22 @@ public class CMXController implements TickTimer, MIDIConsts {
 
 	}
 
-	/** このクラスのインスタンスを返します． */
+	/**
+	 * このクラスのインスタンスを返します．
+	 * 
+	 * @return CMXController のインスタンス
+	 */
 	public static CMXController getInstance() {
 		return me;
 	}
 
 	/**
-	 * CMXが対応しているXML形式の文書オブジェクトを生成します． たとえば，SCCXML形式の文書オブジェクトを生成する際には，
-	 * <tt> createDocument(SCCXMLWrapper.TOP_TAG) </tt> とします．
+	 * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
+	 * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
+	 * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．
+	 * 
+	 * @param toptag 作成するドキュメントタイプのTOP_TAG
+	 * @return 指定されたTOP_TAGに対応する文書オブジェクト
 	 */
 	public static CMXFileWrapper createDocument(String toptag) {
 		try {
@@ -111,7 +119,12 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-	/** CMXが対応しているXML形式の文書を読み込みます． */
+	/**
+	 * CMXが対応しているXML形式の文書を読み込みます．
+	 * 
+	 * @param filename XMLファイル名
+	 * @return 指定されたファイルの文書オブジェクト
+	 */
 	public static CMXFileWrapper readfile(String filename) {
 		try {
 			return CMXFileWrapper.readfile(filename);
@@ -120,7 +133,12 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-	/** CMXが対応しているXML形式の文書を読み込みます． */
+	/**
+	 * CMXが対応しているXML形式の文書を読み込みます．
+	 * 
+	 * @param input XML形式の入力ストリーム
+	 * @return 指定されたストリームの文書オブジェクト
+	 */
 	public static CMXFileWrapper read(InputStream input) {
 		try {
 			return CMXFileWrapper.read(input);
@@ -129,7 +147,12 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-	/** 標準MIDIファイルをMIDIXML形式で読み込みます． */
+	/**
+	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
+	 * 
+	 * @param filename 標準MIDIファイル名
+	 * @return 指定されたファイルから生成されたMIDIXMLオブジェクト
+	 */
 	public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
 		try {
 			return MIDIXMLWrapper.readSMF(filename);
@@ -144,7 +167,12 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-	/** 標準MIDIファイルをMIDIXML形式で読み込みます． */
+	/**
+	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
+	 * 
+	 * @param input 標準MIDIファイルのストリーム
+	 * @return 指定されたストリームから生成されたMIDIXMLオブジェクト
+	 */
 	public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
 		try {
 			return MIDIXMLWrapper.readSMF(input);
@@ -159,7 +187,13 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-	/** CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します． */
+	/**
+	 * CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します．
+	 * 
+	 * @param f 保存する文書オブジェクト
+	 * @param filename 保存ファイル名
+	 * 
+	 */
 	public static void writefile(CMXFileWrapper f, String filename) {
 		try {
 			f.writefile(filename);
@@ -745,7 +779,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 次回再生時の音楽の再生開始箇所をマイクロ秒単位で指定します． ただし，このメソッドは音楽停止中しか使用できません．
 	 */
 	public void setMicrosecondPosition(int i, long t) {
-		musicPlayer[i].setMicrosecondPosition(0);
+		musicPlayer[i].setMicrosecondPosition(t);
 	}
 
 	public long getMicrosecondPosition() {

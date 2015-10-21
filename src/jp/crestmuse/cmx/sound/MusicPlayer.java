@@ -5,7 +5,7 @@ public interface MusicPlayer extends Runnable, TickTimer{
   void stop();
   boolean isNowPlaying();
   void setLoopEnabled(boolean b);
-  void setMicrosecondPosition(long potision);
+  void setMicrosecondPosition(long position);
   long getMicrosecondPosition();
   long getMicrosecondLength();
 }
