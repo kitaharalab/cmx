@@ -236,15 +236,15 @@ public class CMXController implements TickTimer, MIDIConsts {
   }
 
   /** CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します．*/
-  public static void writefile(CMXFileWrapper f, String filename) {
-    try {
-      f.writefile(filename);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot write file: " + filename);
-    } catch (SAXException e) {
-      throw new IllegalArgumentException("XML error: " + filename);
-    }
-  }
+//  public static void writefile(CMXFileWrapper f, String filename) {
+//    try {
+//      f.writefile(filename);
+//    } catch (IOException e) {
+//      throw new IllegalArgumentException("Cannot write file: " + filename);
+//    } catch (SAXException e) {
+//      throw new IllegalArgumentException("XML error: " + filename);
+//    }
+//  }
 
 	/** CMXFileWrapperオブジェクトを，対応するXML形式で出力ストリームに書き出します． */
 	public static void write(CMXFileWrapper f, OutputStream output) {

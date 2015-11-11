@@ -237,6 +237,10 @@ public class SCCDataSet implements SCC,Cloneable {
     addAnnotation("cue", onset, offset, content);
   }
 
+  public void addMarker(int onset, int offset, String content) {
+    addAnnotation("marker", onset, offset, content);
+  }
+
   public void addHeaderElement(int time, java.lang.String name, java.lang.String content) {
     headers.add(new HeaderElement(time, name, content));
   }
@@ -315,18 +319,25 @@ public class SCCDataSet implements SCC,Cloneable {
   }
 
   public SCC.Annotation[] getChordList() {
-    return SCCUtils.getChordList(this);
+    return SCCUtils.getAnnotationListOf("chord", this);
+//    return SCCUtils.getChordList(this);
   }
 
   public SCC.Annotation[] getBarlineList() {
-    return SCCUtils.getBarlineList(this);
+    return SCCUtils.getAnnotationListOf("barline", this);
+//    return SCCUtils.getBarlineList(this);
   }
 
   // Added: 2014/11/18, Author: tama
-  public Annotation[] getLyricList() {
-    return SCCUtils.getLyricList(this);
+  public SCC.Annotation[] getLyricList() {
+    return SCCUtils.getAnnotationListOf("lyric", this);
+//    return SCCUtils.getLyricList(this);
   }
 
+  public SCC.Annotation[] getMarkerList() {
+    return SCCUtils.getAnnotationListOf("marker", this);
+//    return SCCUtils.getMarkerList(this);
+  }
 
   public boolean removeAnnotation(MutableAnnotation a) {
     return annotations.remove(a);

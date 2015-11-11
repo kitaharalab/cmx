@@ -289,21 +289,30 @@ public class HarkObject {
 //  private byte[] bytearray = new byte[4];
   private ByteBuffer bytebuff = ByteBuffer.wrap(bytearray);
 
+  private void readBytes(InputStream in, byte[] buff, int length)
+    throws IOException {
+    for (int read_bytes = 0; read_bytes < length ; )
+      read_bytes += in.read(buff, read_bytes, length - read_bytes);
+  }
+
   private int readInt(InputStream in) throws IOException {
 //    in.read(bytearray);
-    in.read(bytearray, 0, 4);
+//    in.read(bytearray, 0, 4);
+    readBytes(in, bytearray, 4);
     return bytebuff.getInt(0);
   }
 
   private long readLong(InputStream in) throws IOException {
 //    in.read(bytearray);
-    in.read(bytearray, 0, 8);
+//    in.read(bytearray, 0, 8);
+    readBytes(in, bytearray, 8);
     return bytebuff.getLong(0);
   }
 
   private float readFloat(InputStream in) throws IOException {
 //    in.read(bytearray);
-    in.read(bytearray, 0, 4);
+//    in.read(bytearray, 0, 4);
+    readBytes(in, bytearray, 4);
     return bytebuff.getFloat(0);
   }
     
@@ -313,10 +322,11 @@ public class HarkObject {
 //    System.err.println(data_bytes);
       float[] data = new float[data_bytes / 4];
       byte[] bytearray = new byte[data_bytes];
-      for (int read_bytes = 0; read_bytes < data_bytes; ) {
-//        System.err.println(read_bytes);
-        read_bytes += in.read(bytearray, read_bytes, data_bytes - read_bytes);
-      }
+      readBytes(in, bytearray, data_bytes);
+//      for (int read_bytes = 0; read_bytes < data_bytes; ) {
+////        System.err.println(read_bytes);
+//        read_bytes += in.read(bytearray, read_bytes, data_bytes - read_bytes);
+//      }
 //      System.err.println("#bytes: " + in.read(bytearray));
 //      for (int i = 0; i < bytearray.length; i++)
 //        System.err.print(bytearray[i] + "\t" );

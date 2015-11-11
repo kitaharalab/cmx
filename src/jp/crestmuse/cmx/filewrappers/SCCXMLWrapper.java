@@ -392,11 +392,16 @@ public class SCCXMLWrapper extends CMXFileWrapper
   public void addLyric(int onset, int offset, String content) {
     addAnnotation("lyric", onset, offset, content);
   }
-  
+
   // Added: 2014/11/18, Author: tama
   @Deprecated
   public void addCuePoint(int onset, int offset, String content) {
     addAnnotation("cue", onset, offset, content);
+  }
+
+  @Deprecated
+  public void addMarker(int onset, int offset, String content) {
+    addAnnotation("marker", onset, offset, content);
   }
 
   @Deprecated
@@ -529,12 +534,19 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   public SCC.Annotation[] getChordList() {
-    return SCCUtils.getChordList(this);
+    return SCCUtils.getAnnotationListOf("chord", this);
+//    return SCCUtils.getChordList(this);
   }
 
   // Added: 2014/11/18, Author: tama
   public SCC.Annotation[] getLyricList() {
-    return SCCUtils.getLyricList(this);
+    return SCCUtils.getAnnotationListOf("lyric", this);
+//    return SCCUtils.getLyricList(this);
+  }
+
+  public SCC.Annotation[] getMarkerList() {
+    return SCCUtils.getAnnotationListOf("marker", this);
+//    return SCCUtils.getMarkerList(this);
   }
 
   /*
@@ -578,7 +590,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
   */
 
   public SCC.Annotation[] getBarlineList() {
-    return SCCUtils.getBarlineList(this);
+    return SCCUtils.getAnnotationListOf("barline", this);
+//    return SCCUtils.getBarlineList(this);
   }
 
   /*

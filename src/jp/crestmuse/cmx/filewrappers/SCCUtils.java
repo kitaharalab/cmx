@@ -17,6 +17,25 @@ public class SCCUtils {
 		return null;
 	}
 
+  static SCC.Annotation[] getAnnotationListOf(String tagname, SCC scc) {
+    SCC.Annotation[] ann = scc.getAnnotationList();
+    if (ann == null) return null;
+    int n = 0;
+    for (int i = 0; i < ann.length; i++) {
+      if (ann[i].type().equals(tagname))
+        n++;
+    }
+    SCC.Annotation[] ann2 = new SCC.Annotation[n];
+    int k = 0;
+    for (int i = 0; i < ann.length; i++)
+      if (ann[i].type().equals(tagname)) {
+        ann2[k] = ann[i];
+        k++;
+      }
+    return ann2;
+  }
+
+/*
 	static SCC.Annotation[] getChordList(SCC scc) {
 		SCC.Annotation[] ann = scc.getAnnotationList();
 		if (ann == null) return null;
@@ -70,8 +89,9 @@ public class SCCUtils {
 			}
 		return lyrics;
 	}
+*/
 
-	public static SCC transpose(SCC scc, int diff, boolean sharp) throws TransformerException {
+ 	public static SCC transpose(SCC scc, int diff, boolean sharp) throws TransformerException {
 		SCCDataSet scc2 = scc.toDataSet().clone();
 		int fifth = 0;
 		while (fifth * 7 % 12 != diff)

@@ -627,6 +627,9 @@ throw new InvalidFileTypeException("Invalid SMF");
           } else if (messageType.equals("CuePoint")) {
             scc.addCuePoint(totalTime, totalTime, midiEvent.child2.getTextContent());
             return;
+          } else if (messageType.equals("Marker")) {
+            scc.addMarker(totalTime, totalTime, midiEvent.child2.getTextContent());
+            return;
           } else if (isSupportedMetaEvent(midiEvent.messageType())) return;
           short statusNo = msgNameToStatusNo(messageType);
           if ((statusNo == NOTE_ON) && (midiEvent.value(1) > 0)) {
