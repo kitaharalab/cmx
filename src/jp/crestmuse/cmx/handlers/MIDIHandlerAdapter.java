@@ -12,4 +12,10 @@ public class MIDIHandlerAdapter implements MIDIHandler {
                                MIDIXMLWrapper w) {
     // do nothing
   }
+  public void beginXFKM(MIDIXMLWrapper.XFKM xfkm, MIDIXMLWrapper w) {
+    // do nothing
+  }
+  public void endXFKM(MIDIXMLWrapper.XFKM xfkm, MIDIXMLWrapper w) {
+    // do nothing
+  }
 }

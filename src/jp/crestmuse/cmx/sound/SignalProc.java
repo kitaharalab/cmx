@@ -201,31 +201,25 @@ public class SignalProc {
                          DoubleArray g, DoubleArray h, 
                          int from, int thru) {
     int length = thru - from;
-//    int length = s0.length();
     int filter_length = g.length();
-//    DoubleArray s1 = createDoubleArray(length);
     set(s1, from, thru, 0.0);
     for (int n = 0; n < length/2; n++) {
       for (int k = 0; k < filter_length; k++) {
         int i = (2 * n + k) % length;
         addX(s1, from+n, g.get(k) * s0.get(from+i));
-//        s1.set(n, s1.get(n) + g.get(k) * s0.get(i));
         addX(s1, from+n+length/2, h.get(k) * s0.get(from+i));
-//        s1.set(n+length/2, s1.get(n+length/2) + h.get(k) + s0.get(i));
       }
     }
-//    for (int n = 0; n < length/2; n++)
-//      divX(s1, n, 2.0);
-////    divX(s1, 2.0);
   }
 
   public static DoubleArray idwt_loop(DoubleArray s1, 
                                       DoubleArray p, DoubleArray q, int n) {
     int thru = s1.length();
-//    DoubleArray s0 = createDoubleArray(thru);
     DoubleArray s0 = cloneArray(s1);
     for (int i = 0; i < n; i++) {
       thru = thru / 2;
+//      System.err.println(i);
+//      System.err.println(thru);
     }
     for (int i = 0; i < n; i++) {
       thru = thru * 2;
@@ -247,14 +241,10 @@ public class SignalProc {
                    DoubleArray p, DoubleArray q,
                    int from, int thru) {
     int length = thru - from;
-//    int length = s1.length();
     int filter_length = p.length();
-//    DoubleArray s0 = createDoubleArray(length);
     DoubleArray s0_LPF = createDoubleArray(length);
     DoubleArray s0_HPF = createDoubleArray(length);
     set(s0, from, thru, 0.0);
-//    for (int n = 0; n < length / 2; n++)
-//      mulX(s1, n, 2.0);
     for (int n = 0; n < length / 2; n++) {
       s0_LPF.set(2 * n, s1.get(from + n));
       s0_HPF.set(2 * n, s1.get(from + n + length / 2));
@@ -262,6 +252,7 @@ public class SignalProc {
     for (int n = 0; n < length; n++) {
       for (int k = 0; k < filter_length; k++) {
         int i = (n - k + length) % length;
+//        System.err.println("length:" + length + ", n:" + n + ", k:" + k + ", i:" + i);
         addX(s0, from+n, p.get(k) * s0_LPF.get(i) + q.get(k) * s0_HPF.get(i));
       }
     }

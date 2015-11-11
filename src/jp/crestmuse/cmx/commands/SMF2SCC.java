@@ -16,7 +16,8 @@ public class SMF2SCC extends CMXCommand {
     protected void run() 
 	throws IOException, ParserConfigurationException, 
 	       TransformerException, SAXException, InvalidFileTypeException {
-      setOutputData(((MIDIXMLWrapper)indata()).toSCCXML());
+//      setOutputData(((MIDIXMLWrapper)indata()).toSCCXML());
+      setOutputData(((MIDIXMLWrapper)indata()).toSCC().toWrapper());
     }
 
     public static void main(String[] args) {
