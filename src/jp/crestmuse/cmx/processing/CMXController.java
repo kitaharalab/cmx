@@ -1215,6 +1215,14 @@ public class CMXController implements TickTimer, MIDIConsts {
 	}
 
 	/**
+	 * マイク入力を受け取り，指定された文字列をファイル名としてWAVで保存します．
+	 */
+	public void saveMicToWav(WindowSlider ws, String filename) throws IOException {
+		WAVWrapper wav = new WAVWrapper(ws.getDoubleArray(), AmusaParameterSet.getInstance().getParamInt("fft", "SAMPLE_RATE"));
+		wav.writefile(filename);
+	}
+
+	/**
 	 * 現在サウンドカードから再生中の音を受け取って，その波形データを短区間ごとに区切った 波形断片を次々と出力する「モジュール」を生成します．
 	 * （新しいwavreadへの対応は要チェック）
 	 */
