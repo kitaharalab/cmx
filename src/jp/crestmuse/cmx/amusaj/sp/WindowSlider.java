@@ -30,6 +30,12 @@ public class WindowSlider extends SPModule {
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
 
+  private DoubleArray[] wav_;
+  public DoubleArray[] getDoubleArray() {
+  	return wav_;
+  }
+  private int from = 0, thru = 0, offset = 0;
+
 //  private int t = 0;
 
   public WindowSlider(boolean isStereo) {
@@ -40,6 +46,8 @@ public class WindowSlider extends SPModule {
       chTarget = new int[]{-2};
 //      wav = new DoubleArray[1];
     }
+
+    wav_ = new DoubleArray[chTarget.length];
   }
 
   public WindowSlider(int[] chTarget) {
@@ -103,6 +111,7 @@ public class WindowSlider extends SPModule {
   public void setInputData(AudioDataCompatible audiodata) {
     AmusaParameterSet params = AmusaParameterSet.getInstance();
     winsize = params.getParamInt("fft", "WINDOW_SIZE");
+    thru = winsize;
     int channels = audiodata.channels();
     params.setParam("fft", "CHANNELS", channels);
     fs = audiodata.sampleRate();
@@ -153,10 +162,17 @@ public class WindowSlider extends SPModule {
           else
             w = new DoubleArrayWithTicktime(wav[chTarget[i]], ticktime);
           dest[i].add(w);
+
+          DoubleArray ww = wav[i].subarrayX(from, thru);
+          System.out.println(ww.encode());
+          Operations.concat(new DoubleArray[]{wav_[i], ww});
         }
       } catch (IOException e) {
         throw new SPException(e);
       }
+      from = winsize + offset;
+      thru += shift_;
+      offset += shift_;
     } else { 
       for (int i = 0; i < chTarget.length; i++)
         dest[i].add(SPTerminator.getInstance());
