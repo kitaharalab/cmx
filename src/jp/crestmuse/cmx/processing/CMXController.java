@@ -823,6 +823,22 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMicrosecondPosition(int i, long t) {
 		musicPlayer[i].setMicrosecondPosition(t);
 	}
+	
+	public void setTickPosition(long tick) {
+		setTickPosition(0, tick);
+	}
+	
+	/**
+	 * 次回再生時の音楽の再生開始箇所をティック単位で指定します．<br>
+	 * ただし，このメソッドはMIDIファイルが読み込まれている場合にしか使用出来ません．
+	 * 
+	 * @param i
+	 * @param tick ティック位置
+	 */
+	public void setTickPosition(int i, long tick) {
+		((SMFPlayer)musicPlayer[i]).setTickPosition(tick);
+		//unsupported operation exception 引数に説明(midi以外は使えない）,ドキュメントにも
+	}
 
 	public long getMicrosecondPosition() {
 		return getMicrosecondPosition(0);
@@ -1180,6 +1196,10 @@ public class CMXController implements TickTimer, MIDIConsts {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
 	}
+	
+	public AudioDataCompatible getMic() {
+		return mic;
+	}
 
 	/**
 	 * マイクから波形データを受け取って，短区間ごとに区切った波形断片を次々と 出力する「モジュール」を生成します．<br>
@@ -1212,6 +1232,14 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void closeMic() {
 		if (mic != null)
 			mic.getLine().close();
+	}
+	
+	/**
+	 * マイク入力を受け取り，指定された文字列をファイル名としてWAVで保存します．
+	 */
+	public void saveMicToWav(WindowSlider ws, String filename) throws IOException {
+		WAVWrapper wav = new WAVWrapper(ws.getDoubleArray(), AmusaParameterSet.getInstance().getParamInt("fft", "SAMPLE_RATE"));
+		wav.writefile(filename);
 	}
 
 	/**
