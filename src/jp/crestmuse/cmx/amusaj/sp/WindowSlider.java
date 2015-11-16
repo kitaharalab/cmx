@@ -1,13 +1,15 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import static jp.crestmuse.cmx.math.Operations.mean;
-import static jp.crestmuse.cmx.sound.SoundUtils.excerpt;
-
-import java.io.IOException;
-
-import jp.crestmuse.cmx.math.DoubleArray;
-import jp.crestmuse.cmx.math.DoubleArrayFactory;
-import jp.crestmuse.cmx.sound.AudioDataCompatible;
-import jp.crestmuse.cmx.sound.TickTimer;
+import jp.crestmuse.cmx.commands.*;
+import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.amusaj.filewrappers.*;
+import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.sound.*;
+import static jp.crestmuse.cmx.math.Operations.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
+import static jp.crestmuse.cmx.sound.Utils.*;
+import java.util.*;
+import java.io.*;
 
 public class WindowSlider extends SPModule {
 
@@ -144,7 +146,6 @@ public class WindowSlider extends SPModule {
       if (audiodata.hasNext(winsize)) {
       try {
         DoubleArray[] wav = audiodata.readNext(winsize, winsize - shift_);
-        
         for (int i = 0; i < chTarget.length; i++) {
           DoubleArrayWithTicktime w;
           if (chTarget[i] == -2)

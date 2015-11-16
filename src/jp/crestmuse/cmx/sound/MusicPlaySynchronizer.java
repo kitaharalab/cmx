@@ -1,7 +1,6 @@
 package jp.crestmuse.cmx.sound;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>このクラスは複数の{@link MusicPlaySynchronized}オブジェクトをひと
@@ -42,15 +41,6 @@ public class MusicPlaySynchronizer implements Runnable {
 
   public void addMusicListener(MusicListener l) {
     listeners.add(l);
-  }
-  
-  /**
-   * プレイヤーの先頭からのミリ秒を受け取り，再生位置を移動します
-   * 
-   * @param position 先頭からのミリ秒
-   */
-  public void setMicrosecondPosition(long position) {
-  	player.setMicrosecondPosition(position);
   }
 
   public void play() {
