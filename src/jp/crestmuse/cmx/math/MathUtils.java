@@ -262,19 +262,11 @@ public class MathUtils {
     	return factory.createArray(x);
     }
 
-    public static final DoubleArray createDoubleArray(List<? extends Number> x) {
+    public static final DoubleArray createDoubleArray(List<BigDecimal> x) {
 	int length = x.size();
 	DoubleArray array = createDoubleArray(length);
-	for (int i = 0; i < length; i++) {
-          array.set(i, x.get(i).doubleValue());
-//          Object x1 = x.get(i);
-//          if (x1 instanceof Double) 
-//	    array.set(i, ((Double)x1).doubleValue());
-//          else if (x1 instanceof BigDecimal)
-//            array.set(i, ((BigDecimal)x1).doubleValue());
-//          else
-//            throw new IllegalArgumentException("Not double value: " + x1);
-        }
+	for (int i = 0; i < length; i++)
+	    array.set(i, x.get(i).doubleValue());
 	return array;
     }
 
