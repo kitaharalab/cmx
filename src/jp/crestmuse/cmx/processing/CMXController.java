@@ -187,6 +187,21 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
+  /** 標準MIDIファイルをSCCIXML形式で読み込みます． */
+  public static SCCXMLWrapper readSMFAsSCCXML(String filename) {
+    try {
+      return MIDIXMLWrapper.readSMF(filename).toSCCXML();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file: " + filename);
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
+
 	/**
 	 * CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します．
 	 * 
@@ -203,6 +218,33 @@ public class CMXController implements TickTimer, MIDIConsts {
 			throw new IllegalArgumentException("XML error: " + filename);
 		}
 	}
+
+
+  /** 標準MIDIファイルをMIDIXML形式で読み込みます． */
+  public static SCCXMLWrapper readSMFAsSCCXML(InputStream input) {
+    try {
+      return MIDIXMLWrapper.readSMF(input).toSCCXML();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
+
+  /** CMXFileWrapperオブジェクトを，対応するXML形式でファイルに保存します．*/
+//  public static void writefile(CMXFileWrapper f, String filename) {
+//    try {
+//      f.writefile(filename);
+//    } catch (IOException e) {
+//      throw new IllegalArgumentException("Cannot write file: " + filename);
+//    } catch (SAXException e) {
+//      throw new IllegalArgumentException("XML error: " + filename);
+//    }
+//  }
 
 	/** CMXFileWrapperオブジェクトを，対応するXML形式で出力ストリームに書き出します． */
 	public static void write(CMXFileWrapper f, OutputStream output) {
@@ -781,22 +823,6 @@ public class CMXController implements TickTimer, MIDIConsts {
 	public void setMicrosecondPosition(int i, long t) {
 		musicPlayer[i].setMicrosecondPosition(t);
 	}
-	
-	public void setTickPosition(long tick) {
-		setTickPosition(0, tick);
-	}
-	
-	/**
-	 * 次回再生時の音楽の再生開始箇所をティック単位で指定します．<br>
-	 * ただし，このメソッドはMIDIファイルが読み込まれている場合にしか使用出来ません．
-	 * 
-	 * @param i
-	 * @param tick ティック位置
-	 */
-	public void setTickPosition(int i, long tick) {
-		((SMFPlayer)musicPlayer[i]).setTickPosition(tick);
-		//TO DO:例外処理の追加（unsupported operation exception
-	}
 
 	public long getMicrosecondPosition() {
 		return getMicrosecondPosition(0);
@@ -818,6 +844,22 @@ public class CMXController implements TickTimer, MIDIConsts {
 
 	public long getMicrosecondLength(int i) {
 		return musicPlayer[i].getMicrosecondLength();
+	}
+	
+	public void setTickPosition(long tick) {
+		setTickPosition(0, tick);
+	}
+	
+	/**
+	 * 次回再生時の音楽の再生開始箇所をティック単位で指定します．<br>
+	 * ただし，このメソッドはMIDIファイルが読み込まれている場合にしか使用出来ません．
+	 * 
+	 * @param i
+	 * @param tick ティック位置
+	 */
+	public void setTickPosition(int i, long tick) {
+		((SMFPlayer)musicPlayer[i]).setTickPosition(tick);
+		//TO DO:例外処理の追加（unsupported operation exception
 	}
 
 	public long getTickPosition() {
