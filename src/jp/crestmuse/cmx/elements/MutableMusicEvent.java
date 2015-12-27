@@ -8,7 +8,7 @@ public abstract class MutableMusicEvent
   int onset, offset, value1, value2, value3;
   int ticksPerBeat;
   Type type;
-  enum Type {NOTE, CONTROL_CHANGE, PITCH_BEND, ANNOTATION};
+  enum Type {NOTE, CONTROL_CHANGE, PROGRAM_CHANGE, PITCH_BEND, ANNOTATION};
   MusicXMLWrapper.MusicData obj;
 
   Map<String,String> attr = new TreeMap<String,String>();

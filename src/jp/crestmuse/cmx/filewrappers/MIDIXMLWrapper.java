@@ -650,6 +650,11 @@ throw new InvalidFileTypeException("Invalid SMF");
               new MutablePitchBend(totalTime, midiEvent.value(0), 
                                    ticksPerBeat());
             addMusicEvent(c, midiEvent);
+          } else if (statusNo == PROGRAM_CHANGE) {
+            MutableProgramChange c = 
+              new MutableProgramChange(totalTime, midiEvent.value(0), 
+                                       ticksPerBeat());
+            addMusicEvent(c, midiEvent);
           }
         }
         private void addMusicEvent(MutableMusicEvent c, MIDIEvent e) {

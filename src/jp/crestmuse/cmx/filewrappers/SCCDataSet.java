@@ -185,15 +185,34 @@ public class SCCDataSet implements SCC,Cloneable {
     }
 
     public int prognum() {
+      Note[] notes = getNoteList();
+      for (int i = 0; i < notes.length; i++) {
+        if (notes[i] instanceof MutableProgramChange) {
+          return ((MutableProgramChange)notes[i]).value();
+        }
+      }
       return prognum;
     }
 
+    private int getFirstControlChange(int ctrlnum, int defaultvalue) {
+      Note[] notes = getNoteList();
+      for (int i = 0; i < notes.length; i++) {
+        if (notes[i] instanceof MutableControlChange) {
+          MutableControlChange c = (MutableControlChange)notes[i];
+          if (c.ctrlnum() == ctrlnum)
+            return c.value();
+        }
+      }
+      return defaultvalue;
+    }
+      
+
     public int volume() {
-      return volume;
+      return getFirstControlChange(7, volume);
     }
 
     public int panpot() {
-      return panpot;
+      return getFirstControlChange(10, panpot);
     }
 
     public String name() {
@@ -253,20 +272,40 @@ public class SCCDataSet implements SCC,Cloneable {
     addHeaderElement(time, name, String.valueOf(content));
   }
 
+  public Part addPart(int serial, int ch) {
+    return addPart(serial, ch, (String)null);
+  }
+
+  @Deprecated
   public Part addPart(int serial, int ch, int pn, int vol) {
     return addPart(serial, ch, pn, vol, (String)null);
   }
 
+  public Part addPart(int serial, int ch, String name) {
+    return addPart(serial, ch, 0, 100, name);
+  }
+
+  @Deprecated
   public Part addPart(int serial, int ch, int pn, int vol, String name) {
     Part part = new Part(serial, (byte)ch, pn, vol, name);
     parts.add(part);
     return part;
   }
 
+  public void addPart(int serial, int ch, Closure closure) {
+    addPart(serial, ch, null, closure);
+  }
+
+  @Deprecated
   public void addPart(int serial, int ch, int pn, int vol, Closure closure) {
     addPart(serial, ch, pn, vol, null, closure);
   }
 
+  public void addPart(int serial, int ch, String name, Closure closure) {
+    addPart(serial, ch, 0, 100, name, closure);
+  }
+
+  @Deprecated
   public void addPart(int serial, int ch, int pn, int vol, String name,
                       Closure closure) {
     Part part = addPart(serial, ch, pn, vol, name);
@@ -406,6 +445,9 @@ public class SCCDataSet implements SCC,Cloneable {
           if (n instanceof MutableControlChange) {
             MutableControlChange cc = (MutableControlChange)n;
             newscc.addControlChange(cc.onset(div), cc.ctrlnum(), cc.value());
+          } else if (n instanceof MutableProgramChange) {
+            MutableProgramChange pc = (MutableProgramChange)n;
+            newscc.addProgramChange(pc.onset(div), pc.value());
           } else if (n instanceof MutablePitchBend) {
             MutablePitchBend pb = (MutablePitchBend)n;
             newscc.addPitchBend(pb.onset(div), pb.value());

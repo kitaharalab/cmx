@@ -73,6 +73,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
             searchNextTempo();
           }
           public void processNote(Note note, SCCXMLWrapper w) {
+            System.err.println(note);
             if (nextTempoChangeInTick >= 0
                 && nextTempoChangeInTick < note.onset()) {
               lastTempoChangeInTick = nextTempoChangeInTick;
@@ -257,6 +258,13 @@ public class SCCXMLWrapper extends CMXFileWrapper
     checkElementAddition(partStarted);
     addChild("pitch-bend");
     addText(onset + " " + offset + " " + value);
+    returnToParent();
+  }
+
+  void addProgramChange(int time, int value) {
+    checkElementAddition(partStarted);
+    addChild("program");
+    addText(time + " " + time + " " + value);
     returnToParent();
   }
 
@@ -1084,7 +1092,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
         int size = nl.getLength();
         notelist = new Note[size];
         noteonlylist = new ArrayList<Note>();
-        int iNote = 0, iCC = 0, iPB = 0;
+        int iNote = 0, iCC = 0, iPB = 0, iPC = 0;
         for (int i = 0; i < size; i++) {
           Node node = nl.item(i);
           if (node.getNodeName().equals("note")) {
@@ -1100,6 +1108,12 @@ public class SCCXMLWrapper extends CMXFileWrapper
             notelist[i] = new PitchBend(node, this);
             notelist[i].xpath = getXPathExpression()+"/pitch-bend["+iPB+"]";
             iPB++;
+          } else if (node.getNodeName().equals("program")) {
+            notelist[i] = new ProgramChange(node, this);
+            notelist[i].xpath = getXPathExpression() + "/program[" + iPC + "]";
+            iPC++;
+          } else {
+            throw new IllegalArgumentException("Unsupported Node Name: " + node.getNodeName());
           }
         }
       }
@@ -1225,8 +1239,8 @@ return s;
       byte ch = channel();
       MIDIEventList el = new MIDIEventList();
       Note[] notelist = getNoteList();
-      el.addEvent(0, MIDIConst.PROGRAM_CHANGE, ch, prognum(), 0);
-      el.addEvent(0, MIDIConst.CONTROL_CHANGE, ch, 7, volume());
+//      el.addEvent(0, MIDIConst.PROGRAM_CHANGE, ch, prognum(), 0);
+//      el.addEvent(0, MIDIConst.CONTROL_CHANGE, ch, 7, volume());
       for (Note note : notelist) {
         if (note instanceof ControlChange) {
           el.addEvent(note.onset(), MIDIConst.CONTROL_CHANGE, ch,
@@ -1235,8 +1249,10 @@ return s;
         } else if (note instanceof PitchBend) {
           el.addEvent(note.onset(), MIDIConst.PITCH_BEND_CHANGE, ch,
                       ((PitchBend)note).value(), 0);
-        }else{
-
+        } else if (note instanceof ProgramChange) {
+          el.addEvent(note.onset(), MIDIConst.PROGRAM_CHANGE, ch, 
+                      ((ProgramChange)note).value(), 0);
+        } else {
           el.addEvent(note.onset(), MIDIConst.NOTE_ON, ch,
                       note.notenum(), note.velocity());
           el.addEvent(note.offset(), MIDIConst.NOTE_OFF, ch,
@@ -1255,15 +1271,36 @@ return s;
     }
 
     public final int prognum() {
+      Note[] notes = getNoteList();
+      for (int i = 0; i < notes.length; i++) {
+        if (notes[i] instanceof ProgramChange) {
+          return ((ProgramChange)notes[i]).value();
+        }
+      }
       return getAttributeInt(node(), "pn");
+//      return getAttributeInt(node(), "pn");
+    }
+
+    private int getFirstControlChange(int ctrlnum, int defaultvalue) {
+      Note[] notes = getNoteList();
+      for (int i = 0; i < notes.length; i++) {
+        if (notes[i] instanceof ControlChange) {
+          ControlChange c = (ControlChange)notes[i];
+          if (c.ctrlnum() == ctrlnum)
+            return c.value();
+        }
+      }
+      return defaultvalue;
     }
 
     public final int volume() {
-      return getAttributeInt(node(), "vol");
+      return getFirstControlChange(7, getAttributeInt(node(), "vol"));
+//      return getAttributeInt(node(), "vol");
     }
 
     public final int panpot() {
-      return getAttributeInt(node(), "pan");
+      return getFirstControlChange(10, getAttributeInt(node(), "pan"));
+//      return getAttributeInt(node(), "pan");
     }
 
     public final String name() {
@@ -1302,7 +1339,7 @@ return s;
 
     @Override
     protected String getSupportedNodeName() {
-      return "note|control";
+      return "note|control|program|pitch-bend";
     }
 
     public final int onset() {
@@ -1398,6 +1435,18 @@ return s;
         return null;
     }
 
+  }
+
+  public class ProgramChange extends Note {
+    private ProgramChange(Node node, Part part) {
+      super(node, part);
+    }
+    protected String getSupportedNodeName() {
+      return "program";
+    }
+    public final int value() {
+      return notenum();
+    }
   }
 
   public class ControlChange extends Note {
