@@ -73,7 +73,6 @@ public class SCCXMLWrapper extends CMXFileWrapper
             searchNextTempo();
           }
           public void processNote(Note note, SCCXMLWrapper w) {
-            System.err.println(note);
             if (nextTempoChangeInTick >= 0
                 && nextTempoChangeInTick < note.onset()) {
               lastTempoChangeInTick = nextTempoChangeInTick;
@@ -94,7 +93,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
           private void searchNextTempo() {
             int i;
             for (i = nextHeader; i < headers.length; i++) {
-              System.err.println(headers[i].name() + headers[i].content());
+//              System.err.println(headers[i].name() + headers[i].content());
               if (headers[i].name().equals("TEMPO")) {
                 nextTempoChangeInTick = headers[i].time();
                 nextTempoChangeInSec = calcSec(nextTempoChangeInTick);
