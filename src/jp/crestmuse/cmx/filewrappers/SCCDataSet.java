@@ -125,6 +125,13 @@ public class SCCDataSet implements SCC,Cloneable {
       return cc;
     }
 
+    public MutableProgramChange addProgramChange(int time, int value) {
+      MutableProgramChange pc = new MutableProgramChange(time, value, division);
+      notes.add(pc);
+      checkOverlap(pc);
+      return pc;
+    }
+
     public MutablePitchBend addPitchBend(int time, int value) {
       MutablePitchBend pb = new MutablePitchBend(time, value, division);
       notes.add(pb);
