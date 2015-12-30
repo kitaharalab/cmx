@@ -449,7 +449,11 @@ public class SCCXMLWrapper extends CMXFileWrapper
         String[] data = getText(node()).split("\\s");
         onset = Integer.parseInt(data[0]);
         offset = data.length >= 2 ? Integer.parseInt(data[1]) : onset;
-        content = data.length >= 3 ? getText(node()) : null;
+//        content = data.length >= 3 ? getText(node()) : null;
+        /* contentからonsetとoffsetを除去。marker以外で問題ないか未確認 */
+        content = "";
+        for (int i = 2; i < data.length; i++)
+          content += data[i];
       } else {
         String[] data = getText(node()).split("\\s");
         onset = Integer.parseInt(data[0]);
@@ -497,7 +501,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
 //			}
     }
     protected String getSupportedNodeName() {
-      return "chord|barline|lyrics|cuePoint";
+      return "chord|barline|lyrics|cuePoint|marker";
     }
     public final int onset(){ return onset; }
     public final int offset(){ return offset; }
