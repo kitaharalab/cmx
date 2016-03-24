@@ -41,6 +41,11 @@ public class Operations {
     x.set(i, value);
   }
 
+  public static void putAt(DoubleArray x, Iterable<Integer> it, double value) {
+    for (Integer i : it)
+      x.set(i, value);
+  }
+
   public static double getAt(DoubleArray x, int i) {
     return x.get(i);
   }
@@ -1277,6 +1282,17 @@ public class Operations {
     for (int t = 0; t < length / 2; t++) 
       for (int tau = 0; tau < length / 2; tau++)  
         z[tau] += x.get(t) * x.get(t + tau);
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray rotate(DoubleArray x, int n) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) {
+      int j = (i + n) % length;
+      if (j < 0) j += length;
+      z[j] = x.get(i);
+    }
     return factory.createArray(z);
   }
 }

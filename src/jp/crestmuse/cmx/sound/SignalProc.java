@@ -198,14 +198,14 @@ public class SignalProc {
                                 
 
   static void dwt(DoubleArray s0, DoubleArray s1, 
-                         DoubleArray g, DoubleArray h, 
-                         int from, int thru) {
+                  DoubleArray g, DoubleArray h, int from, int thru) {
     int length = thru - from;
     int filter_length = g.length();
     set(s1, from, thru, 0.0);
     for (int n = 0; n < length/2; n++) {
       for (int k = 0; k < filter_length; k++) {
         int i = (2 * n + k) % length;
+//        System.err.println("n=" + n + ",k=" + k + ",i=" + i + ",value=" + (g.get(k)*s0.get(from+i)));
         addX(s1, from+n, g.get(k) * s0.get(from+i));
         addX(s1, from+n+length/2, h.get(k) * s0.get(from+i));
       }
@@ -238,7 +238,7 @@ public class SignalProc {
   }
 
   static void idwt(DoubleArray s1, DoubleArray s0, 
-                   DoubleArray p, DoubleArray q,
+                   DoubleArray p, DoubleArray q,  
                    int from, int thru) {
     int length = thru - from;
     int filter_length = p.length();

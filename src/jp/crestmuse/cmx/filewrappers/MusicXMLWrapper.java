@@ -220,6 +220,16 @@ public class MusicXMLWrapper extends CMXFileWrapper {
     return partlist;
   }
 
+  public Part getPartOf(String id) {
+    Part[] parts = getPartList();
+    for (int i = 0 ; i < parts.length; i++) {
+      if (parts[i].id().equals(id)) {
+        return parts[i];
+      }
+    }
+    return null;
+  }
+
   public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException,TransformerException {
 //    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
 //    makeDeadpanSCCXML(dest, ticksPerBeat);
@@ -982,6 +992,20 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         }
       }
       return mdlist;
+    }
+
+    public Note[] getNoteOnlyList() {
+      MusicData[] md = getMusicDataList();
+      int count = 0;
+      for (int i = 0; i < md.length; i++) 
+        if (md[i] instanceof Note)
+          count++;
+      Note[] notelist = new Note[count];
+      count = 0;
+      for (int i = 0; i < md.length; i++) 
+        if (md[i] instanceof Note) 
+          notelist[count++] = (Note)md[i];
+      return notelist;
     }
 
     // private int ticksPerBeat;

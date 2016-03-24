@@ -278,6 +278,26 @@ public class MathUtils {
 	return array;
     }
 
+  public static final DoubleArray createDoubleArrayWithNegativeIndex(int length) {
+    return new DefaultDoubleArrayWithNegativeIndex(length);
+  }
+
+  public static final DoubleArray createDoubleArrayWithNegativeIndex(double[] x) {
+    return new DefaultDoubleArrayWithNegativeIndex(x);
+  }
+
+  public static final DoubleArray createDoubleArrayWithNegativeIndex(int length, double value) {
+    return new DefaultDoubleArrayWithNegativeIndex(length, value);
+  }
+
+  public static final DoubleArray createDoubleArrayWithNegativeIndex(List<? extends Number> x) {
+    double[] array = new double[x.size()];
+    for (int i = 0; i < array.length; i++)
+      array[i] = x.get(i).doubleValue();
+    return createDoubleArrayWithNegativeIndex(array);
+  }
+  
+
     public static final ComplexArray createComplexArray(int length) {
 	return cfactory.createArray(length);
     }

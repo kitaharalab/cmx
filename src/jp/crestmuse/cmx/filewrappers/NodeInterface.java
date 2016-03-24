@@ -198,11 +198,14 @@ public abstract class NodeInterface {
    *<p>指定されたタグ名の子ノードを返します.</p>
    *********************************************************************/
   protected final Node getChildByTagName(String tagname) {
+    return getChildByTagName(tagname, node);
+/*
     NodeList nl = node.getElementsByTagName(tagname);
     if (nl.getLength() >= 1)
       return nl.item(0);
     else
       return null;
+*/
 //    if (node == null) return null;
 //    if (children == null) {
 //      children = node.getChildNodes();
@@ -216,6 +219,23 @@ public abstract class NodeInterface {
 //    return null;
   }
 
+  protected final Node getChildOfChildByTagName(String tagname1, 
+                                                String tagname2) {
+    return getChildByTagName(tagname2, getChildByTagName(tagname1));
+/*
+    Element child = (Element)getChildByTagName(tagname1);
+    if (child == null) {
+      return null;
+    } else {
+      NodeList nl = child.getElementsByTagName(tagname2);
+      if (nl.getLength() >= 1)
+        return nl.item(0);
+      else
+        return null;
+    }
+*/
+  }
+      
   protected final Node getChildByTagNameNS(String tagname, String ns) {
     NodeList nl = node.getElementsByTagNameNS(ns, tagname);
     if (nl.getLength() >= 1)
@@ -230,6 +250,7 @@ public abstract class NodeInterface {
    *指定されたノードに対する, 指定されたタグ名の子ノードを返します. 
    *********************************************************************/
   static Node getChildByTagName(String tagname, Node node) {
+/*
     if (node == null)
       return null;
     NodeList nl = ((Element)node).getElementsByTagName(tagname);
@@ -237,13 +258,14 @@ public abstract class NodeInterface {
       return nl.item(0);
     else
       return null;
-//    NodeList children = node.getChildNodes();
-//    for (int i = 0; i < children.getLength(); i++) {
-//      Node n = children.item(i);
-//      if (n.getNodeName().equals(tagname))
-//        return n;
-//    }
-//    return null;
+*/
+    NodeList children = node.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node n = children.item(i);
+      if (n.getNodeName().equals(tagname))
+        return n;
+    }
+    return null;
   }
 
   protected static boolean hasChild(String tagname, Node node) {

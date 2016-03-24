@@ -248,6 +248,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 					"MusicApexXML//EN",
 					"music-apex.dtd");      
 			//ここまで
+                        
+                        addClassTable("tstree", PACKAGE_BASE + "." + "TimespanXMLWrapper");
 
 		} catch (ClassNotFoundException e) {
 			throw new ExternalLibraryException(e.toString());
