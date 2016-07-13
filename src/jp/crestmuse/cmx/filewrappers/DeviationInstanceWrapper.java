@@ -45,9 +45,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   private HashMap<String, TimewiseControlView> pctrlviews = new HashMap<String, TimewiseControlView>();
   private HashMap<String, TreeView<ExtraNote>> extraNotes = new HashMap<String, TreeView<ExtraNote>>();
 
-  private Map<MusicXMLWrapper.Note, NoteDeviation> noteDevMap = new HashMap<MusicXMLWrapper.Note, NoteDeviation>();
+ private Map<MusicXMLWrapper.Note, NoteDeviation> noteDevMap = new HashMap<MusicXMLWrapper.Note, NoteDeviation>();
   private Map<MusicXMLWrapper.Note, ChordDeviation> chordDevMap = new HashMap<MusicXMLWrapper.Note, ChordDeviation>();
   private Map<MusicXMLWrapper.Note, MissNote> missNoteMap = new HashMap<MusicXMLWrapper.Note, MissNote>();
+//  private Map<MissNote, MusicXMLWrapper.Note> missNoteMapReverse = new HashMap<MissNote, MusicXMLWrapper.note>();
 
   // private boolean nonPartwiseStarted = false;
   // private boolean partwiseStarted = false;
@@ -298,6 +299,7 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       if (linkednode != null) {
         MissNote mn = new MissNote(linkednode);
         missNoteMap.put(note, mn);
+//        missNoteMapReverse.put(mn, note);
         return mn;
       } else {
         return null;
@@ -321,9 +323,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
   protected void analyze() throws IOException {
     try {
       // getTargetMusicXML().analyze();
-      addLinks("//note-deviation", getTargetMusicXML());
-      addLinks("//chord-deviation", getTargetMusicXML());
-      addLinks("//miss-note", getTargetMusicXML());
+      MusicXMLWrapper target = getTargetMusicXML();
+      addLinks("//note-deviation", target);
+      addLinks("//chord-deviation", target);
+      addLinks("//miss-note", target);
     } catch (TransformerException e) {
       throw new XMLException(e);
     }
@@ -771,8 +774,6 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           if (types[0].name().equals("words")) {
             try {
               ChordSymbol2 c = ChordSymbol2.parse(types[0].text());
-              System.err.println(types[0].text());
-              System.err.println(c);
               if (prevchord != null) {
                 scc.addChord(prevchordOnset, md.onset(ticksPerBeat), 
                              prevchord.encode());
@@ -794,8 +795,8 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
           ChordSymbol2 c = 
             ChordSymbol2.parse(root, h.kind(), bass, CHORD_PARSE_RULE);
           String encode = c.encode(ChordSymbol2.RULE1);
-          System.err.println(h.kind() + "\t" + encode
-                             + "\t" + ChordSymbol2.parse(encode).encode());
+//          System.err.println(h.kind() + "\t" + encode
+//                             + "\t" + ChordSymbol2.parse(encode).encode());
           return c;
         }
         

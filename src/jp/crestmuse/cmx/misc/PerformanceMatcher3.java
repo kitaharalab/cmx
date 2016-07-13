@@ -107,7 +107,8 @@ public class PerformanceMatcher3 {
     return path2dev(extraNotes);
   }
 
-  public DeviationInstanceWrapper extractDeviation(int[] indexlist) {
+  public DeviationInstanceWrapper extractDeviation(int[] indexlist) 
+    throws IOException {
     List<Note> extraNotes = new ArrayList<Note>();
     score2pfm = getPath(indexlist, extraNotes);
     return path2dev(extraNotes);
@@ -198,7 +199,8 @@ public class PerformanceMatcher3 {
     writer.close();
   }
 
-  private DeviationInstanceWrapper path2dev(List<Note> extraNotes) {
+  private DeviationInstanceWrapper path2dev(List<Note> extraNotes) 
+    throws IOException {
     DeviationDataSet dds = new DeviationDataSet(musicxml);
 //    sortIndexList();
     ArrayList<TempoAndTime> tempolist = alignBeats();

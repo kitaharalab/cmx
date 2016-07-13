@@ -1089,19 +1089,20 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * @param i MIDI入力デバイスの要素番号(0-255)
 	 */
 	public MidiInputModule createMidiIn(int i) {
-		try {
-			if (midiins[i] == null) {
-				throw new IllegalStateException(
-				    "MIDI IN device has not been selected yet");
-			} else {
-				MidiInputModule midiin2 = new MidiInputModule(
-				    SoundUtils.getMidiInDeviceByName(midiins[i].getName()));
-				addSPModule(midiin2);
-				return midiin2;
-			}
-		} catch (MidiUnavailableException e) {
-			throw new DeviceNotAvailableException("MIDI device not available");
-		}
+          try {
+            if (midiins[i] == null) {
+              throw new IllegalStateException(
+                "MIDI IN device has not been selected yet");
+            } else {
+              MidiInputModule midiin2 = new MidiInputModule(
+                SoundUtils.getMidiInDeviceByName(midiins[i].getName()));
+              midiin2.setTickTimer(this);
+              addSPModule(midiin2);
+              return midiin2;
+            }
+          } catch (MidiUnavailableException e) {
+            throw new DeviceNotAvailableException("MIDI device not available");
+          }
 	}
 
 	/**

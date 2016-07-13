@@ -522,19 +522,23 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	 *<p>現在のファイル名を返します, </p>
 	 *********************************************************************/
 	public final String getFileName() {
-		return file == null ? null : file.getName();
+//		return file == null ? null : file.getName();
+          return file == null ? "" : file.getName();
 	}
 
 	public final String getAbsolutePath() {
-		return file.getAbsolutePath();
+//		return file.getAbsolutePath();
+          return file == null ? "" : file.getAbsolutePath();
 	}
 
 	public final String getParentPath() {
-		return file.getParent();
+//		return file.getParent();
+          return file == null ? "" : file.getParent();
 	}
 
 	public final String getPath() {
-		return file.getPath();
+//		return file.getPath();
+          return file == null ? "" : file.getPath();
 	}
 
 	public final String getURI() {
@@ -747,21 +751,21 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 		}
 	}
 
-	protected final void addLinks(String xpath, CMXFileWrapper target) 
-			throws TransformerException {
-		addLinks(xpath, target.getDocument());
-	}
+  protected final void addLinks(String xpath, CMXFileWrapper target) 
+          throws TransformerException {
+    addLinks(xpath, target.getDocument());
+  }
 
-	protected final void addLinks(String xpath, Document target) 
-			throws TransformerException {
-		NodeList nl = selectNodeList(xpath);
-		for (int i = 0; i < nl.getLength(); i++) {
-			Node node = nl.item(i);
-			NodeList linkednodes = 
-					SimplifiedXPointerProcessor.getRemoteResource(node, target);
-			linkmanager.addLink(node, linkednodes);
-		}
-	}
+  protected final void addLinks(String xpath, Document target) 
+    throws TransformerException {
+    NodeList nl = selectNodeList(xpath);
+    for (int i = 0; i < nl.getLength(); i++) {
+      Node node = nl.item(i);
+      NodeList linkednodes = 
+        SimplifiedXPointerProcessor.getRemoteResource(node, target);
+      linkmanager.addLink(node, linkednodes);
+    }
+  }
 
 	/**********************************************************************
 	 *<p>Adds a child element with the specified tag name to the current node.  
