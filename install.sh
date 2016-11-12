@@ -1,12 +1,7 @@
 #!/bin/sh
 
-#################################################################
-# This installer copies jar files to /usr/local/ in default.    #
-# Execute this as superuser (e.g., with the sudo command).      #
-#################################################################
-
-usr=/usr/local
-branch=cmx-0.62
+usr=$HOME
+branch=trunk
 
 srcdir=$(cd $(dirname $0) && pwd)
 
