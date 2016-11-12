@@ -3,7 +3,6 @@ package jp.crestmuse.cmx.misc;
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.ControlChange;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
@@ -42,12 +41,12 @@ public class PerformanceMatcher3 {
   }
 
   private MusicXMLWrapper musicxml;
+  private MIDIXMLWrapper midixml;
   private String partid;
   private Measure[] measurelist;
   private Note[] scoreNotes, pfmNotes;
-  private ControlChange[] controls;
   private List<NoteInSameTime> compressedScore;
-  private Annotation[] barlines;
+  private SCC.Annotation[] barlines;
   // private DeviationDataSet dds;
   private int scoreTicksPerBeat;
   private int pfmTicksPerBeat;
@@ -65,6 +64,7 @@ public class PerformanceMatcher3 {
       int ticksPerBeat) throws ParserConfigurationException, SAXException,
       IOException, TransformerException {
     this.musicxml = score;
+    this.midixml = pfm;
     Part part0 = musicxml.getPartList()[0];
     measurelist = part0.getMeasureList();
     partid = part0.id();
@@ -74,7 +74,6 @@ public class PerformanceMatcher3 {
     scoreNotes = scoreSCC.getPartList()[0].getSortedNoteOnlyList(1);
     calcMusicXMLNote2Index();
     pfmNotes = pfmSCC.getPartList()[0].getSortedNoteOnlyList(1);
-    controls = pfmSCC.getPartList()[0].getControlChangeList();
     initCompressedScore();
     scoreTicksPerBeat = scoreSCC.getDivision();
     pfmTicksPerBeat = pfmSCC.getDivision();
@@ -108,17 +107,11 @@ public class PerformanceMatcher3 {
     return path2dev(extraNotes);
   }
 
-  public DeviationInstanceWrapper extractDeviation(int[] indexlist) {
+  public DeviationInstanceWrapper extractDeviation(int[] indexlist) 
+    throws IOException {
     List<Note> extraNotes = new ArrayList<Note>();
     score2pfm = getPath(indexlist, extraNotes);
-    int[] score2pfm_2 = (int[]) score2pfm.clone();
-    DeviationInstanceWrapper d = path2dev(extraNotes);
-    for (int i = 0; i < score2pfm.length; i++)
-      if (score2pfm[i] != score2pfm_2[i])
-        System.err.println("NOT SAME: " + i + "  " + score2pfm[i] + " "
-            + score2pfm_2[i]);
-    return d;
-    // return path2dev(extraNotes);
+    return path2dev(extraNotes);
   }
 
   private int[] getPath(DTWMatrix matrix, List<Note> extraNotes) {
@@ -139,10 +132,7 @@ public class PerformanceMatcher3 {
     boolean[] matched = new boolean[pfmNotes.length];
     for (i = 0; i < com2pfm.length; i++) {
       NoteInSameTime snotes = compressedScore.get(i);
-      System.err.println("S: " + snotes.toString());
-      System.err.println(snotes.notes.get(0).grace());
       NoteInSameTime pnotes = com2pfm[i];
-      System.err.println("P: " + pnotes.toString());
       for (j = 0; j < snotes.notes.size(); j++) {
         for (int k = 0; k < pnotes.notes.size(); k++) {
           int pfmIndex = pnotes.indexes.get(k);
@@ -158,6 +148,7 @@ public class PerformanceMatcher3 {
     for (j = 0; j < matched.length; j++)
       if (!matched[j]) {
         extraNotes.add(pfmNotes[j]);
+        System.err.println(j + "    " + pfmNotes[j]);
         extraNoteMap.put(pfmNotes[j], j);
       }
     return indexlist;
@@ -198,7 +189,7 @@ public class PerformanceMatcher3 {
     return indexlist;
   }
 
-  public void writePathToFile(String filename) throws IOException {
+  private void writePathToFile(String filename) throws IOException {
     PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
         filename)));
     writer.println(score2pfm.length);
@@ -208,9 +199,10 @@ public class PerformanceMatcher3 {
     writer.close();
   }
 
-  private DeviationInstanceWrapper path2dev(List<Note> extraNotes) {
+  private DeviationInstanceWrapper path2dev(List<Note> extraNotes) 
+    throws IOException {
     DeviationDataSet dds = new DeviationDataSet(musicxml);
-    // sortIndexList();
+//    sortIndexList();
     ArrayList<TempoAndTime> tempolist = alignBeats();
     interpolateBeatTime(tempolist);
     double avgtempo = calcTempo(tempolist);
@@ -221,7 +213,6 @@ public class PerformanceMatcher3 {
     addTempoDeviations(dds, tempolist, avgtempo);
     checkMissAndExtraNotes(extraNotes, tempolist);
     setNotewiseDeviations(dds, extraNotes, tempolist);
-    setPedalControls(dds, tempolist);
     return dds.toWrapper();
   }
 
@@ -264,7 +255,7 @@ public class PerformanceMatcher3 {
   public Map<MusicXMLWrapper.Note, Integer> getMusicxmlwrappernote2Index() {
     return musicxmlwrappernote2index;
   }
-
+  
   public Map<SCCXMLWrapper.Note, Integer> getExtraNoteMap() {
     return extraNoteMap;
   }
@@ -370,53 +361,19 @@ public class PerformanceMatcher3 {
 
   private void initCompressedScore() {
     compressedScore = new ArrayList<NoteInSameTime>();
-    NoteBuffer nb = new NoteBuffer();
-    for (int i = 0; i < scoreNotes.length; i++) {
-      if (i >= 1 && scoreNotes[i].onset() != scoreNotes[i - 1].onset()) {
-        addNotesToCompressedScore(nb, compressedScore);
-        nb = new NoteBuffer();
-      }
-      nb.addNote(scoreNotes[i], i);
-    }
-    addNotesToCompressedScore(nb, compressedScore);
-  }
-
-  private class NoteBuffer {
-    Note[][] notes = new Note[64][128];
-    int[][] indices = new int[64][128];
-    int[] next = new int[64];
-
-    void addNote(Note note, int index) {
-      int grace = note.grace();
-      notes[grace][next[grace]] = note;
-      indices[grace][next[grace]] = index;
-      next[grace]++;
-    }
-  }
-
-  private void addNotesToCompressedScore(NoteBuffer nb,
-      List<NoteInSameTime> compressedScore) {
-    for (int n = 1; nb.next[n] > 0; n++) {
-      NoteInSameTime nist = new NoteInSameTime();
-      for (int i = 0; i < nb.next[n]; i++)
-        nist.addNote(nb.notes[n][i], nb.indices[n][i]);
-      compressedScore.add(nist);
-    }
+    Note prev = scoreNotes[0];
     NoteInSameTime nist = new NoteInSameTime();
-    for (int i = 0; i < nb.next[0]; i++)
-      nist.addNote(nb.notes[0][i], nb.indices[0][i]);
+    nist.addNote(prev, 0);
     compressedScore.add(nist);
+    for (int i = 1; i < scoreNotes.length; i++) {
+      if (scoreNotes[i].onset() != prev.onset()) {
+        nist = new NoteInSameTime();
+        compressedScore.add(nist);
+      }
+      nist.addNote(scoreNotes[i], i);
+      prev = scoreNotes[i];
+    }
   }
-
-  /*
-   * private void initCompressedScore() { compressedScore = new
-   * ArrayList<NoteInSameTime>(); Note prev = scoreNotes[0]; NoteInSameTime nist
-   * = new NoteInSameTime(); nist.addNote(prev, 0); compressedScore.add(nist);
-   * for (int i = 1; i < scoreNotes.length; i++) { if (scoreNotes[i].onset() !=
-   * prev.onset() || scoreNotes[i].getGrace() == 0) { nist = new
-   * NoteInSameTime(); compressedScore.add(nist); } nist.addNote(scoreNotes[i],
-   * i); prev = scoreNotes[i]; } }
-   */
 
   private void sortIndexList() {
     for (int i = 0; i < score2pfm.length - 1; i++) {
@@ -597,14 +554,14 @@ public class PerformanceMatcher3 {
       int j = score2pfm[i];
       if (j >= 0) {
         addNoteDeviation(dds, scoreNotes[i], pfmNotes[j], tempolist);
-      } else if (score2pfm[i] < -1) {
-        // if (extraNotes.get(-j - 2) != null) {
-        // addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
-        // tempolist);
-        // extraNotes.set(-j - 2, null);
-        // } else {
-        // addMissNote(dds, scoreNotes[i]);
-        // }
+//      } else if (score2pfm[i] < -1) {
+//        if (extraNotes.get(-j - 2) != null) {
+//          addNoteDeviation(dds, scoreNotes[i], extraNotes.get(-j - 2),
+//              tempolist);
+//          extraNotes.set(-j - 2, null);
+//        } else {
+//          addMissNote(dds, scoreNotes[i]);
+//        }
       } else {
         addMissNote(dds, scoreNotes[i]);
       }
@@ -622,8 +579,9 @@ public class PerformanceMatcher3 {
       Note scoreNote = scoreNotes[i];
       double scoreOnset = getSecFromScoreTick(scoreNote.onset(), tempolist);
       int scoreNN = scoreNote.notenum();
-      extraNoteLoop: for (int j = 0; j < extraNotes.size(); j++) {
+      for (int j = 0; j < extraNotes.size(); j++) {
         Note pfmNote = extraNotes.get(j);
+        System.err.println(j + " " + extraNotes.get(j));
         if (pfmNote == null)
           continue;
         int pfmNN = pfmNote.notenum();
@@ -634,41 +592,15 @@ public class PerformanceMatcher3 {
             && pfmOnset - scoreOnset < MISS_EXTRA_ONSET_DIFF) {
           // TODO ?
           // score2pfm[i] = -j - 2;
-          // System.err.print(i + ":" + j + " ");
           for (int k = 0; k < pfmNotes.length; k++)
             if (pfmNotes[k] == pfmNote) {
               score2pfm[i] = k;
-              extraNotes.set(j, null);
-              // System.err.print(i + ":" + j + " ");
-              break extraNoteLoop;
+              break;
             }
+	  extraNotes.set(j, null);
         }
       }
     }
-  }
-
-  private void setPedalControls(DeviationDataSet dds,
-      ArrayList<TempoAndTime> tempolist) {
-    for (ControlChange cc : controls)
-      if (cc.ctrlnum() == 64 || cc.ctrlnum() == 67) {
-        TempoAndTime tnt = searchTnT(cc.onset(), tempolist);
-        double diff = 0;
-        if (tnt.measure >= 0)
-          diff = cc.onset() - tnt.tickInPfm;
-        else
-          diff = cc.onset() - tempolist.get(1).tickInPfm;
-        diff = diff * tnt.tempo / (pfmTicksPerBeat * baseTempo);
-        dds.addPartwiseControl(musicxml.getPartList()[0].id(), Math.max(
-            tnt.measure, 1), tnt.beat + diff, "pedal");
-        if (cc.value() == 0)
-          dds.setAttribute("action", "off");
-        else {
-          dds.setAttribute("action", "on");
-          dds.setAttribute("depth", cc.value() / 127.0);
-        }
-        if (cc.ctrlnum() == 67)
-          dds.setAttribute("type", "soft");
-      }
   }
 
   // kari; redundant calculation
@@ -793,17 +725,17 @@ public class PerformanceMatcher3 {
     int i = 0;
     int measure = 0, beat = 1, currentTick = 0;
     for (int k = 0; k < barlines.length - 2; k++) {
-      Measure m = getMeasure(barlines[k].onset());
+      Measure m = getMeasure(((Annotation)barlines[k]).onset());
       measure = m.number();
       beat = (int) m.initialBeat();
       // measure = getMeasureNumber(barlines[k].onset());
       // beat = 1;
-      for (currentTick = barlines[k].onset(); currentTick < barlines[k + 1].onset(); currentTick += scoreTicksPerBeat) {
+      for (currentTick = ((Annotation)barlines[k]).onset(); currentTick < ((Annotation)barlines[k + 1]).onset(); currentTick += scoreTicksPerBeat) {
         i = addTempoAndTime(currentTick, measure, beat, i, tempolist);
         beat++;
       }
     }
-    currentTick = barlines[barlines.length - 2].onset();
+    currentTick = ((Annotation)barlines[barlines.length - 2]).onset();
     Measure m = getMeasure(currentTick);
     measure = m.number();
     beat = (int) m.initialBeat();
@@ -816,7 +748,7 @@ public class PerformanceMatcher3 {
       if (scoreNotes[ii].offset() > lastOffset)
         lastOffset = scoreNotes[ii].offset();
 
-    for (currentTick += scoreTicksPerBeat; currentTick < barlines[barlines.length - 1].onset(); currentTick += scoreTicksPerBeat) {
+    for (currentTick += scoreTicksPerBeat; currentTick < ((Annotation)barlines[barlines.length - 1]).onset(); currentTick += scoreTicksPerBeat) {
       i = addTempoAndTime(currentTick, measure, ++beat, i, tempolist);
     }
     // kari
@@ -1021,11 +953,11 @@ public class PerformanceMatcher3 {
       } else {
         int interval = tnt.tickInScore - prevtnt.tickInScore;
         double pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
-        // zantei
-        if (pfmInterval < 0.0000000001) {
-          tnt.setTimeInSec(tnt.timeInSec + 0.01);
-          pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
-        }
+	// zantei
+	if (pfmInterval < 0.0000000001) {
+	  tnt.setTimeInSec(tnt.timeInSec + 0.01);
+	  pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
+	}
         prevtnt.tempo = (double) (interval * 60 / scoreTicksPerBeat)
             / pfmInterval;
         // prevtnt.tempo = (60.0 / (tnt.timeInSec - prevtnt.timeInSec));
@@ -1086,11 +1018,9 @@ public class PerformanceMatcher3 {
     try {
       MusicXMLWrapper score = (MusicXMLWrapper) CMXFileWrapper.readfile(args[0]);
       MIDIXMLWrapper pfm = MIDIXMLWrapper.readSMF(args[1]);
-      DeviationInstanceWrapper dev = PerformanceMatcher3.extractDeviation(
-          score, pfm);
-      dev.finalizeDocument();
-      // dev.toSCCXML(480).toMIDIXML().writefileAsSMF("out.mid");
-      dev.write(System.out);
+      // PerformanceMatcher3.DTW_PATH_FILENAME = args[2];
+      PerformanceMatcher3.extractDeviation(score, pfm, new File(args[2])).writefile(
+          args[3]);
     } catch (Exception e) {
       e.printStackTrace();
     }

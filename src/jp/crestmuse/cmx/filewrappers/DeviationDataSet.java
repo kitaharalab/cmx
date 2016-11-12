@@ -2,6 +2,7 @@ package jp.crestmuse.cmx.filewrappers;
 
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
+import java.io.*;
 
 public class DeviationDataSet {
 
@@ -14,6 +15,7 @@ public class DeviationDataSet {
   private Control last = null;
   private double initSil = 0.0;
 
+  /** @deprecated */
   public DeviationDataSet(DeviationInstanceWrapper devxml) {
     this.devxml = devxml;
     nonPartwise = new TreeView<Control>();
@@ -30,6 +32,7 @@ public class DeviationDataSet {
     extraNotes = new HashMap<String,TreeView<ExtraNote>>();
   }
 
+  /** @drprecated */
   public DeviationInstanceWrapper getTargetDeviationInstanceWrapper() {
     return devxml;
   }
@@ -358,11 +361,11 @@ public class DeviationDataSet {
    * 互換性維持のためのメソッドです。
    * DeviationInstanceWrapperを生成するときはDeviationDataSet.toWrapper()を利用してください。
    */
-  public void addElementsToWrapper(){
+  public void addElementsToWrapper() throws IOException {
     toWrapper();
   }
   
-  public DeviationInstanceWrapper toWrapper() {
+  public DeviationInstanceWrapper toWrapper() throws IOException {
     
     if(devxml == null){
       devxml = DeviationInstanceWrapper.createDeviationInstanceFor(musicxml);
@@ -400,6 +403,8 @@ public class DeviationDataSet {
       addExtraNotesToWrapper(extraNotes.get(key));
       devxml.returnToParent();
     }
+
+    devxml.finalizeDocument();
     
     return devxml;
   }

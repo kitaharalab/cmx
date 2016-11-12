@@ -5,7 +5,7 @@ import jp.crestmuse.cmx.amusaj.filewrappers.*;
 import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 import java.util.*;
 
 /*********************************************************************
@@ -68,17 +68,35 @@ public class STFT extends SPModule {
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
   throws InterruptedException {
     setParams();
-    DoubleArray signal = (DoubleArray)src[0];
-    if (winsize < 0 || winsize != signal.length())
-      changeWindow(wintype, signal.length());
-    ComplexArray fftresult = fft.executeR2C(signal, window);
-    dest[0].add(fftresult);
-    if (isStereo) {
-      dest[1].add(fft.executeR2C((DoubleArray)src[1], window));
-      dest[2].add(fft.executeR2C((DoubleArray)src[2], window));
+    if (src[0] instanceof DoubleArrayWithTicktime) {
+      DoubleArrayWithTicktime signal = (DoubleArrayWithTicktime)src[0];
+      if (winsize < 0 || winsize != signal.length())
+        changeWindow(wintype, signal.length());
+      ComplexArrayWithTicktime fftresult = 
+        new ComplexArrayWithTicktime(fft.executeR2C(signal, window), signal.music_position);
+      dest[0].add(fftresult);
+      if (isStereo) {
+        dest[1].add(new ComplexArrayWithTicktime(
+                      fft.executeR2C((DoubleArray)src[1], window), signal.music_position));
+        dest[2].add(new ComplexArrayWithTicktime(
+                      fft.executeR2C((DoubleArray)src[2], window), signal.music_position));
+      } else {
+        dest[1].add(fftresult);
+        dest[2].add(fftresult);
+      }
     } else {
-      dest[1].add(fftresult);
-      dest[2].add(fftresult);
+      DoubleArray signal = (DoubleArray)src[0];
+      if (winsize < 0 || winsize != signal.length())
+        changeWindow(wintype, signal.length());
+      ComplexArray fftresult = fft.executeR2C(signal, window);
+      dest[0].add(fftresult);
+      if (isStereo) {
+        dest[1].add(fft.executeR2C((DoubleArray)src[1], window));
+        dest[2].add(fft.executeR2C((DoubleArray)src[2], window));
+      } else {
+        dest[1].add(fftresult);
+        dest[2].add(fftresult);
+      }
     }
   }
                 

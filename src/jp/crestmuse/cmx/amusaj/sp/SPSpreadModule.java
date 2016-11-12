@@ -2,16 +2,22 @@ package jp.crestmuse.cmx.amusaj.sp;
 
 import java.util.Arrays;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.TimeSeriesCompatible;
-
 public class SPSpreadModule extends SPModule {
 
   private int spreadNum;
   private Class c;
+  private Class[] classes;
 
   public SPSpreadModule(Class c, int spreadNum) {
     this.spreadNum = spreadNum;
     this.c = c;
+    classes = new Class[spreadNum];
+    Arrays.fill(classes, c);
+  }
+
+  public SPSpreadModule(ProducerConsumerCompatible module, int ch, 
+                        int spreadNum) {
+    this(module.getOutputClasses()[ch], spreadNum);
   }
 
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
@@ -25,8 +31,6 @@ public class SPSpreadModule extends SPModule {
   }
 
   public Class[] getOutputClasses() {
-    Class[] classes = new Class[spreadNum];
-    Arrays.fill(classes, c);
     return classes;
   }
 

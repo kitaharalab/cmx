@@ -1,0 +1,8 @@
+void setup() {
+  def mid = readSMFAsMIDIXML("sample1.mid")
+  mid.println()
+}
+
+void draw() {
+  // do nothing
+}

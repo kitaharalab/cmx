@@ -1,0 +1,30 @@
+class OctaveUp extends MySPModule {
+  def execute(src, dest) {
+    def (stat, notenum, vel) = 
+      src[0].getMessageInByteArray()
+    def newevent = createShortMessageEvent(
+      [stat, notenum, (int)random(128)], 0, 0)
+    dest[0].add(newevent)
+  }
+  def inputs() {
+    [MidiEventWithTicktime.class]
+  }
+  def outputs() {
+    [MidiEventWithTicktime.class]
+  }
+}
+
+void setup() {
+  def vk = createVirtualKeyboard()
+  def ou = new OctaveUp()
+  def mo = createMidiOut()
+  addSPModule(vk)
+  addSPModule(ou)
+  addSPModule(mo)
+  connect(vk, 0, ou, 0)
+  connect(ou, 0, mo, 0)
+}
+
+void draw() {
+  // do nothing
+}

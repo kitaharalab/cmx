@@ -8,11 +8,11 @@ import javax.xml.transform.*;
 import jp.crestmuse.cmx.filewrappers.*;
 
 
-public class MakeDeadpanSCC extends CMXCommand {
-  public void run() throws IOException, ParserConfigurationException,
-    TransformerException, SAXException {
-    newOutputData("scc");
-    ((MusicXMLWrapper)indata()).makeDeadpanSCCXML((SCCXMLWrapper)outdata(), 480);   
+public class MakeDeadpanSCC extends CMXCommand<MusicXMLWrapper,SCCXMLWrapper> {
+  public SCCXMLWrapper run(MusicXMLWrapper musicxml) throws IOException, ParserConfigurationException, TransformerException, SAXException {
+    return musicxml.makeDeadpanSCCXML(480);
+//    newOutputData("scc");
+//    ((MusicXMLWrapper)indata()).makeDeadpanSCCXML((SCCXMLWrapper)outdata(), 480);   
   }
   public static void main(String[] args) {
     MakeDeadpanSCC m = new MakeDeadpanSCC();

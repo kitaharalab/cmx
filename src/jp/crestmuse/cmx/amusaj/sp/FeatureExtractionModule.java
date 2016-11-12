@@ -47,7 +47,6 @@ public class FeatureExtractionModule extends SPModule {
 	return i;
     return -1;
   }
-  
 //  public FeatureExtractor<SPDoubleArray> getFeatureExtractor() {
 //    return fe;
 //  }

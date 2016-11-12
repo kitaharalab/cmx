@@ -3,7 +3,7 @@ import jp.crestmuse.cmx.filewrappers.*;
 import org.w3c.dom.*;
 import java.util.*;
 
-public class AmusaScriptWrapper extends CMXFileWrapper {
+class AmusaScriptWrapper extends CMXFileWrapper {
 
   private Params params;
   private Modules modules;

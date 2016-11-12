@@ -1,0 +1,43 @@
+package jp.crestmuse.cmx.misc;
+import java.io.*;
+
+public class LoopingByteArrayInputStream extends ByteArrayInputStream {
+
+  public LoopingByteArrayInputStream(byte[] buff) {
+    super(buff);
+  }
+
+  public LoopingByteArrayInputStream(byte[] buff, int offset, int length) {
+    super(buff);
+  }
+
+
+  public synchronized int read() {
+    return buf[pos++ % count] & 0xff;
+  }
+
+  public synchronized int read(byte[] b, int off, int len) {
+    if (b == null) {
+      throw new NullPointerException();
+    } else if (off < 0 || len < 0 || len > b.length - off) {
+      throw new IndexOutOfBoundsException();
+    }
+    if (pos % count < (pos + len) % count) {
+      System.arraycopy(buf, pos%count, b, off, len);
+    } else {
+      System.arraycopy(buf, pos%count, b, off, count-(pos%count));
+      System.arraycopy(buf, 0, b, off+count-(pos%count), len-count+(pos%count));
+    }
+    pos += len;
+    return len;
+  }
+
+  public synchronized long skip(long n) {
+    pos = (int)((pos + n) % count);
+    return n;
+  }
+
+  public synchronized int available() {
+    return count;
+  }
+}

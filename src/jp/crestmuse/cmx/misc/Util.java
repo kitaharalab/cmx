@@ -3,10 +3,10 @@ package jp.crestmuse.cmx.misc;
 import java.io.File;
 import javax.swing.ImageIcon;
 
-public class Util {
-//	public final static String SEPARATOR = ".";
+class Util {
+	public final static String SEPARATOR = ".";
 
-//	public static final String TAB = "\t";
+	public static final String TAB = "\t";
 
 /*
 	private final static String jpeg = "jpeg";
@@ -47,26 +47,19 @@ public class Util {
 */
 
 
-/*
 	public final static int NULL_INTEGER = -1;
 
 	public static double millisecondToBeatLength(double ms, double bpm) {
 		double bt = bpmToBeatTime(bpm);
 		return castDouble(1 / (bt / ms));
 	}
-*/
 
-/*
 	public static void main(String[] args) {
 		int ms = 50;
 		int bpm = 120;
 		System.out.println(ms + " ms means " + millisecondToBeatLength(ms, bpm)
 				+ " in BPM " + bpm + ".");
 	}
-*/
-
-/*
-
 	public static String combineFilePath(File path, String filename) {
 		return path + "/" + filename;
 	}
@@ -82,12 +75,10 @@ public class Util {
 		int x = (int) (val * 1000. + 0.5);
 		return x / 1000.;
 	}
-*/
 
 	/**
 	 * Returns an ImageIcon, or null if the path was invalid.
 	 */
-/*
 	public static ImageIcon createImageIcon(String path) {
 		java.net.URL imgURL = Util.class.getResource(path);
 		if (imgURL != null) {
@@ -96,7 +87,6 @@ public class Util {
 		System.err.println("Couldn't find file: " + path);
 		return null;
 	}
-*/
 
 //	public static void doNothing() {
 //
@@ -116,7 +106,6 @@ public class Util {
 //		return deviationXML;
 //	}
 
-/*
 	public static void err(String strMessage) {
 		System.err.println(strMessage);
 	}
@@ -125,7 +114,6 @@ public class Util {
 		err(strMessage);
 		System.exit(1);
 	}
-*/
 
 	public static String getNoteName(int noteNumber) {
 		String n = "";
@@ -177,7 +165,6 @@ public class Util {
 	/**
 	 * Get the extension of a file.
 	 */
-/*
 	public static String getExtension(File f) {
 		String ext = null;
 		ext = getExtension(f.getName());
@@ -196,7 +183,6 @@ public class Util {
 	public static String getNameExceptExtension(String str) {
 		return str.replace(SEPARATOR + getExtension(str), "");
 	}
-*/
 
 	/**
 	 * @return gif
@@ -205,13 +191,11 @@ public class Util {
 //		return gif;
 //	}
 
-/*
 	public static boolean isSmallerThan(double val, double ref) {
 		if (val * val > ref * ref)
 			return true;
 		return false;
 	}
-*/
 
 	/**
 	 * @return jpeg
@@ -275,11 +259,9 @@ public class Util {
 //		return rulemap;
 //	}
 
-/*
 	public static String setExtension(String fname, String ext) {
 		return fname + SEPARATOR + ext;
 	}
-*/
 
 	/**
 	 * @return sound

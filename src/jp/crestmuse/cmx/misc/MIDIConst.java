@@ -1,8 +1,11 @@
 package jp.crestmuse.cmx.misc;
 import java.util.*;
+import jp.crestmuse.cmx.sound.*;
 
-public final class MIDIConst {
+/** @deprecated TO DO 代わりとなるクラスをsoundパッケージに作る */
+public class MIDIConst implements MIDIConsts {
 
+/*
     public static final short NOTE_OFF = 0x80;
     public static final short NOTE_ON = 0x90;
     public static final short POLY_KEY_PRESSURE = 0xA0;
@@ -30,6 +33,7 @@ public final class MIDIConst {
     public static final byte OFF = 0;
     public static final byte ON = 127;
     public static final byte DUMMY_VALUE = 0;
+*/
 
     //    private static final HashMap<String,String> ATTRIBUTE_KEY1 = 
     //	new HashMap<String,String>();
@@ -45,8 +49,11 @@ public final class MIDIConst {
 	new HashMap<String,Short>();
     private static final HashMap<Short,String> META_EVENTS2 = 
 	new HashMap<Short,String>();
+  private static final HashMap<String,Boolean> HAS_STRING = 
+    new HashMap<String,Boolean>();
     private static final HashMap<String,String[]> ATTLIST = 
 	new HashMap<String,String[]>();
+
 
     static {
 	addChannelMessage("NoteOn", NOTE_ON, "Note", "Velocity");
@@ -72,15 +79,23 @@ public final class MIDIConst {
 	//addAttributeKey("RPNChange", "RPN", "Value", RPN);
 	//addAttributeKey("NRPNChange", "NRPN", "Value", NRPN);
 
-	addMetaEvent("EndOfTrack", END_OF_TRACK);
-	addMetaEvent("SetTempo", SET_TEMPO, "Value");
+        addMetaEvent("TextEvent", TEXT_EVENT, true);
+        addMetaEvent("CopyrightNotice", COPYRIGHT_NOTICE, true);
+        addMetaEvent("TrackName", TRACK_NAME, true);
+        addMetaEvent("InstrumentName", INSTRUMENT_NAME, true);
+        addMetaEvent("Lyric", LYRIC, true);
+        addMetaEvent("Marker", MARKER, true);
+        addMetaEvent("CuePoint", CUE_POINT, true);
+	addMetaEvent("EndOfTrack", END_OF_TRACK, false);
+	addMetaEvent("SetTempo", SET_TEMPO, false, "Value");
 	// the numbers of bytes and attributes do not match for SMPTEOffset
 	//addMetaEvent("SMPTEOffset", SMPTE_OFFSET, "TimeCodeType", "Hour", 
 	//	     "Minute", "Second", "Frame", "FractionalFrame");
-	addMetaEvent("TimeSignature", TIME_SIGNATURE, "Numerator", 
+	addMetaEvent("TimeSignature", TIME_SIGNATURE, false, "Numerator", 
 		     "LogDenominator", "MIDIClocksPerMetronomeClick", 
 		     "ThirtySecondsPer24Clocks");
-	addMetaEvent("KeySignature", KEY_SIGNATURE, "Fifths", "Mode");
+	addMetaEvent("KeySignature", KEY_SIGNATURE, false, "Fifths", "Mode");
+//        addMetaEvent("SequencerSpecific", SEQUENCER_SPECIFIC, true);
     }
 
     /*
@@ -107,13 +122,26 @@ public final class MIDIConst {
 	ATTLIST.put(msgname, attlist);
     }
 
+  private static void addMetaEvent(String evtname, short evttype, 
+                                   boolean hasString, String... attlist) {
+    META_EVENTS.put(evtname, evttype);
+    META_EVENTS2.put(evttype, evtname);
+    HAS_STRING.put(evtname, hasString);
+    ATTLIST.put(evtname, attlist);
+    }
+
+  public static boolean isStringMetaEvent(String evtname) {
+    return HAS_STRING.get(evtname);
+  }
+
+/*
     private static void 
 	addMetaEvent(String evtname, short evttype, String... attlist) {
 	META_EVENTS.put(evtname, evttype);
 	META_EVENTS2.put(evttype, evtname);
 	ATTLIST.put(evtname, attlist);
     }
-
+*/
     public static boolean isSupportedMessage(String name) {
 	return CHNL_MSG.containsKey(name);
     }

@@ -21,5 +21,6 @@ public interface MIDIHandler {
   public void endTrack(MIDIXMLWrapper.Track track, MIDIXMLWrapper w);
   public void processMIDIEvent(MIDIXMLWrapper.MIDIEvent midiEvent, 
                                MIDIXMLWrapper w);
-
+  public void beginXFKM(MIDIXMLWrapper.XFKM xfkm, MIDIXMLWrapper w);
+  public void endXFKM(MIDIXMLWrapper.XFKM xfkm, MIDIXMLWrapper w);
 }

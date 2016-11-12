@@ -5,7 +5,7 @@ import java.util.*;
 import java.io.*;
 
 
-public class SMFConcat {
+class SMFConcat {
   int serial;
   SMFConcat(String filelist, String outfilename) throws Exception {
     final SCCXMLWrapper outdata = 

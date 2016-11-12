@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.sound;
 
+import java.awt.Component;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -38,7 +39,7 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
   private int[] elevent2keys = { 0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17 };
   private int[] seven2keys = { 1, 3, 6, 8, 10, 13, 15 };
   private boolean isOpen = false;
-  private Transmitter transmitter = new VirtualKeyboardTransmitter();
+  private VirtualKeyboardTransmitter transmitter = new VirtualKeyboardTransmitter();
   private boolean[] pressed = new boolean[256];
 
   public VirtualKeyboard() {
@@ -65,6 +66,11 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
     updateTitle();
     add(new KeyboardPanel());
     pack();
+  }
+
+  public VirtualKeyboard(Component c) {
+    this();
+    c.addKeyListener(getKeyListener());
   }
 
   private void updateTitle() {
@@ -118,58 +124,71 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
     isOpen = true;
   }
 
-  private class VirtualKeyboardTransmitter implements Transmitter {
+  public KeyListener getKeyListener() {
+    return transmitter.keylistener;
+  }
+
+  private class VirtualKeyboardTransmitter implements Transmitter,KeyListener {
 
     private Receiver receiver = null;
     private HashMap<Character, Integer> key2num;
+    private KeyListener keylistener;
 
     public VirtualKeyboardTransmitter() {
       receiver = null;
       key2num = new HashMap<Character, Integer>();
       for (int i = 0; i < keys.length; i++)
         key2num.put(keys[i], i);
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          addKeyListener(new KeyListener() {
-            public void keyPressed(KeyEvent e) {
-              if (receiver == null || !key2num.containsKey(e.getKeyChar()))
-                return;
-              if (pressed[e.getKeyChar()])
-                return;
-              try {
-                ShortMessage sm = new ShortMessage();
-                sm.setMessage(ShortMessage.NOTE_ON, key2num.get(e.getKeyChar())
-                    + BASE_NOTE_NUM, VELOCITY);
-                receiver.send(sm, -1);
-              } catch (InvalidMidiDataException e1) {
-                e1.printStackTrace();
-              }
-              pressed[e.getKeyChar()] = true;
-              repaint();
-            }
-
-            public void keyReleased(KeyEvent e) {
-              if (receiver == null || !key2num.containsKey(e.getKeyChar()))
-                return;
-              try {
-                ShortMessage sm = new ShortMessage();
-                sm.setMessage(ShortMessage.NOTE_OFF,
-                    key2num.get(e.getKeyChar()) + BASE_NOTE_NUM, VELOCITY);
-                receiver.send(sm, -1);
-              } catch (InvalidMidiDataException e1) {
-                e1.printStackTrace();
-              }
-              pressed[e.getKeyChar()] = false;
-              repaint();
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-          });
-          setVisible(true);
-        }
-      });
+      addKeyListener(this);
+      setVisible(true);
     }
+
+//      keylistener = new KeyListener() {
+          public synchronized void keyPressed(KeyEvent e) {
+            System.err.println(pressed['a']);
+            System.err.println(receiver);
+            if (receiver == null || !key2num.containsKey(e.getKeyChar()))
+              return;
+            if (pressed[e.getKeyChar()])
+              return;
+            try {
+              ShortMessage sm = new ShortMessage();
+              sm.setMessage(ShortMessage.NOTE_ON, key2num.get(e.getKeyChar())
+                            + BASE_NOTE_NUM, VELOCITY);
+              receiver.send(sm, -1);
+            } catch (InvalidMidiDataException e1) {
+              e1.printStackTrace();
+            }
+            pressed[e.getKeyChar()] = true;
+            repaint();
+          }
+          public synchronized void keyReleased(KeyEvent e) {
+            System.err.println(pressed['a']);
+            if (receiver == null || !key2num.containsKey(e.getKeyChar()))
+              return;
+            try {
+              ShortMessage sm = new ShortMessage();
+              sm.setMessage(ShortMessage.NOTE_OFF,
+                            key2num.get(e.getKeyChar()) + BASE_NOTE_NUM, VELOCITY);
+              receiver.send(sm, -1);
+            } catch (InvalidMidiDataException e1) {
+              e1.printStackTrace();
+            }
+            pressed[e.getKeyChar()] = false;
+            repaint();
+          }
+          public void keyTyped(KeyEvent e) {
+          }
+//        };
+//      SwingUtilities.invokeLater(new Runnable() {
+//        public void run() {
+//          addKeyListener(keylistener);
+//          setVisible(true);
+//        }
+//      });
+//      addKeyListener(keylistener);
+//      setVisible(true);
+//    }
 
     public void close() {
       setVisible(false);
@@ -221,6 +240,7 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
 
   }
 
+/*
   public static void main(String[] args) {
     try {
       VirtualKeyboard vk = new VirtualKeyboard();
@@ -235,5 +255,6 @@ public class VirtualKeyboard extends JFrame implements MidiDevice {
       e.printStackTrace();
     }
   }
+*/
 
 }

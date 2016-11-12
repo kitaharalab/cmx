@@ -1,81 +1,64 @@
 package jp.crestmuse.cmx.inference;
 import java.util.*;
+import org.apache.commons.math3.distribution.*;
 
 public interface MusicElement {
-  /** @deprecated */
-  void setProb(int index, double value);
+  //  /** @deprecated */
+  //  void setProb(int index, double value);
 
-  void setProbV(Object label, double value);
-//  void setProbH(Object label, double value);
-  void setPriorProb(Object label, double value);
+  void setDistribution(RealDistribution d);
+  
+  void setProb(Object label, double value);
 
-  void setLogProbV(Object label, double value);
-//  void setLogProbH(Object label, double value);
-  void setLogPriorProb(Object label, double value);
+  void setProb(Map<Object,Double> map);
+
+  //  /** @deprecated */
+  //  double getProb(int index);
 
   double getProb(Object label);
-//  double getProbV(Object label);
-//  double getProbH(Object label);
-//  double getPriorProb(Object label);
-
-  double getLogProb(Object label);
-//  double getLogProbV(Object label);
-//  double getLogProbH(Object label);
-//  double getLogPriorProb(Object label);
 
 
-  /** @deprecated */
-  void setLogLikelihood(int index, double value);
+//  double[] getAllProbs();
 
-  /** @deprecated */
-  double getLogLikelihood(int index);
+//  /** @deprcated */
+//  int getHighestProbIndex();
 
-  /** @deprecated */
-  double getProb(int index);
-  /** @deprecated */
-  double[] getAllProbs();
+  Object getMostLikely();
 
-  /** @deprcated */
-  int getHighestProbIndex();
 
-  Object getMostLikelyLabel();
-//  Object getHighestProbLabel();
-
-  Object[] getLabels();
-  /** @deprecated */
-  int getNumOfLabels();
-  /** @deprecated */
-  Object getLabel(int index);
-  /** @deprecated */
-  int getIndexOf(Object label);
+  //  /** @deprecated */
+  //  Object getLabel(int index);
+  //  /** @deprecated */
+  //  int indexOf(Object label);
   
-  /** @deprecated */
-  int getProbLength();
+  //  /** @deprecated */
+  //  int getProbLength();
 
-  /** @deprecated */
-  void setEvidence(int index);
+  //  /** @deprecated */
+  //  void setEvidence(int index);
   void setEvidence(Object label);
-  boolean hasEvidence();
-  void removeEvidence();
 
-  /** @deprecated */
-  void update();
-//  int getBackPointer(int index);
-//  void setBackPointer(int index, int value);
-//  void setBackPointerTo(MusicElement e);
-  int measure();
-  int tick();
-  int tiedLength();
-  boolean tiedFromPrevious();
-  void setTiedFromPrevious(boolean b);
+  Object generate();
+
+  void suspendUpdate();
+
+  void resumeUpdate();
+
   boolean rest();
+
   void setRest(boolean b);
-  void setAttribute(String key, String value);
-  String getAttribute(String key);
-  boolean hasAttribute(String key);
-  void removeAttribute(String key);
-  Map<String,String> getAllAttributes();
-  void setAllAttributes(Map<String,String> map);
+
+  boolean tiedFromPrevious();
+
+  void setTiedFromPrevious(boolean b);
+
   MusicElement next();
-  MusicElement previous();
+
+  MusicElement prev();
+
+  int measure();
+
+  int tick();
+
+  int duration();
 }

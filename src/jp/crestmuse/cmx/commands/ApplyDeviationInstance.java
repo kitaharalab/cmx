@@ -16,7 +16,7 @@ import jp.crestmuse.cmx.filewrappers.*;
  *CMXCommandを使ったコマンドを作る際のサンプルとしても参考になると思います.
  ********************************************************************/
 
-public class ApplyDeviationInstance extends CMXCommand {
+public class ApplyDeviationInstance extends CMXCommand<DeviationInstanceWrapper,SCCXMLWrapper> {
 
     private int ticksPerBeat = 480;
     private boolean scc = false;
@@ -77,6 +77,18 @@ public class ApplyDeviationInstance extends CMXCommand {
   /******************************************************************
    *<p></p>
    ******************************************************************/
+  protected SCCXMLWrapper run(DeviationInstanceWrapper dev)
+    throws IOException, ParserConfigurationException, 
+    TransformerException, SAXException, InvalidFileTypeException {
+//	dev.setTargetMusicXMLFileName(targetMusicXMLFileName);
+    SCCXMLWrapper scc = dev.toSCCXML(ticksPerBeat);
+    if (smffilename != null && !smffilename.equals("")) {
+      scc.toMIDIXML().writefileAsSMF(smffilename);
+    }
+    return scc;
+  }
+
+/*
     protected void run()
 	throws IOException, ParserConfigurationException, 
 	       TransformerException, SAXException, InvalidFileTypeException {
@@ -97,7 +109,7 @@ public class ApplyDeviationInstance extends CMXCommand {
 	}
 	//	writeOutputData();
     }
-
+*/
     public static void main(String[] args) {
 	ApplyDeviationInstance a = new ApplyDeviationInstance();
 	try {

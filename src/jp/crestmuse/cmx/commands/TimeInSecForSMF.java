@@ -1,32 +1,9 @@
 package jp.crestmuse.cmx.commands;
-
 import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
-
-import java.io.IOException;
 import java.util.*;
 
-import org.xml.sax.SAXException;
-
-/**
- * <p>
- * TimeInSecForSMF checks the equivalency of two standard MIDI files.
- * </p>
- * <p>
- * Usage:
- * 
- * <pre>
- * $java jp.crestmuse.cmx.commands.TimeInSecForSMF file1.mid file2.mid
- * </pre>
- * 
- * </p>
- * <p>
- * TimeInSecForSMFは、2つのSMFの等価性を検証するコマンドです。 このコマンドは、CrestMusePEDBのデータ作成の用いられます。
- * </p>
- */
-
-public class TimeInSecForSMF {
-
+class TimeInSecForSMF {
   MIDIEvent[] tempolist;
   int currentTick0 = 0;
   MIDIEvent[] notelist;
@@ -45,26 +22,25 @@ public class TimeInSecForSMF {
   List<NoteEvent> calcTimeInSec() {
     List<NoteEvent> l = new ArrayList<NoteEvent>();
     int i = 0, j = 0;
-    for (; i < notelist.length;) {
-      int tick0 = (j < tempolist.length) ? tempolist[j].deltaTime()
-          + currentTick0 : Integer.MAX_VALUE;
+    for ( ; i < notelist.length; ) {
+      int tick0 = (j < tempolist.length) ? 
+        tempolist[j].deltaTime() + currentTick0 : 
+        Integer.MAX_VALUE;
       int tick1 = notelist[i].deltaTime() + currentTick1;
       if (tick0 <= tick1) {
         if (tempolist[j].messageType().equals("SetTempo")) {
-          double t = (double) (tick0 - currentTempoTick) * 60.0
-              / ((double) ticksPerBeat * currentTempo) + currentTempoTimeInSec;
-          currentTempo = (double) (60 * 1000 * 1000) / tempolist[j].value(0);
+          double t = (double)(tick0 - currentTempoTick) * 60.0 / 
+            ((double)ticksPerBeat * currentTempo) + currentTempoTimeInSec;
+          currentTempo = (double)(60*1000*1000) / tempolist[j].value(0);
           currentTempoTick = tick0;
           currentTempoTimeInSec = t;
         }
         currentTick0 = tick0;
         j++;
       } else {
-        MIDIEvent me = notelist[i];
-        if (me.messageType().startsWith("Note")
-            || (me.messageType().equals("ControlChange") && (me.value(0) == 64 || me.value(0) == 67))) {
-          double t = (double) (tick1 - currentTempoTick) * 60.0
-              / ((double) ticksPerBeat * currentTempo) + currentTempoTimeInSec;
+        if (notelist[i].messageType().startsWith("Note")) {
+          double t = (double)(tick1 - currentTempoTick) * 60.0 / 
+            ((double)ticksPerBeat * currentTempo) + currentTempoTimeInSec;
           l.add(new NoteEvent(t, notelist[i]));
         }
         currentTick1 = tick1;
@@ -78,49 +54,50 @@ public class TimeInSecForSMF {
     int size2 = l2.size();
     int size1 = l1.size();
     int i = 0, j = 0;
-    mainloop: while (i < size2 || j < size1) {
+  mainloop:
+    while (i < size2 || j < size1) {
       NoteEvent e2 = i < size2 ? l2.get(i) : null;
       NoteEvent e1 = j < size1 ? l1.get(j) : null;
-      // for (int k = 1; k < 10; k++) {
-      // if (i+k < size2 && e1.approxEquals(l2.get(i+k)) &&
-      // j+k < size1 && e2.approxEquals(l1.get(j+k))) {
-      // Collections.swap(l1, j, j+k);
-      // e2 = i < size2 ? l2.get(i) : null;
-      // e1 = j < size1 ? l1.get(j) : null;
-      // break;
-      // }
-      // }
+//      for (int k = 1; k < 10; k++) {
+//        if (i+k < size2 && e1.approxEquals(l2.get(i+k)) && 
+//            j+k < size1 && e2.approxEquals(l1.get(j+k))) {
+//          Collections.swap(l1, j, j+k);
+//          e2 = i < size2 ? l2.get(i) : null;
+//          e1 = j < size1 ? l1.get(j) : null;
+//          break;
+//        }
+//      }
       if (e1 == null) {
         System.out.println(makeString(e2, null));
-        // System.out.println(makeString(e2, null) + "  ==> diff");
+//        System.out.println(makeString(e2, null) + "  ==> diff");
         i++;
         j++;
       } else if (e2 == null) {
         System.out.println(makeString(null, e1));
-        // System.out.println(makeString(null, e1) + "  ==> diff");
+//        System.out.println(makeString(null, e1) + "  ==> diff");
         i++;
         j++;
       } else if (e1.approxEquals(e2)) {
         System.out.println(makeString(e2, e1));
-        // System.out.println(makeString(e2, e1) + "  ==> ok");
+//        System.out.println(makeString(e2, e1) + "  ==> ok");
         i++;
         j++;
       } else {
         for (int k = 1; k < 10; k++) {
-          if (e2.approxEquals(j + k < size1 ? l1.get(j + k) : null)) {
-            for (int m = 1; m <= k; m++)
+          if (e2.approxEquals(j+k<size1 ? l1.get(j+k): null)) {
+            for (int m = 1; m <= k; m++) 
               System.out.println(makeString(null, l1.get(j++)));
-            // System.out.println(makeString(null, l1.get(j++)) + "  ==> diff");
-            // j++;
+//            System.out.println(makeString(null, l1.get(j++)) + "  ==> diff");
+//            j++;
             continue mainloop;
           }
         }
         for (int k = 1; k < 10; k++) {
-          if (e1.approxEquals(i + k < size2 ? l2.get(i + k) : null)) {
+          if (e1.approxEquals(i+k<size2 ? l2.get(i+k) : null)) {
             for (int m = 0; m < k; m++)
               System.out.println(makeString(l2.get(i++), null));
-            // System.out.println(makeString(l2.get(i++), null) + "  ==> diff");
-            // i++;
+//            System.out.println(makeString(l2.get(i++), null) + "  ==> diff");
+//            i++;
             continue mainloop;
           }
         }
@@ -136,49 +113,51 @@ public class TimeInSecForSMF {
 
   static NoteEvent lastE1 = null;
   static NoteEvent lastE2 = null;
+  
 
-  private static String makeString(NoteEvent e1, NoteEvent e2) {
-    StringBuffer sbuff = new StringBuffer();
-    if (e1 != null)
-      sbuff.append("[").append(e1.toString()).append("]  ");
-    else
-      sbuff.append("[null]                    ");
-    if (e2 != null)
-      sbuff.append("[").append(e2.toString()).append("]");
-    else
-      sbuff.append("[null]                  ");
-    if (e1 != null && e2 != null && e1.approxEquals(e2))
-      sbuff.append("  ==> ok");
-    // else if (e1 == null && !isOn2 && e2.msg.equals("NoteOff"))
-    // ;
-    // else if (e2 == null && !isOn1 && e1.msg.equals("NoteOff"))
-    // ;
-    // else if (e1 == null && isOn1 && e2.msg.equals("NoteOff")) // kari
-    // ;
-    // else if (e2 == null && e1.equals(lastE1))
-    // ;
-    else
-      sbuff.append(" ==> diff");
-    if (e1 != null && e1.msg.equals("NoteOn"))
-      isOn1 = true;
-    else if (e1 != null && e1.msg.equals("NoteOff"))
-      isOn1 = false;
-    if (e2 != null && e2.msg.equals("NoteOn"))
-      isOn2 = true;
-    else if (e2 != null && e2.msg.equals("NoteOff"))
-      isOn2 = false;
-    lastE1 = e1;
-    lastE2 = e2;
-    return sbuff.toString();
-  }
-
+    private static String makeString(NoteEvent e1, NoteEvent e2) {
+      StringBuffer sbuff = new StringBuffer();
+      if (e1 != null)
+        sbuff.append("[").append(e1.toString()).append("]  ");
+      else
+        sbuff.append("[null]                    ");
+      if (e2 != null)
+        sbuff.append("[").append(e2.toString()).append("]");
+      else
+        sbuff.append("[null]                  ");
+      if (e1 != null && e2 != null && e1.approxEquals(e2))
+        sbuff.append("  ==> ok");
+      else if (e1 == null && !isOn2 && e2.msg.equals("NoteOff"))
+        ;
+      else if (e2 == null && !isOn1 && e1.msg.equals("NoteOff"))
+        ;
+      else if (e1 == null && isOn1 && e2.msg.equals("NoteOff"))  // kari
+        ;
+      else if (e2 == null && e1.equals(lastE1))
+        ;
+      else
+        sbuff.append(" ==> diff");
+      if (e1 != null && e1.msg.equals("NoteOn"))
+        isOn1 = true;
+      else if (e1 != null && e1.msg.equals("NoteOff"))
+        isOn1 = false;
+      if (e2 != null && e2.msg.equals("NoteOn"))
+        isOn2 = true;
+      else if (e2 != null && e2.msg.equals("NoteOff"))
+        isOn2 = false;
+      lastE1 = e1;
+      lastE2 = e2;
+      return sbuff.toString();
+    }
+        
   public static void main(String[] args) {
     try {
-      TimeInSecForSMF2 t2 = new TimeInSecForSMF2(
-          MIDIXMLWrapper.readSMF(args[0]));
+      TimeInSecForSMF2 t2 = new TimeInSecForSMF2
+        (MIDIXMLWrapper.readSMF(args[0]));
       List<NoteEvent> l2 = t2.calcTimeInSec();
       Collections.sort(l2);
-      TimeInSecForSMF t = new TimeInSecForSMF(MIDIXMLWrapper.readSMF(args[1]));
+      TimeInSecForSMF t = new TimeInSecForSMF
+        (MIDIXMLWrapper.readSMF(args[1]));
       List<NoteEvent> l1 = t.calcTimeInSec();
       Collections.sort(l1);
       compare(l2, l1);
@@ -187,11 +166,9 @@ public class TimeInSecForSMF {
       System.exit(1);
     }
   }
-
 }
 
 class TimeInSecForSMF2 {
-
   MIDIEvent[] notelist;
   int currentTick = 0;
   static final double TEMPO = 120.0;
@@ -204,59 +181,49 @@ class TimeInSecForSMF2 {
 
   List<NoteEvent> calcTimeInSec() {
     List<NoteEvent> l = new ArrayList<NoteEvent>();
-    for (int i = 0; i < notelist.length; i++) {
+    for (int i = 0;  i < notelist.length; i++) {
       int tick = notelist[i].deltaTime() + currentTick;
-      MIDIEvent me = notelist[i];
-      if (me.messageType().startsWith("Note")
-          || (me.messageType().equals("ControlChange") && (me.value(0) == 64 || me.value(0) == 67))) {
-        double t = (double) tick * 60.0 / ((double) ticksPerBeat * TEMPO);
+      if (notelist[i].messageType().startsWith("Note")) {
+        double t = (double)tick * 60.0 / ((double)ticksPerBeat * TEMPO);
         l.add(new NoteEvent(t, notelist[i]));
       }
       currentTick = tick;
     }
     return l;
   }
-
 }
 
 class NoteEvent implements Comparable<NoteEvent> {
-
   double time;
   String msg;
   int notenum;
   int vel;
-
   NoteEvent(double time, MIDIEvent e) {
     this.time = time;
     msg = e.messageType();
     notenum = e.value(0);
     vel = e.value(1);
-    if (msg.equals("NoteOn") && vel == 0)
+    if (vel == 0)
       msg = "NoteOff";
     else if (msg.equals("NoteOff"))
       vel = 0;
   }
-
   public String toString() {
     return String.format("%7f", time) + " " + msg + " " + notenum + " " + vel;
   }
-
   public boolean equals(Object o) {
-    NoteEvent e = (NoteEvent) o;
+    NoteEvent e = (NoteEvent)o;
     return e != null && time == e.time && msg.equals(e.msg)
-        && notenum == e.notenum && vel == e.vel;
+      && notenum == e.notenum && vel == e.vel;
   }
-
   boolean approxEquals(NoteEvent e) {
     return e != null && Math.abs(time - e.time) < 0.02 && msg.equals(e.msg)
-        && notenum == e.notenum && Math.abs(vel - e.vel) <= 1;
+      && notenum == e.notenum && Math.abs(vel - e.vel) <= 1;
   }
-
   public int compareTo(NoteEvent e) {
     if (notenum == e.notenum)
       return time > e.time ? 1 : -1;
     else
       return notenum - e.notenum;
-  }
-
+  }        
 }

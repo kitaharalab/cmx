@@ -11,6 +11,6 @@ public class IntPair {
     return (a == anotherIntPair.a) && (b == anotherIntPair.b);
   }
   public int hashCode() {
-    return a + b;
+    return a + 65536 * b;
   }
 }

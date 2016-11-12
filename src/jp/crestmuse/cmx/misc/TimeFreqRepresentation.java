@@ -1,13 +1,15 @@
 package jp.crestmuse.cmx.misc;
 
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.elements.*;
 import java.util.*;
 import javax.xml.transform.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import java.io.*;
 
+/** To be reconsidered */
 public class TimeFreqRepresentation {
   private List<TimeFreqElement> tflist;
   private int nbands;
@@ -19,14 +21,14 @@ public class TimeFreqRepresentation {
     tflist = new ArrayList<TimeFreqElement>();
   }
 
-  private void add(double time, byte[] values, NoteCompatible[] data) {
+  private void add(double time, byte[] values, SCC.Note[] data) {
     if (data.length != nbands)
       throw new IllegalStateException();
     tflist.add(new TimeFreqElement(time, values, data));
   }
 
   private void addTime(double time) {
-    add(time, new byte[nbands], new NoteCompatible[nbands]);
+    add(time, new byte[nbands], new SCC.Note[nbands]);
   }
 
   public TimeFreqElement get(int timeindex) {
@@ -45,7 +47,7 @@ public class TimeFreqRepresentation {
     set(timeindex, freqindex, (byte) (value * 127.0));
   }
 
-  private void set(int timeindex, int freqindex, NoteCompatible data) {
+  private void set(int timeindex, int freqindex, SCC.Note data) {
     tflist.get(timeindex).data[freqindex] = data;
   }
 
@@ -88,11 +90,11 @@ public class TimeFreqRepresentation {
 
   public class TimeFreqElement {
     private byte[] values;
-    private NoteCompatible[] data;
+    private SCC.Note[] data;
     private double t;
     private boolean isMeasureHead;
 
-    private TimeFreqElement(double t, byte[] values, NoteCompatible[] data) {
+    private TimeFreqElement(double t, byte[] values, SCC.Note[] data) {
       this.values = values;
       this.data = data;
       this.t = t;
@@ -125,7 +127,7 @@ public class TimeFreqRepresentation {
       return t;
     }
 
-    public NoteCompatible[] data() {
+    public SCC.Note[] data() {
       return data;
     }
 
@@ -148,30 +150,24 @@ public class TimeFreqRepresentation {
   private static final int N_BANDS = 128;
 
   public static TimeFreqRepresentation getTimeFreqRepresentation(
-      PianoRollCompatible filewrapper, final int ticksPerBeat)
-      throws TransformerException, IOException, ParserConfigurationException,
-      SAXException {
-    return getTimeFreqRepresentation(filewrapper, ticksPerBeat, 4, null);
+      SCC scc, final int ticksPerBeat)
+      throws TransformerException {
+    return getTimeFreqRepresentation(scc, ticksPerBeat, 4, null);
   }
 
   public static TimeFreqRepresentation getTimeFreqRepresentation(
-      PianoRollCompatible filewrapper, final int ticksPerBeat,
+      SCC scc, final int ticksPerBeat,
       final int divisionPerMeasure, final MusicXMLWrapper musicxml)
-      throws TransformerException, IOException, ParserConfigurationException,
-      SAXException {
+      throws TransformerException {
     final TimeFreqRepresentation tfr = new TimeFreqRepresentation(N_BANDS);
-    filewrapper.processNotes(new CommonNoteHandler() {
-      public void beginPart(String id, PianoRollCompatible filewrapper) {
-      }
-
-      public void endPart(String id, PianoRollCompatible filewrapper) {
-      }
-
-      public void processNote(NoteCompatible note, PianoRollCompatible w) {
+    SCC.Part[] parts = scc.getPartList();
+    for (SCC.Part p : parts) {
+      SCC.Note[] notes = p.getNoteOnlyList();
+      for (SCC.Note note : notes) {
         int onsetIndex = note.onset(ticksPerBeat) * divisionPerMeasure / 4
-            / ticksPerBeat;
+          / ticksPerBeat;
         int offsetIndex = note.offset(ticksPerBeat) * divisionPerMeasure / 4
-            / ticksPerBeat;
+          / ticksPerBeat;
         int notenum = note.notenum();
         ///// onsetがoffsetより長いなぞのパターン ///////
         ///// とりあえず入れ替えておく            ///////
@@ -194,7 +190,7 @@ public class TimeFreqRepresentation {
         for (int n = onsetIndex; n <= offsetIndex; n++)
           tfr.set(n, notenum, vel);
       }
-    });
+    }
     if (musicxml != null) {
       int i = 1;
       while (true) {
@@ -209,6 +205,8 @@ public class TimeFreqRepresentation {
     }
     return tfr;
   }
+
+
 
   /*
    * public static TimeFreqRepresentation getTimeFreqRepresentation(

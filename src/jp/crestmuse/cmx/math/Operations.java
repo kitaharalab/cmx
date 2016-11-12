@@ -4,7 +4,7 @@ import org.apache.commons.math.linear.*;
 import org.apache.commons.math.util.*;
 import static java.lang.Math.*;
 import java.util.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+import static jp.crestmuse.cmx.math.MathUtils.*;
 
 public class Operations {
 
@@ -37,13 +37,23 @@ public class Operations {
     return z;
   }
 
-    public static void putAt(DoubleArray x, int i, double value) {
-	x.set(i, value);
-    }
+  public static void putAt(DoubleArray x, int i, double value) {
+    x.set(i, value);
+  }
 
-    public static double getAt(DoubleArray x, int i) {
-	return x.get(i);
-    }
+  public static void putAt(DoubleArray x, Iterable<Integer> it, double value) {
+    for (Integer i : it)
+      x.set(i, value);
+  }
+
+  public static double getAt(DoubleArray x, int i) {
+    return x.get(i);
+  }
+
+  public static void set(DoubleArray x, int from, int thru, double value) {
+    for (int i = from; i < thru; i++)
+      x.set(i, value);
+  }
 
   public static DoubleArray add(DoubleArray x, DoubleArray y) {
     int length = x.length();
@@ -148,7 +158,7 @@ public class Operations {
   }
 
     public static DoubleArray multiply(DoubleArray x, DoubleArray y) {
-	return mul(x,y);
+	return multiply(x,y);
     }
 
     public static void mulX(DoubleArray x, DoubleArray y) {
@@ -203,11 +213,32 @@ public class Operations {
       x.set(i, x.get(i) / y);
   }
 
+  public static void divX(DoubleArray x, int i, double y) {
+    x.set(i, x.get(i) / y);
+  }
+
   public static double sum(DoubleArray x, int from, int thru) {
     double sum = 0.0;
     for (int i = from; i < thru; i++)
       sum += x.get(i);
     return sum;
+  }
+
+  public static double mean(DoubleArray x) {
+    return sum(x, 0, x.length()) / x.length();
+  }
+
+  public static double var(DoubleArray x) {
+    DoubleArray diff = sub(x, mean(x));
+    double v = 0.0;
+    for (int i = 0; i < x.length(); i++) {
+      v += diff.get(i) * diff.get(i);
+    }
+    return v / (x.length()-1);
+  }
+
+  public static double std(DoubleArray x) {
+    return Math.sqrt(var(x));
   }
 
   public static double sum(DoubleArray x) {
@@ -457,6 +488,26 @@ public class Operations {
 	    z.set(i, x.get(i) && y.get(i));
 	return z;
     }
+
+  public static DoubleArray remove(DoubleArray x, int index) {
+    int length = x.length();
+    DoubleArray z = factory.createArray(length - 1);
+    for (int i = 0; i < index ; i++) {
+      z.set(i, x.get(i));
+    }
+    for (int i = index; i < length - 1; i++) {
+      z.set(i, x.get(i+1));
+    }
+    return z;
+  }
+
+  public static DoubleArray removeX(DoubleArray x, int index) {
+    int length = x.length();
+    for (int i = index; i < length - 1; i++) {
+      x.set(i, x.get(i+1));
+    }
+    return x.subarrayX(0, length-1);
+  }
 
   public static DoubleArray removeMask(DoubleArray x, BooleanArray mask) {
 //    if (x.length() != mask.length())
@@ -1052,9 +1103,10 @@ public class Operations {
     }
 
     public static DoubleMatrix[] eig(DoubleMatrix x) {
-	EigenDecomposition 
-	    eig = new EigenDecompositionImpl(toRealMatrix(x), 
-					     MathUtils.SAFE_MIN);
+      EigenDecomposition 
+        eig = new EigenDecompositionImpl
+        (toRealMatrix(x), 
+         org.apache.commons.math.util.MathUtils.SAFE_MIN);
 	DoubleMatrix[] result = new DoubleMatrix[2];
 	result[0] = toDoubleMatrix(eig.getV());
 	result[1] = toDoubleMatrix(eig.getD());
@@ -1201,7 +1253,61 @@ public class Operations {
   }
   
 
-	
+  public static DoubleArray abs(DoubleArray x) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = Math.abs(x.get(i));
+    return factory.createArray(z);
+  }
+
+  /** Important: Previous version had a bug in this method. */
+  public static DoubleArray abs(ComplexArray x) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) {
+      double a = x.getReal(i);
+      double b = x.getImag(i);
+      z[i] = Math.sqrt(a * a + b * b);
+    }
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray dB(DoubleArray x, double base) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = 10 * (Math.log(x.get(i)) - Math.log(base)) / Math.log(10);
+    return factory.createArray(z);
+  }
+      
+  public static DoubleArray sigmoid(DoubleArray x, double gain) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) 
+      z[i] = 1 / (1 + Math.exp(-gain * x.get(i)));
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray autocorr(DoubleArray x) {
+    int length = x.length();
+    double[] z = new double[length/2];
+    for (int t = 0; t < length / 2; t++) 
+      for (int tau = 0; tau < length / 2; tau++)  
+        z[tau] += x.get(t) * x.get(t + tau);
+    return factory.createArray(z);
+  }
+
+  public static DoubleArray rotate(DoubleArray x, int n) {
+    int length = x.length();
+    double[] z = new double[length];
+    for (int i = 0; i < length; i++) {
+      int j = (i + n) % length;
+      if (j < 0) j += length;
+      z[j] = x.get(i);
+    }
+    return factory.createArray(z);
+  }
 }
 
 

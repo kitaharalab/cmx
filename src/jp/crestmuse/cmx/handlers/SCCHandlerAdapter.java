@@ -2,7 +2,7 @@ package jp.crestmuse.cmx.handlers;
 
 import jp.crestmuse.cmx.filewrappers.*;
 
-public class SCCHandlerAdapter implements SCCHandler, SCCAnnotationHandler {
+public class SCCHandlerAdapter implements SCCHandler {
   public void beginHeader(SCCXMLWrapper w) {
     // do nothing
   }
@@ -20,10 +20,6 @@ public class SCCHandlerAdapter implements SCCHandler, SCCAnnotationHandler {
     // do nothing
   }
   public void processNote(SCCXMLWrapper.Note note, SCCXMLWrapper w) {
-    // do nothing
-  }
-  public void processAnnotation(SCCXMLWrapper.Annotation a, 
-				SCCXMLWrapper w) {
     // do nothing
   }
 }

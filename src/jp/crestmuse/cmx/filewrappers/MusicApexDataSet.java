@@ -9,10 +9,11 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
-import jp.crestmuse.cmx.handlers.CommonNoteHandler;
-import jp.crestmuse.cmx.misc.NoteCompatible;
-import jp.crestmuse.cmx.misc.PianoRollCompatible;
+import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.*;
+//import jp.crestmuse.cmx.handlers.CommonNoteHandler;
+//import jp.crestmuse.cmx.misc.NoteCompatible;
+//import jp.crestmuse.cmx.misc.PianoRollCompatible;
 
 /**
  * <p>
@@ -105,6 +106,25 @@ public class MusicApexDataSet {
     topGroup = (AbstractGroup) createGroup();
     topGroup.depth = 1;
     // MusicXMLのすべてのNote要素をグループに追加する
+    musicxml.processNotePartwise(new NoteHandlerPartwise() {
+        public void beginPart(Part part, MusicXMLWrapper w) {}
+        public void endPart(Part part, MusicXMLWrapper w) {}
+        public void beginMeasure(Measure m, MusicXMLWrapper w) {}
+        public void endMeasure(Measure m, MusicXMLWrapper w) {}
+        public void processMusicData(MusicData md, MusicXMLWrapper w) {
+          if (md instanceof MusicXMLWrapper.Note) {
+            MusicXMLWrapper.Note note = (MusicXMLWrapper.Note)md;
+            if (!note.rest()) {
+              topGroup.addNote(note);
+              noteMap.put(note.node(), note);
+            }
+          }
+        }
+      });
+    return topGroup;
+  }          
+
+/*        
     musicxml.processNotes(new CommonNoteHandler() {
 
       public void processNote(NoteCompatible note,
@@ -113,6 +133,7 @@ public class MusicApexDataSet {
         topGroup.addNote(n);
         noteMap.put(n.node(), n);
       }
+
 
       public void endPart(String id, PianoRollCompatible filewrapper) {
       }
@@ -123,6 +144,7 @@ public class MusicApexDataSet {
     });
     return topGroup;
   }
+*/
 
   /**
    * どこのグループにも属さない空のApexDataGroupオブジェクトを作成します。

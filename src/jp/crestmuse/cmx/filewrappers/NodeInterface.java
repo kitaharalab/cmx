@@ -33,6 +33,9 @@ public abstract class NodeInterface {
 //  private NodeList children = null;
 //  private int nChildren;
 
+  private Set<String> attrkeys = new TreeSet<String>();
+  private Map<String,String> attrs = new TreeMap<String,String>();
+
   /**********************************************************************
    *<p>Constructs an node interface for the specified node. 
    *When the specified node is not supported, 
@@ -61,6 +64,13 @@ public abstract class NodeInterface {
 //      }
       throw new UnsupportedNodeException
 			("Unsupported node: " + node.getNodeName());
+    }
+    NamedNodeMap map = node.getAttributes();
+    int n = map.getLength();
+    for (int i = 0; i < n; i++) {
+      Node item = map.item(i);
+      attrkeys.add(item.getNodeName());
+      attrs.put(item.getNodeName(), item.getNodeValue());
     }
   }
 
@@ -150,23 +160,21 @@ public abstract class NodeInterface {
 //    if (attrmap == null) attrmap = node.getAttributes();
 //    return attrmap.getNamedItem(key).getNodeValue();
   }
-  
-  public Map<String,String> getAllAttributes() {
-    Map<String,String> map = new HashMap<String,String>();
-    NamedNodeMap attrs = node.getAttributes();
-    for (int i = 0; i < attrs.getLength(); i++) {
-      Attr a = (Attr)attrs.item(i);
-      map.put(a.getName(), a.getValue());
-    }
-    return map;
-  }
-  
+
   public int getAttributeInt(String key) {
     return Integer.parseInt(getAttribute(key));
   }
 
   public double getAttributeDouble(String key) {
     return Double.parseDouble(getAttribute(key));
+  }
+
+  public Set<String> getAttributeKeys() {
+    return attrkeys;
+  }
+
+  public Map<String,String> getAttributes() {
+    return attrs;
   }
 
   /**********************************************************************
@@ -190,11 +198,14 @@ public abstract class NodeInterface {
    *<p>指定されたタグ名の子ノードを返します.</p>
    *********************************************************************/
   protected final Node getChildByTagName(String tagname) {
+    return getChildByTagName(tagname, node);
+/*
     NodeList nl = node.getElementsByTagName(tagname);
     if (nl.getLength() >= 1)
       return nl.item(0);
     else
       return null;
+*/
 //    if (node == null) return null;
 //    if (children == null) {
 //      children = node.getChildNodes();
@@ -208,6 +219,23 @@ public abstract class NodeInterface {
 //    return null;
   }
 
+  protected final Node getChildOfChildByTagName(String tagname1, 
+                                                String tagname2) {
+    return getChildByTagName(tagname2, getChildByTagName(tagname1));
+/*
+    Element child = (Element)getChildByTagName(tagname1);
+    if (child == null) {
+      return null;
+    } else {
+      NodeList nl = child.getElementsByTagName(tagname2);
+      if (nl.getLength() >= 1)
+        return nl.item(0);
+      else
+        return null;
+    }
+*/
+  }
+      
   protected final Node getChildByTagNameNS(String tagname, String ns) {
     NodeList nl = node.getElementsByTagNameNS(ns, tagname);
     if (nl.getLength() >= 1)
@@ -222,6 +250,7 @@ public abstract class NodeInterface {
    *指定されたノードに対する, 指定されたタグ名の子ノードを返します. 
    *********************************************************************/
   static Node getChildByTagName(String tagname, Node node) {
+/*
     if (node == null)
       return null;
     NodeList nl = ((Element)node).getElementsByTagName(tagname);
@@ -229,13 +258,14 @@ public abstract class NodeInterface {
       return nl.item(0);
     else
       return null;
-//    NodeList children = node.getChildNodes();
-//    for (int i = 0; i < children.getLength(); i++) {
-//      Node n = children.item(i);
-//      if (n.getNodeName().equals(tagname))
-//        return n;
-//    }
-//    return null;
+*/
+    NodeList children = node.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node n = children.item(i);
+      if (n.getNodeName().equals(tagname))
+        return n;
+    }
+    return null;
   }
 
   protected static boolean hasChild(String tagname, Node node) {

@@ -8,6 +8,7 @@ import javax.xml.transform.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import jp.crestmuse.cmx.handlers.*;
+import jp.crestmuse.cmx.elements.*;
 import jp.crestmuse.cmx.misc.*;
 import java.util.*;
 
@@ -61,11 +62,10 @@ import groovy.lang.*;
  * 現在のバージョンでは声部にまたがるスラーは対応しておらず, 無視されます.
  *</p>
  * 
- *@author Tetsuro Kitahara (t.kitahara@ksc.kwansei.ac.jp)
+ *@author Tetsuro Kitahara
  *@version 0.21
  *********************************************************************/
-public class MusicXMLWrapper extends CMXFileWrapper implements
-    PianoRollCompatible {
+public class MusicXMLWrapper extends CMXFileWrapper {
 
   // public static final enum Dynamics {p, pp, ppp, pppp, ppppp, pppppp,
   // f, ff, fff, ffff, fffff, ffffff, mp, mf, sf, sfp, sfpp,
@@ -83,9 +83,9 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
   private boolean startsWithZerothMeasure;
   private boolean zerothMeasureChecked = false;
 
-  static final int INTERNAL_TICKS_PER_BEAT = 15360 * 7;
+//  static final int INTERNAL_TICKS_PER_BEAT = 15360 * 7;
 
-  // static final int INTERNAL_TICKS_PER_BEAT = 10080;
+   static final int INTERNAL_TICKS_PER_BEAT = 10080;
   // static final int INTERNAL_TICKS_PER_BEAT = 1920;
 
   // private DeviationInstanceWrapper dev;
@@ -105,6 +105,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
     }
   }
+
 
   /**********************************************************************
    *<p>
@@ -150,6 +151,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     }
   }
 
+/*
   public void processNotes(CommonNoteHandler h) {
     Part[] partlist = getPartList();
     for (Part part : partlist) {
@@ -167,7 +169,14 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       h.endPart(part.id(), this);
     }
   }
+*/
 
+  public void eachpart(Closure closure) throws TransformerException {
+    Part[] partlist = getPartList();
+    for (Part part : partlist) {
+      closure.call(new Object[]{part});
+    }
+  }
 
   public void eachnote(Closure closure) throws TransformerException {
       Part[] partlist = getPartList();
@@ -211,12 +220,26 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     return partlist;
   }
 
-  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException {
-    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
-    makeDeadpanSCCXML(dest, ticksPerBeat);
-    return dest;
+  public Part getPartOf(String id) {
+    Part[] parts = getPartList();
+    for (int i = 0 ; i < parts.length; i++) {
+      if (parts[i].id().equals(id)) {
+        return parts[i];
+      }
+    }
+    return null;
   }
 
+  public SCCXMLWrapper makeDeadpanSCCXML(int ticksPerBeat) throws IOException,TransformerException {
+//    SCCXMLWrapper dest = (SCCXMLWrapper) CMXFileWrapper.createDocument(SCCXMLWrapper.TOP_TAG);
+//    makeDeadpanSCCXML(dest, ticksPerBeat);
+//    return dest;
+    DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(this);
+    dev.finalizeDocument();
+    return dev.toSCCXML(ticksPerBeat);
+  }
+
+  /*
   public void makeDeadpanSCCXML(final SCCXMLWrapper dest, final int ticksPerBeat)
       throws IOException {
     DeviationInstanceWrapper dev = DeviationInstanceWrapper.createDeviationInstanceFor(this);
@@ -224,6 +247,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     dev.toSCCXML(dest, ticksPerBeat);
     dest.finalizeDocument();
   }
+  */
 
   /**********************************************************************
    *<p>
@@ -379,6 +403,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
    * INTERNAL_TICKS_PER_BEAT); } }
    */
 
+/*
   public List<SimpleNoteList> getPartwiseNoteList(final int ticksPerBeat)
       throws TransformerException {
     final List<SimpleNoteList> l = new ArrayList<SimpleNoteList>();
@@ -410,7 +435,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     });
     return l;
   }
+*/
 
+
+  /** @deprecated */
   public InputStream getMIDIInputStream() throws IOException,
       TransformerException, SAXException, ParserConfigurationException {
     return makeDeadpanSCCXML(INTERNAL_TICKS_PER_BEAT).toMIDIXML().getMIDIInputStream();
@@ -689,6 +717,28 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return "part";
     }
 
+    public void eachmeasure(Closure closure) throws TransformerException {
+      Measure[] measurelist = getMeasureList();
+      for (Measure measure : measurelist) {
+        closure.call(new Object[]{measure});
+      }
+    }
+
+    public void eachnote(Closure closure) throws TransformerException {
+      Measure[] measurelist = getMeasureList();
+      for (Measure measure : measurelist) {
+        MusicData[] mdlist = measure.getMusicDataList();
+        for (MusicData md : mdlist) {
+          if (md instanceof Note) {
+            Note note = (Note)md;
+            if (!note.rest())
+              closure.call(new Object[]{note});
+          }
+        }
+      }
+    }
+
+
     /**********************************************************************
      *<p>
      * Returns the array of the measure elements included in this part element.
@@ -838,6 +888,24 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return "measure";
     }
 
+    public void eachdata(Closure closure) throws TransformerException {
+      MusicData[] mdlist = getMusicDataList();
+      for (MusicData md : mdlist) {
+        closure.call(new Object[]{md});
+      }
+    }
+
+    public void eachnote(Closure closure) throws TransformerException {
+      MusicData[] mdlist = getMusicDataList();
+      for (MusicData md : mdlist) {
+        if (md instanceof Note) {
+          Note note = (Note)md;
+          if (!note.rest())
+            closure.call(new Object[]{note});
+        }
+      }
+    }
+
     // changed int -> long 20080609
     private void setCumulativeTicks(long cumulativeTicks) {
       if (!startsWithX) {
@@ -926,6 +994,20 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return mdlist;
     }
 
+    public Note[] getNoteOnlyList() {
+      MusicData[] md = getMusicDataList();
+      int count = 0;
+      for (int i = 0; i < md.length; i++) 
+        if (md[i] instanceof Note)
+          count++;
+      Note[] notelist = new Note[count];
+      count = 0;
+      for (int i = 0; i < md.length; i++) 
+        if (md[i] instanceof Note) 
+          notelist[count++] = (Note)md[i];
+      return notelist;
+    }
+
     // private int ticksPerBeat;
 
     /*
@@ -976,6 +1058,10 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
         return new Forward(node, this);
       else if (nodename.equals("direction"))
         return new Direction(node, this);
+      else if (nodename.equals("barline")) 
+        return new BarLine(node, this);
+      else if (nodename.equals("harmony"))
+        return new Harmony(node, this);
       else
         return new MusicData(node, this);
     }
@@ -1112,6 +1198,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
               / (float) INTERNAL_TICKS_PER_BEAT);
     }
 
+    /** modified offet to offset on 2013.09.17 */
     public int offset(int ticksPerBeat) {
       return onset(ticksPerBeat) + duration(ticksPerBeat);
     }
@@ -1127,6 +1214,86 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
     }
   }
 
+
+  public class Harmony extends MusicData {
+    private Degree[] degrees;
+    
+    private Harmony(Node node, Measure measure) {
+      super(node, measure);
+      NodeList nl = selectNodeList(node(), "degree");
+      int size = nl.getLength();
+      degrees = new Degree[size];
+      for (int i = 0; i < size; i++)
+        degrees[i] = new Degree(nl.item(i));
+    }
+    
+    protected String getSupportedNodeName() {
+      return "harmony";
+    }
+
+    public String rootStep() {
+      return getText(getChildByTagName("root-step", getChildByTagName("root")));
+    }
+
+    public int rootAlter() {
+      Node n = getChildByTagName("root-alter", getChildByTagName("root"));
+      if (n != null) {
+        return getTextInt(n);
+      } else {
+        return 0;
+      }
+    }
+
+    public boolean hasBass() {
+      return hasChild("bass", node());
+    }
+
+    public String bassStep() {
+      return getText(getChildByTagName("bass-step", getChildByTagName("bass")));
+    }
+
+    public int bassAlter() {
+      Node n = getChildByTagName("bass-alter", getChildByTagName("bass"));
+      if (n != null) {
+        return getTextInt(n);
+      } else {
+        return 0;
+      }
+    }
+
+    public String kind() {
+      return getChildText("kind");
+    }
+
+    public Degree[] degrees() {
+      return degrees;
+    }
+  }
+
+  public class Degree extends NodeInterface {
+    private int value, alter;
+    private String type;
+    private Degree(Node node) {
+      super(node);
+      value = getTextInt(getChildByTagName("degree-value"));
+      alter = getTextInt(getChildByTagName("degree-alter"));
+      type = getText(getChildByTagName("degree-type"));
+    }
+    protected final String getSupportedNodeName() {
+      return "degree";
+    }
+    public int degreeValue() {
+      return value;
+    }
+    public int degreeAlter() {
+      return alter;
+    }
+    public String degreeType() {
+      return type;
+    }
+  }
+      
+
   /**********************************************************************
    *<p>
    * note要素からの情報を取り出すためのメソッドを提供します. ただし, 現バージョンでは,
@@ -1136,7 +1303,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
    * 自分でDOMメソッドを用いる必要があります. なお, notationsについては, 現状では最初に出現したものだけしか扱えません.
    * </p>
    *********************************************************************/
-  public class Note extends MusicData implements NoteCompatible {
+  public class Note extends MusicData {
     private String pitchStep;
     private int pitchOctave;
     private int pitchAlter = 0;
@@ -1440,42 +1607,31 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       }
     }
 
+//    public int velocity() {
+//      throw new UnsupportedOperationException();
+//    }
 
-    /**Not supported. 
-       This method always throws UnsupportedOperationException.*/
-    public int velocity() {
-      throw new UnsupportedOperationException();
-    }
+//    public int offVelocity() {
+//      throw new UnsupportedOperateionException();
+//  }
 
-    /**Not supported. 
-       This method always throws UnsupportedOperationException.*/
-    public int onsetInMilliSec() {
-      throw new UnsupportedOperationException();
-    }
+//    public int onsetInMilliSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
-    /**@deprecated 
-       Not supported. 
-       This method always throws UnsupportedOperationException.*/
-    public int onsetInMSec() {
-      throw new UnsupportedOperationException();
-    }
+    /**@deprecated*/
+//    public int onsetInMSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
-    /**Not supported. 
-       This method always throws UnsupportedOperationException.*/
-    public int offsetInMilliSec() {
-      throw new UnsupportedOperationException();
-    }
+//    public int offsetInMilliSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
-    /**@deprecated 
-       Not supported. 
-       This method always throws UnsupportedOperationException.*/
-    public int offsetInMSec() {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean supportsMilliSec() {
-      return false;
-    }
+    /**@deprecated*/
+//    public int offsetInMSec() {
+//      throw new UnsupportedOperationException();
+//    }
 
     public String toString() {
       return "Note[" + measure().number() + ": " + onsetWithinMeasure() + "--"
@@ -1531,7 +1687,7 @@ public class MusicXMLWrapper extends CMXFileWrapper implements
       return xpath;
     }
 
-
+    /** obsolete */
     public double beat() {
       return onsetWithinMeasure() + 1.0;
       // if (Double.isNaN(beat))

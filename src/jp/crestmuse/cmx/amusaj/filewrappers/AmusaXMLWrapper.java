@@ -120,26 +120,18 @@ public class AmusaXMLWrapper extends CMXFileWrapper
 //      return false;
   }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
   public void setHeader(String category, String key, String value) {
     throw new UnsupportedOperationException();
   }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
   public void setHeader(String category, String key, int value) {
     throw new UnsupportedOperationException();
   }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
   public void setHeader(String category, String key, double value) {
     throw new UnsupportedOperationException();
   }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
   public void add(TimeSeriesCompatible d) {
     throw new UnsupportedOperationException();
   }
@@ -226,26 +218,18 @@ private class Header extends AbstractHeaderNodeInterface {
       return true;
     }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
     public final void add(Object e) {
       throw new UnsupportedOperationException();
     }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
     public final void setAttribute(String key, String value) {
       throw new UnsupportedOperationException();
     }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
     public final void setAttribute(String key, int value) {
       throw new UnsupportedOperationException();
     }
 
-  /** Not supported.
-      This method always throws UnsupportedOperationException. */
     public final void setAttribute(String key, double value) {
       throw new UnsupportedOperationException();
     }

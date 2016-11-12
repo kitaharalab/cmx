@@ -1,4 +1,4 @@
-CrestMuseXML Toolkit
+CrestMuse Toolkit
 
 -------------
  WHAT'S THIS
@@ -8,29 +8,40 @@ CrestMuseXML Toolkit
 ---------
  INSTALL
 ---------
-libディレクトリに収録されているjarファイルを下記のディレクトリにコピーします．
+UNIX系の環境（Mac OS X, Cygwinを含む）をお使いの方は、install.shを実行します。
+
+それ以外の環境の方は、libディレクトリに収録されているjarファイルを下記のディレクトリ
+にコピーします．
  - Java Runtime Environment (JRE)がインストールされている場合には
    <JREのディレクトリ>/lib/ext．
  - Java Development Kit (JDK)がインストールされている場合には
    <JDKのディレクトリ>/jre/lib/ext．
-UNIX系の環境（Mac OSX，Cygwinを含む）をお使いの方は，setup.sh を実行することで，
-自動的に上述のファイルのコピーを行います．
-（ただし、単にファイルをコピーするだけですので、同名のファイルがすでに存在する場合、
-上書きにより既存のソフトウェアの動作に支障が出る可能性があります。自己責任にて
-お使いください。）
+
+-------
+ USAGE
+-------
+install.shを使用してインストールした場合、「cmx」および「cmxscript」という2つの
+コマンドが追加されます。「cmx」は音楽ファイルの変換をしたい場合に、「cmxscript」
+は、CMXScriptというGroovyベースのスクリプトを実行する際に使用します。
+Javaのライブラリーなので、CLASSPATHを自分で通して使うこともできます。
+詳しくは、readme_ja.pdf をご覧ください。
 
 -----------
  LIBRARIES
 -----------
 Apache Xerces 2.9.1, Xalan 2.7.1, Commons Math 1.2 (Apache License 2.0), 
-groovy 1.7.1 (Apach License 2.0)およびjahmm 0.6.2 (BSD License)を動的結合に
+groovy 1.8.6 (Apach License 2.0) および JLayer 1.0.1 (LGPL) を動的結合に
 より利用しております．
 これらのソースコードは，下記のURLより入手可能です．
 http://xerces.apache.org/
 http://xml.apache.org/xalan-j/
 http://commons.apache.org/math/
 http://groovy.codehaus.org/
-http://code.google.com/p/jahmm/
+http://www.javazoom.net/javalayer/javalayer.html
+
+このパッケージは、Weka関連のコードを省略しているため、確率推論は
+ご利用になれません。確率推論をご利用になる場合には、Wekaバンドル版（GPL）
+をご利用ください。
 
 ---------
  LICENSE
@@ -41,6 +52,6 @@ http://code.google.com/p/jahmm/
 ---------
  AUTHORS
 ---------
-本ライブラリは，CrestMuseXML Development Projectによって
+本ライブラリは，CrestMuse Toolkit Development Team によって
 開発されています．本プロジェクトのメンバーは，「AUTHORS」ファイルを
 ご覧ください．

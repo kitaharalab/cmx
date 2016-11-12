@@ -1,0 +1,30 @@
+void setup() {
+  def mr = createMusicRepresentation(1, 4)
+  def values1 = ["A", "B"]
+  def values2 = ["X", "Y"]
+  mr.addMusicLayer("layer1", values1)
+  mr.addMusicLayer("layer2", values2)
+
+  def bn = new BayesNetWrapper("mybn.xml")
+  def bc = new BayesianCalculator(bn)
+  bc.addReadMapping(new BayesianMapping("layer1", 0, 0, "n1", bn))
+  bc.addWriteMapping(new BayesianMapping("layer2", 0, 0, "n2", bn))
+  mr.addMusicCalculator("layer1", bc)
+
+  def e1 = mr.getMusicElement("layer1", 0, 0)
+  e1.setEvidence("A")
+
+  def e2 = mr.getMusicElement("layer2", 0, 0)
+  println("e2: p(X)=" + e2.getProb("X"))
+  println("e2: p(Y)=" + e2.getProb("Y"))
+
+  def e3 = mr.getMusicElement("layer1", 0, 1)
+  e3.setEvidence("B")
+  def e4 = mr.getMusicElement("layer2", 0, 1)
+  println("e4: p(X)=" + e4.getProb("X"))
+  println("e4: p(Y)=" + e4.getProb("Y"))
+}
+
+void draw() {
+
+}

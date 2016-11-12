@@ -153,11 +153,19 @@ public class MutableWaveform implements AudioDataCompatible,Cloneable {
 	    divX(waveform[i], max * 1.01);
     }
 
-    public boolean supportsWholeWaveformGetter() {
+//    public boolean supportsWholeWaveformGetter() {
+//	return true;
+//    }
+
+    public boolean supportsRandomAccess() {
 	return true;
     }
 
   private int next = 0;
+
+  public DoubleArray[] read(long microsecond, int sampleSize) {
+    throw new UnsupportedOperationException();
+  }
 
   public DoubleArray[] readNext(int sampleSize, int nOverlap) {
       throw new UnsupportedOperationException();

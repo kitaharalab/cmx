@@ -1,29 +1,24 @@
+----------------------------------------------------------------
+CrestMuse Toolkit (CMX)
+
+This Toolkit supports various features including:
+  - input/output of music files (MusicXML, MIDI, WAV, etc.), 
+  - realtime music data processing, and 
+  - Bayesian-network-based music inference. 
+
+The first feature can be used from the command line interface. 
+
 Usage: 
-$cmx command options
+$ cmx <command> <options...>
 
-Available commands: 
-  - dev2midi   ... Converts DeviationIntanceXML to
-                   MIDIXML (or SMF)
-  - addtempo   ... Adds tempo deviations to the given 
-                   DeviationInstanceXML 
-  - mkdev      ... Makes a DeviationInstanceXML file 
-                   from a pair of MusicXML and SMF
-  - midi2scc   ... Converts MIDIXML to SCCXML
-  - midi2smf   ... Converts MIDIXML to SMF
-  - mkdeadpan  ... Makes the SCCXML file of the deadpan 
-                   performance for the given MusicXML
-  - scc2midi   ... Converts SCCXML to MIDIXML
-  - smf2midi   ... Converts SMF to MIDIXML
-  - smf2scc    ... Converts SMF to SCCXML
-  - smfovrelap-check
-  - smfoverlap-remove
-  - smfovrelap-remove2
-  - wav2chroma ... Calculates chroma vectors for the 
-                   given WAV file
-  - wav2fpd    ... Calculates F0 predominance data for 
-                   the given WAV file
-  - wav2spd    ... Calculates spectral data for the 
-                   given WAV file
-
-You may know options for each command by: 
-$cmx command -h
+Supported Options: 
+  - dev2midi: Generate a MIDI file from a DeviationInstanceXML 
+              file (and the corresponding MusicXML file)
+  - mkdev:    Generate a DeviationInstanceXML from a pair of 
+              MusicXML and MIDI files
+  - midi2scc: Converts a MIDIXML file to a SCCXML file
+  - midi2smf: Converts a MIDIXML file to a standard MIDI file
+  - scc2midi: Converts a SCCXML file to a MIDIXML file
+  - smf2midi: Converts a standard MIDI file to a MIDIXML file
+  - smf2scc:  Converts a standard MIDI file to a SCCXML file
+----------------------------------------------------------------

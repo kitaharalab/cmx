@@ -11,7 +11,7 @@ import org.xml.sax.*;
 import java.io.*;
 import java.util.*;
 
-public class SMFOverlapRemover2 extends 
+class SMFOverlapRemover2 extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {
 
 

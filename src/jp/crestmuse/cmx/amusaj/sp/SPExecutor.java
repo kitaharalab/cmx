@@ -1,10 +1,12 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
-import java.util.concurrent.*;
+import jp.crestmuse.cmx.misc.QueueReader;
 
 /************************************************************************
  *<p>
@@ -70,6 +72,14 @@ public class SPExecutor {
   }
 */
 
+  public boolean containsModule(ProducerConsumerCompatible module) {
+    for (SPExecutorModule spm : modules) {
+      if (spm.module == module)
+        return true;
+    }
+    return false;
+  }
+
   /*********************************************************************
    *データ処理モジュールオブジェクトを登録します.
    *********************************************************************/
@@ -77,7 +87,8 @@ public class SPExecutor {
     // if (lastThread == null)
     // list.add(lastThread = new SPThread());
 //    module.setParams(params);
-    SPExecutorModule spm = new SPExecutorModule(module);
+    if (!containsModule(module)) {
+      SPExecutorModule spm = new SPExecutorModule(module);
     /*
     spm.module = module;
     int n = module.getOutputChannels();
@@ -89,8 +100,13 @@ public class SPExecutor {
       spm.src.add(null);
     */
     // lastThread.modules.add(spm);
-    modules.add(spm);
-    map.put(module, spm);
+    //    if (modules.contains(spm)) {
+    //	System.err.println(module + "has already been added. Addition was skipped.");
+    //    } else {
+      modules.add(spm);
+      map.put(module, spm);
+    }
+	//    }
   }
 
   /*
@@ -306,7 +322,7 @@ public class SPExecutor {
           if (inputChannelNum > 0 && inputElements[0] instanceof SPTerminator) {
             module.terminated(dest);
             for (TimeSeriesCompatible tsc : dest)     
-		tsc.add(SPTerminator.getInstance());
+              tsc.add(SPTerminator.getInstance());
             break;
           }
           module.execute(inputElements, dest);
@@ -314,7 +330,8 @@ public class SPExecutor {
             break;
           Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
-          e.printStackTrace();
+          System.err.println("The module '" + module.toString() + "' has been interrupted.");
+//          e.printStackTrace();
           break;
         }
       }

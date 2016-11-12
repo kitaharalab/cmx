@@ -6,24 +6,26 @@ import jp.crestmuse.cmx.math.*;
 import jp.crestmuse.cmx.misc.*;
 import jp.crestmuse.cmx.sound.*;
 import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.Utils.*;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 import static jp.crestmuse.cmx.sound.Utils.*;
 import java.util.*;
 import java.io.*;
 
 public class WindowSlider extends SPModule {
 
-  private int winsize = 0;
+  int winsize = 0;
   private double shift = Double.NaN;
   private int shift_;
-  private int[] chTarget = null;
+  int[] chTarget = null;
 
   private double[] buff;
   private int fs;
-  private AudioDataCompatible audiodata;
+  AudioDataCompatible audiodata;
 //  private DoubleArray[] wav;
 //  private DoubleArray wavM = null, wavL = null, wavR = null;
 //  private boolean isStereo;
+
+  TickTimer ticktimer = null;
 
   private static final DoubleArrayFactory factory = 
     DoubleArrayFactory.getFactory();
@@ -45,13 +47,13 @@ public class WindowSlider extends SPModule {
 //    wav = new DoubleArray[chTarget.length];
   }
   
-//  protected String getParamCategory() {
-//    return "fft";
-//  }
+  protected String getParamCategory() {
+    return "fft";
+  }
 
-//  protected String[] getUsedParamNames() {
-//    return new String[]{"WINDOW_SIZE", "SHIFT"};
-//  }
+  protected String[] getUsedParamNames() {
+    return new String[]{"WINDOW_SIZE", "SHIFT"};
+  }
 
   /** "from" and "thru" in milli sec. */
   public void setInputData(AudioDataCompatible audiodata, 
@@ -61,11 +63,15 @@ public class WindowSlider extends SPModule {
                          (int)((long)from * fs / 1000), 
                          (int)((long)thru * fs / 1000)));
   }
-
+  
   public AudioDataCompatible getTargetWaveform() {
     return audiodata;
   }
-  
+
+  public void setTickTimer(TickTimer timer) {
+    ticktimer = timer;
+  }
+
 /*public void setInputData(AudioDataCompatible audiodata, int from, 
                            int thru) {
     if (!audio.supportsWholeWaveformGetter())
@@ -136,21 +142,22 @@ public class WindowSlider extends SPModule {
 
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
+    long ticktime = ticktimer != null ? ticktimer.getTickPosition() : -1;
       if (audiodata.hasNext(winsize)) {
       try {
         DoubleArray[] wav = audiodata.readNext(winsize, winsize - shift_);
         for (int i = 0; i < chTarget.length; i++) {
-          DoubleArray w;
+          DoubleArrayWithTicktime w;
           if (chTarget[i] == -2)
-            w = mean(wav);
+            w = new DoubleArrayWithTicktime(mean(wav), ticktime);
           else
-            w = wav[chTarget[i]];
+            w = new DoubleArrayWithTicktime(wav[chTarget[i]], ticktime);
           dest[i].add(w);
         }
       } catch (IOException e) {
         throw new SPException(e);
       }
-    } else {
+    } else { 
       for (int i = 0; i < chTarget.length; i++)
         dest[i].add(SPTerminator.getInstance());
     }

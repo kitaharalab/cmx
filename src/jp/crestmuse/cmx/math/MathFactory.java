@@ -3,9 +3,14 @@ package jp.crestmuse.cmx.math;
 abstract class MathFactory {
   static MathFactory getFactory(String property, String defaultClass) {
     try {
-      String className = System.getProperty(property);
-      if (className == null)
+      String className;
+      try {
+        className = System.getProperty(property);
+        if (className == null)
+          className = "jp.crestmuse.cmx.math." + defaultClass;
+      } catch (java.security.AccessControlException e) {
         className = "jp.crestmuse.cmx.math." + defaultClass;
+      }
       return (MathFactory)Class.forName(className).newInstance();
     } catch (ClassNotFoundException e) {
       throw new MathFactoryException(e.toString());

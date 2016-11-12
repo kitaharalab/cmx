@@ -15,5 +15,9 @@ public interface AudioDataCompatible {
 //  DoubleArray[] getLast(int sampleSize);
 //  void getLast(int sampleSize, DoubleArray[] wav, index);
   boolean hasNext(int sampleSize);
-  boolean supportsWholeWaveformGetter();
+
+  DoubleArray[] read(long microsecond, int sampleSize) throws IOException;
+
+  boolean supportsRandomAccess();
+//  boolean supportsWholeWaveformGetter();
 }

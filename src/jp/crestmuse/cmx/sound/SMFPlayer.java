@@ -24,6 +24,18 @@ public class SMFPlayer implements MusicPlayer {
     }
   }
 
+  public SMFPlayer(MidiDevice mididev) throws MidiUnavailableException {
+    sequencer = MidiSystem.getSequencer(false);
+//    if (!(sequencer instanceof Synthesizer)) {
+//      Synthesizer synthesizer = MidiSystem.getSynthesizer();
+//      synthesizer.open();
+      Receiver receiverSyntheFromSeq = mididev.getReceiver();
+      Transmitter transmitterSeqToSynthe = sequencer.getTransmitter();
+      transmitterSeqToSynthe.setReceiver(receiverSyntheFromSeq);
+//    }
+    sequencer.open();
+  }
+
   public void readSMF(String filename) 
     throws InvalidMidiDataException, IOException {
     readSMF(new File(filename));
@@ -39,8 +51,15 @@ public class SMFPlayer implements MusicPlayer {
   public void readSMF(InputStream instream) throws InvalidMidiDataException, 
     IOException {
     stop();
-    sequence = MidiSystem.getSequence(instream);
+    sequence = MidiSystem.getSequence(new BufferedInputStream(instream));
+    //sequence = MidiSystem.getSequence(instream);
     sequencer.setSequence(sequence);
+  }
+
+  public void readSMF(Sequence s) throws InvalidMidiDataException {
+    stop();
+    sequence = s;
+    sequencer.setSequence(s);
   }
 
   /** play SMF file */
@@ -64,6 +83,10 @@ public class SMFPlayer implements MusicPlayer {
       sequencer.stop();
   }
   
+  public void setLoopEnabled(boolean b) {
+    throw new UnsupportedOperationException("not implemented yet");
+  }
+
   public long getMicrosecondLength(){
     return sequencer.getMicrosecondLength();
   }
@@ -93,5 +116,21 @@ public class SMFPlayer implements MusicPlayer {
   public long getTickPosition() {
     return sequencer.getTickPosition();
   }
+    
+    public void setTickPosition(long tick) {
+	sequencer.setTickPosition(tick);
+    }
+
+    public float getTempoInBPM() {
+	return sequencer.getTempoInBPM();
+    }
+
+    public void setTempoInBPM(float t) {
+	sequencer.setTempoInBPM(t);
+    }
+
+    public void setTempoInBPM(double t) {
+	setTempoInBPM((float)t);
+    }
 
 }

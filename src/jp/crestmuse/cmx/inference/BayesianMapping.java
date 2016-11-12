@@ -39,6 +39,7 @@ public class BayesianMapping {
 	this.musRepPosition = musRepPosition;
 	this.option = option;
 	this.bayesnetIndex = bn.getNode(bayesNodeName);
+        System.err.println("BAYES INDEX: " + bayesnetIndex);
 	this.evidenceOnly = evidenceOnly;
     }
 
@@ -47,12 +48,34 @@ public class BayesianMapping {
 	this(layer, musRepPosition, option, bayesNodeName, bn, true);
     }
 
-  protected String labelToString(Object o) {
-    return o.toString();
-  }
 
 
-    protected MusicElement mappedElement(MusicRepresentation mr, 
+    protected MusicElement 
+    mappedElement(MusicRepresentation mr, 
+                  int currentMeasure, int currentTick) {
+	if (musRepPosition == 0)
+          return mr.getMusicElement(layer, currentMeasure, currentTick);
+	int inc = 1;
+	if ((option & BY_TIED_LENGTH) == BY_TIED_LENGTH) 
+	    inc = mr.getTiedLength(layer);
+	int division = mr.getDivision();
+	int newindex = currentMeasure * division + currentTick 
+	    + musRepPosition * inc;
+	if (newindex >= 0) {
+	    int newmeasure = newindex / division;
+	    int newtick;
+	    if ((option & MEASURE_HEAD) == MEASURE_HEAD)
+		newtick = 0;
+	    else
+		newtick = newindex % division;
+	    return mr.getMusicElement(layer, newmeasure, newtick);
+	} else {
+	    return null;
+	}
+    }
+
+/*
+    protected MusicElement mappedElement(MusicRepresentation2 mr, 
 					 int currentMeasure, int currentTick) {
 	if (musRepPosition == 0)
 	    return mr.getMusicElement(layer, currentMeasure, currentTick);
@@ -62,7 +85,6 @@ public class BayesianMapping {
 	int division = mr.getDivision();
 	int newindex = currentMeasure * division + currentTick 
 	    + musRepPosition * inc;
-//	System.err.println("newindex: " + newindex);
 	if (newindex >= 0) {
 	    int newmeasure = newindex / division;
 	    int newtick;
@@ -70,12 +92,12 @@ public class BayesianMapping {
 		newtick = 0;
 	    else
 		newtick = newindex % division;
-//	    System.err.println(layer + " " + newindex);
 	    return mr.getMusicElement(layer, newmeasure, newtick);
 	} else {
 	    return null;
 	}
     }
+*/
 
     /*
   protected MusicElement musicMappedElement(MusicRepresentation musRep,

@@ -2,9 +2,9 @@ package jp.crestmuse.cmx.commands;
 
 /*********************************************************************
  *Thrown when the user speficied invalid option(s). <br>
- *$B%f!<%6$,IT@5$J%*%W%7%g%s$r;XDj$7$?$H$-$K%9%m!<$5$l$kNc30$G$9(B. 
+ *ユーザが不正なオプションを指定したときにスローされる例外です. 
  *********************************************************************/ 
-class InvalidOptionException extends Exception {
+public class InvalidOptionException extends Exception {
 
   InvalidOptionException() {
     super("Invalid option(s).");

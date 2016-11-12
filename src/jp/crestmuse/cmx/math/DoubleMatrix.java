@@ -1,11 +1,11 @@
 package jp.crestmuse.cmx.math;
 import jp.crestmuse.cmx.misc.*;
 
-public interface DoubleMatrix extends Encodable{
-  int nrows();
-  int ncols();
+public interface DoubleMatrix extends Matrix, Encodable{
+//  int nrows();
+//  int ncols();
   double get(int i, int j);
   void set(int i, int j, double value);
-  DoubleMatrix clone() throws CloneNotSupportedException;
-  String encode();
+    Object clone() throws CloneNotSupportedException;
+    String encode();
 }

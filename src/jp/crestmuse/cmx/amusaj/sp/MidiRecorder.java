@@ -16,6 +16,7 @@ public class MidiRecorder extends SPModule {
       track = seq.createTrack();
     } catch (InvalidMidiDataException e) {
       e.printStackTrace();
+      throw new IllegalArgumentException();
     }
     this.filename = filename;
     this.ticksPerBeat = ticksPerBeat;
@@ -24,6 +25,8 @@ public class MidiRecorder extends SPModule {
   public void execute(Object[] src, TimeSeriesCompatible[] dest)
     throws InterruptedException {
     MidiEventWithTicktime e = (MidiEventWithTicktime)src[0];
+    System.err.println(e.getMessage());
+    System.err.println(e.music_position);
     track.add(new MidiEvent(e.getMessage(), e.music_position));
   }
 

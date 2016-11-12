@@ -189,10 +189,12 @@ public class PeakExtractor extends SPModule {
       }
     }
     PeakSet ps;
-    dest[0].add
-      (ps = new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
-                   subarray(phase, 0, k), subarray(iid, 0, k), 
-                   subarray(ipd, 0, k)));
+    ps = new PeakSet(subarray(freq, 0, k), subarray(power, 0, k), 
+                     subarray(phase, 0, k), subarray(iid, 0, k), 
+                     subarray(ipd, 0, k));
+    if (src[0] instanceof ComplexArrayWithTicktime)
+      ps.music_position = ((ComplexArrayWithTicktime)src[0]).music_position;
+    dest[0].add(ps);
     //    System.out.println(ps);
   }
                         

@@ -220,7 +220,10 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
   }
 
   private boolean setBoolOptions(String option) {
-    if (option.equals("-stdout")) {
+    if (option.equals("-")) {
+      filenames.enqueue("-");
+      return true;
+    } else if (option.equals("-stdout")) {
       isStdOut = true;
       return true;
     } else if (option.equals("-mkdir")) {
@@ -340,7 +343,11 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
   protected FileWrapperCompatible readInputData(String filename) 
 	throws IOException, ParserConfigurationException, SAXException,
         TransformerException  {
-    return CMXFileWrapper.readfile(filename, this);
+    if (!filename.equals("-")) {
+      return CMXFileWrapper.readfile(filename, this);
+    } else {
+      return CMXFileWrapper.read(System.in);
+    }
   }
 
   /******************************************************************
@@ -442,16 +449,22 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
     if (nFiles == 0 && filenames.size() > 0)
       throw new InvalidNumberOfFilesException();
     preproc();
-    F1[] files = (F1[])new FileWrapperCompatible[nFiles];
+//    F1[] files = (F1[])new FileWrapperCompatible[nFiles];
+    List<F1> files = new ArrayList<F1>();
     try {
       do {
+        files.clear();    // added 2016.09.28
         for (int i = 0; i < nFiles; i++) {
           String filename = filenames.dequeue();
           System.err.println("[" + filename + "]");
-          files[i] = (F1)readInputData(filename);
+//          files[i] = (F1)readInputData(filename);
+          files.add((F1)readInputData(filename));
         }
-        if (files.length == 1)
-          this.filename = files[0].getFileName();  // kari
+        
+//if (files.length == 1)
+        if (files.size() == 1)
+//          this.filename = files[0].getFileName();  // kari
+          this.filename = files.get(0).getFileName();
 	outdata = null;
         String destdir = getDestDir();
         if (mkdir && (destdir != null)) {
@@ -476,21 +489,29 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
 //          outdata = run(files);
 //        }
 	if (outdata != null) {
-          String outfilename;
+//          String outfilename;
           if (isStdOut) {
             outdata.write(System.out);
           } else {
             File f = null;
-            if ((outfilename = getOutFileName()) != null) {
-              f = new File(outfilename);
-            } else if (destdir != null) {
-              if (ext != null)
-                f = new File(destdir, getBaseName(filename) + "." + ext);
+            String outfilename = getOutFileName();
+            if (outfilename != null) {
+              if (destdir == null)
+                f = new File(outfilename);
               else
-                f = new File(destdir, removeDirName(filename));
+                f = new File(destdir, outfilename);
+//            if ((outfilename = getOutFileName()) != null) {
+//              f = new File(outfilename);
             } else {
-              if (ext != null)
-                f = new File(removeExt(filename) + "." + ext);
+              if (destdir != null) {
+                if (ext != null)
+                  f = new File(destdir, getBaseName(filename) + "." + ext);
+                else
+                  f = new File(destdir, removeDirName(filename));
+              } else {
+                if (ext != null)
+                  f = new File(removeExt(filename) + "." + ext);
+              }
             }
             if (f == null)
               outdata.write(System.out);
@@ -539,13 +560,13 @@ public abstract class CMXCommand<F1 extends FileWrapperCompatible,
     return outdata;
   }
 
-  protected F2 run(F1[] f) 
+  protected F2 run(List<F1> f) 
     throws IOException, ParserConfigurationException, SAXException, 
     TransformerException, InvalidFileTypeException {
-    if (f.length == 0) 
+    if (f.size() == 0)
       return run((F1)null);
-    else if (f.length == 1) 
-      return run(f[0]);
+    else if (f.size() == 1)
+      return run(f.get(0));
     else
       throw new NotOverridenException();
   }

@@ -147,7 +147,7 @@ public abstract class AbstractWAVAnalyzer
       audioin = null;
     } else {
       try {    // kari
-        audioin = AudioInputStreamWrapper.createWrapper8(fs);
+        audioin = AudioInputStreamWrapper.createWrapper16(fs, null);
         winslider.setInputData(audioin);
         audioin.getLine().start();
       } catch (LineUnavailableException e) {
