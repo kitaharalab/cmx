@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.elements;
 
 public class MutableProgramChange extends MutableMusicEvent {
-  public MutableProgramChange(int timestamp, int value, 
+  public MutableProgramChange(long timestamp, int value, 
                               int ticksPerBeat) {
     super(Type.PROGRAM_CHANGE, timestamp, timestamp, ticksPerBeat);
     value1 = value;

@@ -1151,10 +1151,10 @@ public class DeviationInstanceWrapper extends CMXFileWrapper {
       HeaderElement[] headers = scc.getHeaderElementList();
       for (int i = 0; i < headers.length; i++) {
         if (headers[i].name().equals("TEMPO")) {
-          int from = headers[i].time() * divisionPerMeasure / 4 / ticksPerBeat;
+          int from = (int)(headers[i].time() * divisionPerMeasure / 4 / ticksPerBeat);
           int to;
           if (i < headers.length - 1) {
-            to = headers[i + 1].time() * divisionPerMeasure / 4 / ticksPerBeat;
+            to = (int)(headers[i + 1].time() * divisionPerMeasure / 4 / ticksPerBeat);
           } else {
             to = tempos.length - 1;
           }

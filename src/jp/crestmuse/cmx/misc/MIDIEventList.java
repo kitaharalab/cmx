@@ -18,17 +18,17 @@ public class MIDIEventList implements Iterable<MIDIEventList.MIDIEvent> {
                                     : e1.value1 - e2.value1
                                 ) : e1.ch - e2.ch
                             ) : e1.status - e2.status
-                        ) : e1.time - e2.time;
+                         ) : (int)(e1.time - e2.time);
              }
 	});
     }
 
-    public void addEvent(int time, String msgname, byte ch, 
+    public void addEvent(long time, String msgname, byte ch, 
                          int value1, int value2) {
         s.add(new MIDIEvent(time, msgname, ch, value1, value2));
     }
 
-    public void addEvent(int time, short status, byte ch, 
+    public void addEvent(long time, short status, byte ch, 
                          int value1, int value2) {
         s.add(new MIDIEvent(time, status, ch, value1, value2));
     }
@@ -38,11 +38,12 @@ public class MIDIEventList implements Iterable<MIDIEventList.MIDIEvent> {
     }
 
     public final class MIDIEvent {
-        private int time, value1 = 0, value2 = 0;
+      private long time;
+      private int value1 = 0, value2 = 0;
 	private short status;
 	private String msgname;
 	private byte ch;
-	MIDIEvent(int time, short status, byte ch, int value1, int value2) {
+	MIDIEvent(long time, short status, byte ch, int value1, int value2) {
             this.time = time;
 	    this.status = status;
 	    this.value1 = value1;
@@ -50,7 +51,7 @@ public class MIDIEventList implements Iterable<MIDIEventList.MIDIEvent> {
 	    this.msgname = statusNoToMsgName(status);
 	    this.ch = ch;
         }
-	MIDIEvent(int time, String msgname, byte ch, int value1, int value2) {
+	MIDIEvent(long time, String msgname, byte ch, int value1, int value2) {
 	    this.time = time;
             this.msgname = msgname;
 	    this.value1 = value1;
@@ -58,7 +59,7 @@ public class MIDIEventList implements Iterable<MIDIEventList.MIDIEvent> {
 	    this.status = msgNameToStatusNo(msgname);
 	    this.ch = ch;
         }
-	public final int time() {
+	public final long time() {
             return time;
         }
         public final short status() {

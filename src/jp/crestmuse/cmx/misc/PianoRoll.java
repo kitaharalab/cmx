@@ -6,6 +6,7 @@ public interface PianoRoll {
     public int getMeasureNum();
     public int getBeatNum();
     public int getFirstMeasure();
+    public void setFirstMeasure(int measure);
     public boolean isSelectable();
     public boolean isEditable();
     public void selectNote(int measure, double beat, int notenum);

@@ -540,7 +540,7 @@ public class Operations {
   }
   
   public static final int Hz2nn(double x) {
-    return 57 + (int)(12 * log(x / 220.0) / log(2));
+    return 57 + (int)(12 * Math.log(x / 220.0) / Math.log(2));
   }
   
   public static final double nn2Hz(double nn) {
@@ -548,11 +548,34 @@ public class Operations {
   }
 
 
-  public static void logX(DoubleArray x, int a) {
+  public static void logX(DoubleArray x) {
     int length = x.length();
-    double logA = log(a);
     for (int i = 0; i < length; i++)
-      x.set(i, log(x.get(i)) / logA);
+      x.set(i, Math.log(x.get(i)));
+  }
+    
+  public static void logX(DoubleArray x, double a) {
+    int length = x.length();
+    double logA = Math.log(a);
+    for (int i = 0; i < length; i++)
+      x.set(i, Math.log(x.get(i)) / logA);
+  }
+
+  public static DoubleArray log(DoubleArray x) {
+    int length = x.length();
+    DoubleArray y = factory.createArray(length);
+    for (int i = 0; i < length; i++)
+      y.set(i, Math.log(x.get(i)));
+    return y;
+  }
+
+  public static DoubleArray log(DoubleArray x, double a) {
+    int length = x.length();
+    double logA = Math.log(a);
+    DoubleArray y  = factory.createArray(length);
+    for (int i = 0; i < length; i++)
+      y.set(i, Math.log(x.get(i)) / logA);
+    return y;
   }
 
   public static double ratioTrue(BooleanArray x) {
@@ -786,14 +809,44 @@ public class Operations {
 	return z;
     }
 
+  public static double get(DoubleMatrix x, int i) {
+    if (x.nrows() == 1) 
+      return x.get(0, i);
+    else if (x.ncols() == 1)
+      return x.get(i, 0);
+    else
+      throw new IllegalArgumentException("For get(DoubleMatrix m, int i), the number of rows or columns should be 1 (nrows: " + x.nrows() + ", ncols: " + x.ncols() + ")" );
+  }
+
+  public static double getAt(DoubleMatrix x, int i) {
+    return get(x, i);
+  }
 
     public static double getAt(DoubleMatrix x, int[] indices) {
 	return x.get(indices[0], indices[1]);
     }
 
+  public static void set(DoubleMatrix x, int i, double value) {
+    if (x.nrows() == 1)
+      x.set(0, i, value);
+    else if (x.ncols() == 1)
+      x.set(i, 0, value);
+    else
+      throw new IllegalArgumentException();
+  }
+
+  public static void putAt(DoubleMatrix x, int i, double value) {
+    set(x, i, value);
+  }
+     
+  
     public static void putAt(DoubleMatrix x, int[] indices, double value) {
 	x.set(indices[0], indices[1], value);
     }
+
+  //  public static void putAt(DoubleMatrix x, int i, int j, double value) {
+  //    x.set(i, j, value);
+  //  }
 
     public static DoubleMatrix add(DoubleMatrix x, DoubleMatrix y) {
 	int nrows = x.nrows();
@@ -823,6 +876,32 @@ public class Operations {
 	return add(x, y);
     }
 
+  public static DoubleMatrix add(DoubleMatrix x, double value) {
+    int nrows = x.nrows();
+    int ncols = x.ncols();
+    DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+    for (int i = 0; i < nrows; i++)
+      for (int j = 0; j < ncols; j++)
+        z.set(i, j, x.get(i, j) + value);
+    return z;
+  }
+
+  public static DoubleMatrix plus(DoubleMatrix x, double value) {
+    return add(x, value);
+  }
+  
+  public static void addX(DoubleMatrix x, int i, int j, double value) {
+    x.set(i, j, value + x.get(i, j));
+  }
+
+  public static void addX(DoubleMatrix x, double value) {
+    int nrows = x.nrows();
+    int ncols = x.ncols();
+    for (int i = 0; i < nrows; i++) 
+      for (int j = 0; j < ncols; j++)
+        x.set(i, j, x.get(i, j) + value);
+  }
+  
     public static DoubleMatrix sub(DoubleMatrix x, DoubleMatrix y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
@@ -850,7 +929,21 @@ public class Operations {
     public static DoubleMatrix minus(DoubleMatrix x, DoubleArray y) {
 	return sub(x, y);
     }
-    
+
+  public static DoubleMatrix sub(DoubleMatrix x, double y) {
+    int nrows = x.nrows();
+    int ncols = x.ncols();
+    DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+    for (int i = 0; i < nrows; i++)
+      for (int j = 0; j < ncols; j++)
+        z.set(i, j, x.get(i, j) - y);
+    return z;
+  }
+
+  public static DoubleMatrix minus(DoubleMatrix x, double y) {
+    return sub(x, y);
+  }
+  
     public static DoubleMatrix mul(DoubleMatrix x, double y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
@@ -880,6 +973,17 @@ public class Operations {
 	}
 	return z;
     }
+
+  public static DoubleMatrix mulE(DoubleMatrix x, DoubleMatrix y) {
+    int nrows = x.nrows();
+    int ncols = x.ncols();
+    DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
+    for (int i = 0; i < nrows; i++) 
+      for (int j = 0; j < ncols; j++)
+        z.set(i, j, x.get(i, j) * y.get(i, j));
+    return z;
+  }
+              
 
     public static DoubleMatrix multiply(DoubleMatrix x, DoubleMatrix y) {
 	return mul(x, y);
@@ -1251,7 +1355,32 @@ public class Operations {
     }
     return factory.createArray(z);
   }
+
+  public static int sign(int x) {
+    if (x > 0)
+      return 1;
+    else if (x < 0)
+      return -1;
+    else
+      return 0;
+  }
+
+  public static double sign(double x) {
+    if (x > 0.0)
+      return 1.0;
+    else if (x < 0.0)
+      return -1.0;
+    else
+      return 0.0;
+  }
   
+  public static double abs(double x) {
+    return Math.abs(x);
+  }
+
+  public static int abs(int x) {
+    return Math.abs(x);
+  }
 
   public static DoubleArray abs(DoubleArray x) {
     int length = x.length();
@@ -1308,6 +1437,41 @@ public class Operations {
     }
     return factory.createArray(z);
   }
+
+  public static DoubleArray insertAtFirst(DoubleArray x, double value, int n) {
+    return new MyDoubleArray1(x, value, n);
+  }
+
+  private static class MyDoubleArray1 extends AbstractDoubleArrayImpl {
+    private DoubleArray array;
+    private double value;
+    private int n;
+    MyDoubleArray1(DoubleArray x, double value, int n) {
+      array = x;
+      this.value = value;
+      this.n = n;
+    }
+    public int length() {
+      return array.length() + n;
+    }
+    public double get(int index) {
+      if (index < n) {
+        return value;
+      } else {
+        return array.get(index - n);
+      }
+    }
+    public void set(int index, double value) {
+      if (index < n) {
+        array = MathUtils.cloneArray(this);
+        n = 0;
+        array.set(index, value);
+      } else {
+        array.set(index - n, value);
+      }
+    }
+  }
+
 }
 
 

@@ -36,7 +36,7 @@ class SMFConcat {
           public void 	endPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {
             outdata.endPart();
           }
-          public void 	processHeaderElement(int timestamp, java.lang.String name, 
+          public void 	processHeaderElement(long timestamp, java.lang.String name, 
                                     java.lang.String content, SCCXMLWrapper w){
             outdata2.addHeaderElement(timestamp - t0 + t1, 
                                       name, content);
@@ -61,7 +61,7 @@ class SMFConcat {
         public void endPart(SCCXMLWrapper.Part part, SCCXMLWrapper w) {
           outdata2.endPart();
         }
-        public void processHeaderElement(int timestamp, String name,
+        public void processHeaderElement(long timestamp, String name,
                                   String content, SCCXMLWrapper w){}
         public void processNote(SCCXMLWrapper.Note note, SCCXMLWrapper w) {
           outdata2.addNoteElement(note.onset(), note.offset(), 

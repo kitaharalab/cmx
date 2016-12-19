@@ -23,29 +23,8 @@ import javax.xml.transform.TransformerException;
 
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.DecoderException;
-import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
-import jp.crestmuse.cmx.amusaj.sp.MidiEventSender;
-import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
-import jp.crestmuse.cmx.amusaj.sp.MidiInputModule;
-import jp.crestmuse.cmx.amusaj.sp.MidiOutputModule;
-import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
-import jp.crestmuse.cmx.amusaj.sp.SPExecutor;
-import jp.crestmuse.cmx.amusaj.sp.SPModule;
-import jp.crestmuse.cmx.amusaj.sp.STFT;
-import jp.crestmuse.cmx.amusaj.sp.SynchronizedWindowSlider;
-import jp.crestmuse.cmx.amusaj.sp.TappingModule;
-import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
-import jp.crestmuse.cmx.amusaj.sp.TrashOutModule;
-import jp.crestmuse.cmx.amusaj.sp.WindowSlider;
-import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
-import jp.crestmuse.cmx.filewrappers.ConfigXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
-import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.MP3Wrapper;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.WAVWrapper;
+import jp.crestmuse.cmx.amusaj.sp.*;
 import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.XMLException;
 import jp.crestmuse.cmx.inference.MusicRepresentation;
 import jp.crestmuse.cmx.inference.MusicRepresentationFactory;
 import jp.crestmuse.cmx.math.ComplexArray;
@@ -90,6 +69,8 @@ public class CMXController implements TickTimer, MIDIConsts {
 	private MidiDevice.Info[] midiins = new MidiDevice.Info[256];
 	private MidiDevice.Info[] midiouts = new MidiDevice.Info[256];
 	private Mixer.Info mixer = null;
+
+  private long startTime;
 
 	private CMXController() {
 
@@ -427,6 +408,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			mic.getLine().start();
 		if (spexec != null)
 			spexec.start();
+                startTime = System.nanoTime() / 1000;
 	}
 
 	public void stopSP() {
@@ -861,10 +843,10 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 現在の再生中の音楽データにおける現在の再生箇所をマイクロ秒単位で 返します．
 	 */
 	public long getMicrosecondPosition(int i) {
-		if (musicPlayer[i] == null)
-			return 0;
-		else
-			return musicPlayer[i].getMicrosecondPosition();
+          if (musicPlayer[i] == null)
+            return System.nanoTime() / 1000 - startTime;
+          else
+            return musicPlayer[i].getMicrosecondPosition();
 	}
 
 	public long getMicrosecondLength() {
@@ -900,10 +882,10 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 使用できません．
 	 */
 	public long getTickPosition(int i) {
-		if (musicPlayer[i] == null)
-			return 0;
-		else
-			return musicPlayer[i].getTickPosition();
+          if (musicPlayer[i] == null)
+            return getMicrosecondPosition(i) * getTicksPerBeat(i) / 1000 / 500;
+          else
+            return musicPlayer[i].getTickPosition();
 	}
 
 	public int getTicksPerBeat() {
@@ -916,7 +898,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 */
 	public int getTicksPerBeat(int i) {
 		if (musicPlayer[i] == null)
-			return 0;
+			return 480;
 		else
 			return musicPlayer[i].getTicksPerBeat();
 	}
@@ -1374,6 +1356,13 @@ public class CMXController implements TickTimer, MIDIConsts {
 		return evtsender;
 	}
 
+  public MidiRecorder2 createMidiRecorder() {
+    MidiRecorder2 rec = new MidiRecorder2(this);
+    rec.setTempo(120.0);   // kari
+    addSPModule(rec);
+    return rec;
+  }
+  
 	/**
 	 * 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます． <tt>createMic</tt>
 	 * などを使用する際には必須です．

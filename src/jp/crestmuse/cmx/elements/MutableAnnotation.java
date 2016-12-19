@@ -6,7 +6,7 @@ public class MutableAnnotation extends MutableMusicEvent
   private String content;
   private String name;
   
-  public MutableAnnotation(int onset, int offset, String type, String content, 
+  public MutableAnnotation(long onset, long offset, String type, String content, 
                            int ticksPerBeat) {
     super(Type.ANNOTATION, onset, offset, ticksPerBeat);
     this.content = content;

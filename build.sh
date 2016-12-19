@@ -41,6 +41,6 @@ if [ -e doc ] ; then
 else
   mkdir doc
 fi
-#javadoc -d doc -protected -version -author -nodeprecated -encoding utf-8 src/**/*.java
+javadoc -d doc -protected -version -author -nodeprecated -encoding utf-8 src/**/*.java
 
 ( cd ../ ; if [ -e ${release}.zip ] ; then rm ${release}.zip ; fi ; zip -r ${release}.zip $release )

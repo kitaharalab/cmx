@@ -30,7 +30,7 @@ public interface SCC {
   public interface HeaderElement extends Comparable<HeaderElement> {
     String content();
     String name();
-    int time();
+    long time();
   }
 
   public interface Part {
@@ -48,11 +48,12 @@ public interface SCC {
   }
 
   public interface Note {
-    int onset(int ticksPerBeat);
-    int onsetInMilliSec();
-    int offset(int ticksPerBeat);
-    int offsetInMilliSec();
-    int duration(int ticksPerBeat);
+    long onset(int ticksPerBeat);
+    long onsetInMilliSec();
+    long offset(int ticksPerBeat);
+    long offsetInMilliSec();
+    long duration(int ticksPerBeat);
+    long durationInMilliSec();
     int notenum();
     int velocity();
     int offVelocity();
@@ -67,8 +68,8 @@ public interface SCC {
   }
 
   public interface Annotation {
-    int onset(int ticksPerBeat);
-    int offset(int ticksPerBeat);
+    long onset(int ticksPerBeat);
+    long offset(int ticksPerBeat);
     String type();
     String content();
 }

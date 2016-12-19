@@ -56,10 +56,10 @@ public class SCCXMLWrapper extends CMXFileWrapper
       final int div = getDivision();
       processNotes(new SCCHandlerAdapter() {
           private double currentInSec;
-          private int lastTempoChangeInTick;
+          private long lastTempoChangeInTick;
           private double lastTempoChangeInSec;
           private double currentTempo;
-          private int nextTempoChangeInTick;
+          private long nextTempoChangeInTick;
           private double nextTempoChangeInSec;
           private double nextTempo;
           private int nextHeader;
@@ -80,7 +80,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
               currentTempo = nextTempo;
               searchNextTempo();
             }
-            note.onsetInMSec = (int)(1000 * calcSec(note.onset()));
+            note.onsetInMSec = (long)(1000 * calcSec(note.onset()));
             if (nextTempoChangeInTick >= 0
                 && nextTempoChangeInTick < note.offset()) {
               lastTempoChangeInTick = nextTempoChangeInTick;
@@ -88,7 +88,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
               currentTempo = nextTempo;
               searchNextTempo();
             }
-            note.offsetInMSec = (int)(1000 * calcSec(note.offset()));
+            note.offsetInMSec = (long)(1000 * calcSec(note.offset()));
           }
           private void searchNextTempo() {
             int i;
@@ -103,7 +103,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
             }
             nextHeader = i + 1;
           }
-          private double calcSec(int tick) {
+          private double calcSec(long tick) {
             return (tick - lastTempoChangeInTick) * 60 / (div * currentTempo)
               + lastTempoChangeInSec;
           }
@@ -135,7 +135,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
   
   @Deprecated
-  public void addHeaderElement(int time, String name, String content) {
+  public void addHeaderElement(long time, String name, String content) {
     checkElementAddition(headerStarted);
     addChild("meta");
     setAttribute("name", name);
@@ -145,12 +145,12 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
   
   @Deprecated
-  public void addHeaderElement(int time, String name, double value) {
+  public void addHeaderElement(long time, String name, double value) {
     addHeaderElement(time, name, String.valueOf(value));
   }
   
   @Deprecated
-  public void addHeaderElement(int time, String name, int value) {
+  public void addHeaderElement(long time, String name, int value) {
     addHeaderElement(time, name, String.valueOf(value));
   }
   
@@ -245,7 +245,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addPitchBend(int time, int value) {
+  public void addPitchBend(long time, int value) {
     checkElementAddition(partStarted);
     addChild("pitch-bend");
     addText(time + " " + time + " " + value);
@@ -253,14 +253,14 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addPitchBend(int onset, int offset, int value) {
+  public void addPitchBend(long onset, long offset, int value) {
     checkElementAddition(partStarted);
     addChild("pitch-bend");
     addText(onset + " " + offset + " " + value);
     returnToParent();
   }
 
-  void addProgramChange(int time, int value) {
+  void addProgramChange(long time, int value) {
     checkElementAddition(partStarted);
     addChild("program");
     addText(time + " " + time + " " + value);
@@ -268,7 +268,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addControlChange(int time, int ctrlnum, int value) {
+  public void addControlChange(long time, int ctrlnum, int value) {
     checkElementAddition(partStarted);
     addChild("control");
     addText(time + " " + time + " " + ctrlnum + " " + value);
@@ -276,7 +276,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addControlChange(int onset, int offset,
+  public void addControlChange(long onset, long offset,
                                int ctrlnum, int value) {
     checkElementAddition(partStarted);
     addChild("control");
@@ -285,12 +285,12 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addNoteElement(int onset, int offset,
+  public void addNoteElement(long onset, long offset,
                              int notenum, int velocity) {
     addNoteElement(onset, offset, notenum, velocity, velocity);
   }
 
-  public void addNoteElement(int onset, int offset,
+  public void addNoteElement(long onset, long offset,
                              int notenum, int velocity,
                              MusicXMLWrapper.Note note) {
     checkElementAddition(partStarted);
@@ -305,20 +305,20 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
 
   @Deprecated
-  public void addNoteElement(int onset, int offset, int notenum,
+  public void addNoteElement(long onset, long offset, int notenum,
                              int velocity, int offVelocity) {
     addNoteElement(onset, offset, notenum, velocity, offVelocity, null);
   }
   
   @Deprecated
-  public void addNoteElement(int onset, int offset, int notenum,
+  public void addNoteElement(long onset, long offset, int notenum,
                              int velocity, int offVelocity,
                              Map<String,String> attr) {
     addNoteElement(onset, offset, notenum, velocity, offVelocity, attr, null);
   }
   
   @Deprecated
-  public void addNoteElement(int onset, int offset, int notenum,
+  public void addNoteElement(long onset, long offset, int notenum,
                              int velocity, int offVelocity,
                              Map<String,String> attr,
                              MusicXMLWrapper.Note note) {
@@ -342,7 +342,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
   }
   
   @Deprecated
-  public void addNoteElementWithWord(String word, int onset, int offset,
+  public void addNoteElementWithWord(String word, long onset, long offset,
                                      int notenum, int velocity, int offVelocity){
     checkElementAddition(partStarted);
     addChild("note");
@@ -351,7 +351,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
     returnToParent();
   }
   
-  private void putNoteMap(int onset, int offset, int notenum, int velocity,
+  private void putNoteMap(long onset, long offset, int notenum, int velocity,
                           int offVelocity, int ticksPerBeat, int partid,
                           MusicXMLWrapper.Note note) {
     NumberedNote note2 = new NumberedNote(onset, offset, notenum, velocity,
@@ -382,37 +382,39 @@ public class SCCXMLWrapper extends CMXFileWrapper
   //  }
   
   @Deprecated
-  public void addAnnotation(String type, int onset, int offset,
+  public void addAnnotation(String type, long onset, long offset,
                             String content) {
-    checkElementAddition(annotationsStarted);
-    addChildAndText(type, onset + " " + offset + " " +
-                    (content==null ? "" : content));
+    if (content != null && content.trim().length() > 0) {
+      checkElementAddition(annotationsStarted);
+      addChildAndText(type, onset + " " + offset + " " +
+                      (content==null ? "" : content));
+    }
   }
   
   @Deprecated
-  public void addChord(int onset, int offset, String content) {
+  public void addChord(long onset, long offset, String content) {
     addAnnotation("chord", onset, offset, content);
   }
   
   // Added: 2014/11/18, Author: tama
   @Deprecated
-  public void addLyric(int onset, int offset, String content) {
+  public void addLyric(long onset, long offset, String content) {
     addAnnotation("lyric", onset, offset, content);
   }
 
   // Added: 2014/11/18, Author: tama
   @Deprecated
-  public void addCuePoint(int onset, int offset, String content) {
+  public void addCuePoint(long onset, long offset, String content) {
     addAnnotation("cue", onset, offset, content);
   }
 
   @Deprecated
-  public void addMarker(int onset, int offset, String content) {
+  public void addMarker(long onset, long offset, String content) {
     addAnnotation("marker", onset, offset, content);
   }
 
   @Deprecated
-  public void addBarline(int time, String details) {
+  public void addBarline(long time, String details) {
     addAnnotation("barline", time, time, details);
   }
 
@@ -438,8 +440,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
 
   /** lyricイベントとcuePointに対応させるために、TextからContenを抜き出す処理を正規表現に変更 */
   public class Annotation extends NodeInterface implements SCC.Annotation {
-    private int onset;
-    private int offset;
+    private long onset;
+    private long offset;
     private String content;
     // Modified: 2014/11/18 by tama
     private Annotation(Node node) {
@@ -502,18 +504,18 @@ public class SCCXMLWrapper extends CMXFileWrapper
     protected String getSupportedNodeName() {
       return "chord|barline|lyrics|cuePoint|marker";
     }
-    public final int onset(){ return onset; }
-    public final int offset(){ return offset; }
+    public final long onset(){ return onset; }
+    public final long offset(){ return offset; }
     public final String content(){ return content; }
 
-    public final int onset(int ticksPerBeat) {
+    public final long onset(int ticksPerBeat) {
       if (ticksPerBeat == getDivision())
         return onset;
       else
         return onset * ticksPerBeat / getDivision();
     }
 
-    public final int offset(int ticksPerBeat) {
+    public final long offset(int ticksPerBeat) {
       if (ticksPerBeat == getDivision())
         return offset;
       else
@@ -664,19 +666,19 @@ public class SCCXMLWrapper extends CMXFileWrapper
 
   public class HeaderElement extends NodeInterface
     implements SCC.HeaderElement {
-    private int timestamp;
+    private long timestamp;
     private String name;
     private String content;
     private HeaderElement(Node node) {
       super(node);
-      timestamp = getAttributeInt(node, "time");
+      timestamp = getAttributeLong(node, "time");
       name = getAttribute(node, "name");
       content = getAttribute(node, "content");
     }
     protected String getSupportedNodeName() {
       return "meta";
     }
-    public int time() {
+    public long time() {
       return timestamp;
     }
     public String name() {
@@ -691,7 +693,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
     }
     public int compareTo(SCC.HeaderElement e) {
       if (timestamp != e.time())
-        return timestamp - e.time();
+        return (int)(timestamp - e.time());
       else if (!name.equals(e.name()))
         return name.compareTo(e.name());
       else if (!content.equals(e.content()))
@@ -771,7 +773,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
         Node node = metalist.item(i);
         String name = NodeInterface.getAttribute(node, "name");
         String content = NodeInterface.getAttribute(node, "content");
-        int timestamp = NodeInterface.getAttributeInt(node, "time");
+        long timestamp = NodeInterface.getAttributeLong(node, "time");
         h.processHeaderElement(timestamp, name, content, this);
       }
       h.endHeader(this);
@@ -828,6 +830,34 @@ public class SCCXMLWrapper extends CMXFileWrapper
     return partlist;
   }
 
+  public Part getPartWithSerial(int serial) throws TransformerException {
+    Part[] parts = getPartList();
+    for (Part part : parts) {
+      if (part.serial() == serial)
+        return part;
+    }
+    return null;
+  }
+
+  public Part[] getPartsWithChannel(int ch) throws TransformerException {
+    Part[] parts = getPartList();
+    List<Part> l = new ArrayList<Part>();
+    for (Part part : parts) {
+      if (part.channel() == ch) {
+        l.add(part);
+      }
+    }
+    return l.toArray(new Part[l.size()]);
+  }
+  
+  public Part getFirstPartWithChannel(int ch) throws TransformerException {
+    Part[] parts = getPartList();
+    for (Part part : parts) {
+      if (part.channel() == ch) 
+        return part;
+    }
+    return null;
+  }
 
 
   //    public int getNumOfParts() throws TransformerException {
@@ -895,7 +925,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
     dest.addElementsFirstForFormat1(getPartList().length + 1, getDivision());
     processNotes(new SCCHandler() {
         private int currentTrack = 1;
-        private int currentTime = 0;
+        private long currentTime = 0;
         public final void beginHeader(SCCXMLWrapper w) {
           dest.newTrack(currentTrack);
         }
@@ -903,15 +933,15 @@ public class SCCXMLWrapper extends CMXFileWrapper
           dest.endTrack();
           currentTrack++;
         }
-        public final void processHeaderElement(int timestamp, String name,
+        public final void processHeaderElement(long timestamp, String name,
                                                String content, SCCXMLWrapper w) {
           if (name.equals("TEMPO"))
-            dest.addMetaEvent("SetTempo", timestamp - currentTime,
+            dest.addMetaEvent("SetTempo", (int)(timestamp - currentTime),
                               (int)(1000*1000*60/Double.parseDouble(content)));
           else if (name.equals("KEY")) {
             KeySymbol key = KeySymbol.parse(content);
             int mode = key.mode().equals(KeySymbol.Mode.MIN) ? 1 : 0;
-            dest.addMetaEvent("KeySignature", timestamp - currentTime,
+            dest.addMetaEvent("KeySignature", (int)(timestamp - currentTime),
                               key.toInteger(), mode);
 
             //            String[] data = content.trim().split(" ");
@@ -977,7 +1007,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
         public final void endHeader(SCCXMLWrapper w) {
           newscc.endHeader();
         }
-        public final void processHeaderElement(int timestamp, String name,
+        public final void processHeaderElement(long timestamp, String name,
                                                String content, SCCXMLWrapper w) {
           newscc.addHeaderElement(timestamp, name, content);
         }
@@ -1027,7 +1057,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
         public final void endHeader(SCCXMLWrapper w) {
           newscc.endHeader();
         }
-        public final void processHeaderElement(int timestamp, String name,
+        public final void processHeaderElement(long timestamp, String name,
                                                String content, SCCXMLWrapper w) {
           newscc.addHeaderElement(timestamp, name, content);
         }
@@ -1144,8 +1174,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
                (n1.notenum() == n2.notenum() ?
                 n1.velocity() - n2.velocity()
                 : n1.notenum() - n2.notenum()
-               ) : n1.offset() - n2.offset()
-              ) : n1.onset() - n2.onset();
+                ) : (int)(n1.offset() - n2.offset())
+               ) : (int)(n1.onset() - n2.onset());
           }
         });
       return l;
@@ -1161,8 +1191,8 @@ public class SCCXMLWrapper extends CMXFileWrapper
                (n1.notenum() == n2.notenum() ?
                 n1.velocity() - n2.velocity()
                 : n1.notenum() - n2.notenum()
-               ) : n1.offset() - n2.offset()
-              ) : n1.onset() - n2.onset();
+                ) : (int)(n1.offset() - n2.offset())
+               ) : (int)(n1.onset() - n2.onset());
           }
         });
       return l;
@@ -1177,7 +1207,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
               (n1.notenum() == n2.notenum() ?
                n1.velocity() - n2.velocity()
                : n1.notenum() - n2.notenum()
-              ) : n1.onset() - n2.onset();
+               ) : (int)(n1.onset() - n2.onset());
           }
         });
       return l;
@@ -1192,7 +1222,7 @@ public class SCCXMLWrapper extends CMXFileWrapper
               (n1.notenum() == n2.notenum() ?
                n1.velocity() - n2.velocity()
                : n1.notenum() - n2.notenum()
-              ) : n1.onset() - n2.onset();
+               ) : (int)(n1.onset() - n2.onset());
           }
         });
       return l;
@@ -1322,8 +1352,9 @@ return s;
 
   public class Note extends NodeInterface implements SCC.Note {
     private Part part;
-    private int onset, offset, notenum, velocity, offVelocity;
-    private int onsetInMSec, offsetInMSec;
+    private long onset, offset;
+    private int notenum, velocity, offVelocity;
+    private long onsetInMSec, offsetInMSec;
     private String xpath;
 
     private Note(Node node, Part part) {
@@ -1350,29 +1381,29 @@ return s;
       return "note|control|program|pitch-bend";
     }
 
-    public final int onset() {
+    public final long onset() {
       return onset;
     }
 
-    public final int onset(int ticksPerBeat) {
+    public final long onset(int ticksPerBeat) {
       if (ticksPerBeat == getDivision())
         return onset;
       else
         return onset * ticksPerBeat / getDivision();
     }
 
-    public final int offset() {
+    public final long offset() {
       return offset;
     }
 
-    public final int offset(int ticksPerBeat) {
+    public final long offset(int ticksPerBeat) {
       if (ticksPerBeat == getDivision())
         return offset;
       else
         return offset * ticksPerBeat / getDivision();
     }
 
-    public final int duration(int ticksPerBeat) {
+    public final long duration(int ticksPerBeat) {
       return offset(ticksPerBeat) - onset(ticksPerBeat);
     }
 
@@ -1392,22 +1423,26 @@ return s;
       return part;
     }
 
-    /** Obsolete. use onsetInMilliSec() instead. */
-    public final int onsetInMSec() {
+    //    /** Obsolete. use onsetInMilliSec() instead. */
+    //    public final int onsetInMSec() {
+    //      return onsetInMSec;
+    //    }
+
+    public final long onsetInMilliSec() {
       return onsetInMSec;
     }
 
-    public final int onsetInMilliSec() {
-      return onsetInMSec;
-    }
+    //    /** Obsolete. use offsetInMilliSec() instead. */
+    //    public final int offsetInMSec() {
+    //      return offsetInMSec;
+    //}
 
-    /** Obsolete. use offsetInMilliSec() instead. */
-    public final int offsetInMSec() {
+    public final long offsetInMilliSec() {
       return offsetInMSec;
     }
 
-    public final int offsetInMilliSec() {
-      return offsetInMSec;
+    public final long durationInMilliSec() {
+      return offsetInMSec - onsetInMSec;
     }
 
     public MusicXMLWrapper.Note getMusicXMLWrapperNote() {
@@ -1488,11 +1523,11 @@ return s;
   private class NumberedNote extends MutableNote {
     private int partid;
     private byte number = 1;
-    private NumberedNote(int onset, int offset, int notenum, int velocity,
+    private NumberedNote(long onset, long offset, int notenum, int velocity,
                          int ticksPerBeat, int partid) {
       this(onset, offset, notenum, velocity, velocity, ticksPerBeat, partid);
     }
-    private NumberedNote(int onset, int offset, int notenum, int velocity,
+    private NumberedNote(long onset, long offset, int notenum, int velocity,
                          int offVelocity, int ticksPerBeat, int partid) {
       super(onset, offset, notenum, velocity, offVelocity, ticksPerBeat);
       this.partid = partid;
@@ -1515,11 +1550,11 @@ return s;
   }
 
   class EasyChord{
-    public int onset;
-    public int offset;
+    public long onset;
+    public long offset;
     public String chord;
 
-    public EasyChord(int onset, int offset, String chord){
+    public EasyChord(long onset, long offset, String chord){
       this.onset = onset;
       this.offset = offset;
       this.chord = chord;

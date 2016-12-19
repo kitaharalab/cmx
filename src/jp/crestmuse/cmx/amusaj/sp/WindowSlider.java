@@ -57,11 +57,11 @@ public class WindowSlider extends SPModule {
 
   /** "from" and "thru" in milli sec. */
   public void setInputData(AudioDataCompatible audiodata, 
-                           int from, int thru) {
+                           long from, long thru) {
     long fs = audiodata.sampleRate();
     setInputData(excerpt(audiodata, 
-                         (int)((long)from * fs / 1000), 
-                         (int)((long)thru * fs / 1000)));
+                         (int)(from * fs / 1000), 
+                         (int)(thru * fs / 1000)));
   }
   
   public AudioDataCompatible getTargetWaveform() {

@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.elements;
 
 public class MutablePitchBend extends MutableMusicEvent {
-    public MutablePitchBend(int timestamp, int value, int ticksPerBeat) {
+  public MutablePitchBend(long timestamp, int value, int ticksPerBeat) {
     super(Type.PITCH_BEND, timestamp, timestamp, ticksPerBeat);
     value1 = value;
   }

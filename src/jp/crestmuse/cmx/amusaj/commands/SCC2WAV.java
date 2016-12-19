@@ -168,8 +168,8 @@ public class SCC2WAV extends CMXCommand<SCCXMLWrapper,WAVWrapper> {
     scc.processNotes(new SCCHandlerAdapter() {
 	public void processNote(SCCXMLWrapper.Note note, 
 				SCCXMLWrapper scc2) {
-	  int onset = note.onsetInMilliSec() * fs / 1000;
-	  int offset = note.offsetInMilliSec() * fs / 1000;
+	  int onset = (int)(note.onsetInMilliSec() * fs / 1000);
+	  int offset = (int)(note.offsetInMilliSec() * fs / 1000);
 	  AudioDataCompatible w = readWaveform(note.part().prognum(), 
 					       note.notenum(), sty, var);
 	  if (w == null && sty2 != null)

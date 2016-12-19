@@ -97,10 +97,10 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
   }
 
   public void addMIDIChannelMessages(MIDIEventList el) {
-    int currentTime = 0;
+    long currentTime = 0;
     for (MIDIEventList.MIDIEvent e : el) {
       addMIDIChannelMessage(e.msgname(),
-                            e.time() - currentTime,
+                            (int)(e.time() - currentTime),
                             e.channel(),
                             e.value1(),
                             e.value2());
@@ -592,7 +592,7 @@ throw new InvalidFileTypeException("Invalid SMF");
     final SCCDataSet scc = new SCCDataSet(ticksPerBeat);
     final SCCDataSet.Part[] parts = new SCCDataSet.Part[17];  // 要検討
     processMIDIEvent(new MIDIHandler() {
-        private int totalTime;
+        private long totalTime;
         int partSerial = 0;
         private MutableNote[] onNotes;
         public void beginTrack(Track track, MIDIXMLWrapper w) {
@@ -693,17 +693,21 @@ throw new InvalidFileTypeException("Invalid SMF");
 //    return dest;
   }
 
+  /*  
   @Deprecated
   public void toSCCXML(final SCCXMLWrapper dest) throws TransformerException, IOException, ParserConfigurationException, SAXException{
     toSCCXML(dest, null);
   }
+  */
 
+  /*
   @Deprecated
   public void toSCCXML(final SCCXMLWrapper dest, SCCXMLWrapper.EasyChord[] chords)
     throws TransformerException, IOException,
     ParserConfigurationException, SAXException {
     toSCCXML(dest, chords, null);
   }
+  */
 
   private class Header {
     int time;
@@ -716,6 +720,7 @@ throw new InvalidFileTypeException("Invalid SMF");
     }
   }
 
+  /*
   @Deprecated
   public void toSCCXML(final SCCXMLWrapper dest,
                        SCCXMLWrapper.EasyChord[] chords, String key)
@@ -777,6 +782,11 @@ throw new InvalidFileTypeException("Invalid SMF");
               new MutableControlChange(totalTime, midiEvent.value(0),
                                        midiEvent.value(1), ticksPerBeat());
             addControlChange(c, midiEvent, channelToNotes);
+          } else if (statusNo == PROGRAM_CHANGE) {   // kari
+            System.err.println("program change");
+            MutableProgramChange c =
+              new MutableProgramChange(totalTime, midiEvent.value(0), ticksPerBeat());
+            addControlChange(c, midiEvent, channelToNotes);
           } else if (statusNo == PITCH_BEND_CHANGE) {
             MutablePitchBend c =
               new MutablePitchBend(totalTime,
@@ -784,7 +794,7 @@ throw new InvalidFileTypeException("Invalid SMF");
                                    //				       midiEvent.value(0)+128*midiEvent.value(1),
                                    ticksPerBeat());
             addControlChange(c, midiEvent, channelToNotes);
-          }
+          }          
         }
         private void addControlChange(MutableMusicEvent c,
                                       MIDIEvent e,
@@ -904,7 +914,8 @@ throw new InvalidFileTypeException("Invalid SMF");
 
     dest.finalizeDocument();
   }
-
+  */
+  
   /*
     private class MyControlChange extends MutableNote {
     private MyControlChange(int time, int ctrlnum, int value) {

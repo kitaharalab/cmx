@@ -896,6 +896,10 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 		setAttribute(name, String.valueOf(value));
 	}
 
+  public final void setAttribute(String name, long value) {
+    setAttribute(name, String.valueOf(value));
+  }
+  
 	/**********************************************************************
 	 *<p>Adds an attribute to the current node.
 	 *The current node should be an element node.</p>

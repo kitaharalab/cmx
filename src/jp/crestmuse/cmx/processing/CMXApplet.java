@@ -193,6 +193,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 		ctrl.setMicrosecondPosition(t);
 	}
 
+  public void setTickPosition(long tick) {
+    ctrl.setTickPosition(tick);
+  }
+  
 	/** 現在の再生中の音楽データにおける現在の再生箇所をティック単位で
       返します．
       ただし，このメソッドは読み込み済みのデータがMIDIデータのときしか
@@ -441,7 +445,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	}
 
 	private void autostart() {
-		if (autostart) { 
+		if (autostart) {
+                  //                  setupExternalMessages();
 			println("SPExector automatically started.");
 			ctrl.startSP();
 		}
@@ -451,6 +456,19 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 //    ctrl.stopSP();
 //  }
 
+  public void setup() {
+    setupExternalMessages();
+  }
+
+  public void draw() {
+    // do nothing
+  }
+  
+  public void exit() {
+    stop();
+    super.exit();
+  }
+  
   public void stop() {
     super.stop();
     println("SPExecutor automatically stopped.");

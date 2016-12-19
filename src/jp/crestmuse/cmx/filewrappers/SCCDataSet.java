@@ -16,8 +16,8 @@ public class SCCDataSet implements SCC,Cloneable {
   public class HeaderElement implements SCC.HeaderElement {
     String content;
     private String name;
-    private int time;
-    private HeaderElement(int time, String name, String content) {
+    private long time;
+    private HeaderElement(long time, String name, String content) {
       this.time = time;
       this.name = name;
       this.content = content;
@@ -28,7 +28,7 @@ public class SCCDataSet implements SCC,Cloneable {
     public String name() {
       return name;
     }
-    public int time() {
+    public long time() {
       return time;
     }
     public boolean equals(SCC.HeaderElement e) {
@@ -37,7 +37,7 @@ public class SCCDataSet implements SCC,Cloneable {
     }
     public int compareTo(SCC.HeaderElement e) {
       if (time != e.time())
-        return time - e.time();
+        return (int)(time - e.time());
       else if (!name.equals(e.name()))
         return name.compareTo(e.name());
       else if (!content.equals(e.content()))
@@ -52,7 +52,8 @@ public class SCCDataSet implements SCC,Cloneable {
   }
 
   public class Part implements SCC.Part {
-    private List<MutableMusicEvent> notes;
+    //    private List<MutableMusicEvent> notes;
+    private SortedSet<MutableMusicEvent> notes;
     //private List<MutableMusicEvent> notes = new ArrayList<MutableMusicEvent>();
     private Map<MutableMusicEvent,MyNumber> nOverlaps =
       new HashMap<MutableMusicEvent,MyNumber>();
@@ -63,7 +64,9 @@ public class SCCDataSet implements SCC,Cloneable {
 
     private Part(int serial, byte ch, int pn, int vol, String name,
                  int index) {
-      notes = Collections.synchronizedList(new ArrayList<MutableMusicEvent>());
+      //      notes = Collections.synchronizedList(new ArrayList<MutableMusicEvent>());
+      //      notes = new ArrayList<MutableMusicEvent>();
+      notes = new TreeSet<MutableMusicEvent>();
       this.serial = serial;
       channel = ch;
       prognum = pn;
@@ -79,7 +82,7 @@ public class SCCDataSet implements SCC,Cloneable {
       note.setAttribute("number", nOverlaps.get(note).value);
     }
 
-    public void remove(MutableMusicEvent e) {
+    public synchronized void remove(MutableMusicEvent e) {
       boolean result = notes.remove(e);
       if (tracks != null) {
         if (e.getMidiEvent1() != null) {
@@ -98,15 +101,16 @@ public class SCCDataSet implements SCC,Cloneable {
         remove(e);
     }
     
-    void add(MutableMusicEvent e) {
+    synchronized void add(MutableMusicEvent e) {
       notes.add(e);
     }
 
 
-    MutableNote addNoteElement(int onset, int offset, int notenum,
-                               int velocity, int offVelocity,
-                               MusicXMLWrapper.MusicData md,
-                               Map<String,String> attr) {
+    synchronized MutableNote 
+      addNoteElement(long onset, long offset, int notenum,
+                     int velocity, int offVelocity,
+                     MusicXMLWrapper.MusicData md,
+                     Map<String,String> attr) {
       MutableNote note = new MutableNote(onset, offset, notenum, velocity,
                                          offVelocity, division, attr);
       notes.add(note);
@@ -125,7 +129,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return note;
     }
 
-    MutableNote addNoteElement(int onset, int offset, int notenum,
+    MutableNote addNoteElement(long onset, long offset, int notenum,
                                int velocity, int offVelocity,
                                MusicXMLWrapper.MusicData md) {
       return addNoteElement(onset, offset, notenum, velocity, offVelocity,
@@ -133,13 +137,13 @@ public class SCCDataSet implements SCC,Cloneable {
     }
                                
 
-    public MutableNote addNoteElement(int onset, int offset, int notenum,
+    public MutableNote addNoteElement(long onset, long offset, int notenum,
                                       int velocity, int offVelocity) {
       return addNoteElement(onset, offset, notenum, velocity, offVelocity,
                             null, null);
     }
 
-    public MutableNote addNoteElement(int onset, int offset, int notenum,
+    public MutableNote addNoteElement(long onset, long offset, int notenum,
                                       int velocity, int offVelocity,
                                       Map<String,String> attr) {
       return addNoteElement(onset, offset, notenum, velocity,
@@ -165,7 +169,7 @@ public class SCCDataSet implements SCC,Cloneable {
     }
     */
 
-    public MutableControlChange addControlChange(int time, int ctrl, int value) {
+    public synchronized MutableControlChange addControlChange(long time, int ctrl, int value) {
       MutableControlChange cc = new MutableControlChange(time, ctrl, value, division);
       notes.add(cc);
       checkOverlap(cc);
@@ -177,7 +181,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return cc;
     }
 
-    public MutableProgramChange addProgramChange(int time, int value) {
+    public  synchronized MutableProgramChange addProgramChange(long time, int value) {
       MutableProgramChange pc = new MutableProgramChange(time, value, division);
       notes.add(pc);
       checkOverlap(pc);
@@ -189,7 +193,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return pc;
     }
 
-    public MutablePitchBend addPitchBend(int time, int value) {
+    public synchronized MutablePitchBend addPitchBend(long time, int value) {
       MutablePitchBend pb = new MutablePitchBend(time, value, division);
       notes.add(pb);
       checkOverlap(pb);
@@ -198,7 +202,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return pb;
     }
 
-    BaseDynamicsEvent addBaseDynamics(int time, double value) {
+    synchronized BaseDynamicsEvent addBaseDynamics(long time, double value) {
       BaseDynamicsEvent e = new BaseDynamicsEvent(time, value, division);
       notes.add(e);
       return e;
@@ -217,32 +221,35 @@ public class SCCDataSet implements SCC,Cloneable {
       }
     */
 
-    public MutableMusicEvent[] getNoteList() {
+    public synchronized MutableMusicEvent[] getNoteList() {
       return notes.toArray(new MutableMusicEvent[notes.size()]);
     }
 
-    public MutableNote[] getNoteOnlyList() {
+    public synchronized  MutableNote[] getNoteOnlyList() {
       List<MutableNote> l = new ArrayList<MutableNote>();
       for (MutableMusicEvent e : notes) {
         if (e instanceof MutableNote)
           l.add((MutableNote)e);
       }
-      return l.toArray(new MutableNote[l.size()]);
+        return l.toArray(new MutableNote[l.size()]);
     }
 
     public MutableMusicEvent[] getSortedNoteList() {
-      MutableMusicEvent[] l = (MutableMusicEvent[])(getNoteList().clone());
-      Arrays.sort(l);
-      return l;
+      return getNoteList();
+      //      MutableMusicEvent[] l = (MutableMusicEvent[])(getNoteList().clone());
+      //      Arrays.sort(l);
+      //      return l;
     }
 
     public MutableNote[] getSortedNoteOnlyList() {
-      MutableNote[] l = (MutableNote[])(getNoteOnlyList().clone());
-      Arrays.sort(l);
-      return l;
+      return getNoteOnlyList();
+      //      MutableNote[] l = (MutableNote[])(getNoteOnlyList().clone());
+      //      Arrays.sort(l);
+      //      return l;
     }
 
-    public List<MutableMusicEvent> getNotesBetween1(int from, int thru) {
+    /*
+    public synchronized List<MutableMusicEvent> getNotesBetween1(int from, int thru) {
       List<MutableMusicEvent> notes2 = new ArrayList<MutableMusicEvent>();
       for (MutableMusicEvent e : notes) {
         if (e.onset() >= from && e.offset() <= thru)
@@ -251,7 +258,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return notes2;
     }
 
-    public List<MutableMusicEvent> getNotesBetween2(int from, int thru) {
+    public synchronized List<MutableMusicEvent> getNotesBetween2(int from, int thru) {
       List<MutableMusicEvent> notes2 = new ArrayList<MutableMusicEvent>();
       for (MutableMusicEvent e : notes) {
         if (e.onset() >= from && e.onset() < thru)
@@ -259,7 +266,63 @@ public class SCCDataSet implements SCC,Cloneable {
       }
       return notes2;
     }
+    */
 
+    public void calcMilliSec() {
+      double currentSec = 0.0;
+      int currentTick = 0;
+      TempoSearch ts = new TempoSearch(getHeaderElementList());
+      for (MutableMusicEvent e : notes) {
+        if (e.onset() >= ts.nextTempoChangeInTick) 
+          ts.nextTempo();
+        e.setOnsetInMilliSec((long)(ts.calcSec(e.onset()) * 1000));
+        if (e.offset() >= ts.nextTempoChangeInTick)
+          ts.nextTempo();
+        e.setOffsetInMilliSec((int)(ts.calcSec(e.offset()) * 1000));
+      }
+    }
+
+    private class TempoSearch {
+      HeaderElement[] headers;
+      int nextIndex = 0;
+      long nextTempoChangeInTick = 0;
+      double nextTempoChangeInSec = 0.0;
+      long lastTempoChangeInTick = 0;
+      double lastTempoChangeInSec = 0.0;
+      double nextTempo = 120;
+      double lastTempo = 120;
+      boolean finished = false;
+      TempoSearch(HeaderElement[] headers) {
+        this.headers = headers;
+      }
+      void nextTempo() {
+        if (!finished) {
+          do {
+            if (headers[nextIndex].name().equals("TEMPO")) {
+              lastTempoChangeInTick = nextTempoChangeInTick;
+              nextTempoChangeInTick = headers[nextIndex].time();
+              lastTempoChangeInSec = nextTempoChangeInSec;
+              nextTempoChangeInSec = calcSec(nextTempoChangeInTick);
+              lastTempo = nextTempo;
+              nextTempo = Double.parseDouble(headers[nextIndex].content());
+              return;
+            }
+            nextIndex++;
+          } while (nextIndex < headers.length);
+          finished = true;
+          lastTempoChangeInTick = nextTempoChangeInTick;
+          lastTempoChangeInSec = nextTempoChangeInSec;
+          lastTempo = nextTempo;
+        }
+      }
+      double calcSec(long tick) {
+        long dur_tick = tick - lastTempoChangeInTick;
+        double dur_sec = (60.0 * dur_tick) / (division * lastTempo);
+        return lastTempoChangeInSec + dur_sec;
+      }
+    }
+    
+    
     public int serial() {
       return serial;
     }
@@ -268,7 +331,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return channel;
     }
 
-    public int prognum() {
+    public synchronized int prognum() {
       Note[] notes = getNoteList();
       for (int i = 0; i < notes.length; i++) {
         if (notes[i] instanceof MutableProgramChange) {
@@ -278,7 +341,7 @@ public class SCCDataSet implements SCC,Cloneable {
       return prognum;
     }
 
-    private int getFirstControlChange(int ctrlnum, int defaultvalue) {
+    private synchronized int getFirstControlChange(int ctrlnum, int defaultvalue) {
       Note[] notes = getNoteList();
       for (int i = 0; i < notes.length; i++) {
         if (notes[i] instanceof MutableControlChange) {
@@ -328,6 +391,10 @@ public class SCCDataSet implements SCC,Cloneable {
       public int getFirstMeasure() {
         return fromMeasure;
       }
+      public void setFirstMeasure(int measure) {
+        thruMeasure = measure + (thruMeasure - fromMeasure);
+        fromMeasure = measure;
+      }
       public boolean isSelectable() {
         return false;
       }
@@ -342,10 +409,10 @@ public class SCCDataSet implements SCC,Cloneable {
       public void drawData(PianoRoll pianoroll) {
         MutableNote[] notes = getNoteOnlyList();
         for (MutableNote note : notes) {
-          int onset = note.onset();
+          long onset = note.onset();
           if (onset >= fromMeasure * getBeatNum() * division &&
               onset < thruMeasure * getBeatNum() * division) {
-            int measure = onset / division / getBeatNum();
+            int measure = (int)(onset / division / getBeatNum());
             double beat = (double)onset / division - measure * getBeatNum();
             double duration = (double)(note.offset() - onset) / division;
             pianoroll.drawNote(measure - fromMeasure, beat, duration,
@@ -380,41 +447,41 @@ public class SCCDataSet implements SCC,Cloneable {
     this.division = division;
   }
 
-  public void addAnnotation(String type, int onset, int offset, String content) {
+  public void addAnnotation(String type, long onset, long offset, String content) {
     annotations.add(new MutableAnnotation(onset, offset, type, content,
                                           division));
   }
 
-  public void addBarline(int time, String details) {
+  public void addBarline(long time, String details) {
     addAnnotation("barline", time, time, details);
   }
 
-  public void addChord(int onset, int offset, String content) {
+  public void addChord(long onset, long offset, String content) {
     addAnnotation("chord", onset, offset, content);
   }
 
   // Added: 2014/11/18, Author: tama
-  public void addLyric(int onset, int offset, String content) {
+  public void addLyric(long onset, long offset, String content) {
     addAnnotation("lyric", onset, offset, content);
   }
 
-  public void addCuePoint(int onset, int offset, String content) {
+  public void addCuePoint(long onset, long offset, String content) {
     addAnnotation("cue", onset, offset, content);
   }
 
-  public void addMarker(int onset, int offset, String content) {
+  public void addMarker(long onset, long offset, String content) {
     addAnnotation("marker", onset, offset, content);
   }
 
-  public void addHeaderElement(int time, java.lang.String name, java.lang.String content) {
+  public void addHeaderElement(long time, java.lang.String name, java.lang.String content) {
     headers.add(new HeaderElement(time, name, content));
   }
 
-  public void addHeaderElement(int time, String name, int content) {
+  public void addHeaderElement(long time, String name, int content) {
     addHeaderElement(time, name, String.valueOf(content));
   }
 
-  public void addHeaderElement(int time, String name, double content) {
+  public void addHeaderElement(long time, String name, double content) {
     addHeaderElement(time, name, String.valueOf(content));
   }
 
@@ -589,8 +656,8 @@ public class SCCDataSet implements SCC,Cloneable {
       for (Part p : partlist) {
         newscc.newPart(p.serial(), p.channel(), p.prognum(),
                        p.volume(), p.name());
-        MutableMusicEvent[] notelist = p.getSortedNoteList();        // modified on 2012.11.19
-        //////        SCC.Note[] notelist = p.getNoteList();
+        //MutableMusicEvent[] notelist = p.getNoteOnlyList();        // modified on 2012.11.19
+        MutableMusicEvent[] notelist = p.getNoteList();
         for (MutableMusicEvent n : notelist) {
           if (n instanceof MutableControlChange) {
             MutableControlChange cc = (MutableControlChange)n;
@@ -686,8 +753,8 @@ public class SCCDataSet implements SCC,Cloneable {
     }
   }
 
-  public void repeat(int from, int thru, int times) {
-    int len = thru - from;
+  public void repeat(long from, long thru, int times) {
+    long len = thru - from;
     for (Part part : getPartList()) {
       for (MutableMusicEvent e : part.getNoteList()) {
         for (int k = 1; k <= times; k++) {

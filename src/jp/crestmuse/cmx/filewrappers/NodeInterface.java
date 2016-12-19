@@ -165,6 +165,10 @@ public abstract class NodeInterface {
     return Integer.parseInt(getAttribute(key));
   }
 
+  public long getAttributeLong(String key) {
+    return Long.parseLong(getAttribute(key));
+  }
+  
   public double getAttributeDouble(String key) {
     return Double.parseDouble(getAttribute(key));
   }
@@ -316,6 +320,10 @@ public abstract class NodeInterface {
     return Integer.parseInt(getAttribute(node, attrkey));
   }
 
+  protected static final long getAttributeLong(Node node, String attrkey) {
+    return Long.parseLong(getAttribute(node, attrkey));
+  }
+  
   protected static final double getAttributeDouble(Node node, String attrkey) {
     return Double.parseDouble(getAttribute(node, attrkey));
   }

@@ -4,9 +4,11 @@ import jp.crestmuse.cmx.filewrappers.*;
 import javax.sound.midi.*;
 
 public abstract class MutableMusicEvent 
-  implements Comparable<MutableMusicEvent>, NoteCompatible {
+  implements Comparable<MutableMusicEvent>, SCC.Note {
 
-  int onset, offset, value1, value2, value3;
+  long onset, offset;
+  int value1, value2, value3;
+  long onsetInMSec = -1, offsetInMSec = -1;
   int ticksPerBeat;
   Type type;
   enum Type {NOTE, CONTROL_CHANGE, PROGRAM_CHANGE, PITCH_BEND, ANNOTATION};
@@ -16,7 +18,7 @@ public abstract class MutableMusicEvent
   Map<String,String> attr = new TreeMap<String,String>();
 
 
-  MutableMusicEvent(Type type, int onset, int offset, int ticksPerBeat) {
+  MutableMusicEvent(Type type, long onset, long offset, int ticksPerBeat) {
     this.type = type;
     this.onset = onset;
     this.offset = offset;
@@ -24,56 +26,80 @@ public abstract class MutableMusicEvent
     this.ticksPerBeat = ticksPerBeat;
   }
 
-  public void setOnset(int onset) {
+  public void setOnset(long onset) {
+    if (midievt1 != null) {
+      if (this.onset == midievt1.getTick())
+        midievt1.setTick(onset);
+      else
+        throw new IllegalStateException();
+    }
     this.onset = onset;
+    onsetInMSec = -1;
   }
 
-  public void setOffset(int offset) {
+  public void setOffset(long offset) {
+    if (midievt2 != null) {
+      if (this.offset == midievt2.getTick())
+        midievt2.setTick(offset);
+      else
+        throw new IllegalStateException();
+    }
     this.offset = offset;
+    offsetInMSec = -1;
   }
 
-  public int onset() {
+  public long onset() {
     return onset;
   }
 
-  public int onset(int ticksPerBeat) {
+  public long onset(int ticksPerBeat) {
     if (ticksPerBeat == this.ticksPerBeat)
       return onset;
     else
       return onset * ticksPerBeat / this.ticksPerBeat;
   }
 
-  /**@deprecated*/
-  public int onsetInMSec() {
-    throw new UnsupportedOperationException();
+  //  /**@deprecated*/
+  //  public int onsetInMSec() {
+  //    throw new UnsupportedOperationException();
+  //  }
+
+
+  public long onsetInMilliSec() {
+    if (onsetInMSec == -1)
+      throw new IllegalStateException();
+    else
+      return onsetInMSec;
   }
 
-
-  public int onsetInMilliSec() {
-    throw new UnsupportedOperationException();
-  }
-
-  public int offset() {
+  public long offset() {
     return offset;
   }
 
-  public int offsetInMilliSec() {
-    throw new UnsupportedOperationException();
+  public long offsetInMilliSec() {
+    if (offsetInMSec == -1)
+      throw new IllegalStateException();
+    else
+      return offsetInMSec;
   }
 
-  /**@deprecated*/
-  public int offsetInMSec() {
-    throw new UnsupportedOperationException();
-  }
+  //  /**@deprecated*/
+  //  public int offsetInMSec() {
+  //    throw new UnsupportedOperationException();
+  //  }
 
-  public int offset(int ticksPerBeat) {
+  public long durationInMilliSec() {
+    return offsetInMilliSec() - onsetInMilliSec();
+  }
+  
+  public long offset(int ticksPerBeat) {
     if (ticksPerBeat == this.ticksPerBeat)
       return offset;
     else
       return offset * ticksPerBeat / this.ticksPerBeat;
   }
 
-  public int duration(int ticksPerBeat) {
+  public long duration(int ticksPerBeat) {
     return offset(ticksPerBeat) - onset(ticksPerBeat);
   }
 
@@ -90,7 +116,7 @@ public abstract class MutableMusicEvent
   }
 
   public int hashCode() {
-    return onset + offset + value1 + value2 + value3;
+    return (int)(onset + offset + value1 + value2 + value3);
   }
 
   public int compareTo(MutableMusicEvent another) {
@@ -102,8 +128,8 @@ public abstract class MutableMusicEvent
           value3 - another.value3 : value2 - another.value2)
          : value1 - another.value1)
         : type.ordinal() - another.type.ordinal())
-       : offset - another.offset)
-      : onset - another.onset;
+       : (int)(offset - another.offset))
+      : (int)(onset - another.onset);
   }
 
   public int velocity() {
@@ -189,6 +215,17 @@ public abstract class MutableMusicEvent
   public MidiEvent getMidiEvent2() {
     return midievt2;
   }
-                    
 
+  /** Do not this method in your application. 
+      This is an inner method even though it's public */
+  public void setOnsetInMilliSec(long onset) {
+    onsetInMSec = onset;
+  }
+
+  /** Do not this method in your application. 
+      This is an inner method even though it's public */
+  public void setOffsetInMilliSec(long offset) {
+    offsetInMSec = offset;
+  }
+  
 }

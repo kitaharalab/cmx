@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 import jp.crestmuse.cmx.elements.*;
 import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.math.*;
 import groovy.lang.*;
 import javax.xml.transform.*;
 import java.io.*;
@@ -36,7 +37,7 @@ public class SCCUtils {
   }
 
   public static class KEY {
-    int time;
+    long time;
     KeySymbol key;
     public String toString() {
       return "[time:" + time + "  key:" + key.encode() + "]";
@@ -385,4 +386,36 @@ public class SCCUtils {
     return counts;
   }
 
+  public static DoubleMatrix toMatrix(List<SCC.Note> notes, int channel) {
+    DoubleMatrix matrix = MathUtils.createDoubleMatrix(notes.size(), 7);
+    for (int i = 0; i < notes.size(); i++) {
+      matrix.set(i, 0, (double)notes.get(i).onset(10080) / 10080.0);
+      matrix.set(i, 1, (double)notes.get(i).duration(10080) / 10080.0);
+      matrix.set(i, 2, channel);
+      matrix.set(i, 3, notes.get(i).notenum());
+      matrix.set(i, 4, notes.get(i).velocity());
+      matrix.set(i, 5, (double)notes.get(i).onsetInMilliSec() / 1000.0);
+      matrix.set(i, 6, (double)notes.get(i).durationInMilliSec() / 1000.0);
+    }
+    return matrix;
+  }
+      
+
+  public static List<SCC.Note> getNotesBetween
+    (SCC.Part part, int from, int thru, int ticksPerBeat,
+     boolean onsetBased, boolean noteonly) {
+    synchronized (part) {
+      SCC.Note[] notes =
+        noteonly ? part.getSortedNoteOnlyList() : part.getSortedNoteList();
+      List<SCC.Note> notes2 = new ArrayList<SCC.Note>();
+      for (SCC.Note e : notes) {
+        if (e.onset(ticksPerBeat) >= from &&
+            (onsetBased ? e.onset(ticksPerBeat) : e.offset(ticksPerBeat))
+            <= thru)
+          notes2.add(e);
+      }
+      return notes2;
+    }
+    
+  }
 }

@@ -9,7 +9,7 @@ public class SCCHandlerAdapter implements SCCHandler {
   public void endHeader(SCCXMLWrapper w) {
     // do nothing
   }
-  public void processHeaderElement(int timestamp, String name, 
+  public void processHeaderElement(long timestamp, String name, 
                               String content, SCCXMLWrapper w) {
     // do nothing
   }

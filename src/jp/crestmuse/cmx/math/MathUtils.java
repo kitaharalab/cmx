@@ -3,6 +3,8 @@ import java.util.*;
 import java.math.*;
 import org.apache.commons.math.linear.*;
 import java.nio.*;
+import dk.ange.octave.*;
+import dk.ange.octave.type.*;
 
 public class MathUtils {
   private static final DoubleArrayFactory factory = 
@@ -254,19 +256,27 @@ public class MathUtils {
     return parseMatrix(text, " ", "\n");
   }
 
-    public static final DoubleArray createDoubleArray(int length) {
-	return factory.createArray(length);
-    }
+  public static final DoubleArray createDoubleArray(int length) {
+    return factory.createArray(length);
+  }
 
-    public static final DoubleArray createDoubleArray(double[] x) {
-    	return factory.createArray(x);
-    }
+  //  public static final DoubleArray array(int length) {
+  //    return createDoubleArray(length);
+  //  }
+  
+  public static final DoubleArray createDoubleArray(double[] x) {
+    return factory.createArray(x);
+  }
 
-    public static final DoubleArray createDoubleArray(List<? extends Number> x) {
-	int length = x.size();
-	DoubleArray array = createDoubleArray(length);
-	for (int i = 0; i < length; i++) {
-          array.set(i, x.get(i).doubleValue());
+  public static final DoubleArray array(double[] x) {
+    return createDoubleArray(x);
+  }
+  
+  public static final DoubleArray createDoubleArray(List<? extends Number> x) {
+    int length = x.size();
+    DoubleArray array = createDoubleArray(length);
+    for (int i = 0; i < length; i++) {
+      array.set(i, x.get(i).doubleValue());
 //          Object x1 = x.get(i);
 //          if (x1 instanceof Double) 
 //	    array.set(i, ((Double)x1).doubleValue());
@@ -274,9 +284,13 @@ public class MathUtils {
 //            array.set(i, ((BigDecimal)x1).doubleValue());
 //          else
 //            throw new IllegalArgumentException("Not double value: " + x1);
-        }
-	return array;
     }
+    return array;
+  }
+
+  public static final DoubleArray array(List<? extends Number> x) {
+    return createDoubleArray(x);
+  }
 
   public static final DoubleArray createDoubleArrayWithNegativeIndex(int length) {
     return new DefaultDoubleArrayWithNegativeIndex(length);
@@ -320,28 +334,41 @@ public class MathUtils {
 	return mfactory.createMatrix(nrows, ncols);
     }
 
-    public static final DoubleMatrix createDoubleMatrix(List<List<BigDecimal>> x){
-	int nrows = x.size();
-	int ncols = x.get(0).size();
-	DoubleMatrix matrix = createDoubleMatrix(nrows, ncols);
-	for (int i = 0; i < nrows; i++) {
-	    List<BigDecimal> l = x.get(i);
-	    for (int j = 0; j < ncols; j++) 
-		matrix.set(i, j, l.get(j).doubleValue());
-	}
-	return matrix;
+  //  public static final DoubleMatrix mat(int nrows, int ncols) {
+  //    return createDoubleMatrix(nrows, ncols);
+  //  }
+  
+  public static final DoubleMatrix
+    createDoubleMatrix(List<List<? extends Number>> x){
+    int nrows = x.size();
+    int ncols = x.get(0).size();
+    DoubleMatrix matrix = createDoubleMatrix(nrows, ncols);
+    for (int i = 0; i < nrows; i++) {
+      List<? extends Number> l = x.get(i);
+      for (int j = 0; j < ncols; j++) 
+        matrix.set(i, j, l.get(j).doubleValue());
     }
+    return matrix;
+  }
 
+  public static final DoubleMatrix mat(List<List<? extends Number>> x) {
+    return createDoubleMatrix(x);
+  }
+  
   public static final ComplexMatrix createComplexMatrix(int nrows, int ncols) {
     return cmfactory.createMatrix(nrows, ncols);
   }
 
-    public static final DoubleArray create1dimDoubleArray(double x) {
-	DoubleArray array = factory.createArray(1);
-	array.set(0, x);
-	return array;
-    }
+  public static final DoubleArray create1dimDoubleArray(double x) {
+    DoubleArray array = factory.createArray(1);
+    array.set(0, x);
+    return array;
+  }
 
+  //  public static final DoubleArray arrayOf(double x) {
+  //    return create1dimDoubleArray(x);
+  //  }
+  
     public static final RealMatrix toRealMatrix(DoubleMatrix x) {
 	return new MyRealMatrix(x);
     }
@@ -422,6 +449,73 @@ public class MathUtils {
 	    }
 	}
     }
+
+  public static DoubleMatrix createDoubleMatrixFromArrays(List<DoubleArray> list) {
+    return createDoubleMatrixFromArrays(list.toArray(new DoubleArray[0]));
+  }
+
+  public static DoubleMatrix array2mat(List<DoubleArray> list) {
+    return createDoubleMatrixFromArrays(list);
+  }
+
+  public static DoubleMatrix createDoubleMatrixFromArrays(DoubleArray[] list) {
+    int dim = list[0].length();
+    for (int i = 1; i < list.length; i++) {
+      if (list[i].length() != dim)
+        throw new MathException("Dimension doesn't match");
+    }
+    return new MyDoubleMatrix2(list);
+  }
+
+  public static DoubleMatrix array2mat(DoubleArray[] list) {
+    return createDoubleMatrixFromArrays(list);
+  }
+
+  private static class MyDoubleMatrix2 extends AbstractDoubleMatrixImpl {
+    private DoubleArray[] list;
+    private MyDoubleMatrix2(DoubleArray[] list) {
+      this.list = list;
+    }
+    public int nrows() {
+      return list[0].length();
+    }
+    public int ncols() {
+      return list.length;
+    }
+    public double get(int i, int j) {
+      return list[j].get(i);
+    }
+    public void set(int i, int j, double value) {
+      list[j].set(i, value);
+    }
+  }
+
+  public static OctaveDouble toOctave(DoubleMatrix x) {
+    int nrows = x.nrows();
+    int ncols = x.ncols();
+    double[] array = new double[nrows * ncols];
+    for (int i = 0; i < nrows; i++) {
+      for (int j = 0; j < ncols; j++) {
+        array[i + nrows * j] = x.get(i, j);
+      }
+    }
+    return new OctaveDouble(array, nrows, ncols);
+  }
+
+  /*
+  public static void toOctave(OctaveEngine octave, String name, DoubleMatrix x) {
+    octave.put(name, toOctave(x));
+  }
+  */
+  
+  public static DoubleMatrix fromOctave(OctaveDouble x) {
+    return new DoubleMatrixImplAsArray(x.getSize()[0], x.getSize()[1], x.getData());
+  }
+
+  public static DoubleMatrix fromOctave(OctaveEngine octave, String name) {
+    return fromOctave(octave.get(OctaveDouble.class, name));
+  }
+  
 }
 	
 	

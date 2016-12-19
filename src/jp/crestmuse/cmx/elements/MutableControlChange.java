@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.elements;
 
 public class MutableControlChange extends MutableMusicEvent {
-  public MutableControlChange(int timestamp, int ctrlnum, int value, 
+  public MutableControlChange(long timestamp, int ctrlnum, int value, 
                               int ticksPerBeat) {
     super(Type.CONTROL_CHANGE, timestamp, timestamp, ticksPerBeat);
     value1 = ctrlnum;

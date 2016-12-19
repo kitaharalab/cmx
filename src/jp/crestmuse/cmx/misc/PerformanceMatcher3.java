@@ -285,8 +285,8 @@ public class PerformanceMatcher3 {
     // }
     int I = compressedScore.size();
     int J = pfmNotes.length;
-    int scoreTicks = compressedScore.get(I - 1).notes.get(0).offset();
-    int pfmTicks = pfmNotes[J - 1].offset();
+    long scoreTicks = compressedScore.get(I - 1).notes.get(0).offset();
+    long pfmTicks = pfmNotes[J - 1].offset();
     // r = Math.max(0, Math.max(J-I, r));
     r = J;
     DTWMatrix matrix = new DTWMatrix(I, J);
@@ -306,9 +306,9 @@ public class PerformanceMatcher3 {
         // else ioi = 1.0 / diff;
         // }
         if (i > 0 && j > 0) {
-          int scoreDiff = e1.notes.get(0).onset()
+          long scoreDiff = e1.notes.get(0).onset()
               - compressedScore.get(i - 1).notes.get(0).onset();
-          int pfmDiff = e2.onset() - pfmNotes[j - 1].onset();
+          long pfmDiff = e2.onset() - pfmNotes[j-1].onset();
           if (pfmDiff == 0)
             ioi = Double.POSITIVE_INFINITY;
           else
@@ -337,7 +337,7 @@ public class PerformanceMatcher3 {
     return matrix;
   }
 
-  private double dist(NoteInSameTime e1, Note e2, int scoreTicks, int pfmTicks) {
+  private double dist(NoteInSameTime e1, Note e2, long scoreTicks, long pfmTicks) {
     double position = Math.abs((e1.notes.get(0).onset() / (double) scoreTicks - e2.onset()
         / (double) pfmTicks));
     for (Note n : e1.notes) {
@@ -450,13 +450,13 @@ public class PerformanceMatcher3 {
 
   private class TempoAndTime {
     private double tempo = Double.NaN;
-    private int tickInScore;
+    private long tickInScore;
     private double tickInPfm = Double.NaN;
     private double timeInSec = Double.NaN;
     private int measure = -1;
     private int beat = -1;
 
-    private TempoAndTime(int tickInScore) {
+    private TempoAndTime(long tickInScore) {
       this.tickInScore = tickInScore;
     }
 
@@ -604,7 +604,7 @@ public class PerformanceMatcher3 {
   }
 
   // kari; redundant calculation
-  private double getSecFromScoreTick(int tick, List<TempoAndTime> tempolist) {
+  private double getSecFromScoreTick(long tick, List<TempoAndTime> tempolist) {
     TempoAndTime last = tempolist.get(0);
     for (TempoAndTime tnt : tempolist) {
       if (tick < tnt.tickInScore)
@@ -616,7 +616,7 @@ public class PerformanceMatcher3 {
   }
 
   // kari; redundant calculation
-  private double getSecFromPfmTick(int tick, List<TempoAndTime> tempolist) {
+  private double getSecFromPfmTick(long tick, List<TempoAndTime> tempolist) {
     TempoAndTime last = tempolist.get(0);
     for (TempoAndTime tnt : tempolist) {
       if (tick < tnt.tickInPfm)
@@ -705,7 +705,7 @@ public class PerformanceMatcher3 {
         note.velocity() / BASE_DYNAMICS);
   }
 
-  private boolean tickcmp(int tick1, int tick2, int threshold) {
+  private boolean tickcmp(long tick1, long tick2, int threshold) {
     return (tick1 >= tick2 - threshold && tick1 <= tick2 + threshold);
   }
 
@@ -723,7 +723,8 @@ public class PerformanceMatcher3 {
     ArrayList<TempoAndTime> tempolist = new ArrayList<TempoAndTime>();
     tempolist.add(getZerothTempoAndTime());
     int i = 0;
-    int measure = 0, beat = 1, currentTick = 0;
+    int measure = 0, beat = 1;
+    long currentTick = 0;
     for (int k = 0; k < barlines.length - 2; k++) {
       Measure m = getMeasure(((Annotation)barlines[k]).onset());
       measure = m.number();
@@ -743,7 +744,7 @@ public class PerformanceMatcher3 {
     // beat = 1;
     i = addTempoAndTime(currentTick, measure, beat, i, tempolist);
 
-    int lastOffset = currentTick;
+    long lastOffset = currentTick;
     for (int ii = 0; ii < scoreNotes.length; ii++)
       if (scoreNotes[ii].offset() > lastOffset)
         lastOffset = scoreNotes[ii].offset();
@@ -770,7 +771,7 @@ public class PerformanceMatcher3 {
     return a >= b ? a : b;
   }
 
-  private int addTempoAndTime(int currentTick, int measure, int beat, int i,
+  private int addTempoAndTime(long currentTick, int measure, int beat, int i,
       ArrayList<TempoAndTime> tempolist) {
     while (i < scoreNotes.length) {
       if (score2pfm[i] == -1) {
@@ -819,8 +820,8 @@ public class PerformanceMatcher3 {
 
   private int lastMeasureIndex = 0;
 
-  private Measure getMeasure(int tick) {
-    int tick0 = measurelist[lastMeasureIndex].cumulativeTicks(scoreTicksPerBeat);
+  private Measure getMeasure(long tick) {
+    long tick0 = measurelist[lastMeasureIndex].cumulativeTicks(scoreTicksPerBeat);
     if (tick0 == tick) {
       return measurelist[lastMeasureIndex];
     } else if (tick0 > tick) {
@@ -945,13 +946,13 @@ public class PerformanceMatcher3 {
       TempoAndTime tnt = tempolist.get(i);
       if (Double.isNaN(tnt.timeInSec)) {
         prevtnt.tempo = prevTempo;
-        int interval = tnt.tickInScore - prevtnt.tickInScore;
+        long interval = tnt.tickInScore - prevtnt.tickInScore;
         double pfmInterval = (double) (interval * 60 / scoreTicksPerBeat)
             / prevTempo;
         tnt.setTimeInSec(prevtnt.timeInSec + pfmInterval);
         // tnt.setTimeInSec(prevtnt.timeInSec + 60.0 / prevTempo);
       } else {
-        int interval = tnt.tickInScore - prevtnt.tickInScore;
+        long interval = tnt.tickInScore - prevtnt.tickInScore;
         double pfmInterval = tnt.timeInSec - prevtnt.timeInSec;
 	// zantei
 	if (pfmInterval < 0.0000000001) {

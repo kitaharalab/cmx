@@ -164,10 +164,10 @@ public class TimeFreqRepresentation {
     for (SCC.Part p : parts) {
       SCC.Note[] notes = p.getNoteOnlyList();
       for (SCC.Note note : notes) {
-        int onsetIndex = note.onset(ticksPerBeat) * divisionPerMeasure / 4
-          / ticksPerBeat;
-        int offsetIndex = note.offset(ticksPerBeat) * divisionPerMeasure / 4
-          / ticksPerBeat;
+        int onsetIndex = (int)(note.onset(ticksPerBeat) * divisionPerMeasure / 4
+                               / ticksPerBeat);
+        int offsetIndex = (int)(note.offset(ticksPerBeat) * divisionPerMeasure / 4
+                                / ticksPerBeat);
         int notenum = note.notenum();
         ///// onsetがoffsetより長いなぞのパターン ///////
         ///// とりあえず入れ替えておく            ///////

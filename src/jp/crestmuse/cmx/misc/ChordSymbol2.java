@@ -6,7 +6,7 @@ import static jp.crestmuse.cmx.misc.Misc.*;
 
 public class ChordSymbol2 extends ChordSymbol implements Cloneable {
 
-  public static final ChordSymbol2 NONE_CHORD =
+  public static final ChordSymbol2 NON_CHORD =
     new ChordSymbol2(null, Mode.MAJ, Seventh.NONE);
   
   public static final ChordSymbol2 C = 
@@ -328,7 +328,7 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
   public static ChordSymbol2 parse(String s, ParseRule r) {
     String[] ss = s.trim().split("/");
     if (ss.length < 1) 
-      return NONE_CHORD;
+      return NON_CHORD;
     Matcher m1 = p1.matcher(ss[0]);
     if (m1.matches()) {
       NoteSymbol bass = null;
