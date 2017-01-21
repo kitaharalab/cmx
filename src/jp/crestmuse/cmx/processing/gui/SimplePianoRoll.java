@@ -5,7 +5,9 @@ import jp.crestmuse.cmx.misc.*;
 /** This code is partly derived from Yuichi Tsuchiya's code */
 
 public class SimplePianoRoll extends CMXApplet implements PianoRoll{
-  double lineWidth=210.0/12.0;
+  double octaveWidth = 210.0;
+  int nOctave = 3;
+  //  double lineWidth=210.0/12.0;
   int basenn = 48;
   private DataModel data = null;
   private int noteR = 255, noteB = 25, noteG = 200;
@@ -21,10 +23,10 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     drawPianoRoll();
   }
 
-  public void size(int width, int height) {
-    super.size(width, 700);
-    System.err.println("Warning: Height must be 700");
-  }
+  //  public void size(int width, int height) {
+  //    super.size(width, 700);
+  //    System.err.println("Warning: Height must be 700");
+  //  }
 
   public void setDataModel(DataModel data) {
     this.data = data;
@@ -47,14 +49,26 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
       throw new IllegalArgumentException("Base note number must be 60*n");
   }
 
+  public void setOctaveWidth(double width) {
+    octaveWidth = width;
+  }
+
+  public void setNumOfOctaves(int n) {
+    nOctave = n;
+  }
+
+  public boolean isInside(int x, int y) {
+    return x >= 100 && x < width && y >= 0 && y < nOctave * octaveWidth;
+  }
+  
   protected double y2notenum(int y) {
-    int topnn = basenn + 12 * 3;
-    return topnn - (double)y / lineWidth;
+    int topnn = basenn + 12 * nOctave;
+    return topnn - (double)y / (octaveWidth / 12);
   }
 
   protected double notenum2y(int nn) {
-    int topnn = basenn + 12 * 3;
-    return lineWidth * (topnn - nn - 1);
+    int topnn = basenn + 12 * nOctave;
+    return (octaveWidth / 12) * (topnn - nn - 1);
   }
 
   protected double beat2x(int measure, double beat) {
@@ -92,14 +106,14 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     //double x = 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
     double w = duration * lenMeas / data.getBeatNum();
     double y = notenum2y(notenum);
-    rect((float)x, (float)y, (float)w, (float)lineWidth);
+    rect((float)x, (float)y, (float)w, (float)octaveWidth / 12);
   }
   
   private void drawPianoRoll() {
     background(255);              
     drawLines();
-    for(int a=0;a<3;a++){//鍵盤表示
-      drawKeyboard(0, 210*a);
+    for(int a=0;a<nOctave;a++){//鍵盤表示
+      drawKeyboard(0, (int)(octaveWidth*a));
     }
     if (data != null) {
       fill(noteR, noteG, noteB);
@@ -111,18 +125,19 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   }
 
   private void drawLines() {
-    for(int a=0;a<3;a++){
+    for(int a=0;a<nOctave;a++){
       for(int b=1;b<=12;b++){
         stroke(130);
         strokeWeight(0);
-        line(100,(a*210)+lineWidth*b,width,(a*210)+lineWidth*b);
+        double lineWidth = octaveWidth / 12;
+        line(100,(a*octaveWidth)+lineWidth*b,width,(a*octaveWidth)+lineWidth*b);
       }
     }
     if (data != null) {
       double lengtheach = (double)(width - 100) / data.getMeasureNum();
       for (int i = 0; i < data.getMeasureNum(); i++) {
         line((int)(100 + i * lengtheach), 0,
-             (int)(100 + i * lengtheach), 630);
+             (int)(100 + i * lengtheach), nOctave*octaveWidth);
       }
     }
   }
@@ -147,7 +162,10 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   
   private void drawKeyboard(int x,int y){
    stroke(130);
-   line(100,y+0,100,y+210);
+   line(100,y+0,100,y+octaveWidth);
+   for (int i = 1; i <= 7; i++)
+     line(x, y + (int)(i*octaveWidth/7), 100, y + (int)(i*octaveWidth/7));
+   /*
    line(x,y+35,100,y+35);
    line(x,y+65,100,y+65);
    line(x,y+95,100,y+95);
@@ -155,14 +173,15 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
    line(x,y+155,100,y+155);
    line(x,y+180,100,y+180);
    line(x,y+210,100,y+210);
+   */
    
    //黒鍵
    fill(0);
-   rect(x, y+20, 60, 20);
-   rect(x, y+55, 60, 20);
-   rect(x, y+90, 60, 20);
-   rect(x, y+140, 60, 20);
-   rect(x, y+175, 60, 20);
+   rect(x, y + (int)(1*octaveWidth/12), 60, (int)(octaveWidth/12));
+   rect(x, y + (int)(3*octaveWidth/12), 60, (int)(octaveWidth/12));
+   rect(x, y + (int)(5*octaveWidth/12), 60, (int)(octaveWidth/12));
+   rect(x, y + (int)(8*octaveWidth/12), 60, (int)(octaveWidth/12));
+   rect(x, y + (int)(10*octaveWidth/12), 60, (int)(octaveWidth/12));
   }
   /*
   protected static class DummyDataModel implements DataModel {

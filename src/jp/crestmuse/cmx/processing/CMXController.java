@@ -1170,16 +1170,16 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
 	public void showMidiInChooser(int i, Component parent) {
-		try {
-			Object selected = JOptionPane.showInputDialog(parent,
-			    "Select MIDI IN Device [" + i + "].", "Select MIDI IN Device...",
-			    JOptionPane.PLAIN_MESSAGE, null, SoundUtils.getMidiInDeviceInfo()
-			        .toArray(), null);
-			if (selected != null)
-				midiins[i] = (MidiDevice.Info) selected;
-		} catch (MidiUnavailableException e) {
-			throw new DeviceNotAvailableException("MIDI device not available");
-		}
+	    try {
+		Object selected = JOptionPane.showInputDialog(parent,
+							      "Select MIDI IN Device [" + i + "].", "Select MIDI IN Device...",
+							      JOptionPane.PLAIN_MESSAGE, null, SoundUtils.getMidiInDeviceInfo()
+							      .toArray(), null);
+		if (selected != null)
+		    midiins[i] = (MidiDevice.Info) selected;
+	    } catch (MidiUnavailableException e) {
+		throw new DeviceNotAvailableException("MIDI device not available");
+	    }
 	}
 
 	/**

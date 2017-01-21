@@ -62,6 +62,7 @@ public interface SCC {
     boolean hasAttribute(String key);
     String getAttribute(String key);
     int getAttributeInt(String key);
+    long getAttributeLong(String key);
     double getAttributeDouble(String key);
     Set<String> getAttributeKeys();
     Map<String,String> getAttributes();

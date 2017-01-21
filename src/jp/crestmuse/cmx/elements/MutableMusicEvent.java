@@ -161,6 +161,10 @@ public abstract class MutableMusicEvent
     attr.put(key, String.valueOf(value));
   }
 
+  public void setAttribute(String key, long value) {
+    attr.put(key, String.valueOf(value));
+  }
+  
   public void setAttribute(String key, double value) {
     attr.put(key, String.valueOf(value));
   }
@@ -173,6 +177,10 @@ public abstract class MutableMusicEvent
     return Integer.parseInt(attr.get(key));
   }
 
+  public long getAttributeLong(String key) {
+    return Long.parseLong(attr.get(key));
+  }
+  
   public double getAttributeDouble(String key) {
     return Double.parseDouble(attr.get(key));
   }
