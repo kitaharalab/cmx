@@ -11,7 +11,8 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   int basenn = 48;
   private DataModel data = null;
   private int noteR = 255, noteB = 25, noteG = 200;
-  private int barR = 255, barG = 0, barB = 0; 
+  private int barR = 255, barG = 0, barB = 0;
+  private boolean isVisible = true;
 
   public void setup() {
     background(255);
@@ -61,12 +62,17 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     return x >= 100 && x < width && y >= 0 && y < nOctave * octaveWidth;
   }
   
-  protected double y2notenum(int y) {
+  protected double y2notenum(double y) {
     int topnn = basenn + 12 * nOctave;
-    return topnn - (double)y / (octaveWidth / 12);
+    return topnn - y / (octaveWidth / 12);
   }
 
   protected double notenum2y(int nn) {
+    int topnn = basenn + 12 * nOctave;
+    return (octaveWidth / 12) * (topnn - nn - 1);
+  }
+
+  protected double notenum2y(double nn) {
     int topnn = basenn + 12 * nOctave;
     return (octaveWidth / 12) * (topnn - nn - 1);
   }
@@ -80,33 +86,35 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     return 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
   }
 
-  protected int x2measure(int x) {
+  protected int x2measure(double x) {
     return x2measure(x, data);
   }
   
-  protected int x2measure(int x, DataModel data) {
+  protected int x2measure(double x, DataModel data) {
     double lenMeas = (double)(width - 100) / data.getMeasureNum();
     return (int)((x - 100) / lenMeas);
   }
 
-  protected double x2beat(int x) {
+  protected double x2beat(double x) {
     return x2beat(x, data);
   }
   
-  protected double x2beat(int x, DataModel data) {
-    double lenMeas = (double)(width - 100) / data.getMeasureNum();
+  protected double x2beat(double x, DataModel data) {
+    double lenMeas = (width - 100.0) / data.getMeasureNum();
     int meas = (int)((x - 100) / lenMeas);
-    return ((double)(x - 100) / lenMeas - meas) * data.getBeatNum();
+    return ((x - 100.0) / lenMeas - meas) * data.getBeatNum();
   }
   
   public void drawNote(int measure, double beat, double duration,
                        int notenum, boolean selected, DataModel data) {
-    double lenMeas = (double)(width - 100) / data.getMeasureNum();
-    double x = beat2x(measure, beat, data);
-    //double x = 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
-    double w = duration * lenMeas / data.getBeatNum();
-    double y = notenum2y(notenum);
-    rect((float)x, (float)y, (float)w, (float)octaveWidth / 12);
+    if (isVisible) {
+      double lenMeas = (double)(width - 100) / data.getMeasureNum();
+      double x = beat2x(measure, beat, data);
+      //double x = 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
+      double w = duration * lenMeas / data.getBeatNum();
+      double y = notenum2y(notenum);
+      rect((float)x, (float)y, (float)w, (float)octaveWidth / 12);
+    }
   }
   
   private void drawPianoRoll() {
@@ -183,6 +191,16 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
    rect(x, y + (int)(8*octaveWidth/12), 60, (int)(octaveWidth/12));
    rect(x, y + (int)(10*octaveWidth/12), 60, (int)(octaveWidth/12));
   }
+
+  public void setNoteVisible(boolean b) {
+    isVisible = b;
+  }
+
+  public boolean isNoteVisible() {
+    return isVisible;
+  }
+
+  
   /*
   protected static class DummyDataModel implements DataModel {
     private int measure, beat;
