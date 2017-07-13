@@ -594,10 +594,10 @@ throw new InvalidFileTypeException("Invalid SMF");
     processMIDIEvent(new MIDIHandler() {
         private long totalTime;
         int partSerial = 0;
-        private MutableNote[] onNotes;
+        private MutableNote[][] onNotes;
         public void beginTrack(Track track, MIDIXMLWrapper w) {
           totalTime = 0;
-          onNotes = new MutableNote[128];
+          onNotes = new MutableNote[17][128];
         }
         public void endTrack(Track track, MIDIXMLWrapper w) {
           // do nothing
@@ -665,18 +665,18 @@ throw new InvalidFileTypeException("Invalid SMF");
           parts[e.channel()].add(c);
         } 
         private void addNoteOn(MutableNote note, MIDIEvent e) {
-          if (onNotes[note.notenum()] != null)
-            onNotes[note.notenum()].setOffset(note.onset()-1);
+          if (onNotes[e.channel()][note.notenum()] != null)
+            onNotes[e.channel()][note.notenum()].setOffset(note.onset()-1);
           if (parts[e.channel()] == null)
             parts[e.channel()] = 
               scc.addPart(partSerial++, e.channel(), 0, 100);
           parts[e.channel()].add(note);
-          onNotes[note.notenum()] = note;
+          onNotes[e.channel()][note.notenum()] = note;
         }
         private void addNoteOff(MIDIEvent e) {
-          if (onNotes[e.value(0)] != null) {
-            onNotes[e.value(0)].setOffset(totalTime);
-            onNotes[e.value(0)] = null;
+          if (onNotes[e.channel()][e.value(0)] != null) {
+            onNotes[e.channel()][e.value(0)].setOffset(totalTime);
+            onNotes[e.channel()][e.value(0)] = null;
           }
         }
       });

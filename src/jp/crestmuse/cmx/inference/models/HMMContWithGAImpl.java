@@ -49,7 +49,7 @@ class HMMContWithGAImpl extends HMMContImpl {
       chromList.add(new MyChromosome(gacalc.createInitial(o.size()), o, e));
     Population pop1 = new ElitisticListPopulation(chromList, popLimit, elitRate);
     Population pop2 =
-      ga.evolve(pop1, new MyStoppingCondition(gacalc.getStoppingCondition()));
+      ga.evolve(pop1, new MyStoppingCondition(gacalc.getStoppingCondition(),e));
     MyChromosome ch = (MyChromosome)pop2.getFittestChromosome();
     Integer[] array = ch.getRepresentation().toArray(new Integer[0]);
     int[] array2 = new int[array.length];
@@ -111,11 +111,14 @@ class HMMContWithGAImpl extends HMMContImpl {
 
   private class MyStoppingCondition implements StoppingCondition {
     private StoppingCondition mystop;
-    MyStoppingCondition(StoppingCondition stop) {
+    int generation = 0;
+    List<MusicElement> e;
+    MyStoppingCondition(StoppingCondition stop, List<MusicElement> e) {
       mystop = stop;
+      this.e = e;
     }
     public boolean isSatisfied(Population pop) {
-      gacalc.populationUpdated(pop);
+      gacalc.populationUpdated(pop, ++generation, e);
       return mystop.isSatisfied(pop);
     }
   }

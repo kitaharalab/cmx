@@ -56,7 +56,8 @@ class HMMContImpl implements HMMCont {
     hook = h;
   }
   */
-  
+
+  // synchronized needed?
   public synchronized int[] mostLikelyStateSequence(List<Double> o,
                                                     List<MusicElement> e) {
     List<ObservationReal> l = new ArrayList<ObservationReal>();
@@ -66,6 +67,7 @@ class HMMContImpl implements HMMCont {
     return hmm.mostLikelyStateSequence(l);
   }
 
+  // synchornized needed?
   public synchronized void calcForwardBackward(List<Double> o,
                                                List<MusicElement> e) {
     List<ObservationReal> l = new ArrayList<ObservationReal>();

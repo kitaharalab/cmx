@@ -1627,6 +1627,9 @@ return s;
         if (n instanceof ControlChange) {
           ControlChange cc = (ControlChange)n;
           newpart.addControlChange(cc.onset(div), cc.ctrlnum(), cc.value());
+        } else if (n instanceof ProgramChange) {
+          ProgramChange pc = (ProgramChange)n;
+          newpart.addProgramChange(pc.onset(), pc.value());
         } else if (n instanceof PitchBend) {
           PitchBend pb = (PitchBend)n;
           newpart.addPitchBend(pb.onset(), pb.value());
