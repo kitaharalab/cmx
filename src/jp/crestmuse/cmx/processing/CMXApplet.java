@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
 import java.util.Map;
 
 import javax.sound.sampled.FloatControl;
@@ -37,40 +38,52 @@ import processing.core.PApplet;
 <tt>ellipseなどのProcessing用のメソッドも利用できます．*/
 public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDIConsts  {
 
-	private static final CMXController ctrl = CMXController.getInstance();
+  private static final CMXController ctrl = CMXController.getInstance();
 
-	private boolean autostart = true;
+  private boolean autostart = true;
 
-	/** CMXが対応しているXML形式の文書オブジェクトを生成します．
+  /** CMXが対応しているXML形式の文書オブジェクトを生成します．
       たとえば，SCCXML形式の文書オブジェクトを生成する際には，
       <tt> createDocument(SCCXMLWrapper.TOP_TAG) </tt> とします．*/
-	public static CMXFileWrapper createDocument(String toptag) {
-		return ctrl.createDocument(toptag);
-	}
+  public static CMXFileWrapper createDocument(String toptag) {
+    return ctrl.createDocument(toptag);
+  }
 
-	/** CMXが対応しているXML形式の文書を読み込みます．*/
-	public static CMXFileWrapper readfile(String filename) {
-		//    return ctrl.read(createInput(filename));
-		return ctrl.readfile(filename);
-	}
+  /** CMXが対応しているXML形式の文書を読み込みます．*/
+  public static CMXFileWrapper readfile(String filename) {
+    //    return ctrl.read(createInput(filename));
+    return ctrl.readfile(filename);
+  }
 
-	/** CMXが対応しているXML形式の文書を読み込みます．*/
-	public static CMXFileWrapper read(InputStream input) {
-		return ctrl.read(input);
-	}
-
-	public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
-		return ctrl.readSMFAsMIDIXML(filename);
-	}
-
-	public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
-		return ctrl.readSMFAsMIDIXML(input);
-	}
+  public static CMXFileWrapper readfile(File file) {
+    return ctrl.readfile(file);
+  }
+  
+  /** CMXが対応しているXML形式の文書を読み込みます．*/
+  public static CMXFileWrapper read(InputStream input) {
+    return ctrl.read(input);
+  }
+  
+  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+    return ctrl.readSMFAsMIDIXML(filename);
+  }
+  
+  public static MIDIXMLWrapper readSMFAsMIDIXML(File file) {
+    return ctrl.readSMFAsMIDIXML(file);
+  }
+  
+  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+    return ctrl.readSMFAsMIDIXML(input);
+  }
 
   public static SCC readSMFAsSCC(String filename) {
     return ctrl.readSMFAsSCC(filename);
   }
 
+  public static SCC readSMFAsSCC(File file) {
+    return ctrl.readSMFAsSCC(file);
+  }
+  
   public static SCC readSMFAsSCC(InputStream input) {
     return ctrl.readSMFAsSCC(input);
   }

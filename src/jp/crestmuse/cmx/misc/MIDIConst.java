@@ -96,6 +96,8 @@ public class MIDIConst implements MIDIConsts {
 		     "ThirtySecondsPer24Clocks");
 	addMetaEvent("KeySignature", KEY_SIGNATURE, false, "Fifths", "Mode");
 //        addMetaEvent("SequencerSpecific", SEQUENCER_SPECIFIC, true);
+        addMetaEvent("SystemExclusive", SYSTEM_EXCLUSIVE, true);
+
     }
 
     /*
@@ -178,6 +180,10 @@ public class MIDIConst implements MIDIConsts {
 	return META_EVENTS2.containsKey(evttype);
     }
 
+  public static boolean hasString(String evtname) {
+    return HAS_STRING.get(evtname);
+  }
+  
     public static short metaEventNameToType(String evtname) {
 	return META_EVENTS.get(evtname);
     }

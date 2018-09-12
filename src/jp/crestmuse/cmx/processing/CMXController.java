@@ -7,6 +7,7 @@ import java.awt.Frame;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
 import java.util.Map;
 
 import javax.sound.midi.MidiDevice;
@@ -55,119 +56,127 @@ import processing.core.PApplet;
 
 public class CMXController implements TickTimer, MIDIConsts {
 
-	private static final CMXController me = new CMXController();
-
-	private SPExecutor spexec = null;
-	private MusicPlayer[] musicPlayer = new MusicPlayer[256];
-	// private MusicPlayer musicPlayer = null;
-	private MusicPlaySynchronizer[] musicSync = new MusicPlaySynchronizer[256];
-	// private MusicPlaySynchronizer musicSync = null;
-	private AudioInputStreamWrapper mic = null;
-	private AudioDataCompatible wav = null;
-	private SynchronizedWindowSlider winslider = null;
-
-	private MidiDevice.Info[] midiins = new MidiDevice.Info[256];
-	private MidiDevice.Info[] midiouts = new MidiDevice.Info[256];
-	private Mixer.Info mixer = null;
+  private static final CMXController me = new CMXController();
+  
+  private SPExecutor spexec = null;
+  private MusicPlayer[] musicPlayer = new MusicPlayer[256];
+  // private MusicPlayer musicPlayer = null;
+  private MusicPlaySynchronizer[] musicSync = new MusicPlaySynchronizer[256];
+  // private MusicPlaySynchronizer musicSync = null;
+  private AudioInputStreamWrapper mic = null;
+  private AudioDataCompatible wav = null;
+  private SynchronizedWindowSlider winslider = null;
+  
+  private MidiDevice.Info[] midiins = new MidiDevice.Info[256];
+  private MidiDevice.Info[] midiouts = new MidiDevice.Info[256];
+  private Mixer.Info mixer = null;
 
   private long startTime;
 
-	private CMXController() {
+  private CMXController() {
 
-	}
+  }
 
-	/**
-	 * このクラスのインスタンスを返します．
-	 * 
-	 * @return CMXController のインスタンス
-	 */
-	public static CMXController getInstance() {
-		return me;
-	}
+  /**
+   * このクラスのインスタンスを返します．
+   * 
+   * @return CMXController のインスタンス
+   */
+  public static CMXController getInstance() {
+    return me;
+  }
 
-	/**
-	 * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
-	 * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
-	 * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．
-	 * 
-	 * @param toptag 作成するドキュメントタイプのTOP_TAG
-	 * @return 指定されたTOP_TAGに対応する文書オブジェクト
-	 */
-	public static CMXFileWrapper createDocument(String toptag) {
-		try {
-			return CMXFileWrapper.createDocument(toptag);
-		} catch (InvalidFileTypeException e) {
-			throw new IllegalArgumentException("Invalid file type: " + toptag);
-		}
-	}
+  /**
+   * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
+   * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
+   * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．
+   * 
+   * @param toptag 作成するドキュメントタイプのTOP_TAG
+   * @return 指定されたTOP_TAGに対応する文書オブジェクト
+   */
+  public static CMXFileWrapper createDocument(String toptag) {
+    try {
+      return CMXFileWrapper.createDocument(toptag);
+    } catch (InvalidFileTypeException e) {
+      throw new IllegalArgumentException("Invalid file type: " + toptag);
+    }
+  }
+  
+  /**
+   * CMXが対応しているXML形式の文書を読み込みます．
+   * 
+   * @param filename XMLファイル名
+   * @return 指定されたファイルの文書オブジェクト
+   */
+  public static CMXFileWrapper readfile(String filename) {
+    try {
+      return CMXFileWrapper.readfile(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file: " + filename);
+    }
+  }
 
-	/**
-	 * CMXが対応しているXML形式の文書を読み込みます．
-	 * 
-	 * @param filename XMLファイル名
-	 * @return 指定されたファイルの文書オブジェクト
-	 */
-	public static CMXFileWrapper readfile(String filename) {
-		try {
-			return CMXFileWrapper.readfile(filename);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot read file: " + filename);
-		}
-	}
+  public static CMXFileWrapper readfile(File file) {
+    return readfile(file.getPath());
+  }
+  
+  /**
+   * CMXが対応しているXML形式の文書を読み込みます．
+   * 
+   * @param input XML形式の入力ストリーム
+   * @return 指定されたストリームの文書オブジェクト
+   */
+  public static CMXFileWrapper read(InputStream input) {
+    try {
+      return CMXFileWrapper.read(input);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    }
+  }
 
-	/**
-	 * CMXが対応しているXML形式の文書を読み込みます．
-	 * 
-	 * @param input XML形式の入力ストリーム
-	 * @return 指定されたストリームの文書オブジェクト
-	 */
-	public static CMXFileWrapper read(InputStream input) {
-		try {
-			return CMXFileWrapper.read(input);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot read file");
-		}
-	}
+  /**
+   * 標準MIDIファイルをMIDIXML形式で読み込みます．
+   * 
+   * @param filename 標準MIDIファイル名
+   * @return 指定されたファイルから生成されたMIDIXMLオブジェクト
+   */
+  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+    try {
+      return MIDIXMLWrapper.readSMF(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file: " + filename);
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
 
-	/**
-	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
-	 * 
-	 * @param filename 標準MIDIファイル名
-	 * @return 指定されたファイルから生成されたMIDIXMLオブジェクト
-	 */
-	public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
-		try {
-			return MIDIXMLWrapper.readSMF(filename);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot read file: " + filename);
-		} catch (TransformerException e) {
-			throw new XMLException(e);
-		} catch (SAXException e) {
-			throw new XMLException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XMLException(e);
-		}
-	}
-
-	/**
-	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
-	 * 
-	 * @param input 標準MIDIファイルのストリーム
-	 * @return 指定されたストリームから生成されたMIDIXMLオブジェクト
-	 */
-	public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
-		try {
-			return MIDIXMLWrapper.readSMF(input);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot read file");
-		} catch (TransformerException e) {
-			throw new XMLException(e);
-		} catch (SAXException e) {
-			throw new XMLException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XMLException(e);
-		}
-	}
+  public static MIDIXMLWrapper readSMFAsMIDIXML(File file) {
+    return readSMFAsMIDIXML(file.getPath());
+  }
+  
+  /**
+   * 標準MIDIファイルをMIDIXML形式で読み込みます．
+   * 
+   * @param input 標準MIDIファイルのストリーム
+   * @return 指定されたストリームから生成されたMIDIXMLオブジェクト
+   */
+  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+    try {
+      return MIDIXMLWrapper.readSMF(input);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot read file");
+    } catch (TransformerException e) {
+      throw new XMLException(e);
+    } catch (SAXException e) {
+      throw new XMLException(e);
+    } catch (ParserConfigurationException e) {
+      throw new XMLException(e);
+    }
+  }
 
   /** 標準MIDIファイルをSCCIXML形式で読み込みます． */
   /*
@@ -200,6 +209,10 @@ public class CMXController implements TickTimer, MIDIConsts {
     }
   }
 
+  public static SCC readSMFAsSCC(File file) {
+    return readSMFAsSCC(file.getPath());
+  }
+  
   public static SCC readSMFAsSCC(InputStream input) {
     try {
       return MIDIXMLWrapper.readSMF(input).toSCC();
@@ -220,15 +233,15 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * @param filename 保存ファイル名
 	 * 
 	 */
-	public static void writefile(CMXFileWrapper f, String filename) {
-		try {
-			f.writefile(filename);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot write file: " + filename);
-		} catch (SAXException e) {
-			throw new IllegalArgumentException("XML error: " + filename);
-		}
-	}
+  public static void writefile(CMXFileWrapper f, String filename) {
+    try {
+      f.writefile(filename);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot write file: " + filename);
+    } catch (SAXException e) {
+      throw new IllegalArgumentException("XML error: " + filename);
+    }
+  }
 
 
   /** 標準MIDIファイルをMIDIXML形式で読み込みます． */
@@ -514,6 +527,10 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
+  public void mp3read(InputStream input) {
+    mp3read(0, input);
+  }
+  
 	/**
 	 * 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
 	 * このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに 読み込まれます．

@@ -10,7 +10,7 @@ class HMMContWithGAImpl extends HMMContImpl {
   private int num;
   private int popLimit;
   private double elitRate;
-  private GACalculator gacalc;
+  private GACalculator default_gacalc;
 
   HMMContWithGAImpl(GACalculator<Integer,ObservationReal> gacalc,
                     int initialNum, int popLimit, double elitRate,
@@ -36,20 +36,28 @@ class HMMContWithGAImpl extends HMMContImpl {
     num = initialNum;
     this.popLimit = popLimit;
     this.elitRate = elitRate;
-    this.gacalc = gacalc;
+    this.default_gacalc = gacalc;
   }
-    
+
   public int[] mostLikelyStateSequence(List<Double> o,
                                        List<MusicElement> e) {
+    return mostLikelyStateSequence(o, e, this.default_gacalc);
+  }
+  
+  public int[] mostLikelyStateSequence(List<Double> o,
+                                       List<MusicElement> e,
+                                       GACalculator gacalc) {
     //    List<ObservationReal> obsList = new ArrayList<ObservationReal>();
     //    for (Double d : o)
     //      obsList.add(new ObservationReal(d));
     List<Chromosome> chromList = new ArrayList<Chromosome>();
     for (int i = 0; i < num; i++) 
-      chromList.add(new MyChromosome(gacalc.createInitial(o.size()), o, e));
+      chromList.add(new MyChromosome(gacalc.createInitial(o.size()), o, e,
+                                     gacalc));
     Population pop1 = new ElitisticListPopulation(chromList, popLimit, elitRate);
     Population pop2 =
-      ga.evolve(pop1, new MyStoppingCondition(gacalc.getStoppingCondition(),e));
+      ga.evolve(pop1, new MyStoppingCondition(gacalc.getStoppingCondition(),
+                                              e, gacalc));
     MyChromosome ch = (MyChromosome)pop2.getFittestChromosome();
     Integer[] array = ch.getRepresentation().toArray(new Integer[0]);
     int[] array2 = new int[array.length];
@@ -89,17 +97,19 @@ class HMMContWithGAImpl extends HMMContImpl {
   private class MyChromosome extends BinaryChromosome {
     List<Double> obs;
     List<MusicElement> e;
+    GACalculator gacalc;
     MyChromosome(List<Integer> states, List<Double> obs,
-                 List<MusicElement> e) {
+                 List<MusicElement> e, GACalculator gacalc) {
       super(states);
       this.obs = obs;
       this.e = e;
+      this.gacalc = gacalc;
     }
     protected void checkValidity(List<Integer> representation) {
       // do nothing
     }
     public MyChromosome newFixedLengthChromosome(List<Integer> representation) {
-      return new MyChromosome(representation, obs, e);
+      return new MyChromosome(representation, obs, e, gacalc);
     }
     public double fitness() {
       return gacalc.calcFitness(getRepresentation(), obs, e);
@@ -113,9 +123,12 @@ class HMMContWithGAImpl extends HMMContImpl {
     private StoppingCondition mystop;
     int generation = 0;
     List<MusicElement> e;
-    MyStoppingCondition(StoppingCondition stop, List<MusicElement> e) {
+    GACalculator gacalc;
+    MyStoppingCondition(StoppingCondition stop, List<MusicElement> e,
+                        GACalculator gacalc) {
       mystop = stop;
       this.e = e;
+      this.gacalc = gacalc;
     }
     public boolean isSatisfied(Population pop) {
       gacalc.populationUpdated(pop, ++generation, e);

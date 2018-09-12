@@ -384,11 +384,11 @@ public class SCCXMLWrapper extends CMXFileWrapper
   @Deprecated
   public void addAnnotation(String type, long onset, long offset,
                             String content) {
-    if (content != null && content.trim().length() > 0) {
+    //if (content != null && content.trim().length() > 0) {
       checkElementAddition(annotationsStarted);
       addChildAndText(type, onset + " " + offset + " " +
                       (content==null ? "" : content));
-    }
+      //}
   }
   
   @Deprecated
@@ -952,6 +952,10 @@ public class SCCXMLWrapper extends CMXFileWrapper
             //                              Integer.parseInt(data[0]),
             //                              data[1].toLowerCase().startsWith("min") ?
             //                              1 : 0);
+          }
+
+          else if (name.equals("SYSEX")) {
+            dest.addSysExEvent((int)(timestamp - currentTime), content);
           }
           currentTime = timestamp;
         }
