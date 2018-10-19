@@ -172,7 +172,8 @@ class MusicRepresentationImpl implements MusicRepresentation {
     abstract double getProbLocal(Object label);
     abstract Object getMostLikelyLocal();
     abstract Object generateLocal();
-
+    abstract void setEvidenceLocal(Object label);
+    
     public synchronized void suspendUpdate() {
       suspended = true;
     }
@@ -189,7 +190,8 @@ class MusicRepresentationImpl implements MusicRepresentation {
         if (check(label)) {
           set = true;
           isEvidence = true;
-          evidence = Double.valueOf(((Number)label).doubleValue());
+          setEvidenceLocal(label);
+          //evidence = Double.valueOf(((Number)label).doubleValue());
           //          evidence = label;
           //        System.err.println("UPDATE: " + parent.name + " " + label);
           if (!suspended)
@@ -353,6 +355,10 @@ class MusicRepresentationImpl implements MusicRepresentation {
       return null;
     }
 
+    void setEvidenceLocal(Object label) {
+      evidence = label;
+    }
+    
     public void setProb(Object label, double value) {
       set = true;
       isEvidence = false;
@@ -424,13 +430,17 @@ class MusicRepresentationImpl implements MusicRepresentation {
         return dist.probability((Double)label);
     }
 
+    void setEvidenceLocal(Object label) {
+      evidence = Double.valueOf(((Number)label).doubleValue());
+    }
+    
     Double getMostLikelyLocal() {
       if (dist == null)
         return Double.NaN;
       else
         return dist.getNumericalMean();
     }
-    
+
     Double generateLocal() {
       if (dist == null)
         return Double.NaN;
