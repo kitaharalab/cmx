@@ -21,7 +21,7 @@ public class BayesianCalculator implements MusicCalculator {
       if (e != null) {
         Object evidence = e.getMostLikely();
         if (e.getProb(evidence) > 0.5) {
-          Object[] labels = musRep.getLabels(layer);
+          Object[] labels = musRep.getLabels(bm.layer);
           for (int i = 0; i < labels.length; i++) {
             if (labels[i].equals(evidence)) {
               bayesNet.setEvidence(bm.bayesnetIndex, i);
@@ -40,9 +40,10 @@ public class BayesianCalculator implements MusicCalculator {
     for (BayesianMapping bm : writeMappings) {
       MusicElement e = bm.mappedElement(musRep, measure, tick);
       if (e != null) {
+        Object[] labels = musRep.getLabels(bm.layer);
         double[] margins = bayesNet.getMargin(bm.bayesnetIndex);
         for (int i = 0; i < margins.length; i++) {
-          e.setProb(i, margins[i]);
+        	e.setProb(labels[i], margins[i]);
         }
       }
     }
@@ -64,7 +65,7 @@ public class BayesianCalculator implements MusicCalculator {
           if (bm.evidenceOnly || e.hasEvidence()) {
             bayesNet.setEvidence(bm.bayesnetIndex, e.getHighestProbIndex());
           } else {
-            // ネットワークの始点じゃないとうまくいかない？
+            // 繝阪ャ繝医Ρ繝ｼ繧ｯ縺ｮ蟋狗せ縺倥ｃ縺ｪ縺�縺ｨ縺�縺ｾ縺上＞縺九↑縺�ｼ�
             double[] dd = e.getAllProbs();
             double[][] distr = new double[1][];
             distr[0] = dd;
