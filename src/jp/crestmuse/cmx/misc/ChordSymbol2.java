@@ -99,6 +99,98 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
   public static final ChordSymbol2 B_FLAT_MIN = 
     new ChordSymbol2(NoteSymbol.B_FLAT, Mode.MIN, Seventh.NONE);
 
+  public static final ChordSymbol2 C_AUG =
+    new ChordSymbol2(NoteSymbol.C, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 D_AUG =
+    new ChordSymbol2(NoteSymbol.D, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 E_AUG =
+    new ChordSymbol2(NoteSymbol.E, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 F_AUG =
+    new ChordSymbol2(NoteSymbol.F, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 G_AUG =
+    new ChordSymbol2(NoteSymbol.G, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 A_AUG =
+    new ChordSymbol2(NoteSymbol.A, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 B_AUG =
+    new ChordSymbol2(NoteSymbol.B, Mode.AUG, Seventh.NONE);
+
+  public static final ChordSymbol2 C_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.C_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 D_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.D_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 E_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.E_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 F_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.F_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 G_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.G_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 A_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.A_SHARP, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 B_SHARP_AUG =
+    new ChordSymbol2(NoteSymbol.B_SHARP, Mode.AUG, Seventh.NONE);
+
+  public static final ChordSymbol2 C_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.C_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 D_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.D_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 E_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.E_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 F_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.F_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 G_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.G_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 A_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.A_FLAT, Mode.AUG, Seventh.NONE);
+  public static final ChordSymbol2 B_FLAT_AUG =
+    new ChordSymbol2(NoteSymbol.B_FLAT, Mode.AUG, Seventh.NONE);
+
+  public static final ChordSymbol2 C_DIM =
+    new ChordSymbol2(NoteSymbol.C, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 D_DIM =
+    new ChordSymbol2(NoteSymbol.D, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 E_DIM =
+    new ChordSymbol2(NoteSymbol.E, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 F_DIM =
+    new ChordSymbol2(NoteSymbol.F, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 G_DIM =
+    new ChordSymbol2(NoteSymbol.G, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 A_DIM =
+    new ChordSymbol2(NoteSymbol.A, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 B_DIM =
+    new ChordSymbol2(NoteSymbol.B, Mode.DIM, Seventh.NONE);
+
+  public static final ChordSymbol2 C_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.C_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 D_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.D_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 E_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.E_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 F_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.F_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 G_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.G_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 A_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.A_SHARP, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 B_SHARP_DIM =
+    new ChordSymbol2(NoteSymbol.B_SHARP, Mode.DIM, Seventh.NONE);
+  
+  public static final ChordSymbol2 C_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.C_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 D_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.D_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 E_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.E_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 F_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.F_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 G_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.G_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 A_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.A_FLAT, Mode.DIM, Seventh.NONE);
+  public static final ChordSymbol2 B_FLAT_DIM =
+    new ChordSymbol2(NoteSymbol.B_FLAT, Mode.DIM, Seventh.NONE);
+  
+
+  
 
   public static enum ExtendedNote {
     NONE, NATURAL, SHARP, FLAT;
@@ -402,15 +494,15 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
 
   public boolean equals(Object another) {
     if (another instanceof ChordSymbol2) {
-      try {
+      //      try {
         ChordSymbol2 c = (ChordSymbol2)another;
         return (root.equals(c.root)) && (mode.equals(c.mode)) && 
-          (bass.equals(c.bass)) && (seventh.equals(c.seventh)) && 
-          (ninth.equals(c.ninth)) && (eleventh.equals(c.eleventh)) && 
-          (thirteenth.equals(c.thirteenth));
-      } catch (NullPointerException e) {
-        return false;     // 暫定
-      }
+          ((bass == null && c.bass == null) || bass.equals(c.bass)) &&
+          (seventh.equals(c.seventh)) && (ninth.equals(c.ninth)) &&
+          (eleventh.equals(c.eleventh)) && (thirteenth.equals(c.thirteenth));
+        //      } catch (NullPointerException e) {
+        //        return false;     // 暫定
+        //      }
     } else {
       return false;
     }
