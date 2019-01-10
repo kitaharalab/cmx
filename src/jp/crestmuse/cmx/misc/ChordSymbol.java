@@ -270,15 +270,18 @@ public class ChordSymbol {
   public boolean equals(Object o) {
     if (o != null && o instanceof ChordSymbol) {
       ChordSymbol a = (ChordSymbol)o;
-      return root.equals(a.root) 
-	&& mode.equals(a.mode) && seventh.equals(a.seventh);
+      boolean equalRoort = root == null ? root == a.root : root.equals(a.root);
+      return equalRoort && mode.equals(a.mode) && seventh.equals(a.seventh);
+      //return root.equals(a.root) 
     } else {
       return false;
     }
   }
 
   public int hashCode() {
-    return root.hashCode() 
+	int hashCodeRoot = root == null ? 0 : root.hashCode();
+//    return root.hashCode() 
+	return hashCodeRoot
       +  mode.hashCode() + seventh.hashCode();
   }
 
@@ -292,10 +295,14 @@ public class ChordSymbol {
   }
 */
   public ChordSymbol transpose(int diff, boolean sharp) {
-    int newnumber = (root.number() + diff) % 12;
-    if (newnumber < 0)
-      newnumber += 12;
-    return new ChordSymbol(NoteSymbol.getInstance(newnumber, sharp), 
-                           mode, seventh);
+	if (root != null) {
+	    int newnumber = (root.number() + diff) % 12;
+	    if (newnumber < 0)
+	      newnumber += 12;
+	    return new ChordSymbol(NoteSymbol.getInstance(newnumber, sharp), 
+	                           mode, seventh);		
+	} else {
+		return new ChordSymbol(root, mode, seventh);
+	}
   }
 }

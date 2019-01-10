@@ -496,7 +496,8 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
     if (another instanceof ChordSymbol2) {
       //      try {
         ChordSymbol2 c = (ChordSymbol2)another;
-        return (root.equals(c.root)) && (mode.equals(c.mode)) && 
+        boolean equalRoort = root == null ? root == c.root : root.equals(c.root);
+        return equalRoort && (mode.equals(c.mode)) && 
           ((bass == null && c.bass == null) || bass.equals(c.bass)) &&
           (seventh.equals(c.seventh)) && (ninth.equals(c.ninth)) &&
           (eleventh.equals(c.eleventh)) && (thirteenth.equals(c.thirteenth));
