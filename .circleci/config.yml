@@ -7,7 +7,6 @@ jobs:
       - checkout
       - run: chmod +x gradlew
       #- run: ./gradlew dependencies
-      
       - run: ./gradlew buildbuild
-      - store_artifacts:
-        path: ./build
+      #- store_artifacts:
+      #  path: ./build
