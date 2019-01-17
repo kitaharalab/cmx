@@ -2,7 +2,10 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/ruby:2.4.1
+      - image: circleci/jdk8:0.1.1
     steps:
       - checkout
-      - run: echo "A first hello"
+      - run: chmod +x gradlew
+      #- run: ./gradlew dependencies
+      
+      - run: ./gradlew build
