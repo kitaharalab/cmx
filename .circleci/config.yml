@@ -9,4 +9,4 @@ jobs:
       #- run: ./gradlew dependencies
       - run: ./gradlew build
       - store_artifacts:
-        path: ./build
+        path: /tmp/artifacts
