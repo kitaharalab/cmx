@@ -1,10 +1,14 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static java.lang.Math.*;
-import java.util.*;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.pow;
+import static jp.crestmuse.cmx.math.Operations.divX;
+import static jp.crestmuse.cmx.math.Operations.sum;
 
 //public class ChromaExtractor extends SPModule<PeakSet,SPDoubleArray> {
 public class ChromaExtractor extends SPModule {

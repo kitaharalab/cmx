@@ -1,15 +1,25 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.sound.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import java.util.*;
-import java.io.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import javax.sound.sampled.*;
-import org.xml.sax.*;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.TargetDataLine;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.AmusaDataSet;
+import jp.crestmuse.cmx.amusaj.filewrappers.AmusaDataSetCompatible;
+import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.SPExecutor;
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.amusaj.sp.WindowSlider;
+import jp.crestmuse.cmx.commands.CMXCommand;
+import jp.crestmuse.cmx.filewrappers.FileWrapperCompatible;
+import jp.crestmuse.cmx.filewrappers.WAVWrapper;
+import jp.crestmuse.cmx.sound.AudioInputStreamWrapper;
 
 /** AbstractWAVAnalyzer can be used as a base class for implementing 
     commands that read and analyze WAV files. 

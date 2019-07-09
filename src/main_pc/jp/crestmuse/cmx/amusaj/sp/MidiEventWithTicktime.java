@@ -1,11 +1,11 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
+import java.util.List;
+
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.InvalidMidiDataException;
-import java.util.*;
-import static jp.crestmuse.cmx.misc.MIDIConst.*;
 
 public class MidiEventWithTicktime extends MidiEvent {
   public long music_position;

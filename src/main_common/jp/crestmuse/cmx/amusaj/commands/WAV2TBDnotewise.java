@@ -1,9 +1,16 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import static jp.crestmuse.cmx.math.Operations.*;
+
+import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
+import jp.crestmuse.cmx.amusaj.sp.FeatureExtractionModule2;
+import jp.crestmuse.cmx.amusaj.sp.HarmonicsExtractor2;
+import jp.crestmuse.cmx.amusaj.sp.HarmonicsTimeSeriesGenerator;
+import jp.crestmuse.cmx.amusaj.sp.KitaharaFeatureExtractor;
+import jp.crestmuse.cmx.amusaj.sp.PeakExtractor;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.STFT;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
+
+import static jp.crestmuse.cmx.math.Operations.nn2Hz;
 
 public class WAV2TBDnotewise extends NotewiseWAVAnalyzer {
   private boolean paramSet = false;

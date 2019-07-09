@@ -1,6 +1,4 @@
 package jp.crestmuse.cmx.misc;
-import java.util.*;
-import jp.crestmuse.cmx.elements.*;
 
 /*
 @Deprecated

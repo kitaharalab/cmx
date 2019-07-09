@@ -608,10 +608,7 @@ public class CMXApplet extends PApplet implements MusicListener, TickTimer, MIDI
 		return ctrl.getVolumeControl();
 	}
 
-	// TODO: test 20190613 fujii
-//	public void refreshPlayingTrack() {
-//		ctrl.refreshPlayingTrack();
-//	}
+	// TODO: experiment 20190613 fujii
 	public Sequencer getSequencer() {
 		return ctrl.getSequencer();
 	}

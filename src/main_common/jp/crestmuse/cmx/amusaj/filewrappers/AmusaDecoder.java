@@ -1,7 +1,8 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.math.*;
-import java.util.*;
+import java.util.StringTokenizer;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
 
 public class AmusaDecoder {
 

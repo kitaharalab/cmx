@@ -1,12 +1,16 @@
 package jp.crestmuse.cmx.filewrappers;
-import groovy.lang.*;
-import javax.xml.transform.*;
-import jp.crestmuse.cmx.elements.*;
-import java.util.*;
-import java.io.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import groovy.lang.Closure;
 
 public interface SCC {
   public int getDivision();

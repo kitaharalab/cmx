@@ -1,6 +1,9 @@
 package jp.crestmuse.cmx.misc;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public class QueueWrapper<E> {
   private java.util.Queue<E> queue;

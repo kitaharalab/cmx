@@ -1,13 +1,8 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import java.io.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
+import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
+import jp.crestmuse.cmx.amusaj.sp.PeakExtractor;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.STFT;
 
 
 public class ChromaExtractor extends AbstractWAVAnalyzer {

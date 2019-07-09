@@ -1,7 +1,10 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
-import org.apache.commons.math.transform.*;
-import org.apache.commons.math.complex.*;
+import org.apache.commons.math.complex.Complex;
+import org.apache.commons.math.transform.FastFourierTransformer;
+
+import jp.crestmuse.cmx.math.ComplexArray;
+import jp.crestmuse.cmx.math.ComplexNumber;
+import jp.crestmuse.cmx.math.DoubleArray;
 
 public class FFTImpl implements FFT {
   private double[] buff = null;

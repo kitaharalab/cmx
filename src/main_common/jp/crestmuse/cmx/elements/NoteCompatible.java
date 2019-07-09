@@ -1,5 +1,4 @@
 package jp.crestmuse.cmx.elements;
-import jp.crestmuse.cmx.filewrappers.*;
 
 /*
 @Deprecated

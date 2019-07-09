@@ -1,14 +1,23 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import java.util.*;
-import java.io.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.AmusaDataSet;
+import jp.crestmuse.cmx.amusaj.filewrappers.AmusaDataSetCompatible;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.SPExecutor;
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.amusaj.sp.WindowSlider;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Part;
+import jp.crestmuse.cmx.filewrappers.WAVWrapper;
 
 
 public abstract class NotewiseWAVAnalyzer 

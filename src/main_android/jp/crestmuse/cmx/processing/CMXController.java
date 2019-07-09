@@ -616,10 +616,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 		smfread(0, 0, seq);
 	}
 
-	// TODO: test 20190613 fujiij
-//	public void refreshPlayingTrack() {
-//		((SMFPlayer) musicPlayer[0]).refreshPlayingTrack();
-//	}
+	// TODO: experiment 20190613 fujiij
 	public Sequencer getSequencer() {
 		return getSequencer(0);
 	}

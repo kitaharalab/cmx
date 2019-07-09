@@ -1,7 +1,15 @@
 package jp.crestmuse.cmx.sound;
-import javax.sound.sampled.*;
-import java.io.*;
-import jp.crestmuse.cmx.misc.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.Control;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class WAVPlayer2 implements MusicPlayer {
 

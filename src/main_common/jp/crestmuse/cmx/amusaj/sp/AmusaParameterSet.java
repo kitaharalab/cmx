@@ -1,6 +1,9 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.misc.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import jp.crestmuse.cmx.misc.ParameterCompatible;
 
 public class AmusaParameterSet implements ParameterCompatible {
 

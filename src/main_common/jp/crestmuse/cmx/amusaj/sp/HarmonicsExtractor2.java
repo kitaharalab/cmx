@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
 
 public class HarmonicsExtractor2 extends HarmonicsExtractor {
 

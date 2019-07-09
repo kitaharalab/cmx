@@ -1,14 +1,30 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import jp.crestmuse.cmx.sound.*;
-import jp.crestmuse.cmx.math.*;
-import java.io.*;
-import java.nio.*;
-import java.util.*;
-import javax.sound.sampled.*;
-import javazoom.jl.decoder.*;
-import static jp.crestmuse.cmx.math.MathUtils.*;
-import static javazoom.jl.decoder.Header.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sound.sampled.AudioFormat;
+
+import javazoom.jl.decoder.Bitstream;
+import javazoom.jl.decoder.BitstreamException;
+import javazoom.jl.decoder.Decoder;
+import javazoom.jl.decoder.DecoderException;
+import javazoom.jl.decoder.Header;
+import javazoom.jl.decoder.SampleBuffer;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.sound.AudioDataCompatible;
+
+import static javazoom.jl.decoder.Header.DUAL_CHANNEL;
+import static javazoom.jl.decoder.Header.JOINT_STEREO;
+import static javazoom.jl.decoder.Header.SINGLE_CHANNEL;
+import static javazoom.jl.decoder.Header.STEREO;
+import static jp.crestmuse.cmx.math.MathUtils.createDoubleArray;
 
 public class MP3Wrapper implements AudioDataCompatible {
 

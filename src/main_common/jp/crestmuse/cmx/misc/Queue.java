@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.misc;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 public class Queue<E> {
 

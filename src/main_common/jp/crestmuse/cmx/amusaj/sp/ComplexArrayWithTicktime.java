@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.math.ComplexArray;
+import jp.crestmuse.cmx.math.ComplexNumber;
 
 public class ComplexArrayWithTicktime implements ComplexArray {
   private ComplexArray array;

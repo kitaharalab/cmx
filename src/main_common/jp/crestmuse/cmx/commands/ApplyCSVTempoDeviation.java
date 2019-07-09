@@ -1,11 +1,11 @@
 package jp.crestmuse.cmx.commands;
 
-import java.io.*;
-import java.util.*;
-import org.xml.sax.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import jp.crestmuse.cmx.filewrappers.*;
+import java.io.IOException;
+import java.util.List;
+
+import jp.crestmuse.cmx.filewrappers.CSVWrapper;
+import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
+import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
 
 public class ApplyCSVTempoDeviation extends CMXCommand<DeviationInstanceWrapper,DeviationInstanceWrapper> {
     private String csvfilename = null;

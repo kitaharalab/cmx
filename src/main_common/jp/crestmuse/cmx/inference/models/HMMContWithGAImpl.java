@@ -5,18 +5,18 @@ import org.apache.commons.math3.distribution.*;
 import be.ac.ulg.montefiore.run.jahmm.*;
 import java.util.*;
 
-class HMMContWithGAImpl extends HMMContImpl {
+public class HMMContWithGAImpl extends HMMContImpl {
   private GeneticAlgorithm ga;
   private int num;
   private int popLimit;
   private double elitRate;
   private GACalculator default_gacalc;
 
-  HMMContWithGAImpl(GACalculator<Integer,ObservationReal> gacalc,
-                    int initialNum, int popLimit, double elitRate,
-                    CrossoverPolicy crossoverPolicy, double crossoverRate,
-                    MutationPolicy mutationPolicy, double mutationRate,
-                    SelectionPolicy selectionPolicy) {
+  public HMMContWithGAImpl(GACalculator<Integer, ObservationReal> gacalc,
+                           int initialNum, int popLimit, double elitRate,
+                           CrossoverPolicy crossoverPolicy, double crossoverRate,
+                           MutationPolicy mutationPolicy, double mutationRate,
+                           SelectionPolicy selectionPolicy) {
     this(null, null, null, gacalc, initialNum, popLimit, elitRate,
          crossoverPolicy, crossoverRate, mutationPolicy, mutationRate,
          selectionPolicy);

@@ -1,7 +1,14 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.filewrappers.*;
-import org.w3c.dom.*;
-import java.util.*;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import jp.crestmuse.cmx.filewrappers.AbstractHeaderNodeInterface;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.NodeInterface;
 
 class AmusaScriptWrapper extends CMXFileWrapper {
 

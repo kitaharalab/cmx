@@ -1,14 +1,19 @@
 package jp.crestmuse.cmx.commands;
 
-import java.io.*;
+import org.xml.sax.SAXException;
 
-import org.xml.sax.*;
+import java.io.File;
+import java.io.IOException;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.misc.PerformanceMatcher3;
 
 public class DeviationInstanceExtractor extends CMXCommand<MusicXMLWrapper, DeviationInstanceWrapper> {
 

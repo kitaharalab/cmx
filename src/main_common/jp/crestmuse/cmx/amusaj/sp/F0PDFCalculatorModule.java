@@ -1,10 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import java.util.*;
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
+import jp.crestmuse.cmx.math.DoubleArray;
 
 //public class F0PDFCalculatorModule extends SPModule<PeakSet,SPDoubleArray> {
 public class F0PDFCalculatorModule extends SPModule {

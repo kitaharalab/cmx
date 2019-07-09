@@ -10,7 +10,6 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import jp.crestmuse.cmx.sound.TickTimer;
-import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
 
 public class MidiInputModule extends SPModule implements Receiver {
   private TickTimer tt;

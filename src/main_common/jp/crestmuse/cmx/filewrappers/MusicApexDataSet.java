@@ -1,5 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,10 +9,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.Node;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.MusicData;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
 
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.*;
 //import jp.crestmuse.cmx.handlers.CommonNoteHandler;
 //import jp.crestmuse.cmx.misc.NoteCompatible;
 //import jp.crestmuse.cmx.misc.PianoRollCompatible;

@@ -1,19 +1,55 @@
 package jp.crestmuse.cmx.filewrappers;
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.elements.*;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
-import static jp.crestmuse.cmx.misc.MIDIConst.*;
 
-import java.util.*;
-import java.io.*;
-import java.nio.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import jp.crestmuse.cmx.elements.MutableControlChange;
+import jp.crestmuse.cmx.elements.MutableMusicEvent;
+import jp.crestmuse.cmx.elements.MutableNote;
+import jp.crestmuse.cmx.elements.MutablePitchBend;
+import jp.crestmuse.cmx.elements.MutableProgramChange;
+import jp.crestmuse.cmx.handlers.MIDIHandler;
+import jp.crestmuse.cmx.misc.MIDIEventList;
+
+import static jp.crestmuse.cmx.misc.MIDIConst.getAttributeList;
+import static jp.crestmuse.cmx.misc.MIDIConst.getByteLength;
+import static jp.crestmuse.cmx.misc.MIDIConst.isOnOffMessage;
+import static jp.crestmuse.cmx.misc.MIDIConst.isStringMetaEvent;
+import static jp.crestmuse.cmx.misc.MIDIConst.isSupportedMessage;
+import static jp.crestmuse.cmx.misc.MIDIConst.isSupportedMetaEvent;
+import static jp.crestmuse.cmx.misc.MIDIConst.metaEventNameToType;
+import static jp.crestmuse.cmx.misc.MIDIConst.metaEventTypeToName;
+import static jp.crestmuse.cmx.misc.MIDIConst.msbFirst;
+import static jp.crestmuse.cmx.misc.MIDIConst.msgNameToStatusNo;
+import static jp.crestmuse.cmx.misc.MIDIConst.onOffMsgByteToString;
+import static jp.crestmuse.cmx.misc.MIDIConst.onOffMsgStringToByte;
+import static jp.crestmuse.cmx.misc.MIDIConst.statusNoToMsgName;
+import static jp.crestmuse.cmx.sound.MIDIConsts.CONTROL_CHANGE;
+import static jp.crestmuse.cmx.sound.MIDIConsts.DUMMY_VALUE;
+import static jp.crestmuse.cmx.sound.MIDIConsts.NOTE_OFF;
+import static jp.crestmuse.cmx.sound.MIDIConsts.NOTE_ON;
+import static jp.crestmuse.cmx.sound.MIDIConsts.PITCH_BEND_CHANGE;
+import static jp.crestmuse.cmx.sound.MIDIConsts.PROGRAM_CHANGE;
 
 public class MIDIXMLWrapper extends CMXFileWrapper {
   /** newOutputData() トップタグの追加
@@ -196,34 +232,6 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     returnToParent();
   }
 
-  public void addSysExEvent(int timestamp, String content) {
-    checkElementAddition(trackStarted);
-    addChild("Event");
-    if (timestampType == TIMESTAMP_DELTA)
-      addChild("Delta");
-    else if (timestampType == TIMESTAMP_ABSOLUTE)
-      addChild("Absolute");
-    else
-      throw new InvalidElementException("TimestampeType is invalid");
-    addText(String.valueOf(timestamp));
-    returnToParent();
-    addChild("SystemExclusive");
-    addText(content.trim());
-    returnToParent();
-    returnToParent();
-  }
-  
-  public void addSysExEvent(int timestamp, short[] content) {
-    String s = "";
-    for (short c : content) {
-      String s0 = Integer.toHexString(c);
-      if (s0.length() == 1) s0 = "0" + s0;
-      s += s0.toUpperCase() + " ";
-    }
-    addSysExEvent(timestamp, s);
-  }
-
-  
   public void writefileAsSMF(String filename) throws IOException {
     DataOutputStream dataout = new DataOutputStream
       (new BufferedOutputStream(new FileOutputStream(filename)));
@@ -260,14 +268,6 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
     for (Track track : tracks) {
       byte[] msg = track.toSMFFormat();
       dataout.writeBytes("MTrk");
-      dataout.writeInt(msg.length);
-      dataout.write(msg, 0, msg.length);
-    }
-    ////////// edit
-    XFKM[] xfkms = getXFKMList();
-    for (XFKM xfkm : xfkms) {
-      byte[] msg = xfkm.toSMFFormat();
-      dataout.writeBytes("XFKM");
       dataout.writeInt(msg.length);
       dataout.write(msg, 0, msg.length);
     }
@@ -505,27 +505,12 @@ throw new InvalidFileTypeException("Invalid SMF");
   }
 
   private void readMIDIExclusiveMessage(ByteBuffer buff, int delta) {
-    int len = buff.get();
-    short[] data = new short[len+1];
-    data[0] = (short)0xF0;
-    for (int i = 0; i < len; i++) {
-      byte b = buff.get();
-      short c = b < 0 ? (short)(b & 0x7F + 0x80) : b;
-      data[i+1] = c;
-    }
-    addSysExEvent(delta + ignoredDelta, data);
-    ignoredDelta = 0;
-  }
-
-  /*
-  private void readMIDIExclusiveMessage(ByteBuffer buff, int delta) {
     byte len = buff.get();
     for (byte i = 0; i < len; i++)
       buff.get();
     ignoredDelta += delta;
   }
-  */
-  
+
   private void readMIDIChannelMessage(short status, ByteBuffer buff,
                                       int delta) {
     byte ch = (byte)(status & 0x0F);
@@ -667,14 +652,11 @@ throw new InvalidFileTypeException("Invalid SMF");
                                  String.valueOf(60*1000*1000/midiEvent.value(0)));
             return;
           } else if (messageType.equals("KeySignature")) {
-            // edit 2017.10.25
-            int key = midiEvent.value(0);
-            if (key >= 128) key -= 256;
             scc.addHeaderElement(totalTime, "KEY", 
-                                 (key > 0 ? "+" : "") + 
-                                 String.valueOf(key) + " " + 
+                                 (midiEvent.value(0) > 0 ? "+" : "") + 
+                                 String.valueOf(midiEvent.value(0)) + " " + 
                                  (midiEvent.value(1) == 0 ? "major" : 
-                                  (midiEvent.value(1)== 1 ? "minor" : "unknown")));
+                                  (midiEvent.value(1) == 1 ? "minor" : "unknown")));
             return;
           } else if (messageType.equals("Lyric")) {
             scc.addLyric(totalTime, totalTime, midiEvent.child2.getTextContent());
@@ -684,9 +666,6 @@ throw new InvalidFileTypeException("Invalid SMF");
             return;
           } else if (messageType.equals("Marker")) {
             scc.addMarker(totalTime, totalTime, midiEvent.child2.getTextContent());
-            return;
-          } else if (messageType.equals("SystemExclusive")) {
-            scc.addHeaderElement(totalTime, "SYSEX", midiEvent.text());
             return;
           } else if (isSupportedMetaEvent(midiEvent.messageType())) return;
           short statusNo = msgNameToStatusNo(messageType);
@@ -1131,7 +1110,6 @@ throw new InvalidFileTypeException("Invalid SMF");
     private String msgType;
     private boolean isChannelMessage;
     private boolean isMetaEvent;
-    private boolean isSysEx;
     private int[] values;
     //	private int msgValue1 = -1, msgValue2 = -1;
     private byte channel = -1;
@@ -1148,8 +1126,7 @@ throw new InvalidFileTypeException("Invalid SMF");
       child2 = nl.item(1);
       msgType = child2.getNodeName();
       isChannelMessage = isSupportedMessage(msgType);
-      isSysEx = msgType.equals("SystemExclusive");
-      isMetaEvent = !isSysEx && isSupportedMetaEvent(msgType);
+      isMetaEvent = isSupportedMetaEvent(msgType);
       if (isChannelMessage)
         channel = Byte.parseByte(getAttribute(child2, "Channel"));
       String[] attrkeys = getAttributeList(msgType);
@@ -1210,18 +1187,6 @@ throw new InvalidFileTypeException("Invalid SMF");
       return isMetaEvent;
     }
 
-    public final boolean isSysEx() {
-      return isSysEx;
-    }
-
-    public final boolean hasText() {
-      return hasString(msgType);
-    }
-
-    public final String text() {
-      return getText(child2);
-    }
-    
     byte[] getDeltaTimeForSMF() {
       int size =
         (Integer.SIZE-Integer.numberOfLeadingZeros(deltaTime)+1)/7+1;
@@ -1238,7 +1203,7 @@ throw new InvalidFileTypeException("Invalid SMF");
 
     byte[] toMIDIMessageBinary() {
       int counter = 0;
-      byte[] data = new byte[65535];
+      byte[] data = new byte[16];
       if (isChannelMessage) {
         short statusBase = msgNameToStatusNo(msgType);
         if (statusBase >= 0x80) {
@@ -1274,51 +1239,28 @@ throw new InvalidFileTypeException("Invalid SMF");
         counter++;
         int clen = counter;
         counter++;
-        if (hasText()) {
-          try {
-            byte[] bb = text().getBytes("Shift_JIS");
-            for (int i = 0; i < bb.length; i++) {
-              data[counter] = bb[i];
-              counter++;
-            }
-          } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new IllegalStateException();
-          }
-        } else {
-          for (int i = 0; i < values.length; i++) {
-            byte len = getByteLength(msgType);
-            if (len == (byte)1) {
-              data[counter] = (byte)values[i];
-              counter++;
-            } else if (len == (byte)2) {
-              data[counter] = (byte)(values[i] / 0x100);
-              counter++;
-              data[counter] = (byte)(values[i] % 0x100);
-              counter++;
-            } else if (len == (byte)3) {
-              data[counter] = (byte)(values[i] / 0x10000);
-              counter++;
-              data[counter] = (byte)(values[i] / 0x100 % 0x100);
-              counter++;
-              data[counter] = (byte)(values[i] % 0x100);
-              counter++;
-            } else {
-              throw new IllegalArgumentException();
-            }
+        for (int i = 0; i < values.length; i++) {
+          byte len = getByteLength(msgType);
+          if (len == (byte)1) {
+            data[counter] = (byte)values[i];
+            counter++;
+          } else if (len == (byte)2) {
+            data[counter] = (byte)(values[i] / 0x100);
+            counter++;
+            data[counter] = (byte)(values[i] % 0x100);
+            counter++;
+          } else if (len == (byte)3) {
+            data[counter] = (byte)(values[i] / 0x10000);
+            counter++;
+            data[counter] = (byte)(values[i] / 0x100 % 0x100);
+            counter++;
+            data[counter] = (byte)(values[i] % 0x100);
+            counter++;
+          } else {
+            throw new IllegalArgumentException();
           }
         }
         data[clen] = (byte)(counter - clen - 1);
-      } else if (isSysEx) {
-        data[counter] = (byte)0xF0;
-        counter++;
-        String[] text = text().split(" ");
-        data[counter] = (byte)(text.length - 1);
-        counter++;
-        for (int i = 1; i < text.length; i++) {
-          data[counter] = (byte)Integer.parseUnsignedInt(text[i], 16);
-          counter++;
-        }
       }
       byte[] data2 = new byte[counter];
       System.arraycopy(data, 0, data2, 0, counter);

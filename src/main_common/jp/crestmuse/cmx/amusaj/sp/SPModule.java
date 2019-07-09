@@ -1,10 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.misc.QueueReader;
-
-import java.util.*;
 
 public abstract class SPModule 
   implements ProducerConsumerCompatible {

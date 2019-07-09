@@ -1,10 +1,23 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import java.util.*;
-import org.w3c.dom.*;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import jp.crestmuse.cmx.amusaj.sp.SPTerminator;
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.filewrappers.AbstractHeaderNodeInterface;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.NodeInterface;
+import jp.crestmuse.cmx.misc.QueueReader;
+import jp.crestmuse.cmx.misc.QueueWrapper;
 
 /********************************************************************
  *音楽情景分析API「AMUSA-J」におけるファイルラッパの基底クラスです. 

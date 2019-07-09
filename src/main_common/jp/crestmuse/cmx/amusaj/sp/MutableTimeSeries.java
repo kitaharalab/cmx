@@ -1,9 +1,13 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import jp.crestmuse.cmx.math.Array;
+import jp.crestmuse.cmx.misc.QueueReader;
+import jp.crestmuse.cmx.misc.QueueWrapper;
 
 public class MutableTimeSeries<D> implements TimeSeriesCompatible<D> {
   private int nFrames;

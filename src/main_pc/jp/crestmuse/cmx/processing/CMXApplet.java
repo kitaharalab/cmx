@@ -4,11 +4,10 @@ import java.awt.Button;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.File;
 import java.util.Map;
 
+import javax.sound.midi.Sequence;
 import javax.sound.sampled.FloatControl;
-import javax.sound.midi.*;
 
 import jp.crestmuse.cmx.amusaj.sp.MidiEventSender;
 import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
@@ -23,8 +22,8 @@ import jp.crestmuse.cmx.amusaj.sp.TrashOutModule;
 import jp.crestmuse.cmx.amusaj.sp.WindowSlider;
 import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
 import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCC;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
-import jp.crestmuse.cmx.filewrappers.*;
 import jp.crestmuse.cmx.inference.MusicRepresentation;
 import jp.crestmuse.cmx.sound.MIDIConsts;
 import jp.crestmuse.cmx.sound.MusicListener;
@@ -38,52 +37,40 @@ import processing.core.PApplet;
 <tt>ellipseなどのProcessing用のメソッドも利用できます．*/
 public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDIConsts  {
 
-  private static final CMXController ctrl = CMXController.getInstance();
+	private static final CMXController ctrl = CMXController.getInstance();
 
-  private boolean autostart = true;
+	private boolean autostart = true;
 
-  /** CMXが対応しているXML形式の文書オブジェクトを生成します．
+	/** CMXが対応しているXML形式の文書オブジェクトを生成します．
       たとえば，SCCXML形式の文書オブジェクトを生成する際には，
       <tt> createDocument(SCCXMLWrapper.TOP_TAG) </tt> とします．*/
-  public static CMXFileWrapper createDocument(String toptag) {
-    return ctrl.createDocument(toptag);
-  }
+	public static CMXFileWrapper createDocument(String toptag) {
+		return ctrl.createDocument(toptag);
+	}
 
-  /** CMXが対応しているXML形式の文書を読み込みます．*/
-  public static CMXFileWrapper readfile(String filename) {
-    //    return ctrl.read(createInput(filename));
-    return ctrl.readfile(filename);
-  }
+	/** CMXが対応しているXML形式の文書を読み込みます．*/
+	public static CMXFileWrapper readfile(String filename) {
+		//    return ctrl.read(createInput(filename));
+		return ctrl.readfile(filename);
+	}
 
-  public static CMXFileWrapper readfile(File file) {
-    return ctrl.readfile(file);
-  }
-  
-  /** CMXが対応しているXML形式の文書を読み込みます．*/
-  public static CMXFileWrapper read(InputStream input) {
-    return ctrl.read(input);
-  }
-  
-  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
-    return ctrl.readSMFAsMIDIXML(filename);
-  }
-  
-  public static MIDIXMLWrapper readSMFAsMIDIXML(File file) {
-    return ctrl.readSMFAsMIDIXML(file);
-  }
-  
-  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
-    return ctrl.readSMFAsMIDIXML(input);
-  }
+	/** CMXが対応しているXML形式の文書を読み込みます．*/
+	public static CMXFileWrapper read(InputStream input) {
+		return ctrl.read(input);
+	}
+
+	public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+		return ctrl.readSMFAsMIDIXML(filename);
+	}
+
+	public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+		return ctrl.readSMFAsMIDIXML(input);
+	}
 
   public static SCC readSMFAsSCC(String filename) {
     return ctrl.readSMFAsSCC(filename);
   }
 
-  public static SCC readSMFAsSCC(File file) {
-    return ctrl.readSMFAsSCC(file);
-  }
-  
   public static SCC readSMFAsSCC(InputStream input) {
     return ctrl.readSMFAsSCC(input);
   }
@@ -275,9 +262,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	/** 仮想鍵盤を表示し，キーボードのキーを押すと，対応するMIDIイベントが
       出力される「モジュール」を生成します，*/
 	public MidiInputModule createVirtualKeyboard() {
-		if (this instanceof Component)
-			return ctrl.createVirtualKeyboard(this);
-		else
+		//TODO: android fujiij
+//		if (this instanceof Component)
+//			return ctrl.createVirtualKeyboard(this);
+//		else
 			return ctrl.createVirtualKeyboard();
 	}
 	
@@ -350,13 +338,15 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	}
 
 	public void showAudioMixerChooser() {
-		ctrl.showAudioMixerChooser(this);
+		// TODO: processing3 fujiij
+//		ctrl.showAudioMixerChooser(this);
 	}
 
 	/**
 	 * 認識済みのMIDI入力デバイスの選択ダイアログを表示します．
 	 */
 	public void showMidiInChooser() {
+		// TODO: processing3 fujiij
 		ctrl.showMidiInChooser(this);
 	}
 	
@@ -364,6 +354,7 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	 * @see CMXController#showMidiInChooser(int, Component)
 	 */
 	public void showMidiInChooser(int i) {
+		// TODO: processing3 fujiij
 		ctrl.showMidiInChooser(i, this);
 	}
 
@@ -371,6 +362,7 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	 * 認識済みのMIDI出力デバイスの選択ダイアログを表示します．
 	 */
 	public void showMidiOutChooser() {
+		// TODO: processing3 fujiij
 		ctrl.showMidiOutChooser(this);
 	}
 	
@@ -378,6 +370,7 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	 * @see CMXController#showMidiOutChooser(int, Component)
 	 */
 	public void showMidiOutChooser(int i) {
+		// TODO: processing3 fujiij
 		ctrl.showMidiOutChooser(i, this);
 	}
 
@@ -439,9 +432,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 		return ctrl.createMidiEventSender();
 	}
 
-	public SPModule createSpectrumViewer(int w, int h, int m, double scale) {
-		return ctrl.createSpectrumViewer(w, h, m, scale);
-	}
+	// TODO: android fujiij
+//	public SPModule createSpectrumViewer(int w, int h, int m, double scale) {
+//		return ctrl.createSpectrumViewer(w, h, m, scale);
+//	}
 
 	public TrashOutModule createTrashOut() {
 		return ctrl.createTrashOut();
@@ -470,7 +464,8 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 //  }
 
   public void setup() {
-    setupExternalMessages();
+		// TODO: android, processing3 fujiij
+//    setupExternalMessages();
   }
 
   public void draw() {
@@ -544,9 +539,10 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 		return ctrl.createProgramChangeEvent(position, ch, value);
 	}
 
-	public TappingModule createTappingModule() {
-		return ctrl.createTappingModule(this);
-	}
+	// TODO: processing3
+//	public TappingModule createTappingModule() {
+//		return ctrl.createTappingModule(this);
+//	}
 
 	public void sleep(long ms) {
 		try {
@@ -588,12 +584,13 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 		textSize((float)s);
 	}
 
-	public Button button(String title) {
-		Button b = new Button(title);
-		b.addKeyListener(this);
-		add(b);
-		return b;
-	}
+	// TODO: processing3
+//	public Button button(String title) {
+//		Button b = new Button(title);
+//		b.addKeyListener(this);
+//		add(b);
+//		return b;
+//	}
 
 	public FloatControl getMasterGainControl() {
 		return ctrl.getMasterGainControl();

@@ -1,11 +1,18 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import java.util.*;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
+import jp.crestmuse.cmx.math.BooleanArray;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.Operations;
+import jp.crestmuse.cmx.math.Operations.MaxResult;
+
+import static jp.crestmuse.cmx.math.Operations.div;
+import static jp.crestmuse.cmx.math.Operations.greaterThan;
+import static jp.crestmuse.cmx.math.Operations.lessThan;
+import static jp.crestmuse.cmx.math.Operations.mask;
+import static jp.crestmuse.cmx.math.Operations.max;
+import static jp.crestmuse.cmx.math.Operations.or;
+import static jp.crestmuse.cmx.math.Operations.sum;
 
 public class HarmonicsExtractor  extends SPModule {
 

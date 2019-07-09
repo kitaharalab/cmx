@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.misc;
-import java.io.*;
+import java.io.PrintStream;
 
 public class PrintStreamWrapper implements Printable {
     private PrintStream ps;

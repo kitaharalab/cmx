@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.handlers;
 
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
 
 public class SCCHandlerAdapter implements SCCHandler {
   public void beginHeader(SCCXMLWrapper w) {

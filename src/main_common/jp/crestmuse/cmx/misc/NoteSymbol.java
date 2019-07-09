@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.misc;
 
-import java.util.*;
-import java.util.regex.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class NoteSymbol implements Comparable<NoteSymbol> {
 

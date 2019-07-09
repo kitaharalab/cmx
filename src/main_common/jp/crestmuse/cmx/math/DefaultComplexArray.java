@@ -1,5 +1,4 @@
 package jp.crestmuse.cmx.math;
-import jp.crestmuse.cmx.misc.*;
 
 class DefaultComplexArray extends AbstractComplexArrayImpl {
   private double[] re, im;

@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.inference.models;
-import java.util.*;
-import jp.crestmuse.cmx.inference.*;
+import java.util.List;
+
+import jp.crestmuse.cmx.inference.MusicElement;
 
 public interface HMM<O extends Object> {
   int[] mostLikelyStateSequence(List<O> o, List<MusicElement> e);

@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import java.util.*;
+import java.util.List;
 
 public abstract class MySPModule extends SPModule {
     public abstract Object execute(Object src, Object dest);

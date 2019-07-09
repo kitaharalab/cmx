@@ -1,7 +1,10 @@
 package jp.crestmuse.cmx.commands;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.MIDIEvent;
 
 class TimeInSecForSMF {
   MIDIEvent[] tempolist;

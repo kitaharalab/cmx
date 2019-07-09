@@ -1,11 +1,14 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.sound.*;
-import javax.sound.midi.*;
-import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+
+import jp.crestmuse.cmx.sound.TickTimer;
+
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createControlChangeEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createNoteOffEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createNoteOnEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createProgramChangeEvent;
 
 public class MidiEventSender extends SPModule {
   private TickTimer tt = null;

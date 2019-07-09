@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import java.util.*;
+import java.util.LinkedList;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
 
 public class HarmonicsTimeSeriesGenerator extends SPModule {
   private int nFrames;

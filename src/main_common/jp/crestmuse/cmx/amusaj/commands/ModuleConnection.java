@@ -1,6 +1,5 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
 
 public class ModuleConnection {
   ProducerConsumerCompatible inModule;

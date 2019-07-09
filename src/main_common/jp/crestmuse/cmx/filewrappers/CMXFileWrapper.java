@@ -1,22 +1,54 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-import javax.xml.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.xpath.*;
-import javax.xml.namespace.*;
-import org.w3c.dom.*;
-import org.w3c.dom.traversal.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
+import org.apache.xerces.util.XMLCatalogResolver;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import jp.crestmuse.cmx.misc.ExternalLibraryException;
+import jp.crestmuse.cmx.misc.NodeLinkManager;
+import jp.crestmuse.cmx.misc.ProgramBugException;
+import jp.crestmuse.cmx.xml.processors.SimplifiedXPointerProcessor;
+
 //import org.apache.xpath.*;
-import org.apache.xerces.util.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.xml.processors.*;
-import jp.crestmuse.cmx.math.*;
 
 /**********************************************************************
  *<p>The abstract class <tt>CMXFileWrapper</tt> is the common superclass 
@@ -282,8 +314,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 			builderFactory.setIgnoringComments(true);
 			builderFactory.setIgnoringElementContentWhitespace(true);
 			//      builderFactory.setValidating(true);
-			builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", 
-					false);
+//			builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+//					false);
 		}
 		if (builder == null) {
 			builder = builderFactory.newDocumentBuilder();

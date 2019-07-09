@@ -1,11 +1,19 @@
 package jp.crestmuse.cmx.filewrappers;
-import jp.crestmuse.cmx.elements.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import groovy.lang.*;
-import javax.xml.transform.*;
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.xml.transform.TransformerException;
+
+import groovy.lang.Closure;
+import jp.crestmuse.cmx.elements.MutableAnnotation;
+import jp.crestmuse.cmx.elements.MutableMusicEvent;
+import jp.crestmuse.cmx.elements.MutableNote;
+import jp.crestmuse.cmx.math.DoubleMatrix;
+import jp.crestmuse.cmx.math.MathUtils;
+import jp.crestmuse.cmx.misc.ChordSymbol2;
+import jp.crestmuse.cmx.misc.KeySymbol;
 
 public class SCCUtils {
 

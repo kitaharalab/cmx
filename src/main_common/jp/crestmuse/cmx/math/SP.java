@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.math;
-import jp.crestmuse.cmx.sound.*;
+import jp.crestmuse.cmx.sound.SignalProc;
 
 @Deprecated /** @deprecated */
 public class SP {

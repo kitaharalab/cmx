@@ -1,10 +1,29 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.GZIPOutputStream;
+
+import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
+import jp.crestmuse.cmx.amusaj.sp.SPTerminator;
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.misc.Encodable;
+import jp.crestmuse.cmx.misc.PrintStreamWrapper;
+import jp.crestmuse.cmx.misc.PrintWriterWrapper;
+import jp.crestmuse.cmx.misc.Printable;
+import jp.crestmuse.cmx.misc.QueueReader;
 
 public class AmusaDataSet<D extends TimeSeriesCompatible>
   implements AmusaDataSetCompatible<D> {

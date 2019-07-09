@@ -1,5 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.xml.sax.SAXException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,19 +11,12 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Arrays;
 
-import org.xml.sax.SAXException;
-
-import jp.crestmuse.cmx.filewrappers.FileWrapperCompatible;
+import jp.crestmuse.cmx.inference.BayesNetCompatible;
 import weka.classifiers.bayes.net.BIFReader;
 import weka.classifiers.bayes.net.EditableBayesNet;
 import weka.classifiers.bayes.net.MarginCalculator;
-import weka.classifiers.bayes.net.estimate.DiscreteEstimatorBayes;
 import weka.core.Instances;
-import weka.core.SerializedObject;
-import weka.estimators.DiscreteEstimator;
 import weka.estimators.Estimator;
-
-import jp.crestmuse.cmx.inference.*;
 
 public class BayesNetWrapper implements FileWrapperCompatible, BayesNetCompatible {
 

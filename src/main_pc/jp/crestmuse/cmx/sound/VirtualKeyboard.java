@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.sound;
 
-import java.awt.Component;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
@@ -24,11 +23,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import jp.crestmuse.cmx.amusaj.sp.MidiInputModule;
-import jp.crestmuse.cmx.amusaj.sp.MidiOutputModule;
-import jp.crestmuse.cmx.amusaj.sp.SPExecutor;
 
 public class VirtualKeyboard extends JFrame implements MidiDevice {
 

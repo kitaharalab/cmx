@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.sound;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>このクラスは複数の{@link MusicPlaySynchronized}オブジェクトをひと

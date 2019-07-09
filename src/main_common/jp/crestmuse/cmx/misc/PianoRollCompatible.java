@@ -1,10 +1,4 @@
 package jp.crestmuse.cmx.misc;
-import jp.crestmuse.cmx.handlers.*;
-import java.util.*;
-import java.io.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
 
 /*
 @Deprecated

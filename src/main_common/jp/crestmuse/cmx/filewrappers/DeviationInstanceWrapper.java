@@ -1,21 +1,34 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import jp.crestmuse.cmx.xml.processors.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.misc.TimeFreqRepresentation.TimeFreqElement;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.elements.BaseDynamicsEvent;
+import jp.crestmuse.cmx.elements.MutableMusicEvent;
+import jp.crestmuse.cmx.elements.MutableNote;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
 import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.elements.*;
-import jp.crestmuse.cmx.misc.ChordSymbol.*;
-import jp.crestmuse.cmx.misc.ChordSymbol2.*;
+import jp.crestmuse.cmx.handlers.NoteHandlerAdapterPartwise;
+import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
+import jp.crestmuse.cmx.misc.ChordSymbol.Mode;
+import jp.crestmuse.cmx.misc.ChordSymbol.Seventh;
+import jp.crestmuse.cmx.misc.ChordSymbol2;
+import jp.crestmuse.cmx.misc.ChordSymbol2.ExtendedNote;
+import jp.crestmuse.cmx.misc.InvalidChordSymbolException;
+import jp.crestmuse.cmx.misc.NodeSearchFilter;
+import jp.crestmuse.cmx.misc.NoteSymbol;
+import jp.crestmuse.cmx.misc.Ordered;
+import jp.crestmuse.cmx.misc.ProgramBugException;
+import jp.crestmuse.cmx.misc.TimeFreqRepresentation;
+import jp.crestmuse.cmx.misc.TreeView;
 
 /*******************************************************************************
  * The <tt>DeviationInstanceWrapper</tt> class wraps a DeviationInstance

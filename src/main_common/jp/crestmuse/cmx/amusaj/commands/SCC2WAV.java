@@ -1,20 +1,32 @@
 package jp.crestmuse.cmx.amusaj.commands;
 
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.SP.*;
-import jp.crestmuse.cmx.sound.*;
-import jp.crestmuse.cmx.handlers.*;
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import org.xml.sax.*;
+import org.xml.sax.SAXException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.commands.CMXCommand;
+import jp.crestmuse.cmx.filewrappers.ConfigXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.WAVWrapper;
+import jp.crestmuse.cmx.handlers.SCCHandlerAdapter;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.misc.MultiHashMap;
+import jp.crestmuse.cmx.sound.AudioDataCompatible;
+import jp.crestmuse.cmx.sound.MutableWaveform;
+
+import static jp.crestmuse.cmx.math.SP.changeRate;
+import static jp.crestmuse.cmx.math.SP.cutLastSmallSignal;
 
 /*********************************************************************
  SCC2WAV generates the waveform of the musical piece described in 

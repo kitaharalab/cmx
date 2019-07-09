@@ -75,7 +75,7 @@ public class MostSimpleHMMContCalculator implements MusicCalculator {
 
   // synchronizedは必要?
   //  synchronized
-  private void updateElements(int measure, int tick, String layer,
+  private synchronized void updateElements(int measure, int tick, String layer,
                                          MusicRepresentation mr) {
     List<MusicElement> elemlist =
       mr.getMusicElementList(obsLayer, 0, 0, measure, tick+1);

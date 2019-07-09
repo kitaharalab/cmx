@@ -1,8 +1,4 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-
-import java.util.*;
 
 //public class SPProgressDisplayModule<D extends SPElement> extends SPModule<D, D> {
 public class SPProgressDisplayModule extends SPModule {

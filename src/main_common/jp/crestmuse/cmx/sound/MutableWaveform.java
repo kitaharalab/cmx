@@ -1,9 +1,17 @@
 package jp.crestmuse.cmx.sound;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Utils.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.math.SP.*;
-import javax.sound.sampled.*;
+
+import javax.sound.sampled.AudioFormat;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.Operations;
+
+import static jp.crestmuse.cmx.math.MathUtils.createDoubleArray;
+import static jp.crestmuse.cmx.math.Operations.absmax;
+import static jp.crestmuse.cmx.math.Operations.addX;
+import static jp.crestmuse.cmx.math.Operations.divX;
+import static jp.crestmuse.cmx.math.Operations.mulX;
+import static jp.crestmuse.cmx.math.SP.changeRate;
+import static jp.crestmuse.cmx.math.SP.detectOnset;
 
 public class MutableWaveform implements AudioDataCompatible,Cloneable {
 

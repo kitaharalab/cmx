@@ -1,7 +1,11 @@
 package jp.crestmuse.cmx.filewrappers;
-import java.util.*;
-import org.w3c.dom.*;
-import jp.crestmuse.cmx.misc.*;
+
+import org.w3c.dom.Node;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import jp.crestmuse.cmx.misc.ParameterCompatible;
 
 public class ConfigXMLWrapper extends CMXFileWrapper 
 implements ParameterCompatible {

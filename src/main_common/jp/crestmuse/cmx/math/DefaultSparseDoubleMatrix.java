@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.math;
-import java.util.*;
+import java.util.HashMap;
 
 class DefaultSparseDoubleMatrix extends AbstractDoubleMatrixImpl {
   private HashMap<IntPair,Double> values;

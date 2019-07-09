@@ -1,19 +1,26 @@
 package jp.crestmuse.cmx.inference.models;
-import jp.crestmuse.cmx.inference.*;
-import be.ac.ulg.montefiore.run.jahmm.*;
-import be.ac.ulg.montefiore.run.jahmm.io.*;
-import org.apache.commons.math3.distribution.*;
-import java.io.*;
-import java.util.*;
 
-class HMMContImpl implements HMMCont {
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import be.ac.ulg.montefiore.run.jahmm.ForwardBackwardCalculator;
+import be.ac.ulg.montefiore.run.jahmm.Hmm;
+import be.ac.ulg.montefiore.run.jahmm.ObservationReal;
+import be.ac.ulg.montefiore.run.jahmm.Opdf;
+import be.ac.ulg.montefiore.run.jahmm.OpdfGaussian;
+import jp.crestmuse.cmx.inference.MusicElement;
+
+public class HMMContImpl implements HMMCont {
   //  Hmm<ObservationReal> hmm;
-  MyHMM hmm;
+  public MyHMM hmm;
   private HMMParamHook hook = null;
   private ForwardBackwardCalculator fbcalc = null;
   private List<MusicElement> elemlist;
 
-  HMMContImpl(double[] pi, double[][] a, List<? extends RealDistribution> b) {
+  public HMMContImpl(double[] pi, double[][] a, List<? extends RealDistribution> b) {
     if (pi == null || a == null || b == null) {
       hmm = null;
     } else if (b.get(0) instanceof NormalDistribution) {

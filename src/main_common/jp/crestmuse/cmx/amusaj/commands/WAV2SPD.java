@@ -1,19 +1,8 @@
 package jp.crestmuse.cmx.amusaj.commands;
 
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import java.io.*;
-import java.util.*;
-import static java.lang.Math.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
+import jp.crestmuse.cmx.amusaj.sp.PeakExtractor;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.STFT;
 
 public class WAV2SPD extends AbstractWAVAnalyzer {
   private ProducerConsumerCompatible stft, peakext;

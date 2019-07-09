@@ -1,5 +1,4 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
 
 public class TrashOutModule extends SPModule {
   public Class[] getInputClasses() {

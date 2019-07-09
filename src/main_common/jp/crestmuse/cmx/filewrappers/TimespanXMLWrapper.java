@@ -1,9 +1,8 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class TimespanXMLWrapper extends CMXFileWrapper {
   

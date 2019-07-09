@@ -1,9 +1,13 @@
 package jp.crestmuse.cmx.sound;
-import jp.crestmuse.cmx.math.*;
-import javax.sound.sampled.*;
-import javax.sound.midi.*;
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.sampled.AudioFormat;
+
+import jp.crestmuse.cmx.math.DoubleArray;
 
 public class SoundUtils {
   public static AudioDataCompatible excerpt(AudioDataCompatible audiodata,int from,int thru){

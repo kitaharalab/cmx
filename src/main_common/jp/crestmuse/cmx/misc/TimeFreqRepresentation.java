@@ -1,13 +1,12 @@
 package jp.crestmuse.cmx.misc;
 
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.elements.*;
-import java.util.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCC;
 
 /** To be reconsidered */
 public class TimeFreqRepresentation {

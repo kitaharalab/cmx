@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.math.Array;
+import jp.crestmuse.cmx.math.MathUtils;
 
 public class SimplePrintModule extends SPModule {
 

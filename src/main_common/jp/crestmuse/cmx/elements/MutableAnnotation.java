@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.elements;
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.SCC;
 
 public class MutableAnnotation extends MutableMusicEvent 
   implements SCC.Annotation  {

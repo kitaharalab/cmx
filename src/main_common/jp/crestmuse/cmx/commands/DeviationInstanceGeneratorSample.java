@@ -1,13 +1,21 @@
 package jp.crestmuse.cmx.commands;
 
-import java.io.*;
-import org.xml.sax.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import org.w3c.dom.*;
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import static jp.crestmuse.cmx.misc.Misc.*;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
+import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
+
+import static jp.crestmuse.cmx.misc.Misc.inputDouble;
+import static jp.crestmuse.cmx.misc.Misc.inputString;
+import static jp.crestmuse.cmx.misc.Misc.inputYesNo;
 
 public class DeviationInstanceGeneratorSample 
   extends CMXCommand<MusicXMLWrapper,DeviationInstanceWrapper> {

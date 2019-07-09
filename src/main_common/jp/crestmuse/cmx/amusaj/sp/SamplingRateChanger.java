@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.sound.*;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.sound.SignalProc;
 
 // This is bad!!
 // We should reconsider how to design this.

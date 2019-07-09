@@ -1,12 +1,28 @@
 package jp.crestmuse.cmx.commands;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import org.xml.sax.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
+import org.xml.sax.SAXException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.CMXInitializer;
+import jp.crestmuse.cmx.filewrappers.ConfigXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.FileWrapperCompatible;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
+import jp.crestmuse.cmx.misc.EmptyQueueException;
 
 /*********************************************************************
  *<p>The abstract class <tt>CMXCommand</tt> is the superclass of classes 

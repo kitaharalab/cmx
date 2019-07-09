@@ -1,6 +1,5 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import java.util.*;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
 
 public class OutputData {
     ProducerConsumerCompatible module;

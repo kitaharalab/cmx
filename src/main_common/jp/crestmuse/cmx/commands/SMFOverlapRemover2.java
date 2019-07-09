@@ -1,15 +1,22 @@
 package jp.crestmuse.cmx.commands;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.*;
 //import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.*;
-import static jp.crestmuse.cmx.misc.MIDIConst.*;
-import jp.crestmuse.cmx.misc.*;
-import javax.xml.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import org.xml.sax.*;
-import java.io.*;
-import java.util.*;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.MIDIEvent;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper.Track;
+
+import static jp.crestmuse.cmx.misc.MIDIConst.isSupportedMessage;
 
 class SMFOverlapRemover2 extends 
                                CMXCommand<MIDIXMLWrapper,MIDIXMLWrapper> {

@@ -1,13 +1,11 @@
 package jp.crestmuse.cmx.processing;
 
-import groovy.lang.Closure;
+import org.xml.sax.SAXException;
 
 import java.awt.Component;
-import java.awt.Frame;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.File;
 import java.util.Map;
 
 import javax.sound.midi.MidiDevice;
@@ -18,14 +16,37 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import groovy.lang.Closure;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.DecoderException;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.amusaj.sp.AmusaParameterSet;
+import jp.crestmuse.cmx.amusaj.sp.MidiEventSender;
+import jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime;
+import jp.crestmuse.cmx.amusaj.sp.MidiInputModule;
+import jp.crestmuse.cmx.amusaj.sp.MidiOutputModule;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.SPExecutor;
+import jp.crestmuse.cmx.amusaj.sp.SPModule;
+import jp.crestmuse.cmx.amusaj.sp.STFT;
+import jp.crestmuse.cmx.amusaj.sp.SynchronizedWindowSlider;
+import jp.crestmuse.cmx.amusaj.sp.TappingModule;
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.amusaj.sp.TrashOutModule;
+import jp.crestmuse.cmx.amusaj.sp.WindowSlider;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.ConfigXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.InvalidFileTypeException;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MP3Wrapper;
+import jp.crestmuse.cmx.filewrappers.SCC;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.WAVWrapper;
+import jp.crestmuse.cmx.filewrappers.XMLException;
 import jp.crestmuse.cmx.inference.MusicRepresentation;
 import jp.crestmuse.cmx.inference.MusicRepresentationFactory;
 import jp.crestmuse.cmx.math.ComplexArray;
@@ -42,9 +63,6 @@ import jp.crestmuse.cmx.sound.SoundUtils;
 import jp.crestmuse.cmx.sound.TickTimer;
 import jp.crestmuse.cmx.sound.VirtualKeyboard;
 import jp.crestmuse.cmx.sound.WAVPlayer2;
-
-import org.xml.sax.SAXException;
-
 import processing.core.PApplet;
 
 /**********************************************************************
@@ -56,127 +74,119 @@ import processing.core.PApplet;
 
 public class CMXController implements TickTimer, MIDIConsts {
 
-  private static final CMXController me = new CMXController();
-  
-  private SPExecutor spexec = null;
-  private MusicPlayer[] musicPlayer = new MusicPlayer[256];
-  // private MusicPlayer musicPlayer = null;
-  private MusicPlaySynchronizer[] musicSync = new MusicPlaySynchronizer[256];
-  // private MusicPlaySynchronizer musicSync = null;
-  private AudioInputStreamWrapper mic = null;
-  private AudioDataCompatible wav = null;
-  private SynchronizedWindowSlider winslider = null;
-  
-  private MidiDevice.Info[] midiins = new MidiDevice.Info[256];
-  private MidiDevice.Info[] midiouts = new MidiDevice.Info[256];
-  private Mixer.Info mixer = null;
+	private static final CMXController me = new CMXController();
+
+	private SPExecutor spexec = null;
+	private MusicPlayer[] musicPlayer = new MusicPlayer[256];
+	// private MusicPlayer musicPlayer = null;
+	private MusicPlaySynchronizer[] musicSync = new MusicPlaySynchronizer[256];
+	// private MusicPlaySynchronizer musicSync = null;
+	private AudioInputStreamWrapper mic = null;
+	private AudioDataCompatible wav = null;
+	private SynchronizedWindowSlider winslider = null;
+
+	private MidiDevice.Info[] midiins = new MidiDevice.Info[256];
+	private MidiDevice.Info[] midiouts = new MidiDevice.Info[256];
+	private Mixer.Info mixer = null;
 
   private long startTime;
 
-  private CMXController() {
+	private CMXController() {
 
-  }
+	}
 
-  /**
-   * このクラスのインスタンスを返します．
-   * 
-   * @return CMXController のインスタンス
-   */
-  public static CMXController getInstance() {
-    return me;
-  }
+	/**
+	 * このクラスのインスタンスを返します．
+	 * 
+	 * @return CMXController のインスタンス
+	 */
+	public static CMXController getInstance() {
+		return me;
+	}
 
-  /**
-   * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
-   * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
-   * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．
-   * 
-   * @param toptag 作成するドキュメントタイプのTOP_TAG
-   * @return 指定されたTOP_TAGに対応する文書オブジェクト
-   */
-  public static CMXFileWrapper createDocument(String toptag) {
-    try {
-      return CMXFileWrapper.createDocument(toptag);
-    } catch (InvalidFileTypeException e) {
-      throw new IllegalArgumentException("Invalid file type: " + toptag);
-    }
-  }
-  
-  /**
-   * CMXが対応しているXML形式の文書を読み込みます．
-   * 
-   * @param filename XMLファイル名
-   * @return 指定されたファイルの文書オブジェクト
-   */
-  public static CMXFileWrapper readfile(String filename) {
-    try {
-      return CMXFileWrapper.readfile(filename);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file: " + filename);
-    }
-  }
+	/**
+	 * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
+	 * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
+	 * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．
+	 * 
+	 * @param toptag 作成するドキュメントタイプのTOP_TAG
+	 * @return 指定されたTOP_TAGに対応する文書オブジェクト
+	 */
+	public static CMXFileWrapper createDocument(String toptag) {
+		try {
+			return CMXFileWrapper.createDocument(toptag);
+		} catch (InvalidFileTypeException e) {
+			throw new IllegalArgumentException("Invalid file type: " + toptag);
+		}
+	}
 
-  public static CMXFileWrapper readfile(File file) {
-    return readfile(file.getPath());
-  }
-  
-  /**
-   * CMXが対応しているXML形式の文書を読み込みます．
-   * 
-   * @param input XML形式の入力ストリーム
-   * @return 指定されたストリームの文書オブジェクト
-   */
-  public static CMXFileWrapper read(InputStream input) {
-    try {
-      return CMXFileWrapper.read(input);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file");
-    }
-  }
+	/**
+	 * CMXが対応しているXML形式の文書を読み込みます．
+	 * 
+	 * @param filename XMLファイル名
+	 * @return 指定されたファイルの文書オブジェクト
+	 */
+	public static CMXFileWrapper readfile(String filename) {
+		try {
+			return CMXFileWrapper.readfile(filename);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot read file: " + filename);
+		}
+	}
 
-  /**
-   * 標準MIDIファイルをMIDIXML形式で読み込みます．
-   * 
-   * @param filename 標準MIDIファイル名
-   * @return 指定されたファイルから生成されたMIDIXMLオブジェクト
-   */
-  public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
-    try {
-      return MIDIXMLWrapper.readSMF(filename);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file: " + filename);
-    } catch (TransformerException e) {
-      throw new XMLException(e);
-    } catch (SAXException e) {
-      throw new XMLException(e);
-    } catch (ParserConfigurationException e) {
-      throw new XMLException(e);
-    }
-  }
+	/**
+	 * CMXが対応しているXML形式の文書を読み込みます．
+	 * 
+	 * @param input XML形式の入力ストリーム
+	 * @return 指定されたストリームの文書オブジェクト
+	 */
+	public static CMXFileWrapper read(InputStream input) {
+		try {
+			return CMXFileWrapper.read(input);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot read file");
+		}
+	}
 
-  public static MIDIXMLWrapper readSMFAsMIDIXML(File file) {
-    return readSMFAsMIDIXML(file.getPath());
-  }
-  
-  /**
-   * 標準MIDIファイルをMIDIXML形式で読み込みます．
-   * 
-   * @param input 標準MIDIファイルのストリーム
-   * @return 指定されたストリームから生成されたMIDIXMLオブジェクト
-   */
-  public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
-    try {
-      return MIDIXMLWrapper.readSMF(input);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot read file");
-    } catch (TransformerException e) {
-      throw new XMLException(e);
-    } catch (SAXException e) {
-      throw new XMLException(e);
-    } catch (ParserConfigurationException e) {
-      throw new XMLException(e);
-    }
-  }
+	/**
+	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
+	 * 
+	 * @param filename 標準MIDIファイル名
+	 * @return 指定されたファイルから生成されたMIDIXMLオブジェクト
+	 */
+	public static MIDIXMLWrapper readSMFAsMIDIXML(String filename) {
+		try {
+			return MIDIXMLWrapper.readSMF(filename);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot read file: " + filename);
+		} catch (TransformerException e) {
+			throw new XMLException(e);
+		} catch (SAXException e) {
+			throw new XMLException(e);
+		} catch (ParserConfigurationException e) {
+			throw new XMLException(e);
+		}
+	}
+
+	/**
+	 * 標準MIDIファイルをMIDIXML形式で読み込みます．
+	 * 
+	 * @param input 標準MIDIファイルのストリーム
+	 * @return 指定されたストリームから生成されたMIDIXMLオブジェクト
+	 */
+	public static MIDIXMLWrapper readSMFAsMIDIXML(InputStream input) {
+		try {
+			return MIDIXMLWrapper.readSMF(input);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot read file");
+		} catch (TransformerException e) {
+			throw new XMLException(e);
+		} catch (SAXException e) {
+			throw new XMLException(e);
+		} catch (ParserConfigurationException e) {
+			throw new XMLException(e);
+		}
+	}
 
   /** 標準MIDIファイルをSCCIXML形式で読み込みます． */
   /*
@@ -209,10 +219,6 @@ public class CMXController implements TickTimer, MIDIConsts {
     }
   }
 
-  public static SCC readSMFAsSCC(File file) {
-    return readSMFAsSCC(file.getPath());
-  }
-  
   public static SCC readSMFAsSCC(InputStream input) {
     try {
       return MIDIXMLWrapper.readSMF(input).toSCC();
@@ -233,15 +239,15 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * @param filename 保存ファイル名
 	 * 
 	 */
-  public static void writefile(CMXFileWrapper f, String filename) {
-    try {
-      f.writefile(filename);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Cannot write file: " + filename);
-    } catch (SAXException e) {
-      throw new IllegalArgumentException("XML error: " + filename);
-    }
-  }
+	public static void writefile(CMXFileWrapper f, String filename) {
+		try {
+			f.writefile(filename);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot write file: " + filename);
+		} catch (SAXException e) {
+			throw new IllegalArgumentException("XML error: " + filename);
+		}
+	}
 
 
   /** 標準MIDIファイルをMIDIXML形式で読み込みます． */
@@ -527,10 +533,6 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 	}
 
-  public void mp3read(InputStream input) {
-    mp3read(0, input);
-  }
-  
 	/**
 	 * 指定されたMP3ファイルを読み込みます．読み込まれたMP3ファイルは，
 	 * このクラスのインスタンス内に保存され，playMusicメソッドが呼ばれたときに 読み込まれます．
@@ -1178,7 +1180,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * <tt>showMidiInChooser(int, Component)</tt>を呼び出してください．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiInChooser(Component parent) {
+	public void showMidiInChooser(Object parent) {
 		showMidiInChooser(0, parent);
 	}
 
@@ -1186,9 +1188,9 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 指定された要素番号に対応する認識済みのMIDI入力デバイスの選択ダイアログを表示します．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiInChooser(int i, Component parent) {
+	public void showMidiInChooser(int i, Object parent) {
 	    try {
-		Object selected = JOptionPane.showInputDialog(parent,
+		Object selected = JOptionPane.showInputDialog(null,
 							      "Select MIDI IN Device [" + i + "].", "Select MIDI IN Device...",
 							      JOptionPane.PLAIN_MESSAGE, null, SoundUtils.getMidiInDeviceInfo()
 							      .toArray(), null);
@@ -1205,7 +1207,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * <tt>showMidiOutChooser(int, Component)</tt>を呼び出してください．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiOutChooser(Component parent) {
+	public void showMidiOutChooser(Object parent) {
 		showMidiOutChooser(0, parent);
 	}
 
@@ -1213,9 +1215,9 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 指定された要素番号に対応する認識済みのMIDI出力デバイスの選択ダイアログを表示します．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiOutChooser(int i, Component parent) {
+	public void showMidiOutChooser(int i, Object parent) {
 		try {
-			Object selected = JOptionPane.showInputDialog(parent,
+			Object selected = JOptionPane.showInputDialog(null,
 			    "Select MIDI OUT Device [" + i + "].", "Select MIDI OUT Device...",
 			    JOptionPane.PLAIN_MESSAGE, null, SoundUtils.getMidiOutDeviceInfo()
 			        .toArray(), null);
@@ -1339,27 +1341,28 @@ public class CMXController implements TickTimer, MIDIConsts {
 	}
 
 	// kari
-	public SPModule createSpectrumViewer(int w, int h, int m, double scale) {
-		/*
-		 * PApplet app = new PApplet() { SPModule module = new SPModule() { public
-		 * Class[] getInputClasses() { return new Class[]{ComplexArray.class}; }
-		 * public Class[] getOutputClasses() { return new
-		 * Class[]{ComplexArray.class}; } public void execute(Object[] src,
-		 * TimeSeriesCompatible[] dst) { DoubleArray x =
-		 * Operations.abs((ComplexArray)src[0]); int m = x.length(); for (int i = 0;
-		 * i < m; i++) rect(i * w / m, h, (i+1) * w / m, (int)(h - scale *
-		 * x.get(i))); dst[0].add(src[0]); } }; public void setup() { size(w, h);
-		 * noLoop(); } public void draw() { // do nothing } };
-		 */
-		SpectrumViewerApplet app = new SpectrumViewerApplet(w, h, m, scale);
-		app.init();
-		Frame f = new Frame();
-		f.setSize(w, h);
-		f.add(app);
-		f.setVisible(true);
-		addSPModule(app.module);
-		return app.module;
-	}
+	// TODO: android
+//	public SPModule createSpectrumViewer(int w, int h, int m, double scale) {
+//		/*
+//		 * PApplet app = new PApplet() { SPModule module = new SPModule() { public
+//		 * Class[] getInputClasses() { return new Class[]{ComplexArray.class}; }
+//		 * public Class[] getOutputClasses() { return new
+//		 * Class[]{ComplexArray.class}; } public void execute(Object[] src,
+//		 * TimeSeriesCompatible[] dst) { DoubleArray x =
+//		 * Operations.abs((ComplexArray)src[0]); int m = x.length(); for (int i = 0;
+//		 * i < m; i++) rect(i * w / m, h, (i+1) * w / m, (int)(h - scale *
+//		 * x.get(i))); dst[0].add(src[0]); } }; public void setup() { size(w, h);
+//		 * noLoop(); } public void draw() { // do nothing } };
+//		 */
+//		SpectrumViewerApplet app = new SpectrumViewerApplet(w, h, m, scale);
+//		app.init();
+//		Frame f = new Frame();
+//		f.setSize(w, h);
+//		f.add(app);
+//		f.setVisible(true);
+//		addSPModule(app.module);
+//		return app.module;
+//	}
 
 	public TrashOutModule createTrashOut() {
 		TrashOutModule tom = new TrashOutModule();
@@ -1372,14 +1375,14 @@ public class CMXController implements TickTimer, MIDIConsts {
 		addSPModule(evtsender);
 		return evtsender;
 	}
-
+/*
   public MidiRecorder2 createMidiRecorder() {
     MidiRecorder2 rec = new MidiRecorder2(this);
     rec.setTempo(120.0);   // kari
     addSPModule(rec);
     return rec;
   }
-  
+*/
 	/**
 	 * 音響信号処理に関する各種パラメータや設定を記述してConfigXMLファイルを読み込みます． <tt>createMic</tt>
 	 * などを使用する際には必須です．

@@ -1,12 +1,12 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
-import java.util.*;
+
+import jp.crestmuse.cmx.math.ComplexArray;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.gaussian;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.hamming;
+import static jp.crestmuse.cmx.amusaj.sp.SPUtils.hanning;
 
 /*********************************************************************
  *FFTFactoryクラスのファクトリを通じて得られたFFTオブジェクトを用いて, 

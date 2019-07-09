@@ -1,13 +1,27 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Utils.*;
-import jp.crestmuse.cmx.misc.*;
-import java.util.*;
-import java.util.regex.*;
-import javax.xml.*;
-import org.w3c.dom.*;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import jp.crestmuse.cmx.amusaj.sp.TimeSeriesCompatible;
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.NodeInterface;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+import jp.crestmuse.cmx.math.DoubleMatrix;
+import jp.crestmuse.cmx.math.DoubleMatrixFactory;
+import jp.crestmuse.cmx.misc.QueueReader;
+import jp.crestmuse.cmx.misc.QueueWrapper;
+
+import static jp.crestmuse.cmx.math.Utils.parseArray;
+import static jp.crestmuse.cmx.math.Utils.parseMatrix;
 
 public class MPEG7Wrapper extends CMXFileWrapper {
 

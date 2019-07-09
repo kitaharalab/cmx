@@ -1,6 +1,25 @@
 package jp.crestmuse.cmx.misc;
-import java.util.regex.*;
-import static jp.crestmuse.cmx.misc.NoteSymbol.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static jp.crestmuse.cmx.misc.NoteSymbol.A;
+import static jp.crestmuse.cmx.misc.NoteSymbol.A_FLAT;
+import static jp.crestmuse.cmx.misc.NoteSymbol.A_SHARP;
+import static jp.crestmuse.cmx.misc.NoteSymbol.B;
+import static jp.crestmuse.cmx.misc.NoteSymbol.B_FLAT;
+import static jp.crestmuse.cmx.misc.NoteSymbol.C;
+import static jp.crestmuse.cmx.misc.NoteSymbol.C_SHARP;
+import static jp.crestmuse.cmx.misc.NoteSymbol.D;
+import static jp.crestmuse.cmx.misc.NoteSymbol.D_FLAT;
+import static jp.crestmuse.cmx.misc.NoteSymbol.D_SHARP;
+import static jp.crestmuse.cmx.misc.NoteSymbol.E;
+import static jp.crestmuse.cmx.misc.NoteSymbol.E_FLAT;
+import static jp.crestmuse.cmx.misc.NoteSymbol.F;
+import static jp.crestmuse.cmx.misc.NoteSymbol.F_SHARP;
+import static jp.crestmuse.cmx.misc.NoteSymbol.G;
+import static jp.crestmuse.cmx.misc.NoteSymbol.G_FLAT;
+import static jp.crestmuse.cmx.misc.NoteSymbol.G_SHARP;
 
 public class KeySymbol {
   public static enum Mode {MAJ,MIN};

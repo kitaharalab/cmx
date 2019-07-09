@@ -4,7 +4,7 @@ import java.util.*;
 import org.apache.commons.math3.distribution.*;
 import jp.crestmuse.cmx.sound.SequencerManager;
 
-class MusicRepresentationImpl implements MusicRepresentation {
+public class MusicRepresentationImpl implements MusicRepresentation {
 
   private int measureNum;
   private int division;

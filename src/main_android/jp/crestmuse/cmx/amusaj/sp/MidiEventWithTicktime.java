@@ -89,7 +89,9 @@ public class MidiEventWithTicktime extends MidiEvent {
                                                         int nn, int vel) {
     try {
       ShortMessage msg = new ShortMessage();
-      msg.setMessage(ShortMessage.NOTE_ON + ch, nn, vel);
+// for debug 20190627 fujii
+//      msg.setMessage(ShortMessage.NOTE_ON + ch, nn, vel);
+      msg.setMessage(ShortMessage.NOTE_ON, ch, nn, vel);
       return new MidiEventWithTicktime(msg, position, position);  //2016.11.04
       //return new MidiEventWithTicktime(msg, 0, position);
     } catch (InvalidMidiDataException e) {
@@ -101,7 +103,9 @@ public class MidiEventWithTicktime extends MidiEvent {
                                                          int nn, int vel) {
     try {
       ShortMessage msg = new ShortMessage();
-      msg.setMessage(ShortMessage.NOTE_OFF + ch, nn, vel);
+// for debug 20190627 fujii
+//      msg.setMessage(ShortMessage.NOTE_OFF + ch, nn, vel);
+      msg.setMessage(ShortMessage.NOTE_OFF, ch, nn, vel);
       return new MidiEventWithTicktime(msg, position, position); //2016.11.04
       //return new MidiEventWithTicktime(msg, 0, position);
     } catch (InvalidMidiDataException e) {
@@ -114,7 +118,9 @@ public class MidiEventWithTicktime extends MidiEvent {
                                                               int d1, int d2){
     try {
       ShortMessage msg = new ShortMessage();
-      msg.setMessage(st + ch, d1, d2);
+// for debug 20190627 fujii
+//      msg.setMessage(st + ch, d1, d2);
+      msg.setMessage(st, ch, d1, d2);
       return new MidiEventWithTicktime(msg, position, position); //2016.11.04
       //return new MidiEventWithTicktime(msg, 0, position);
     } catch (InvalidMidiDataException e) {

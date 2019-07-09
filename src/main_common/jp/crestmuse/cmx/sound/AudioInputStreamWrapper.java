@@ -1,8 +1,19 @@
 package jp.crestmuse.cmx.sound;
-import javax.sound.sampled.*;
-import java.io.*;
-import java.nio.*;
-import jp.crestmuse.cmx.math.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
 
 public class AudioInputStreamWrapper implements AudioDataCompatible {
   private TargetDataLine line;

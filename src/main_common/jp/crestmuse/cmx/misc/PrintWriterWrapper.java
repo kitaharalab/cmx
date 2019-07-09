@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.misc;
-import java.io.*;
+import java.io.PrintWriter;
 
 public class PrintWriterWrapper implements Printable {
     private PrintWriter w;

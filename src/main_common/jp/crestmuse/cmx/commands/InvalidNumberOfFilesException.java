@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.commands;
-import java.io.*;
+import java.io.IOException;
 
 public class InvalidNumberOfFilesException extends IOException {
   InvalidNumberOfFilesException() {

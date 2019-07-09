@@ -1,6 +1,7 @@
 package jp.crestmuse.cmx.inference.models;
-import jp.crestmuse.cmx.inference.*;
-import java.util.*;
+import java.util.List;
+
+import jp.crestmuse.cmx.inference.MusicElement;
 
 @Deprecated
 interface HMMParamHook {

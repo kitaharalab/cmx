@@ -1,8 +1,16 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import java.util.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 //import javax.xml.transform.*;
-import org.w3c.dom.*;
 //import org.apache.xpath.*;
 
 /**********************************************************************

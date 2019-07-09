@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.inference;
-import java.util.*;
+import java.util.List;
 
 public interface MusicRepresentation {
   int getMeasureNum();

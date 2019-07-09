@@ -1,7 +1,6 @@
 package jp.crestmuse.cmx.handlers;
 
-import org.w3c.dom.*;
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 
 /**********************************************************************
  *The <tt>NoteHandlerPartwise</tt> interface provides a general interface 

@@ -1,5 +1,9 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,10 +13,6 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.xml.transform.TransformerException;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Note;
 import jp.crestmuse.cmx.misc.ProgramBugException;

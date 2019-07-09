@@ -1,9 +1,15 @@
 package jp.crestmuse.cmx.xml.processors;
 
-import java.util.regex.*;
-import javax.xml.transform.*;
-import org.w3c.dom.*;
-import org.apache.xpath.*;
+import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.transform.TransformerException;
 
 public class SimplifiedXPointerProcessor {
   private static final String XLINK_NS = "http://www.w3.org/1999/xlink";

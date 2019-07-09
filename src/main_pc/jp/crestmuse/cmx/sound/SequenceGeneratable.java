@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.sound;
 
-import javax.sound.midi.Track;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.Track;
 
 public interface SequenceGeneratable {
 

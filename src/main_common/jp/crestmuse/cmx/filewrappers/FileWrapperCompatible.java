@@ -1,6 +1,11 @@
 package jp.crestmuse.cmx.filewrappers;
-import java.io.*;
-import org.xml.sax.*;
+
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 public interface FileWrapperCompatible {
   String getFileName();

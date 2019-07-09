@@ -1,9 +1,20 @@
 package jp.crestmuse.cmx.filewrappers;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.zip.GZIPOutputStream;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleMatrix;
+import jp.crestmuse.cmx.math.Operations;
+import jp.crestmuse.cmx.misc.PrintStreamWrapper;
+import jp.crestmuse.cmx.misc.PrintWriterWrapper;
+import jp.crestmuse.cmx.misc.Printable;
 
 public class CSVMatrixWrapper implements FileWrapperCompatible {
 

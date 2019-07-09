@@ -1,7 +1,8 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+
+import static jp.crestmuse.cmx.math.MathUtils.create1dimDoubleArray;
 
 public class DoubleArraySpreadModule extends SPModule {
     private int dim;

@@ -1,14 +1,29 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import org.apache.commons.math.distribution.*;
-import org.apache.commons.math.optimization.*;
-import org.apache.commons.math.optimization.general.*;
-import org.apache.commons.math.optimization.fitting.*;
-import org.apache.commons.math.analysis.polynomials.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import java.util.*;
+import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math.distribution.NormalDistributionImpl;
+import org.apache.commons.math.optimization.OptimizationException;
+import org.apache.commons.math.optimization.fitting.PolynomialFitter;
+import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+
+import static jp.crestmuse.cmx.math.Operations.concat;
+import static jp.crestmuse.cmx.math.Operations.diff;
+import static jp.crestmuse.cmx.math.Operations.iqr;
+import static jp.crestmuse.cmx.math.Operations.makeArithmeticSeries;
+import static jp.crestmuse.cmx.math.Operations.max;
+import static jp.crestmuse.cmx.math.Operations.median;
+import static jp.crestmuse.cmx.math.Operations.mul;
+import static jp.crestmuse.cmx.math.Operations.nGreaterThan;
+import static jp.crestmuse.cmx.math.Operations.nZeroCross;
+import static jp.crestmuse.cmx.math.Operations.sdiff;
+import static jp.crestmuse.cmx.math.Operations.sgsmooth;
+import static jp.crestmuse.cmx.math.Operations.sub;
+import static jp.crestmuse.cmx.math.Operations.sum;
+import static jp.crestmuse.cmx.math.Operations.sumeven;
+import static jp.crestmuse.cmx.math.Operations.sumodd;
 
 
 public class KitaharaFeatureExtractor 

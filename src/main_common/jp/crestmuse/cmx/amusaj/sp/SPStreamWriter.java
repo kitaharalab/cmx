@@ -1,8 +1,11 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
+import jp.crestmuse.cmx.misc.Encodable;
 
 public class SPStreamWriter extends SPModule {
     private BufferedWriter writer;

@@ -1,6 +1,4 @@
 package jp.crestmuse.cmx.handlers;
-import jp.crestmuse.cmx.elements.*;
-import jp.crestmuse.cmx.misc.*;
 
 /*
 public interface CommonNoteHandler {

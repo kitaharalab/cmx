@@ -1,8 +1,15 @@
 package jp.crestmuse.cmx.sound;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Utils.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
+
+import jp.crestmuse.cmx.amusaj.sp.FFT;
+import jp.crestmuse.cmx.amusaj.sp.FFTFactory;
+import jp.crestmuse.cmx.math.ComplexArray;
+import jp.crestmuse.cmx.math.DoubleArray;
+
+import static jp.crestmuse.cmx.math.MathUtils.cloneArray;
+import static jp.crestmuse.cmx.math.MathUtils.createDoubleArray;
+import static jp.crestmuse.cmx.math.Operations.addX;
+import static jp.crestmuse.cmx.math.Operations.max;
+import static jp.crestmuse.cmx.math.Operations.set;
 
 public class SignalProc {
 

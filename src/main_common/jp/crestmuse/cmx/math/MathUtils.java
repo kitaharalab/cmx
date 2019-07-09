@@ -1,10 +1,15 @@
 package jp.crestmuse.cmx.math;
-import java.util.*;
-import java.math.*;
-import org.apache.commons.math.linear.*;
-import java.nio.*;
-import dk.ange.octave.*;
-import dk.ange.octave.type.*;
+
+import org.apache.commons.math.linear.AbstractRealMatrix;
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.MatrixIndexException;
+import org.apache.commons.math.linear.RealMatrix;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import dk.ange.octave.OctaveEngine;
+import dk.ange.octave.type.OctaveDouble;
 
 public class MathUtils {
   private static final DoubleArrayFactory factory = 

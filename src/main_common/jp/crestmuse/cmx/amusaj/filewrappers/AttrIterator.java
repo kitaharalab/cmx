@@ -1,6 +1,10 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import java.util.*;
-import org.w3c.dom.*;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
+import java.util.Iterator;
+import java.util.Map;
 
 
  class AttrIterator implements Iterator<Map.Entry<String,String>> {

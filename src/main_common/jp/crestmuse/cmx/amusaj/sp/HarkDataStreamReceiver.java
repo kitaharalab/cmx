@@ -1,7 +1,11 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.sound.*;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import jp.crestmuse.cmx.sound.TickTimer;
 
 public class HarkDataStreamReceiver extends SPModule {
 

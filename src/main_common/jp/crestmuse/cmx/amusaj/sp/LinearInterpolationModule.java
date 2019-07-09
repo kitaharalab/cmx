@@ -1,7 +1,8 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.math.Utils.*;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+
+import static jp.crestmuse.cmx.math.MathUtils.cloneArray;
 
 class LinearInterpolationModule extends AbstractInterpolationModule {
 

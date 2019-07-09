@@ -1,8 +1,8 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+
+import jp.crestmuse.cmx.misc.QueueReader;
 
 /*********************************************************************
  *時系列データを表すクラスのためのインターフェイスです. 

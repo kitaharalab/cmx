@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.handlers;
-import jp.crestmuse.cmx.filewrappers.*;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
 
 public class NoteHandlerAdapterPartwise implements NoteHandlerPartwise {
   public void beginPart(MusicXMLWrapper.Part part, MusicXMLWrapper wrapper) {

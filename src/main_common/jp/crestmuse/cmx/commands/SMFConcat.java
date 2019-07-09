@@ -1,8 +1,11 @@
 package jp.crestmuse.cmx.commands;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.handlers.*;
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.handlers.SCCHandler;
 
 
 class SMFConcat {

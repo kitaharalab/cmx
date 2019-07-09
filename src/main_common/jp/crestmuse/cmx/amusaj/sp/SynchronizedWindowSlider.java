@@ -1,13 +1,12 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import java.io.*;
-import java.util.concurrent.*;
-import jp.crestmuse.cmx.sound.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.sound.MusicListener;
+import jp.crestmuse.cmx.sound.MusicPlaySynchronizer;
 
 public class SynchronizedWindowSlider extends WindowSlider 
                                       implements MusicListener {

@@ -1,7 +1,7 @@
 package jp.crestmuse.cmx.amusaj.filewrappers;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+import jp.crestmuse.cmx.misc.Encodable;
 
 public class PeakSet implements Encodable {
   private int nPeaks;

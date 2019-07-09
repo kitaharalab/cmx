@@ -1,10 +1,25 @@
 package jp.crestmuse.cmx.amusaj.sp;
 
-import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
+import jp.crestmuse.cmx.math.BooleanArray;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+
+import static jp.crestmuse.cmx.math.Operations.add;
+import static jp.crestmuse.cmx.math.Operations.addX;
+import static jp.crestmuse.cmx.math.Operations.divX;
+import static jp.crestmuse.cmx.math.Operations.greaterThan;
+import static jp.crestmuse.cmx.math.Operations.logX;
+import static jp.crestmuse.cmx.math.Operations.max;
+import static jp.crestmuse.cmx.math.Operations.median;
+import static jp.crestmuse.cmx.math.Operations.min;
+import static jp.crestmuse.cmx.math.Operations.mulX;
+import static jp.crestmuse.cmx.math.Operations.ratioTrue;
+import static jp.crestmuse.cmx.math.Operations.sgsmooth;
+import static jp.crestmuse.cmx.math.Operations.subX;
+import static jp.crestmuse.cmx.math.Operations.sum;
+
 //import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.amusaj.sp.SPUtils.*;
 
 public class HarmonicsTimeSeries {
   private PeakSet[] peaks;

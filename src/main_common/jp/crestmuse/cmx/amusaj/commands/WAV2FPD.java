@@ -1,15 +1,9 @@
 package jp.crestmuse.cmx.amusaj.commands;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.sp.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import java.io.*;
-import java.util.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
+import jp.crestmuse.cmx.amusaj.sp.F0PDFCalculatorModule;
+import jp.crestmuse.cmx.amusaj.sp.PeakExtractor;
+import jp.crestmuse.cmx.amusaj.sp.ProducerConsumerCompatible;
+import jp.crestmuse.cmx.amusaj.sp.STFT;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
 
 /** WAV2FPD, given a WAV file, calculates the F0 predominance function 
     at every F0 in a given pitch range. 

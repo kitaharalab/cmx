@@ -1,7 +1,12 @@
 package jp.crestmuse.cmx.elements;
-import java.util.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import javax.sound.midi.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.sound.midi.MidiEvent;
+
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCC;
 
 public abstract class MutableMusicEvent 
   implements Comparable<MutableMusicEvent>, SCC.Note {

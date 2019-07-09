@@ -1,5 +1,7 @@
 package jp.crestmuse.cmx.misc;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public interface MultiMap<K,V> {
   public V get(K key, int index);

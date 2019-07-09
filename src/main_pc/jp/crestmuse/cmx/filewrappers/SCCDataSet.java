@@ -1,15 +1,40 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.elements.*;
-import java.util.*;
-import java.io.*;
-import groovy.lang.*;
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import javax.sound.midi.*;
-import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.*;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Track;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import groovy.lang.Closure;
+import jp.crestmuse.cmx.elements.BaseDynamicsEvent;
+import jp.crestmuse.cmx.elements.MutableAnnotation;
+import jp.crestmuse.cmx.elements.MutableControlChange;
+import jp.crestmuse.cmx.elements.MutableMusicEvent;
+import jp.crestmuse.cmx.elements.MutableNote;
+import jp.crestmuse.cmx.elements.MutablePitchBend;
+import jp.crestmuse.cmx.elements.MutableProgramChange;
+import jp.crestmuse.cmx.misc.PianoRoll;
+
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createControlChangeEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createNoteOffEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createNoteOnEvent;
+import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createProgramChangeEvent;
 
 public class SCCDataSet implements SCC,Cloneable {
 

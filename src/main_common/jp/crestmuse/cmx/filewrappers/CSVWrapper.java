@@ -1,5 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.xml.sax.SAXException;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,10 +11,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
-
-import org.xml.sax.SAXException;
 
 public class CSVWrapper implements FileWrapperCompatible,Iterable<List<String>> {
 

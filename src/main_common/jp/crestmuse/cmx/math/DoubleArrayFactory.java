@@ -1,5 +1,4 @@
 package jp.crestmuse.cmx.math;
-import java.lang.reflect.*;
 
 public abstract class DoubleArrayFactory extends MathFactory {
   private static DoubleArrayFactory factory = null;

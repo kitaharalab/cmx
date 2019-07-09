@@ -1,13 +1,13 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.commands.*;
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.amusaj.filewrappers.*;
-import jp.crestmuse.cmx.math.*;
-import static jp.crestmuse.cmx.math.Operations.*;
-import static jp.crestmuse.cmx.math.Utils.*;
-import jp.crestmuse.cmx.misc.*;
-import static java.lang.Math.*;
-import java.util.*;
+
+import jp.crestmuse.cmx.amusaj.filewrappers.PeakSet;
+import jp.crestmuse.cmx.math.ComplexArray;
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+
+import static java.lang.Math.atan2;
+import static java.lang.Math.hypot;
+import static jp.crestmuse.cmx.math.Operations.subarray;
 
 //public class PeakExtractor extends SPModule<SPComplexArray,PeakSet> {
 public class PeakExtractor extends SPModule {

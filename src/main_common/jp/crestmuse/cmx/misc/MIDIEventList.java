@@ -1,6 +1,12 @@
 package jp.crestmuse.cmx.misc;
-import java.util.*;
-import static jp.crestmuse.cmx.misc.MIDIConst.*;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import static jp.crestmuse.cmx.misc.MIDIConst.msgNameToStatusNo;
+import static jp.crestmuse.cmx.misc.MIDIConst.statusNoToMsgName;
 
 public class MIDIEventList implements Iterable<MIDIEventList.MIDIEvent> {
 

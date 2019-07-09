@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.math;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.Encodable;
 
 public interface DoubleMatrix extends Matrix, Encodable{
 //  int nrows();

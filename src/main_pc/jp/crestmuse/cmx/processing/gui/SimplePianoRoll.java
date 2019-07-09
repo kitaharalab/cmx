@@ -1,6 +1,6 @@
 package jp.crestmuse.cmx.processing.gui;
-import jp.crestmuse.cmx.processing.*;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.PianoRoll;
+import jp.crestmuse.cmx.processing.CMXApplet;
 
 /** This code is partly derived from Yuichi Tsuchiya's code */
 
@@ -14,10 +14,12 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   private int barR = 255, barG = 0, barB = 0;
   private boolean isVisible = true;
 
+  public void settings() {
+    size(1200, 700);
+  }
   public void setup() {
     background(255);
     smooth();
-    size(1200, 700);
   }
 
   public void draw() {
@@ -62,7 +64,7 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     return x >= 100 && x < width && y >= 0 && y < nOctave * octaveWidth;
   }
   
-  protected double y2notenum(double y) {
+  public double y2notenum(double y) {
     int topnn = basenn + 12 * nOctave;
     return topnn - y / (octaveWidth / 12);
   }
@@ -165,6 +167,7 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     double x = beat2x(measure, beat);
       stroke(barR, barG, barB);
       line((int)x, 0, (int)x, 630);
+//      System.out.println("drawCurrentBar():x=" + (int)x );
     }
   }
   
@@ -173,16 +176,7 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
    line(100,y+0,100,y+octaveWidth);
    for (int i = 1; i <= 7; i++)
      line(x, y + (int)(i*octaveWidth/7), 100, y + (int)(i*octaveWidth/7));
-   /*
-   line(x,y+35,100,y+35);
-   line(x,y+65,100,y+65);
-   line(x,y+95,100,y+95);
-   line(x,y+125,100,y+125);
-   line(x,y+155,100,y+155);
-   line(x,y+180,100,y+180);
-   line(x,y+210,100,y+210);
-   */
-   
+
    //黒鍵
    fill(0);
    rect(x, y + (int)(1*octaveWidth/12), 60, (int)(octaveWidth/12));
@@ -200,44 +194,4 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     return isVisible;
   }
 
-  
-  /*
-  protected static class DummyDataModel implements DataModel {
-    private int measure, beat;
-    public DummyDataModel(int measure, int beat) {
-      this.measure = measure;
-      this.beat = beat;
-    }
-    public int getMeasureNum() {
-      return measure;
-    }
-    public int getBeatNum() {
-      return beat;
-    }
-    public boolean isSelectable() {
-      return false;
-    }
-    public boolean isEditable() {
-      return false;
-    }
-    public void selectNote(int measure, double beat, int notenum) {
-      // do nothing
-    }
-    public boolean isSelected(int measure, double beat, int notenum) {
-      return false;
-    }
-    public void drawData(PianoRoll pianoroll) {
-      // do nothing
-    }
-    public void shiftMeasure(int measure) {
-      // do nothing
-    }
-    public int tick2measure(long tick) {
-      return 0;
-    }
-    public double tick2beat(long tick) {
-      return 0.0;
-    }
-  }
-  */
 }

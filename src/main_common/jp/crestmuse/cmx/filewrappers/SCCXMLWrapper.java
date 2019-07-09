@@ -1,21 +1,32 @@
 package jp.crestmuse.cmx.filewrappers;
-import java.util.*;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.*;
-import java.lang.reflect.*;
 
-import org.w3c.dom.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
-import javax.xml.transform.*;
-import javax.xml.parsers.*;
-
-import org.xml.sax.*;
-
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.misc.*;
-import jp.crestmuse.cmx.elements.*;
-import groovy.lang.*;
+import groovy.lang.Closure;
+import jp.crestmuse.cmx.elements.MutableNote;
+import jp.crestmuse.cmx.handlers.SCCHandler;
+import jp.crestmuse.cmx.handlers.SCCHandlerAdapter;
+import jp.crestmuse.cmx.misc.KeySymbol;
+import jp.crestmuse.cmx.misc.MIDIConst;
+import jp.crestmuse.cmx.misc.MIDIEventList;
+import jp.crestmuse.cmx.misc.ProgramBugException;
 
 public class SCCXMLWrapper extends CMXFileWrapper
   implements SCC {
@@ -384,11 +395,11 @@ public class SCCXMLWrapper extends CMXFileWrapper
   @Deprecated
   public void addAnnotation(String type, long onset, long offset,
                             String content) {
-    //if (content != null && content.trim().length() > 0) {
+    if (content != null && content.trim().length() > 0) {
       checkElementAddition(annotationsStarted);
       addChildAndText(type, onset + " " + offset + " " +
                       (content==null ? "" : content));
-      //}
+    }
   }
   
   @Deprecated
@@ -952,10 +963,6 @@ public class SCCXMLWrapper extends CMXFileWrapper
             //                              Integer.parseInt(data[0]),
             //                              data[1].toLowerCase().startsWith("min") ?
             //                              1 : 0);
-          }
-
-          else if (name.equals("SYSEX")) {
-            dest.addSysExEvent((int)(timestamp - currentTime), content);
           }
           currentTime = timestamp;
         }

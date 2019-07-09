@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.math;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.Encodable;
 
 public interface ComplexMatrix extends Matrix, Encodable {
   double getReal(int i, int j);

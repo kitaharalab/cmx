@@ -1,6 +1,8 @@
 package jp.crestmuse.cmx.inference;
-import java.util.*;
-import org.apache.commons.math3.distribution.*;
+
+import org.apache.commons.math3.distribution.RealDistribution;
+
+import java.util.Map;
 
 public interface MusicElement {
   //  /** @deprecated */

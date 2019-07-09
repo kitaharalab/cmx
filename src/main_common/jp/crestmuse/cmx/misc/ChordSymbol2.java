@@ -208,8 +208,8 @@ public class ChordSymbol2 extends ChordSymbol implements Cloneable {
     ExtendedNote eleventh(String s, Object o);
     ExtendedNote thirteenth(String s, Object o);
     ExtendedNote fifth(String s, Object o);
-    String encode(Mode mode, Seventh seventh, ExtendedNote ninth, 
-                  ExtendedNote eleventh, ExtendedNote thirteenth, 
+    String encode(Mode mode, Seventh seventh, ExtendedNote ninth,
+                  ExtendedNote eleventh, ExtendedNote thirteenth,
                   ExtendedNote fifth);
   }
 

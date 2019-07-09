@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.math;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.Encodable;
 
 public interface DoubleArray extends Array,Encodable {
   double get(int index);

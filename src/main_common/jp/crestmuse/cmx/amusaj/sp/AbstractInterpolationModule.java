@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.math.*;
+import jp.crestmuse.cmx.math.DoubleArray;
 
 abstract class AbstractInterpolationModule {
 

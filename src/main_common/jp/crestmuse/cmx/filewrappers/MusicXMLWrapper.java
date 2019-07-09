@@ -1,18 +1,27 @@
 package jp.crestmuse.cmx.filewrappers;
 
-import java.io.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import jp.crestmuse.cmx.handlers.*;
-import jp.crestmuse.cmx.elements.*;
-import jp.crestmuse.cmx.misc.*;
-import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
-import groovy.lang.*;
+import groovy.lang.Closure;
+import jp.crestmuse.cmx.handlers.NoteHandlerPartwise;
+import jp.crestmuse.cmx.misc.MultiHashMap;
+import jp.crestmuse.cmx.misc.MultiMap;
+import jp.crestmuse.cmx.misc.Ordered;
+import jp.crestmuse.cmx.misc.TreeView;
 
 /**********************************************************************
  *<p>
@@ -1321,9 +1330,7 @@ public class MusicXMLWrapper extends CMXFileWrapper {
     private Node timeModification = null;
     private Notations notations1st = null;
     private Note tiedNote = null;
-    private boolean unpitched = false;
 
-    
     private String xpath = null;
     // private double beat = Double.NaN;
 
@@ -1366,8 +1373,6 @@ public class MusicXMLWrapper extends CMXFileWrapper {
             notations1st = new Notations(node1, this);
         } else if (nodename.equals("pitch"))
           analyzePitch(node1);
-        else if (nodename.equals("unpitched"))
-          analyzeUnpitched(node1);
         else if (nodename.equals("notehead"))
           notehead = value;
         else if (nodename.equals("tie"))
@@ -1389,24 +1394,6 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         else if (nodename.equals("alter"))
           pitchAlter = Integer.parseInt(value);
       }
-      unpitched = false;
-    }
-
-    private void analyzeUnpitched(Node node) {
-      NodeList nl = node.getChildNodes();
-      int size = nl.getLength();
-      for (int i = 0; i < size; i++) {
-        Node n = nl.item(i);
-        String nodename = n.getNodeName();
-        String value = getText(n);
-        if (nodename.equals("display-step"))
-          pitchStep = value;
-        else if (nodename.equals("display-octave"))
-          pitchOctave = Integer.parseInt(value);
-        else if (nodename.equals("display-alter"))
-          pitchAlter = Integer.parseInt(value);
-      }
-      unpitched = true;
     }
 
     /*
@@ -1466,10 +1453,6 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         throw new InvalidElementException("This is a rest note");
     }
 
-    public final boolean unpitched() {
-      return unpitched;
-    }
-    
     /**********************************************************************
      *<p>
      * 音符の長さを整数で返します. Attributes要素の中のdivisions要素の値が 分母となり,

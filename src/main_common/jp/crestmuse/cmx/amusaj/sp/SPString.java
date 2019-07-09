@@ -1,5 +1,5 @@
 package jp.crestmuse.cmx.amusaj.sp;
-import jp.crestmuse.cmx.misc.*;
+import jp.crestmuse.cmx.misc.Encodable;
 
 
 public class SPString implements Encodable {

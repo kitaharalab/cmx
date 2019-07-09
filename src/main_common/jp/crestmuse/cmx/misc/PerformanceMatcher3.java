@@ -1,19 +1,36 @@
 package jp.crestmuse.cmx.misc;
 
-import jp.crestmuse.cmx.filewrappers.*;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
-import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
-import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-
 import org.xml.sax.SAXException;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import jp.crestmuse.cmx.filewrappers.CMXFileWrapper;
+import jp.crestmuse.cmx.filewrappers.DeviationDataSet;
+import jp.crestmuse.cmx.filewrappers.DeviationInstanceWrapper;
+import jp.crestmuse.cmx.filewrappers.MIDIXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Measure;
+import jp.crestmuse.cmx.filewrappers.MusicXMLWrapper.Part;
+import jp.crestmuse.cmx.filewrappers.SCC;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Annotation;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.HeaderElement;
+import jp.crestmuse.cmx.filewrappers.SCCXMLWrapper.Note;
 
 public class PerformanceMatcher3 {
 

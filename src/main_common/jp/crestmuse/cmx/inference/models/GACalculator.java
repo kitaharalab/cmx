@@ -1,7 +1,11 @@
 package jp.crestmuse.cmx.inference.models;
-import java.util.*;
-import jp.crestmuse.cmx.inference.*;
-import org.apache.commons.math3.genetics.*;
+
+import org.apache.commons.math3.genetics.Population;
+import org.apache.commons.math3.genetics.StoppingCondition;
+
+import java.util.List;
+
+import jp.crestmuse.cmx.inference.MusicElement;
 
 public interface GACalculator<E,O> {
   List<E> createInitial(int size);

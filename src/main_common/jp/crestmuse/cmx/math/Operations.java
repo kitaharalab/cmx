@@ -1,10 +1,20 @@
 package jp.crestmuse.cmx.math;
-import org.apache.commons.math.stat.descriptive.rank.*;
-import org.apache.commons.math.linear.*;
-import org.apache.commons.math.util.*;
-import static java.lang.Math.*;
-import java.util.*;
-import static jp.crestmuse.cmx.math.MathUtils.*;
+
+import org.apache.commons.math.linear.EigenDecomposition;
+import org.apache.commons.math.linear.EigenDecompositionImpl;
+import org.apache.commons.math.linear.LUDecomposition;
+import org.apache.commons.math.linear.LUDecompositionImpl;
+import org.apache.commons.math.linear.QRDecomposition;
+import org.apache.commons.math.linear.QRDecompositionImpl;
+import org.apache.commons.math.linear.SingularValueDecomposition;
+import org.apache.commons.math.linear.SingularValueDecompositionImpl;
+import org.apache.commons.math.stat.descriptive.rank.Median;
+
+import java.util.Arrays;
+
+import static java.lang.Math.pow;
+import static jp.crestmuse.cmx.math.MathUtils.toDoubleMatrix;
+import static jp.crestmuse.cmx.math.MathUtils.toRealMatrix;
 
 public class Operations {
 
@@ -37,14 +47,6 @@ public class Operations {
     return z;
   }
 
-  public static int size(DoubleArray x) {
-    return x.length();
-  }
-
-  public static int[] size(DoubleMatrix x) {
-    return new int[]{x.nrows(), x.ncols()};
-  }
-
   public static void putAt(DoubleArray x, int i, double value) {
     x.set(i, value);
   }
@@ -65,8 +67,6 @@ public class Operations {
 
   public static DoubleArray add(DoubleArray x, DoubleArray y) {
     int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(i) + y.get(i));
@@ -79,8 +79,6 @@ public class Operations {
 
   public static void addX(DoubleArray x, DoubleArray y) {
     int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
     for (int i = 0; i < length; i++)
       x.set(i, x.get(i) + y.get(i));
   }
@@ -115,8 +113,6 @@ public class Operations {
 
   public static DoubleArray sub(DoubleArray x, DoubleArray y) {
     int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(i) - y.get(i));
@@ -140,11 +136,9 @@ public class Operations {
     }
 
     public static void subX(DoubleArray x, DoubleArray y) {
-      int length = x.length();
-      if (y.length() != length)
-        throw new DimensionMismatchException(y.length(), length);
-      for (int i = 0; i < length; i++)
-        x.set(i, x.get(i) - y.get(i));
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) - y.get(i));
     }
 
   public static void subX(DoubleArray x, double y) {
@@ -167,8 +161,6 @@ public class Operations {
 
   public static DoubleArray mul(DoubleArray x, DoubleArray y) {
     int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(i) * y.get(i));
@@ -179,13 +171,11 @@ public class Operations {
 	return multiply(x,y);
     }
 
-  public static void mulX(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    for (int i = 0; i < length; i++)
-      x.set(i, x.get(i) * y.get(i));
-  }
+    public static void mulX(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) * y.get(i));
+    }
 
   public static void mulX(DoubleArray x, double y) {
     int length = x.length();
@@ -209,27 +199,23 @@ public class Operations {
 	return div(x, y);
     }
 
-  public static DoubleArray div(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    DoubleArray z = factory.createArray(length);
-    for (int i = 0; i < length; i++)
-      z.set(i, x.get(i) / y.get(i));
-    return z;
-  }
+    public static DoubleArray div(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	DoubleArray z = factory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) / y.get(i));
+	return z;
+    }
 
     public static DoubleArray divide(DoubleArray x, DoubleArray y) {
 	return div(x, y);
     }
     
-  public static void divX(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    for (int i = 0; i < length; i++)
-      x.set(i, x.get(i) / y.get(i));
-  }
+    public static void divX(DoubleArray x, DoubleArray y) {
+	int length = x.length();
+	for (int i = 0; i < length; i++)
+	    x.set(i, x.get(i) / y.get(i));
+    }
 		
   public static void divX(DoubleArray x, double y) {
     int length = x.length();
@@ -499,23 +485,19 @@ public class Operations {
 
   public static BooleanArray or(BooleanArray x, BooleanArray y) {
     int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
     BooleanArray z = bfactory.createArray(length);
     for (int i = 0; i < length; i++)
       z.set(i, x.get(i) || y.get(i));
     return z;
   }
 
-  public static BooleanArray and(BooleanArray x, BooleanArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    BooleanArray z = bfactory.createArray(length);
-    for (int i = 0; i < length; i++)
-      z.set(i, x.get(i) && y.get(i));
-    return z;
-  }
+    public static BooleanArray and(BooleanArray x, BooleanArray y) {
+	int length = x.length();
+	BooleanArray z = bfactory.createArray(length);
+	for (int i = 0; i < length; i++)
+	    z.set(i, x.get(i) && y.get(i));
+	return z;
+    }
 
   public static DoubleArray remove(DoubleArray x, int index) {
     int length = x.length();
@@ -557,8 +539,6 @@ public class Operations {
 
   public static DoubleArray mask(DoubleArray x, BooleanArray mask, double y) {
     int length = x.length();
-    if (mask.length() != length)
-      throw new DimensionMismatchException(mask.length(), length);
     DoubleArray z = factory.createArray(length);
     for (int i = 0; i < length; i++) {
       if (mask.get(i)) 
@@ -783,69 +763,61 @@ public class Operations {
 	return z;
     }
 
-  public static ComplexArray add(ComplexArray x, ComplexArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    ComplexArray z = cfactory.createArray(length);
-    for (int i = 0; i < length; i++) {
-      z.setReal(i, x.getReal(i) + y.getReal(i));
-      z.setImag(i, x.getImag(i) + y.getImag(i));
+    public static ComplexArray add(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i) + y.getReal(i));
+	    z.setImag(i, x.getImag(i) + y.getImag(i));
+	}
+	return z;
     }
-    return z;
-  }
 
     public static ComplexArray plus(ComplexArray x, ComplexArray y) {
 	return add(x, y);
     }
 
-  public static ComplexArray sub(ComplexArray x, ComplexArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    ComplexArray z = cfactory.createArray(length);
-    for (int i = 0; i < length; i++) {
-      z.setReal(i, x.getReal(i) - y.getReal(i));
-      z.setImag(i, x.getImag(i) - y.getImag(i));
+    public static ComplexArray sub(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i) - y.getReal(i));
+	    z.setImag(i, x.getImag(i) - y.getImag(i));
+	}
+	return z;
     }
-    return z;
-  }
 
     public static ComplexArray minus(ComplexArray x, ComplexArray y) {
 	return sub(x, y);
     }
 
-  public static ComplexArray mul(ComplexArray x, ComplexArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    ComplexArray z = cfactory.createArray(length);
-    for (int i = 0; i < length; i++) {
-      z.setReal(i, x.getReal(i)*y.getReal(i)-x.getImag(i)*y.getImag(i));
-      z.setImag(i, x.getImag(i)*y.getReal(i)+x.getReal(i)*y.getImag(i));
+    public static ComplexArray mul(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    z.setReal(i, x.getReal(i)*y.getReal(i)-x.getImag(i)*y.getImag(i));
+	    z.setImag(i, x.getImag(i)*y.getReal(i)+x.getReal(i)*y.getImag(i));
+	}
+	return z;
     }
-    return z;
-  }
 
     public static ComplexArray multiply(ComplexArray x, ComplexArray y) {
 	return mul(x, y);
     }
 
-  public static ComplexArray div(ComplexArray x, ComplexArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    ComplexArray z = cfactory.createArray(length);
-    for (int i = 0; i < length; i++) {
-      double a = x.getReal(i);
-      double b = x.getImag(i);
-      double c = y.getReal(i);
-      double d = y.getImag(i);
-      z.setReal(i, (a*c + b*d) / (c*c + d*d));
-      z.setImag(i, (b*c - a*d) / (c*c + d*d));
+    public static ComplexArray div(ComplexArray x, ComplexArray y) {
+	int length = x.length();
+	ComplexArray z = cfactory.createArray(length);
+	for (int i = 0; i < length; i++) {
+	    double a = x.getReal(i);
+	    double b = x.getImag(i);
+	    double c = y.getReal(i);
+	    double d = y.getImag(i);
+	    z.setReal(i, (a*c + b*d) / (c*c + d*d));
+	    z.setImag(i, (b*c - a*d) / (c*c + d*d));
+	}
+	return z;
     }
-    return z;
-  }
 
   public static double get(DoubleMatrix x, int i) {
     if (x.nrows() == 1) 
@@ -903,9 +875,6 @@ public class Operations {
     public static DoubleMatrix add(DoubleMatrix x, DoubleArray y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
-        if (y.length() != ncols) {
-          throw new DimensionMismatchException(y.length(), ncols);
-        }
 	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
 	for (int i = 0; i < nrows; i++)
 	    for (int j = 0; j < ncols; j++)
@@ -946,12 +915,6 @@ public class Operations {
     public static DoubleMatrix sub(DoubleMatrix x, DoubleMatrix y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
-        if (y.nrows() != nrows) {
-          throw new DimensionMismatchException(y.nrows(), nrows);
-        }
-        if (y.ncols() != ncols) {
-          throw new DimensionMismatchException(y.ncols(), ncols);
-        }
 	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
 	for (int i = 0; i < nrows; i++)
 	    for (int j = 0; j < ncols; j++)
@@ -966,9 +929,6 @@ public class Operations {
     public static DoubleMatrix sub(DoubleMatrix x, DoubleArray y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
-        if (y.length() != ncols) {
-          throw new DimensionMismatchException(y.length(), ncols);
-        }
 	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
 	for (int i = 0; i < nrows; i++)
 	    for (int j = 0; j < ncols; j++)
@@ -1012,9 +972,6 @@ public class Operations {
 	int l = x.nrows();
 	int m = x.ncols();
 	int n = y.ncols();
-        if (y.nrows() != m) {
-          throw new DimensionMismatchException(y.nrows(), m);
-        }
 	DoubleMatrix z = mfactory.createMatrix(l, n);
 	for (int i = 0; i < l; i++) {
 	    for (int j = 0; j < n; j++) {
@@ -1030,12 +987,6 @@ public class Operations {
   public static DoubleMatrix mulE(DoubleMatrix x, DoubleMatrix y) {
     int nrows = x.nrows();
     int ncols = x.ncols();
-    if (y.nrows() != nrows) {
-      throw new DimensionMismatchException(y.nrows(), nrows);
-    }
-    if (y.ncols() != ncols) {
-      throw new DimensionMismatchException(y.ncols(), ncols);
-    }
     DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
     for (int i = 0; i < nrows; i++) 
       for (int j = 0; j < ncols; j++)
@@ -1052,9 +1003,6 @@ public class Operations {
     public static DoubleMatrix div(DoubleMatrix x, DoubleArray y) {
 	int nrows = x.nrows();
 	int ncols = x.ncols();
-        if (y.length() != ncols) {
-          throw new DimensionMismatchException(y.length(), ncols);
-        }          
 	DoubleMatrix z = mfactory.createMatrix(nrows, ncols);
 	for (int i = 0; i < nrows; i++)
 	    for (int j = 0; j < ncols; j++)
@@ -1319,21 +1267,6 @@ public class Operations {
 	    z.set(i, x.get(i, i));
 	return z;
     }
-
-  public static DoubleArray normalizeSumTo1(DoubleArray x) {
-    double sum = sum(x);
-    if (sum == 0)
-      sum = 1;
-    return div(x, sum);
-  }
-
-  public static DoubleArray normalize(DoubleArray x) {
-    double mean = mean(x);
-    double std = std(x);
-    if (std == 0)
-      std = 1;
-    return div(sub(x, mean), std);
-  }
     
     public static DoubleMatrix normalize(DoubleMatrix x) {
 	DoubleArray mean = meanrows(x);
@@ -1495,50 +1428,6 @@ public class Operations {
     return factory.createArray(z);
   }
 
-  public static double rmse(DoubleArray x, DoubleArray y) {
-    return Math.sqrt(mse(x, y));
-  }
-  
-  public static double mse(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length)
-      throw new DimensionMismatchException(y.length(), length);
-    DoubleArray x_sub_y = sub(x, y);
-    return sum(mul(x_sub_y, x_sub_y)) / length;
-  }
-
-  public static double corrcoef(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length) {
-      throw new DimensionMismatchException(y.length(), length);
-    }
-    DoubleArray x_sub_mean = sub(x, mean(x));
-    DoubleArray y_sub_mean = sub(y, mean(y));
-    double s_xy = sum(mul(x_sub_mean, y_sub_mean));
-    double s_x = sum(mul(x_sub_mean, x_sub_mean));
-    double s_y = sum(mul(y_sub_mean, y_sub_mean));
-    return s_xy / Math.sqrt(s_x * s_y);
-  }
-                     
-  
-  public static DoubleArray xcorr(DoubleArray x, DoubleArray y) {
-    int length = x.length();
-    if (y.length() != length) {
-      throw new DimensionMismatchException(y.length(), length);
-    }
-    double[] z = new double[length];
-    for (int t = 0; t < length; t++)
-      for (int tau = 0; tau < length; tau++)
-        z[tau] += x.get(t) * y.get((t + tau) % length);
-    return factory.createArray(z);
-
-  }
-
-  public static DoubleArray autocorr(DoubleArray x) {
-    return xcorr(x, x);
-  }
-
-  /*
   public static DoubleArray autocorr(DoubleArray x) {
     int length = x.length();
     double[] z = new double[length/2];
@@ -1547,9 +1436,7 @@ public class Operations {
         z[tau] += x.get(t) * x.get(t + tau);
     return factory.createArray(z);
   }
-  */
 
-  
   public static DoubleArray rotate(DoubleArray x, int n) {
     int length = x.length();
     double[] z = new double[length];

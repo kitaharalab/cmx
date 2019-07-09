@@ -1,8 +1,9 @@
 package jp.crestmuse.cmx.misc;
 
-import java.util.*;
-import org.w3c.dom.*;
-import jp.crestmuse.cmx.misc.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.Iterator;
 
 public class NodeLinkManager {
     private MultiMap<Node,Node> h1, h2;

@@ -1,9 +1,23 @@
 package jp.crestmuse.cmx.filewrappers;
-import jp.crestmuse.cmx.math.*;
-import jp.crestmuse.cmx.sound.*;
-import java.io.*;
-import java.nio.*;
-import javax.sound.sampled.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import javax.sound.sampled.AudioFormat;
+
+import jp.crestmuse.cmx.math.DoubleArray;
+import jp.crestmuse.cmx.math.DoubleArrayFactory;
+import jp.crestmuse.cmx.sound.AudioDataCompatible;
 
 /*********************************************************************
  *The <tt>WAVWrapper</tt> class wraps a WAV file.
