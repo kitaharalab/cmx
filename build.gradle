@@ -9,27 +9,42 @@
 
 plugins {
     // Apply the java-library plugin to add support for Java Library
-    id 'java-library'
+    id 'com.android.library'
 }
 
-sourceSets.main.java.srcDirs = ['src']
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 27
+        targetSdkVersion 28
+        versionCode
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main_android', 'src/main_common']
+            manifest.srcFile 'src/main_android/AndroidManifest.xml'
+        }
+    }
+}
+
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api fileTree(dir: 'lib', include: '*.jar')
+//    api fileTree(dir: 'lib', include: '*.jar')
+
+    implementation fileTree(include: ['*.jar'], exclude: ['src/main_pc', 'weka-3-6-15.jar', 'processing-core.jar'], dir: 'libs')
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:23.0'
+    implementation 'com.google.guava:guava:24.1-jre'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    implementation project(path: ':javax.sound.midi')
 }
 
-compileJava {
-	targetCompatibility = '1.8'
-	sourceCompatibility = '1.8'
-	options.encoding = 'UTF-8'
-}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
