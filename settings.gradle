@@ -1,0 +1,2 @@
+include ':cmx_android', ':cmx_pc', ':javax.sound.midi'
+project(':javax.sound.midi').projectDir = ['../javax.sound.midi']

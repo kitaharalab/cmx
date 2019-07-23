@@ -1,0 +1,24 @@
+apply plugin: 'java-library'
+
+sourceSets {
+    main {
+        java.srcDirs = ['../src/main_pc', '../src/main_common']
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: '../libs', exclude: ['../src/main_android', 'processing-core-android.jar'])
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'com.google.guava:guava:24.1-jre'
+
+//        // Use JUnit test framework
+//        testImplementation 'junit:junit:4.12'
+}
+
+compileJava.options.encoding = "UTF-8"
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+
