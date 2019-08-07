@@ -648,6 +648,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			if (midiouts[iMidi] == null) {
 				musicPlayer[iMusic] = new SMFPlayer();
 			} else {
+				System.out.println(" midiouts[" + iMidi + "] = " + midiouts[iMidi].getName()) ;
 				MidiDevice dev = SoundUtils.getMidiOutDeviceByName(midiouts[iMidi]
 				    .getName());
 				dev.open();
@@ -1219,6 +1220,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									midiins[i] = midiInDeviceInfo.get(which);
+									dialog.dismiss();
 								}
 							})
 					.show();
@@ -1261,6 +1263,8 @@ public class CMXController implements TickTimer, MIDIConsts {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									midiouts[i] = midiOutDeviceInfo.get(which);
+									System.out.println("midiouts[" + i + "] = " + midiouts[i].toString());
+									dialog.dismiss();
 								}
 							})
 					.show();
