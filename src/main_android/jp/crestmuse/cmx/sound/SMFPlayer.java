@@ -40,17 +40,23 @@ public class SMFPlayer implements MusicPlayer {
 
   public SMFPlayer(MidiDevice mididev) throws MidiUnavailableException {
     sequencer = MidiSystem.getSequencer(false);
-//    if (!(sequencer instanceof Synthesizer)) {
+
+    // TODO: Test add open before get transmitter 20190725 fujii
+    sequencer.open();
+
+    //    if (!(sequencer instanceof Synthesizer)) {
 //      Synthesizer synthesizer = MidiSystem.getSynthesizer();
 //      synthesizer.open();
       Receiver receiverSyntheFromSeq = mididev.getReceiver();
       Transmitter transmitterSeqToSynthe = sequencer.getTransmitter();
       transmitterSeqToSynthe.setReceiver(receiverSyntheFromSeq);
 //    }
-    sequencer.open();
+
+    // TODO: Uncomment or remove after test. 20190729 fujiij
+//    sequencer.open();
   }
 
-  public void readSMF(String filename) 
+  public void readSMF(String filename)
     throws InvalidMidiDataException, IOException {
     readSMF(new File(filename));
   }
