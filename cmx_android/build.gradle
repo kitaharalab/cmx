@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 
+//println(rootProject.subprojects)
+
 android {
     compileSdkVersion 28
 
@@ -36,6 +38,12 @@ android {
 
     }
 
+    packagingOptions {
+        exclude 'META-INF/groovy-release-info.properties'
+        exclude 'META-INF/INDEX.LIST'
+    }
+
+
 }
 
 dependencies {
@@ -51,5 +59,6 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     api project(path: ':MIDIDriver')
+
 }
 

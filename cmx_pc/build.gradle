@@ -7,10 +7,10 @@ sourceSets {
 }
 
 dependencies {
-    api fileTree(include: ['*.jar'], dir: '../libs', exclude: ['../src/main_android', 'processing-core-android.jar'])
+    api fileTree(include: ['*.jar'], dir: '../libs', exclude: ['../src/main_android', 'processing-core-android.jar', 'xml-apis.jar'])
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:28.1-jre'
 
 //        // Use JUnit test framework
 //        testImplementation 'junit:junit:4.12'
