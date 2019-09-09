@@ -1,9 +1,22 @@
 version: 2
 jobs:
-  build:
+  build-android:
+    docker:
+      - image: circleci/android:api-28-alpha
+    working_directory: ~/cmx_android
+    steps:
+      - checkout
+      - run: chmod +x gradlew
+      #- run: ./gradlew dependencies
+      
+      - run: ./gradlew build
+      
+      - store_artifacts:
+          path: build/outputs/aar
+  build-pc:
     docker:
       - image: circleci/jdk8:0.1.1
-    working_directory: ~/cmx
+    working_directory: ~/cmx_pc
     steps:
       - checkout
       - run: chmod +x gradlew
@@ -13,3 +26,10 @@ jobs:
       
       - store_artifacts:
           path: build/libs
+  
+workf  lows:
+  version: 2
+  build-android-and-pc:
+    jobs:
+      - build-android:
+      - build-pc:
