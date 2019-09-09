@@ -3,7 +3,8 @@ apply plugin: 'com.android.library'
 //println(rootProject.subprojects)
 
 repositories {
-      maven { url 'https://jitpack.io' }
+    jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 android {
