@@ -9,7 +9,8 @@ jobs:
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
       - run: chmod +x gradlew
-      - run: ./gradlew androidDependencies
+      - run: ./gradlew androidDependencies      
+      - run: ./gradlew dependencies
       - save_cache:
           paths:
             - ~/.gradle
