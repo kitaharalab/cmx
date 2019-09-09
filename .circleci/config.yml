@@ -6,8 +6,14 @@ jobs:
     working_directory: ~/cmx_android
     steps:
       - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
       - run: chmod +x gradlew
       - run: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
 #         command: |          
 #       - run: ./gradlew :app:assembleDebug
       - run: ./gradlew build
@@ -21,6 +27,12 @@ jobs:
     steps:
       - checkout
       - run: chmod +x gradlew
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}
       #- run: ./gradlew dependencies
       
       - run: ./gradlew build
