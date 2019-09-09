@@ -54,7 +54,7 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: '../libs', exclude: ['../src/main_pc', 'weka-3-6-15.jar', 'processing-core.jar'])
 
 ////    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.13-beta-3'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
