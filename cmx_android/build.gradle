@@ -2,6 +2,10 @@ apply plugin: 'com.android.library'
 
 //println(rootProject.subprojects)
 
+repositories {
+      maven { url 'https://jitpack.io' }
+}
+
 android {
     compileSdkVersion 28
 
@@ -59,6 +63,6 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 //    api project(path: ':MIDIDriver')
-//    api 'com.github.kitaharalab:USB-MIDI-Driver:MIDIDriver:develop-SNAPSHOT'
+    api 'com.github.kitaharalab:USB-MIDI-Driver:MIDIDriver:develop-SNAPSHOT'
 }
 
