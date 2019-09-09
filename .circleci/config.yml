@@ -7,10 +7,10 @@ jobs:
     steps:
       - checkout
 #       - run: chmod +x gradlew
-      - run:
-        command: |
-          ./gradlew androidDependencies
-          ./gradlew :app:assembleDebug
+      - run: ./gradlew androidDependencies
+#         command: |
+          
+      - run: ./gradlew :app:assembleDebug
 #       - run: ./gradlew androidDependencies
 #       - run: ./gradlew build
       
