@@ -7,12 +7,12 @@ jobs:
     steps:
       - checkout
 #       - run: chmod +x gradlew
-      - run: ./gradlew androidDependencies
+#       - run: ./gradlew androidDependencies
 #         command: |
           
-      - run: ./gradlew :app:assembleDebug
+#       - run: ./gradlew :app:assembleDebug
 #       - run: ./gradlew androidDependencies
-#       - run: ./gradlew build
+      - run: ./gradlew build
       
       - store_artifacts:
           path: build/outputs/aar
@@ -30,8 +30,8 @@ jobs:
       - store_artifacts:
           path: build/libs
   
-workf  lows:
-  version: 2
+workflows:
+#   version: 2
   build-android-and-pc:
     jobs:
       - build:
