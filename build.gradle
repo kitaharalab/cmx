@@ -21,6 +21,6 @@ allprojects {
 
 project('cmx_android') {
   dependencies {
-    api 'com.github.kitaharalab:USB-MIDI-Driver:MIDIDriver:develop-SNAPSHOT'
+    implementation 'com.github.kitaharalab:USB-MIDI-Driver:MIDIDriver:develop-SNAPSHOT'
   }
 }
