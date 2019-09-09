@@ -6,7 +6,8 @@ jobs:
     working_directory: ~/cmx_android
     steps:
       - checkout
-      - run: chmod +x gradlew      
+      - run: chmod +x gradlew
+      - run: ./gradlew androidDependencies
       - run: ./gradlew build
       
       - store_artifacts:
