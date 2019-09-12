@@ -5,6 +5,11 @@ repositories {
     flatDir {dirs 'libs'}
 }
 
+repositories {
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
 android {
     compileSdkVersion 28
 
@@ -65,6 +70,5 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 //    api project(path: ':MIDIDriver')
-
 }
 
