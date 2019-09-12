@@ -10,7 +10,7 @@ jobs:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
       - run: chmod +x gradlew
       - run: cd cmx_android
-      - run: pwd
+      - run: pwd && ls -al
       - run: ./gradlew androidDependencies      
       # - run: ./gradlew dependencies
       # - save_cache:
@@ -28,7 +28,7 @@ jobs:
       - checkout
       - run: chmod +x gradlew
       - run: cd cmx_pc
-      - run: pwd
+      - run: pwd && ls -al
       # - run: ./gradlew dependencies
       # - restore_cache:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}
