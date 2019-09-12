@@ -3,7 +3,7 @@ jobs:
   build-android:
     docker:
       - image: circleci/android:api-28-alpha
-    : ~/cmx
+    working_directory: ~/cmx
     steps:
       - checkout
       # - restore_cache:
