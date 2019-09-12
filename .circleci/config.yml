@@ -3,7 +3,7 @@ jobs:
   build-android:
     docker:
       - image: circleci/android:api-28-alpha
-    working_directory: ~/cmx/cmx_android
+    working_directory: ~/cmx
     steps:
       - checkout
       # - restore_cache:
@@ -22,7 +22,7 @@ jobs:
   build-pc:
     docker:
       - image: circleci/jdk8:0.1.1
-    working_directory: ~/cmx/cmx_pc
+    working_directory: ~/cmx
     steps:
       - checkout
       - run: chmod +x gradlew
