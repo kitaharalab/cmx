@@ -36,7 +36,7 @@ jobs:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}      
       # - run: ./gradlew build
       - store_artifacts:
-          path: cmx/cmx_pc/build/libs
+          path: cmx_pc/build/libs
   
 workflows:
   version: 2
