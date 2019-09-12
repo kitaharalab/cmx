@@ -10,16 +10,16 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
+        minSdkVersion 27
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
 
     sourceSets {
         main {
-            minSdkVersion 27
-            targetSdkVersion 28
-            versionCode 1
-            versionName "1.0"
-
-            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        }
             java.srcDirs = ['../src/main_android', '../src/main_common']
             manifest.srcFile '../src/main_android/AndroidManifest.xml'
         }
