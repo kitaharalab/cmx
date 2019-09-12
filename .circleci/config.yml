@@ -3,7 +3,7 @@ jobs:
   build-android:
     docker:
       - image: circleci/android:api-28-alpha
-    working_directory: ~/cmx
+    : ~/cmx
     steps:
       - checkout
       # - restore_cache:
@@ -18,7 +18,7 @@ jobs:
       - run: ./gradlew -p cmx_android build
       # - run: ./gradlew build
       - store_artifacts:
-          path: build/outputs/aar
+          path: cmx_android/build/outputs/aar
   build-pc:
     docker:
       - image: circleci/jdk8:0.1.1
@@ -36,7 +36,7 @@ jobs:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}      
       # - run: ./gradlew build
       - store_artifacts:
-          path: build/libs
+          path: cmx_pc/build/libs
   
 workflows:
   version: 2
