@@ -18,7 +18,7 @@ jobs:
       - run: ./gradlew -p cmx_android build
       # - run: ./gradlew build
       - store_artifacts:
-          path: cmx/cmx_android/build/outputs/aar
+          path: cmx_android/build/outputs/aar
   build-pc:
     docker:
       - image: circleci/jdk8:0.1.1
