@@ -3,13 +3,13 @@ jobs:
   build-android:
     docker:
       - image: circleci/android:api-28-alpha
-    working_directory: ~/cmx-android
+    working_directory: ~/cmx
     steps:
       - checkout
       # - restore_cache:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
       - run: chmod +x gradlew
-      - run: cd cmx_android
+      - run: cd cmx/cmx_android
       - run: pwd && ls -al
       - run: ./gradlew androidDependencies      
       # - run: ./gradlew dependencies
@@ -23,11 +23,11 @@ jobs:
   build-pc:
     docker:
       - image: circleci/jdk8:0.1.1
-    working_directory: ~/cmx-pc
+    working_directory: ~/cmx
     steps:
       - checkout
       - run: chmod +x gradlew
-      - run: cd cmx_pc
+      - run: cd cmx/cmx_pc
       - run: pwd && ls -al
       # - run: ./gradlew dependencies
       # - restore_cache:
