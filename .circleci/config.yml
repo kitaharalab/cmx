@@ -15,7 +15,7 @@ jobs:
       #     paths:
       #       - ~/.gradle
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_android/build.gradle" }}
-      - run: ./gradlew -q -p cmx_android build
+      - run: ./gradlew -p cmx_android build
       # - run: ./gradlew build
       - store_artifacts:
           path: build/outputs/aar
@@ -26,7 +26,7 @@ jobs:
     steps:
       - checkout
       - run: chmod +x gradlew
-      - run: ./gradlew -q -p cmx_pc build
+      - run: ./gradlew -p cmx_pc build
       # - run: ./gradlew dependencies
       # - restore_cache:
       #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "cmx_pc/build.gradle" }}
