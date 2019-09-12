@@ -1,6 +1,9 @@
 apply plugin: 'com.android.library'
 
 //println(rootProject.subprojects)
+repositories {
+    flatDir {dirs 'libs'}
+}
 
 android {
     compileSdkVersion 28
@@ -51,14 +54,17 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
 //    api fileTree(dir: 'lib', include: '*.jar')
 
-    api fileTree(include: ['*.jar'], dir: '../libs', exclude: ['../src/main_pc', 'weka-3-6-15.jar', 'processing-core.jar'])
+    api fileTree(dir: '../libs', include: ['*.jar'])
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api (name: 'javax.sound.midi-release', ext: 'aar')
+    api (name: 'MIDIDriver-release', ext: 'aar')
 
 ////    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.13-beta-3'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    api project(path: ':MIDIDriver')
+//    api project(path: ':MIDIDriver')
 
 }
 
