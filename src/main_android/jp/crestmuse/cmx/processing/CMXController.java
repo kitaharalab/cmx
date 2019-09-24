@@ -1,9 +1,10 @@
 package jp.crestmuse.cmx.processing;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.ArrayAdapter;
+
+import android.app.AlertDialog;
 
 import org.xml.sax.SAXException;
 

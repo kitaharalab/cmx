@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 
-//println(rootProject.subprojects)
 repositories {
     jcenter()
     flatDir {dirs 'libs'}
@@ -61,10 +60,14 @@ dependencies {
     api (name: 'MIDIDriver-release', ext: 'aar')
 
 ////    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.13-beta-3'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+//    implementation 'androidx.appcompat:appcompat:1.1.0'
+//    androidTestImplementation 'androidx.test:runner:1.2.0'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 //    api project(path: ':MIDIDriver')
 }
 
