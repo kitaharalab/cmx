@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -1100,6 +1101,10 @@ public class SCCXMLWrapper extends CMXFileWrapper
       processNotes(h);
     newscc.finalizeDocument();
     return newscc;
+  }
+
+  public Document getXMLDocument() {
+    return getDocument();
   }
 
   public class Part extends NodeInterface implements SCC.Part {
