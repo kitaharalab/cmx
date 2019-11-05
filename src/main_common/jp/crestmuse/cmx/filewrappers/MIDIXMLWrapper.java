@@ -1,5 +1,7 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import com.google.common.primitives.Bytes;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -272,6 +274,26 @@ public class MIDIXMLWrapper extends CMXFileWrapper {
       dataout.write(msg, 0, msg.length);
     }
     dataout.close();
+  }
+
+  // Add for google drive APIs 20190925 fujii
+  public byte[] getSMFByteArray() {
+    byte[] byteNTracks = ByteBuffer.allocate(4).putInt(nTracks).array();
+    byte[] byteTicksPerBeat = ByteBuffer.allocate(4).putInt(ticksPerBeat).array();
+
+    byte[] byteArray = Bytes.concat("MThd".getBytes(),
+            ByteBuffer.allocate(4).putInt(6).array(),
+            ByteBuffer.allocate(2).put(format).array(),
+            new byte[] {byteNTracks[2], byteNTracks[3], byteTicksPerBeat[2], byteTicksPerBeat[3]});
+
+    Track[] tracks = getTrackList();
+    for (Track track : tracks) {
+      byte[] msg = track.toSMFFormat();
+      byteArray = Bytes.concat(byteArray, "MTrk".getBytes(),
+              ByteBuffer.allocate(4).putInt(msg.length).array(),
+              msg);
+    }
+    return byteArray;
   }
 
   public static MIDIXMLWrapper readSMF(String filename)
