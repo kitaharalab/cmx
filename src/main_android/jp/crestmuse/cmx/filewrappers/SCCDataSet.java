@@ -783,19 +783,21 @@ public class SCCDataSet implements SCC,Cloneable {
     for (Part part : getPartList()) {
       for (MutableMusicEvent e : part.getNoteList()) {
         for (int k = 1; k <= times; k++) {
-          if (e instanceof MutableNote) {
-            part.addNoteElement(e.onset()+k*len, e.offset()+k*len,
-                                ((MutableNote)e).notenum(),
-                                ((MutableNote)e).velocity(),
-                                ((MutableNote)e).offVelocity(),
-                                e.getAttributes());
-          } else if (e instanceof MutableControlChange) {
-            part.addControlChange(e.onset()+k*len,
-                                  ((MutableControlChange)e).ctrlnum(),
-                                  ((MutableControlChange)e).value());
-          } else if (e instanceof MutableProgramChange) {
-            part.addProgramChange(e.onset()+k*len,
-                                  ((MutableProgramChange)e).value());
+          if ((e.onset() >= from) && (e.onset() < thru)) {
+            if (e instanceof MutableNote) {
+              part.addNoteElement(e.onset()+k*len, e.offset()+k*len,
+                      ((MutableNote)e).notenum(),
+                      ((MutableNote)e).velocity(),
+                      ((MutableNote)e).offVelocity(),
+                      e.getAttributes());
+            } else if (e instanceof MutableControlChange) {
+              part.addControlChange(e.onset()+k*len,
+                      ((MutableControlChange)e).ctrlnum(),
+                      ((MutableControlChange)e).value());
+            } else if (e instanceof MutableProgramChange) {
+              part.addProgramChange(e.onset()+k*len,
+                      ((MutableProgramChange)e).value());
+            }
           }
         }
       }
