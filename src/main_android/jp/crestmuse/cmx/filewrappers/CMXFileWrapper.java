@@ -387,11 +387,11 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	/**********************************************************************
 	 *<p>Creates an empty document with the specified top-tag name.</p>
 	 *<p>指定された名前のトップタグを持つ空のドキュメントを生成します.</p>
-	 *@exception jp.crestmuse.cmx.filewrappers.InvalidFileTypeException ...
-	 *@exception javax.xml.parsers.ParserConfigurationException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception InvalidFileTypeException ...
+	 *@exception ParserConfigurationException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
-	public static CMXFileWrapper createDocument(String toptagname) 
+	public static CMXFileWrapper createDocument(String toptagname)
 			throws InvalidFileTypeException {
 		//			ParserConfigurationException, SAXException {
 		try {
@@ -403,10 +403,10 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 		}
 		DocumentType dt;
 		if (DTD_PUBLIC_ID_TABLE.containsKey(toptagname))
-			dt = domImpl.createDocumentType(toptagname, 
-					DTD_PUBLIC_ID_TABLE.get(toptagname), 
+			dt = domImpl.createDocumentType(toptagname,
+					DTD_PUBLIC_ID_TABLE.get(toptagname),
 					DTD_SYSTEM_ID_TABLE.get(toptagname));
-		else 
+		else
 			dt = null;
 		Document doc = domImpl.createDocument(null, toptagname, dt);
 		CMXFileWrapper f = createInstance(toptagname);
@@ -417,7 +417,7 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	}
 
 	/**********************************************************************
-	 *<p>Forbids further element addition and prepares for getting 
+	 *<p>Forbids further element addition and prepares for getting
 	 *information</p>
 	 *<p>さらなる要素の追加をできなくし, 情報の取り出しのための準備をします. </p>
 	 *********************************************************************/
@@ -450,39 +450,39 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	}
 
 	/**********************************************************************
-	 *<p>Reads the specified file. After that, the analyze method is 
+	 *<p>Reads the specified file. After that, the analyze method is
 	 *automatically called.</p>
 	 *<p>指定された名前のファイルを読み込みます. その後はanalyzeメソッドが
 	 *自動的に呼ばれます. </p>
-	 *@exception java.io.IOException ...
-	 *@exception javax.xml.parsers.ParserConfigurationException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception IOException ...
+	 *@exception ParserConfigurationException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
-	public static CMXFileWrapper readfile(String filename) 
+	public static CMXFileWrapper readfile(String filename)
 			throws IOException {
 		return readfile(filename, null);
 	}
 
 	/**********************************************************************
 	 *<p>Reads the specified file. </p>
-	 *<p>指定された名前のファイルを読み込みます. 
-	 *readfile(String)と同様にファイル読み込み後に, analyzeメソッドが呼ばれますが, 
+	 *<p>指定された名前のファイルを読み込みます.
+	 *readfile(String)と同様にファイル読み込み後に, analyzeメソッドが呼ばれますが,
 	 *その直前に指定されたイニシャライザが実行されます. </p>
-	 *@exception java.io.IOException ...
-	 *@exception javax.xml.parsers.ParserConfigurationException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception IOException ...
+	 *@exception ParserConfigurationException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
-	public static CMXFileWrapper readfile(String filename, CMXInitializer init) 
+	public static CMXFileWrapper readfile(String filename, CMXInitializer init)
 			throws IOException {
 		return readfile(new File(filename), init);
 	}
 
-	public static CMXFileWrapper readfile(File file) 
+	public static CMXFileWrapper readfile(File file)
 			throws IOException {
 		return readfile(file, null);
 	}
 
-	public static CMXFileWrapper readfile(File file, CMXInitializer init) 
+	public static CMXFileWrapper readfile(File file, CMXInitializer init)
 			throws IOException {
 		try {
 			initXMLProcessors();
@@ -525,8 +525,8 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 		//    return f;
 	}
 
-	private static CMXFileWrapper wrap(Document doc, File file, 
-			CMXInitializer init) 
+	private static CMXFileWrapper wrap(Document doc, File file,
+			CMXInitializer init)
 					throws IOException {
 		String toptagname = doc.getDocumentElement().getTagName();
 		CMXFileWrapper f = createInstance(toptagname);
@@ -598,12 +598,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	}
 
 	/**********************************************************************
-	 *<p>Writes the document wrapped by this object 
+	 *<p>Writes the document wrapped by this object
 	 *to the specified stream.</p>
 	 *<p>このオブジェクトが保持するドキュメントを
 	 *指定されたストリームに書き込みます.</p>
-	 *@exception java.io.IOException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception IOException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
 	public final void write(OutputStream out) throws IOException, SAXException {
 		OutputFormat fmt = new OutputFormat();
@@ -614,11 +614,11 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	}
 
 	/**********************************************************************
-	 *<p>Writes the document wrapped by this <tt>CMXFileWrapper</tt> object 
+	 *<p>Writes the document wrapped by this <tt>CMXFileWrapper</tt> object
 	 *to the specified writer.</p>
 	 *<p>このオブジェクトが保持するドキュメントを指定されたライタに書き込みます.</p>
-	 *@exception java.io.IOException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception IOException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
 	public final void write(Writer writer) throws IOException, SAXException {
 		OutputFormat fmt = new OutputFormat();
@@ -629,12 +629,12 @@ public abstract class CMXFileWrapper implements FileWrapperCompatible {
 	}
 
 	/**********************************************************************
-	 *<p>Writes the document wrapped by this object 
+	 *<p>Writes the document wrapped by this object
 	 *to the specified file.</p>
 	 *<p>この<tt>CMXFileWrapper</tt>オブジェクトが保持するドキュメントを
 	 *指定された名前のファイルに書き込みます.</p>
-	 *@exception java.io.IOException ...
-	 *@exception org.xml.sax.SAXException ...
+	 *@exception IOException ...
+	 *@exception SAXException ...
 	 *********************************************************************/
 	public final void writefile(String filename) 
 			throws IOException, SAXException {
