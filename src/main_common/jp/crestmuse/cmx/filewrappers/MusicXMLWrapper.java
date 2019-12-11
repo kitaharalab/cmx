@@ -1,5 +1,6 @@
 package jp.crestmuse.cmx.filewrappers;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -7,6 +8,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -920,13 +922,13 @@ public class MusicXMLWrapper extends CMXFileWrapper {
       if (!startsWithX) {
         if (cumulativeTicksList.size() > number) {
           if (cumulativeTicksList.get(number) != cumulativeTicks)
-            throw new InvalidElementException();
+            throw new InvalidElementException("Tried to assign " + cumulativeTicks + " for cumulative ticks number " + number + ". " + cumulativeTicksList.get(number) + " is already assigned.");
         } else
           cumulativeTicksList.set(number, cumulativeTicks);
       } else {
         if (cumulativeTicksList2.size() > numberX) {
           if (cumulativeTicksList2.get(numberX) != cumulativeTicks)
-            throw new InvalidElementException();
+            throw new InvalidElementException("Tried to assign " + cumulativeTicks + " for cumulative ticks number " + numberX + ". " + cumulativeTicksList2.get(numberX) + " is already assigned.");
         } else
           cumulativeTicksList2.set(numberX, cumulativeTicks);
       }
@@ -964,43 +966,50 @@ public class MusicXMLWrapper extends CMXFileWrapper {
       Note topnote = null;
       int noteindex = 0;
       if (mdlist == null) {
+        List<MusicData> musicDataList = new ArrayList<MusicData>();
         int nextonset = 0;
         int prevduration = 0;
         NodeList nl = node().getChildNodes();
         int size = nl.getLength();
-        mdlist = new MusicData[size];
+//        mdlist = new MusicData[size];
         for (int i = 0; i < size; i++) {
-          MusicData md = getMusicDataNodeInterface(nl.item(i));
-          if (md instanceof Note) {
-            Note note = (Note) md;
-            if (note.chord()) {
-              nextonset -= prevduration;
-              note.addToChordNoteList(topnote);
-            } else {
-              topnote = note;
-            }
-            if (!note.rest()) {
-              int notenum = note.notenum();
-              if (note.containsTieType("stop") && tiedNotes[notenum] != null) {
-                tiedNotes[notenum].tiedNote = note;
-                tiedNotes[notenum] = null;
+
+          if (nl.item(i) instanceof Element) {
+            MusicData md = getMusicDataNodeInterface(nl.item(i));
+            if (md instanceof Note) {
+              Note note = (Note) md;
+              if (note.chord()) {
+                nextonset -= prevduration;
+                note.addToChordNoteList(topnote);
+              } else {
+                topnote = note;
               }
-              if (note.containsTieType("start"))
-                tiedNotes[notenum] = note;
+              if (!note.rest()) {
+                int notenum = note.notenum();
+                if (note.containsTieType("stop") && tiedNotes[notenum] != null) {
+                  tiedNotes[notenum].tiedNote = note;
+                  tiedNotes[notenum] = null;
+                }
+                if (note.containsTieType("start"))
+                  tiedNotes[notenum] = note;
+              }
+              note.xpath = getXPathExpression() + "/note[" + (++noteindex) + "]";
             }
-            note.xpath = getXPathExpression() + "/note[" + (++noteindex) + "]";
+            // if (&& ((Note)md).chord())
+            // nextonset -= prevduration;
+            md.onset = nextonset;
+            prevduration = md.actualDuration(INTERNAL_TICKS_PER_BEAT);
+            nextonset += prevduration;
+//            mdlist[i] = md;
+            musicDataList.add(md);
+            if (md instanceof Attributes)
+              attr = (Attributes) md;
+
           }
-          // if (&& ((Note)md).chord())
-          // nextonset -= prevduration;
-          md.onset = nextonset;
-          prevduration = md.actualDuration(INTERNAL_TICKS_PER_BEAT);
-          nextonset += prevduration;
-          mdlist[i] = md;
-          if (md instanceof Attributes)
-            attr = (Attributes) md;
-        }
+          }
+        mdlist = musicDataList.toArray(new MusicData[musicDataList.size()]);
       }
-      return mdlist;
+      return  mdlist;
     }
 
     public Note[] getNoteOnlyList() {
