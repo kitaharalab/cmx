@@ -922,13 +922,13 @@ public class MusicXMLWrapper extends CMXFileWrapper {
       if (!startsWithX) {
         if (cumulativeTicksList.size() > number) {
           if (cumulativeTicksList.get(number) != cumulativeTicks)
-            throw new InvalidElementException("Tried to assign " + cumulativeTicks + " for cumulative ticks number " + number + ". " + cumulativeTicksList.get(number) + " is already assigned.");
+            throw new InvalidElementException("The cumulative ticks number " + number + " is " + cumulativeTicksList.get(number) + ". Tried to set " + cumulativeTicks + ".");
         } else
           cumulativeTicksList.set(number, cumulativeTicks);
       } else {
         if (cumulativeTicksList2.size() > numberX) {
           if (cumulativeTicksList2.get(numberX) != cumulativeTicks)
-            throw new InvalidElementException("Tried to assign " + cumulativeTicks + " for cumulative ticks number " + numberX + ". " + cumulativeTicksList2.get(numberX) + " is already assigned.");
+            throw new InvalidElementException("The cumulative ticks number " + numberX + " is " + cumulativeTicksList2.get(numberX) + ". Tried to set " + cumulativeTicks + ".");
         } else
           cumulativeTicksList2.set(numberX, cumulativeTicks);
       }
