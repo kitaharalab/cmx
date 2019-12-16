@@ -1,5 +1,13 @@
 apply plugin: 'java-library'
 
+repositories {
+
+    google()
+    jcenter()
+//    flatDir {dirs 'libs'}
+}
+
+
 sourceSets {
     main {
         java.srcDirs = ['../src/main_pc', '../src/main_common']
@@ -12,6 +20,9 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:28.1-jre'
+
+    // https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
+    implementation 'nz.ac.waikato.cms.weka:weka-stable:3.6.14'
 
 //        // Use JUnit test framework
 //        testImplementation 'junit:junit:4.12'
