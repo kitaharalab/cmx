@@ -1,6 +1,6 @@
 # CrestMuseXML Toolkit
 
-Copyright (c) 2006-2010, CrestMuseXML Development Project.
+Copyright (c) 2006-2020, CrestMuseXML Development Project.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
@@ -28,11 +28,14 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---
-This program includes the following programs. 
-  * Apache Xerces - Apache License 2.0
-  * Apache Xalan  - Apache License 2.0
-  * Apache Commons Math - Apache License 2.0
-  * jahmm - New BSD License
+This program includes the following programs.
+
+* Apache Xerces - Apache License, Version 2.0
+* Apache Xalan - Apache License, Version 2.0
+* Apache Commons Math - Apache License, Version 2.0
+* Apache Groovy - Apache License, Version 2.0
+* JavaOctave - Apache License, Version 2.0
+* jahmm - New BSD License
 
 Please read text files in the 'licenses' directory for detailed information 
 about the software license of each program. 
