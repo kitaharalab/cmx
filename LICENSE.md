@@ -1,4 +1,4 @@
-CrestMuseXML Toolkit
+# CrestMuseXML Toolkit
 
 Copyright (c) 2006-2010, CrestMuseXML Development Project.
 All rights reserved.
@@ -27,8 +27,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-=============================================================================
+---
 This program includes the following programs. 
   * Apache Xerces - Apache License 2.0
   * Apache Xalan  - Apache License 2.0
