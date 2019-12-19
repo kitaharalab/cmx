@@ -19,5 +19,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v1
       with:
-        name: cmx_android
-        path: .
+        name: cmx_pc
+        path: cmx_pc/build/libs/cmx_pc.jar
