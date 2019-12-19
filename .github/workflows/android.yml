@@ -16,3 +16,8 @@ jobs:
     - run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew -p cmx_android build
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: cmx_android
+        path: cmx_android/build/outputs/aar/
