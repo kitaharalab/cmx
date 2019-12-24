@@ -28,14 +28,17 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---
-This program includes the following programs.
+This program depends on the following programs.
 
 * Apache Xerces - Apache License, Version 2.0
 * Apache Xalan - Apache License, Version 2.0
 * Apache Commons Math - Apache License, Version 2.0
 * Apache Groovy - Apache License, Version 2.0
+* Apache XML Commons Resolver - Apache License, Version 2.0
 * JavaOctave - Apache License, Version 2.0
 * jahmm - New BSD License
+* JLayer - GNU Lesser General Public License
+* Processing - GNU Lesser General Public License, Version 2.1
 
 Please read text files in the 'licenses' directory for detailed information 
 about the software license of each program. 
