@@ -1,7 +1,6 @@
 apply plugin: 'java-library'
 
 repositories {
-
     google()
     jcenter()
 //    flatDir {dirs 'libs'}
@@ -21,6 +20,25 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:28.1-jre'
 
+    // cmx_common
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math
+    implementation 'org.apache.commons:commons-math:2.2'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy
+    implementation 'org.codehaus.groovy:groovy:2.5.6'
+    // https://mvnrepository.com/artifact/javazoom/jlayer
+    implementation 'javazoom:jlayer:1.0.1'
+    // https://mvnrepository.com/artifact/xml-resolver/xml-resolver
+    implementation 'xml-resolver:xml-resolver:1.2'
+    // https://mvnrepository.com/artifact/xalan/xalan
+    implementation 'xalan:xalan:2.7.2'
+    // https://mvnrepository.com/artifact/xalan/serializer
+    implementation 'xalan:serializer:2.7.2'
+    // https://mvnrepository.com/artifact/apache-xerces/xercesImpl
+    implementation 'apache-xerces:xercesImpl:2.9.1'
+
+    // cmx_pc
     // https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
     implementation 'nz.ac.waikato.cms.weka:weka-stable:3.6.14'
 
@@ -29,6 +47,7 @@ dependencies {
 }
 
 compileJava.options.encoding = "UTF-8"
+javadoc.options.encoding = 'UTF-8'
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
