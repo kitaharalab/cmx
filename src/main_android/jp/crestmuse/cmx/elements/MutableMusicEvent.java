@@ -108,7 +108,7 @@ public abstract class MutableMusicEvent
     return offset(ticksPerBeat) - onset(ticksPerBeat);
   }
 
-  protected int ticksPerBeat() {
+  public int ticksPerBeat() {
     return ticksPerBeat;
   }
 

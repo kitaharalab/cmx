@@ -16,7 +16,6 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -1043,7 +1042,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			}
 
 			if (!isMatch)
-				throw new DeviceNotAvailableException("MIDI device can't find");
+				throw new DeviceNotAvailableException("MIDI device not found");
 		} catch (MidiUnavailableException e) {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
@@ -1071,7 +1070,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 		try {
 			boolean isMatch = false;
 
-			for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
+			for (MidiDevice.Info info : SoundUtils.getMidiOutDeviceInfo()) {
 				if (info.getName().toLowerCase().indexOf(deviceName.toLowerCase()) != -1) {
 					midiouts[i] = info;
 					isMatch = true;
@@ -1079,7 +1078,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			}
 
 			if (!isMatch)
-				throw new DeviceNotAvailableException("MIDI device can't find");
+				throw new DeviceNotAvailableException("MIDI device not found");
 		} catch (MidiUnavailableException e) {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
@@ -1101,7 +1100,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 
 		if (!isMatch)
-			throw new DeviceNotAvailableException("MIC device can't find");
+			throw new DeviceNotAvailableException("MIC device not found");
 	}
 
 	/**

@@ -1,10 +1,10 @@
 package jp.crestmuse.cmx.processing;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.app.DialogFragment;
 import android.widget.ArrayAdapter;
-
-import android.app.AlertDialog;
 
 import org.xml.sax.SAXException;
 
@@ -1062,7 +1062,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			}
 
 			if (!isMatch)
-				throw new DeviceNotAvailableException("MIDI device can't find");
+				throw new DeviceNotAvailableException("MIDI device not found");
 		} catch (MidiUnavailableException e) {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
@@ -1090,7 +1090,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 		try {
 			boolean isMatch = false;
 
-			for (MidiDevice.Info info : SoundUtils.getMidiInDeviceInfo()) {
+			for (MidiDevice.Info info : SoundUtils.getMidiOutDeviceInfo()) {
 				if (info.getName().toLowerCase().indexOf(deviceName.toLowerCase()) != -1) {
 					midiouts[i] = info;
 					isMatch = true;
@@ -1098,7 +1098,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 			}
 
 			if (!isMatch)
-				throw new DeviceNotAvailableException("MIDI device can't find");
+				throw new DeviceNotAvailableException("MIDI device not found");
 		} catch (MidiUnavailableException e) {
 			throw new DeviceNotAvailableException("MIDI device not available");
 		}
@@ -1120,7 +1120,7 @@ public class CMXController implements TickTimer, MIDIConsts {
 		}
 
 		if (!isMatch)
-			throw new DeviceNotAvailableException("MIC device can't find");
+			throw new DeviceNotAvailableException("MIC device not found");
 	}
 
 	/**
@@ -1253,32 +1253,26 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
 	public void showMidiOutChooser(final int i, Context context, int resource) {
-		try {
-			final List<MidiDevice.Info> midiOutDeviceInfo = SoundUtils.getMidiOutDeviceInfo();
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setTitle("Select MIDI OUT Device...")
-					.setSingleChoiceItems(
-							new ArrayAdapter(context , resource, midiOutDeviceInfo),
-							0,
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									midiouts[i] = midiOutDeviceInfo.get(which);
-									System.out.println("midiouts[" + i + "] = " + midiouts[i].toString());
-									dialog.dismiss();
-								}
-							})
-					.show();
+//		try {
+//			final List<MidiDevice.Info> midiOutDeviceInfo = SoundUtils.getMidiOutDeviceInfo();
+//			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//			builder.setTitle("Select MIDI OUT Device...")
+//					.setSingleChoiceItems(
+//							new ArrayAdapter(context , resource, midiOutDeviceInfo),
+//							0,
+//							new DialogInterface.OnClickListener() {
+//								@Override
+//								public void onClick(DialogInterface dialog, int which) {
+//									midiouts[i] = midiOutDeviceInfo.get(which);
+//									System.out.println("midiouts[" + i + "] = " + midiouts[i].toString());
+//									dialog.dismiss();
+//								}
+//							})
+					new ChooseMidioutDialogFragment().setCMXController(this).show(new DialogFragment().getFragmentManager(), "MidiOutChooser");
 
-//			Object selected = JOptionPane.showInputDialog(parent,
-//			    "Select MIDI OUT Device [" + i + "].", "Select MIDI OUT Device...",
-//			    JOptionPane.PLAIN_MESSAGE, null, SoundUtils.getMidiOutDeviceInfo()
-//			        .toArray(), null);
-//			if (selected != null)
-//				midiouts[i] = (MidiDevice.Info) selected;
-		} catch (MidiUnavailableException e) {
-			throw new DeviceNotAvailableException("MIDI device not available");
-		}
+//		} catch (MidiUnavailableException e) {
+//			throw new DeviceNotAvailableException("MIDI device not available");
+//		}
 	}
 
 	/**
