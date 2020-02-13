@@ -1,4 +1,10 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java-library'
+    id 'application'
+}
+//apply plugin: 'java-library'
+version = '1.0.0-alpha'
+mainClassName = 'jp.crestmuse.cmx.commands.SMF2SCC'
 
 repositories {
     google()
@@ -51,5 +57,25 @@ javadoc.options.encoding = 'UTF-8'
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+//task showConfigurations {
+//    println project.properties
+//    configurations.each {
+//        println it
+//        println it.properties
+//    }
+//    println "+++++"
+//    println configurations.implementation.properties
+//    println "-----"
+//}
+
+//task listJars {
+//    println configurations.compileClasspath.asPath
+//}
+
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into "C:\\Users\\fujii\\Downloads\\cmx_libs"
+}
 
 

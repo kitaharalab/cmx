@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 This program depends on the following programs.
 
+CMX
+
 * Apache Xerces - Apache License, Version 2.0
 * Apache Xalan - Apache License, Version 2.0
 * Apache Commons Math - Apache License, Version 2.0
@@ -39,6 +41,12 @@ This program depends on the following programs.
 * jahmm - New BSD License
 * JLayer - GNU Lesser General Public License
 * Processing - GNU Lesser General Public License, Version 2.1
+
+CMX for Android
+
+* javax.sound.midi-for-Android - Apache License, Version 2.0
+* USB-MIDI-Driver - Apache License, Version 2.0
+
 
 Please read text files in the 'licenses' directory for detailed information 
 about the software license of each program. 

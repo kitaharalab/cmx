@@ -60,10 +60,10 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
 //    api fileTree(dir: 'lib', include: '*.jar')
 
-    api fileTree(dir: '../libs', include: ['*.jar'])
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api (name: 'javax.sound.midi-release', ext: 'aar')
-    api (name: 'MIDIDriver-release', ext: 'aar')
+    implementation fileTree(dir: '../libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name: 'javax.sound.midi-release', ext: 'aar')
+    implementation(name: 'MIDIDriver-release', ext: 'aar')
 
     // cmx_common
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math
