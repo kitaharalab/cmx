@@ -1,9 +1,9 @@
 package jp.crestmuse.cmx.processing;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
 
 import org.xml.sax.SAXException;
@@ -1244,36 +1244,20 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 * <tt>showMidiOutChooser(int, Component)</tt>を呼び出してください．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiOutChooser(Context context, int resource) {
-		showMidiOutChooser(0, context, resource);
+	public void showMidiOutChooser(FragmentManager fragmentManager, int resource) {
+		showMidiOutChooser(0, fragmentManager, resource);
 	}
 
 	/**
 	 * 指定された要素番号に対応する認識済みのMIDI出力デバイスの選択ダイアログを表示します．<br>
 	 * 表示するダイアログボックスの親ウィンドウが不明な場合，<tt>parent</tt>には<tt>null</tt>を指定することもできます．
 	 */
-	public void showMidiOutChooser(final int i, Context context, int resource) {
-//		try {
-//			final List<MidiDevice.Info> midiOutDeviceInfo = SoundUtils.getMidiOutDeviceInfo();
-//			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//			builder.setTitle("Select MIDI OUT Device...")
-//					.setSingleChoiceItems(
-//							new ArrayAdapter(context , resource, midiOutDeviceInfo),
-//							0,
-//							new DialogInterface.OnClickListener() {
-//								@Override
-//								public void onClick(DialogInterface dialog, int which) {
-//									midiouts[i] = midiOutDeviceInfo.get(which);
-//									System.out.println("midiouts[" + i + "] = " + midiouts[i].toString());
-//									dialog.dismiss();
-//								}
-//							})
-					new ChooseMidioutDialogFragment().setCMXController(this).show(new DialogFragment().getFragmentManager(), "MidiOutChooser");
-
-//		} catch (MidiUnavailableException e) {
-//			throw new DeviceNotAvailableException("MIDI device not available");
-//		}
-	}
+     public void showMidiOutChooser(final int i, FragmentManager fragmentManager, int resource) {
+        new ChooseMidioutDialogFragment()
+                .setCMXController(this)
+                .setLayout(resource)
+                .show(fragmentManager, "MidiOutChooser");
+     }
 
 	/**
 	 * マイクから波形データを受け取って，短区間ごとに区切った波形断片を次々と 出力する「モジュール」を生成します．<br>

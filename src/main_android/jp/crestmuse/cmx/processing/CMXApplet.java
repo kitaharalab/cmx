@@ -3,7 +3,7 @@ package jp.crestmuse.cmx.processing;
 //import java.awt.Button;
 //import java.awt.Component;
 
-import android.content.Context;
+import android.support.v4.app.FragmentManager;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -367,15 +367,15 @@ public class CMXApplet extends PApplet implements MusicListener, TickTimer, MIDI
 	/**
 	 * 認識済みのMIDI出力デバイスの選択ダイアログを表示します．
 	 */
-	public void showMidiOutChooser(Context context, int resource) {
-		ctrl.showMidiOutChooser(context, resource);
+	public void showMidiOutChooser(FragmentManager fragmentManager, int resource) {
+		ctrl.showMidiOutChooser(fragmentManager, resource);
 	}
 
 	/**
-	 * @see CMXController#showMidiOutChooser(int, Context context)
+	 * @see CMXController#showMidiOutChooser(int, android.support.v4.app.FragmentManager fragmentManager)
 	 */
-	public void showMidiOutChooser(int i, Context context, int resource) {
-		ctrl.showMidiOutChooser(i, context, resource);
+	public void showMidiOutChooser(int i, FragmentManager fragmentManager, int resource) {
+		ctrl.showMidiOutChooser(i, fragmentManager, resource);
 	}
 
 	/** マイクから波形データを受け取って，短区間ごとに区切った波形断片を次々と
