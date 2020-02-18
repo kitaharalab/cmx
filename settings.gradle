@@ -1,2 +1,4 @@
+//rootProject.name = 'cmx'
+
 include ':cmx_android', ':cmx_pc'//, ':MIDIDriver'
 // project(':MIDIDriver').projectDir = file('../../kshoji/USB-MIDI-Driver/MIDIDriver')
