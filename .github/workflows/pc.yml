@@ -20,4 +20,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: cmx_pc
-        path: cmx_pc/build/libs/cmx_pc.jar
+        path: cmx_pc/build/libs/
