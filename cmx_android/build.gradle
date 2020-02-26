@@ -3,6 +3,9 @@ plugins {
 }
 
 repositories {
+    maven {
+        url "http://maven.imagej.net/content/groups/public/"
+    }
     flatDir {dirs 'libs'}
 }
 

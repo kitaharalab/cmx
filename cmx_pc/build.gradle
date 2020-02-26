@@ -7,6 +7,9 @@ version = '1.0.0-alpha'
 mainClassName = 'jp.crestmuse.cmx.commands.SMF2SCC'
 
 repositories {
+    maven {
+        url "http://maven.imagej.net/content/groups/public/"
+    }
 //    flatDir {dirs 'libs'}
 }
 
