@@ -41,8 +41,8 @@ dependencies {
     implementation 'apache-xerces:xercesImpl:2.9.1'
     // https://mvnrepository.com/artifact/be.ac.ulg.montefiore.run.jahmm/jahmm
     api 'be.ac.ulg.montefiore.run.jahmm:jahmm:0.6.2'
-// https://mvnrepository.com/artifact/dk.ange/javaoctave
-    implementation 'dk.ange:javaoctave:0.6.4'
+    // https://mvnrepository.com/artifact/dk.ange/javaoctave
+    api 'dk.ange:javaoctave:0.6.4'
 
     // cmx_pc
     // https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
