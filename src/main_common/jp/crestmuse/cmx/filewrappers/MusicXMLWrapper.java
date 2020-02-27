@@ -767,16 +767,7 @@ public class MusicXMLWrapper extends CMXFileWrapper {
         for (int i = 0; i < size; i++) {
           Measure measure = new Measure(measures.item(i),
               i > 0 ? measurelist[i - 1] : null, this);
-
-          try {
-            measure.setCumulativeTicks(cumulativeTicks);
-          } catch (InvalidElementException e) {
-            System.out.print(",");
-            System.out.print(e.getClass().getSimpleName());
-            System.out.print(",");
-            System.out.print(e.getMessage());
-            e.printStackTrace();
-          }
+          measure.setCumulativeTicks(cumulativeTicks);
           // measure.cumulativeTicks = cumulativeTicks;
           // Attributes attr = measure.getAttributesNodeInterface();
           // if (attr != null && attr.beatType() != 0)
