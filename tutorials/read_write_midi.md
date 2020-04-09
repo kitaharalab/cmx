@@ -44,7 +44,7 @@ public class UsingCMXController {
 }
 ```
 
-## CMXController returns a propper wrapper class
+## CMXController returns a proper wrapper class
 
 | input file format | output subclass of CMXFileWrapper |
 | --- | --- |
