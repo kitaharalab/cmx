@@ -179,7 +179,9 @@ public class SPExecutor {
 //    for (SPExecutorModule spm : modules)
 //      ex.execute(spm);
     for (SPExecutorModule spm : modules)
-      spm.start();
+      if (spm.getState() == Thread.State.NEW) {
+        spm.start();
+      }
   }
 
   /*
