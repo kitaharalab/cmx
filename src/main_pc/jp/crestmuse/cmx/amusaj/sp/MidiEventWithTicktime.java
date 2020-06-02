@@ -132,7 +132,15 @@ public class MidiEventWithTicktime extends MidiEvent {
   public static MidiEventWithTicktime createProgramChangeEvent(long position,
                                                                int ch, 
                                                                int value) {
-    return createShortMessageEvent(position, ch, ShortMessage.PITCH_BEND, 
+    return createShortMessageEvent(position, ch, ShortMessage.PROGRAM_CHANGE,
                                    value, 0);
   }
+
+  public static MidiEventWithTicktime createPitchBendEvent(long position,
+                                                               int ch,
+                                                               int value) {
+    return createShortMessageEvent(position, ch, ShortMessage.PITCH_BEND,
+            value, 0);
+  }
+
 }
