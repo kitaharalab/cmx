@@ -136,6 +136,9 @@ public class SCCDataSet implements SCC,Cloneable {
                      int velocity, int offVelocity,
                      MusicXMLWrapper.MusicData md,
                      Map<String,String> attr) {
+
+//      System.out.println("addNoteElement(" + onset + "," + offset + ", ...)");
+
       MutableNote note = new MutableNote(onset, offset, notenum, velocity,
                                          offVelocity, division, attr);
       notes.add(note);

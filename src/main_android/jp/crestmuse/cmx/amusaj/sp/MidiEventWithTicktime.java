@@ -118,8 +118,6 @@ public class MidiEventWithTicktime extends MidiEvent {
                                                               int d1, int d2){
     try {
       ShortMessage msg = new ShortMessage();
-// for debug 20190627 fujii
-//      msg.setMessage(st + ch, d1, d2);
       msg.setMessage(st, ch, d1, d2);
       return new MidiEventWithTicktime(msg, position, position); //2016.11.04
       //return new MidiEventWithTicktime(msg, 0, position);
@@ -138,7 +136,14 @@ public class MidiEventWithTicktime extends MidiEvent {
   public static MidiEventWithTicktime createProgramChangeEvent(long position,
                                                                int ch, 
                                                                int value) {
-    return createShortMessageEvent(position, ch, ShortMessage.PITCH_BEND, 
+    return createShortMessageEvent(position, ch, ShortMessage.PROGRAM_CHANGE,
                                    value, 0);
+  }
+
+  public static MidiEventWithTicktime createPitchBendEvent(long position,
+                                                               int ch,
+                                                               int value) {
+    return createShortMessageEvent(position, ch, ShortMessage.PITCH_BEND,
+            value, 0);
   }
 }
