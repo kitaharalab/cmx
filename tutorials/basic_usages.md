@@ -50,17 +50,17 @@ public class SubclassOfCMXApplet extends CMXApplet {
 CMX converts files between MusicXML, SCCXML, MIDIXML, standard MIDI files from a command line.
 
 ```
-java -cp cmx_pc.jar;libs\* jp.crestmuse.cmx.commands.[class name] [options]
+java -cp cmx_jre.jar;libs\* jp.crestmuse.cmx.commands.[class name] [options]
 ```
 
 Converts a standard MIDI file to a SCCXML file
 
 ```
-java -cp cmx_pc.jar;libs\* jp.crestmuse.cmx.commands.SMF2SCC filename.mid
+java -cp cmx_jre.jar;libs\* jp.crestmuse.cmx.commands.SMF2SCC filename.mid
 ```
 
 Converts to a standard MIDI file to a SCCXML file
 
 ```
-java -cp cmx_pc.jar;libs\* jp.crestmuse.cmx.commands.SMF2SCC midifilename.mid -o sccfilename.xml
+java -cp cmx_jre.jar;libs\* jp.crestmuse.cmx.commands.SMF2SCC midifilename.mid -o sccfilename.xml
 ```
