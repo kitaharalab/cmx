@@ -16,7 +16,7 @@ repositories {
 
 sourceSets {
     main {
-        java.srcDirs = ['../src/main_pc', '../src/main_common']
+        java.srcDirs = ['../src/main_jre', '../src/main_common']
     }
 }
 
