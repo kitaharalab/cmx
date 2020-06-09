@@ -15,9 +15,9 @@ jobs:
         java-version: 1.8
     - run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew -p cmx_pc build
+      run: ./gradlew -p cmx_jre build
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v1
       with:
-        name: cmx_pc
-        path: cmx_pc/build/libs/
+        name: cmx_jre
+        path: cmx_jre/build/libs/
