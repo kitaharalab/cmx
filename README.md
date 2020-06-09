@@ -8,24 +8,24 @@ CrestMuse Toolkit (CMX) is an open-source programming library for developing mus
 
 ### Download Snapshot Artifacts from [GitHub Actions](https://github.com/kitaharalab/cmx/actions)
 
-|  | CMX for PC | CMX for Android |
+|  | CMX for JRE | CMX for Android |
 | --- | --- | --- |
 | **Workflows** | Java CI | Android CI |
 
-### Build CMX for PC
+### Build CMX for JRE
 
 * Source sets
   * cmx/src/main_common
-  * cmx/src/main_pc
+  * cmx/src/main_jre
 * Dependencies
   * cmx/libs
-  * cmx/cmx_pc/libs
+  * cmx/cmx_jre/libs
 * Run
   ```
-  ./gradlew -p cmx_pc build
+  ./gradlew -p cmx_jre build
   ```
 * Artifacts
-  * cmx/cmx_pc/build/libs
+  * cmx/cmx_jre/build/libs
 
 ### Build CMX for Android
 
