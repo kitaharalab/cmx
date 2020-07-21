@@ -19,6 +19,8 @@ public interface PianoRoll {
 
   public void drawNote(int measure, double beat, double duration,
                        int notenum, boolean selected, DataModel data);
+  public void setKeyboardWidth(double keyboardWidth);
+  public double getKeyboardWidth();
 
 
 }
