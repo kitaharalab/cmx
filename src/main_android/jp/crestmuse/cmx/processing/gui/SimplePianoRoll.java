@@ -7,6 +7,7 @@ import jp.crestmuse.cmx.processing.CMXApplet;
 public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   double octaveWidth = 210.0;
   int nOctave = 3;
+  private double keyboardWidth = 100.0;
   //  double lineWidth=210.0/12.0;
   int basenn = 48;
   private DataModel data = null;
@@ -61,7 +62,7 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   }
 
   public boolean isInside(int x, int y) {
-    return x >= 100 && x < width && y >= 0 && y < nOctave * octaveWidth;
+    return x >= keyboardWidth && x < width && y >= 0 && y < nOctave * octaveWidth;
   }
   
   public double y2notenum(double y) {
@@ -84,8 +85,8 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   }
   
   protected double beat2x(int measure, double beat, DataModel data) {
-    double lenMeas = (double)(width - 100) / data.getMeasureNum();
-    return 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
+    double lenMeas = (double)(width - keyboardWidth) / data.getMeasureNum();
+    return keyboardWidth + measure * lenMeas + beat * lenMeas / data.getBeatNum();
   }
 
   protected int x2measure(double x) {
@@ -93,8 +94,8 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   }
   
   protected int x2measure(double x, DataModel data) {
-    double lenMeas = (double)(width - 100) / data.getMeasureNum();
-    return (int)((x - 100) / lenMeas);
+    double lenMeas = (double)(width - keyboardWidth) / data.getMeasureNum();
+    return (int)((x - keyboardWidth) / lenMeas);
   }
 
   protected double x2beat(double x) {
@@ -102,15 +103,15 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   }
   
   protected double x2beat(double x, DataModel data) {
-    double lenMeas = (width - 100.0) / data.getMeasureNum();
-    int meas = (int)((x - 100) / lenMeas);
-    return ((x - 100.0) / lenMeas - meas) * data.getBeatNum();
+    double lenMeas = (width - keyboardWidth) / data.getMeasureNum();
+    int meas = (int)((x - keyboardWidth) / lenMeas);
+    return ((x - keyboardWidth) / lenMeas - meas) * data.getBeatNum();
   }
   
   public void drawNote(int measure, double beat, double duration,
                        int notenum, boolean selected, DataModel data) {
     if (isVisible) {
-      double lenMeas = (double)(width - 100) / data.getMeasureNum();
+      double lenMeas = (double)(width - keyboardWidth) / data.getMeasureNum();
       double x = beat2x(measure, beat, data);
       //double x = 100 + measure * lenMeas + beat * lenMeas / data.getBeatNum();
       double w = duration * lenMeas / data.getBeatNum();
@@ -140,14 +141,14 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
         stroke(130);
         strokeWeight(0);
         double lineWidth = octaveWidth / 12;
-        line(100,(a*octaveWidth)+lineWidth*b,width,(a*octaveWidth)+lineWidth*b);
+        line(keyboardWidth,(a*octaveWidth)+lineWidth*b,width,(a*octaveWidth)+lineWidth*b);
       }
     }
     if (data != null) {
-      double lengtheach = (double)(width - 100) / data.getMeasureNum();
+      double lengtheach = (width - keyboardWidth) / data.getMeasureNum();
       for (int i = 0; i < data.getMeasureNum(); i++) {
-        line((int)(100 + i * lengtheach), 0,
-             (int)(100 + i * lengtheach), nOctave*octaveWidth);
+        line((int)(keyboardWidth + i * lengtheach), 0,
+             (int)(keyboardWidth + i * lengtheach), nOctave*octaveWidth);
       }
     }
   }
@@ -166,15 +167,15 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
     if (measure >= 0) {
     double x = beat2x(measure, beat);
       stroke(barR, barG, barB);
-      line((int)x, 0, (int)x, 630);
+      line((int)x, 0, (int)x, nOctave*octaveWidth);
     }
   }
   
   private void drawKeyboard(int x,int y){
    stroke(130);
-   line(100,y+0,100,y+octaveWidth);
+   line(keyboardWidth,y+0,keyboardWidth,y+octaveWidth);
    for (int i = 1; i <= 7; i++)
-     line(x, y + (int)(i*octaveWidth/7), 100, y + (int)(i*octaveWidth/7));
+     line(x, y + (int)(i*octaveWidth/7), keyboardWidth, y + (int)(i*octaveWidth/7));
 
    //黒鍵
    fill(0);
@@ -191,6 +192,16 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
 
   public boolean isNoteVisible() {
     return isVisible;
+  }
+
+  @Override
+  public void setKeyboardWidth(double keyboardWidth) {
+    this.keyboardWidth = keyboardWidth;
+  }
+
+  @Override
+  public double getKeyboardWidth() {
+    return keyboardWidth;
   }
 
 }
