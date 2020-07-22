@@ -622,7 +622,11 @@ public class CMXController implements TickTimer, MIDIConsts {
 		return getSequencer(0);
 	}
 	public Sequencer getSequencer(int iMusic) {
-		return ((SMFPlayer)musicPlayer[iMusic]).getSequencer();
+		if (musicPlayer[iMusic] instanceof  SMFPlayer) {
+			return ((SMFPlayer)musicPlayer[iMusic]).getSequencer();
+		} else {
+			return null;
+		}
 	}
 
 
