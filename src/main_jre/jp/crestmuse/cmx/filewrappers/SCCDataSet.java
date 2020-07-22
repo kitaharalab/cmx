@@ -17,6 +17,8 @@ import java.util.TreeSet;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.Track;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -30,6 +32,7 @@ import jp.crestmuse.cmx.elements.MutableNote;
 import jp.crestmuse.cmx.elements.MutablePitchBend;
 import jp.crestmuse.cmx.elements.MutableProgramChange;
 import jp.crestmuse.cmx.misc.PianoRoll;
+import jp.crestmuse.cmx.processing.CMXController;
 
 import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createControlChangeEvent;
 import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createNoteOffEvent;
@@ -77,6 +80,7 @@ public class SCCDataSet implements SCC,Cloneable {
   }
 
   public class Part implements SCC.Part {
+    private CMXController cmx = CMXController.getInstance();
     //    private List<MutableMusicEvent> notes;
     private SortedSet<MutableMusicEvent> notes;
     //private List<MutableMusicEvent> notes = new ArrayList<MutableMusicEvent>();
@@ -108,14 +112,20 @@ public class SCCDataSet implements SCC,Cloneable {
     }
 
     public synchronized void remove(MutableMusicEvent e) {
+      Sequencer sequencer = cmx.getSequencer();
       boolean result = notes.remove(e);
+      long tick1 = e.getMidiEvent1().getTick();
       if (tracks != null) {
-        if (e.getMidiEvent1() != null) {
-          tracks[index].remove(e.getMidiEvent1());
-        }
-        if (e.getMidiEvent2() != null) {
-          // 仮
-          //          tracks[index].remove(e.getMidiEvent2());
+        if (tick1 > sequencer.getTickPosition()) {
+          if (e.getMidiEvent1() != null) {
+            tracks[index].remove(e.getMidiEvent1());
+          }
+          // Leave this NoteOffEvent if the paired NoteOnEvent has sent
+          if (tick1 > sequencer.getTickPosition()) {
+            if (e.getMidiEvent2() != null) {
+              tracks[index].remove(e.getMidiEvent2());
+            }
+          }
         }
       }
       //      return result;

@@ -7,6 +7,7 @@ import jp.crestmuse.cmx.processing.CMXApplet;
 public class SimplePianoRoll extends CMXApplet implements PianoRoll{
   double octaveWidth = 210.0;
   int nOctave = 3;
+  private double keyboardWidth = 100.0;
   //  double lineWidth=210.0/12.0;
   int basenn = 48;
   private DataModel data = null;
@@ -118,7 +119,17 @@ public class SimplePianoRoll extends CMXApplet implements PianoRoll{
       rect((float)x, (float)y, (float)w, (float)octaveWidth / 12);
     }
   }
-  
+
+  @Override
+  public void setKeyboardWidth(double keyboardWidth) {
+    this.keyboardWidth = keyboardWidth;
+  }
+
+  @Override
+  public double getKeyboardWidth() {
+    return keyboardWidth;
+  }
+
   private void drawPianoRoll() {
     background(255);              
     drawLines();

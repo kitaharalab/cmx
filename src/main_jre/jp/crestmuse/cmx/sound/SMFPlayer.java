@@ -48,6 +48,10 @@ public class SMFPlayer implements MusicPlayer {
     sequencer.open();
   }
 
+  public Sequencer getSequencer() {
+    return sequencer;
+  }
+
   public void readSMF(String filename) 
     throws InvalidMidiDataException, IOException {
     readSMF(new File(filename));

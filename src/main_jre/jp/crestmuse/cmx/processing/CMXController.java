@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
@@ -101,6 +102,20 @@ public class CMXController implements TickTimer, MIDIConsts {
 	 */
 	public static CMXController getInstance() {
 		return me;
+	}
+
+	/**
+	 * @return
+	 */
+	public Sequencer getSequencer() {
+		return getSequencer(0);
+	}
+	public Sequencer getSequencer(int iMusic) {
+		if (musicPlayer[iMusic] instanceof  SMFPlayer) {
+			return ((SMFPlayer)musicPlayer[iMusic]).getSequencer();
+		} else {
+			return null;
+		}
 	}
 
 	/**
