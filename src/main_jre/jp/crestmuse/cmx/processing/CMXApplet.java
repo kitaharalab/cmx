@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.sampled.FloatControl;
 
 import jp.crestmuse.cmx.amusaj.sp.MidiEventSender;
@@ -599,4 +600,9 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	public FloatControl getVolumeControl() {
 		return ctrl.getVolumeControl();
 	}
+
+	public Sequencer getSequencer() {
+		return ctrl.getSequencer();
+	}
+
 }
