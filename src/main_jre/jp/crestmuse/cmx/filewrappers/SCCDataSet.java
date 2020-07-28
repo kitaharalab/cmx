@@ -112,16 +112,14 @@ public class SCCDataSet implements SCC,Cloneable {
     }
 
     public synchronized void remove(MutableMusicEvent e) {
-      Sequencer sequencer = cmx.getSequencer();
       boolean result = notes.remove(e);
-      long tick1 = e.getMidiEvent1().getTick();
       if (tracks != null) {
-        if (tick1 > sequencer.getTickPosition()) {
+        if (e.onset() > cmx.getTickPosition()) {
           if (e.getMidiEvent1() != null) {
             tracks[index].remove(e.getMidiEvent1());
           }
           // Leave this NoteOffEvent if the paired NoteOnEvent has sent
-          if (tick1 > sequencer.getTickPosition()) {
+          if (e.onset() > cmx.getTickPosition()) {
             if (e.getMidiEvent2() != null) {
               tracks[index].remove(e.getMidiEvent2());
             }

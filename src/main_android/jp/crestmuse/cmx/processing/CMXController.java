@@ -618,14 +618,25 @@ public class CMXController implements TickTimer, MIDIConsts {
 	}
 
 	// TODO: experiment 20190613 fujiij
+
+	/**
+	 * @deprecated Android対応で必要となり一時的に追加したメソッドです．
+	 * @return 要素番号0のMusicPlayerがSMFPlayerの場合，そのSequencer
+	 */
 	public Sequencer getSequencer() {
 		return getSequencer(0);
 	}
+
+	/**
+	 * @deprecated Android対応で必要となり一時的に追加したメソッドです．
+	 * @param iMusic MusicPlayerの要素番号
+	 * @return 指定された要素番号のMusicPlayerがSMFPlayerの場合，そのSequencer
+	 */
 	public Sequencer getSequencer(int iMusic) {
 		if (musicPlayer[iMusic] instanceof  SMFPlayer) {
 			return ((SMFPlayer)musicPlayer[iMusic]).getSequencer();
 		} else {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 	}
 

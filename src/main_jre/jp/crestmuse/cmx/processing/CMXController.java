@@ -105,20 +105,6 @@ public class CMXController implements TickTimer, MIDIConsts {
 	}
 
 	/**
-	 * @return
-	 */
-	public Sequencer getSequencer() {
-		return getSequencer(0);
-	}
-	public Sequencer getSequencer(int iMusic) {
-		if (musicPlayer[iMusic] instanceof  SMFPlayer) {
-			return ((SMFPlayer)musicPlayer[iMusic]).getSequencer();
-		} else {
-			return null;
-		}
-	}
-
-	/**
 	 * CMXが対応しているXML形式の文書オブジェクトを生成します．<br>
 	 * たとえば，SCCXML形式の文書オブジェクトを生成する際には，
 	 * {@code createDocument(SCCXMLWrapper.TOP_TAG)} とします．

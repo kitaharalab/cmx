@@ -30,7 +30,6 @@ import jp.crestmuse.cmx.processing.CMXController;
 import jp.kshoji.javax.sound.midi.InvalidMidiDataException;
 import jp.kshoji.javax.sound.midi.MidiEvent;
 import jp.kshoji.javax.sound.midi.MidiSystem;
-import jp.kshoji.javax.sound.midi.Sequencer;
 import jp.kshoji.javax.sound.midi.Track;
 
 import static jp.crestmuse.cmx.amusaj.sp.MidiEventWithTicktime.createControlChangeEvent;
@@ -111,16 +110,14 @@ public class SCCDataSet implements SCC,Cloneable {
     }
 
     public synchronized void remove(MutableMusicEvent e) {
-      Sequencer sequencer = cmx.getSequencer();
       boolean result = notes.remove(e);
-      long tick1 = e.getMidiEvent1().getTick();
       if (tracks != null) {
-        if (tick1 > sequencer.getTickPosition()) {
+        if (e.onset() > cmx.getTickPosition()) {
           if (e.getMidiEvent1() != null) {
             tracks[index].remove(e.getMidiEvent1());
           }
-          // Remain NoteOffEvent if a paired NoteOnEvent has sent already
-          if (tick1 > sequencer.getTickPosition()) {
+          // Leave this NoteOffEvent if the paired NoteOnEvent has sent
+          if (e.onset() > cmx.getTickPosition()) {
             if (e.getMidiEvent2() != null) {
               tracks[index].remove(e.getMidiEvent2());
             }

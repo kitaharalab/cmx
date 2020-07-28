@@ -368,7 +368,7 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 	}
 	
 	/**
-	 * @see CMXController#showMidiOutChooser(int, Component)
+	 * @see CMXController#showMidiOutChooser(int, Object)
 	 */
 	public void showMidiOutChooser(int i) {
 		// TODO: processing3 fujiij
@@ -599,10 +599,6 @@ public class CMXApplet extends PApplet implements MusicListener,TickTimer,MIDICo
 
 	public FloatControl getVolumeControl() {
 		return ctrl.getVolumeControl();
-	}
-
-	public Sequencer getSequencer() {
-		return ctrl.getSequencer();
 	}
 
 }
