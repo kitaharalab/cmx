@@ -66,8 +66,8 @@ dependencies {
 
     api fileTree(dir: '../libs', include: ['*.jar'])
     api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':javax.sound.midi')
-//    implementation(name: 'javax.sound.midi-release', ext: 'aar')
+    // implementation project(path: ':javax.sound.midi')
+   implementation(name: 'javax.sound.midi-release', ext: 'aar')
     implementation(name: 'MIDIDriver-release', ext: 'aar')
 
     // cmx_common
