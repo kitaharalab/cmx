@@ -66,7 +66,8 @@ dependencies {
 
     api fileTree(dir: '../libs', include: ['*.jar'])
     api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation(name: 'javax.sound.midi-release', ext: 'aar')
+    implementation project(path: ':javax.sound.midi')
+//    implementation(name: 'javax.sound.midi-release', ext: 'aar')
     implementation(name: 'MIDIDriver-release', ext: 'aar')
 
     // cmx_common
@@ -90,8 +91,8 @@ dependencies {
 //    implementation 'xml-apis:xml-apis:1.3.04'
     // https://mvnrepository.com/artifact/be.ac.ulg.montefiore.run.jahmm/jahmm
     implementation 'be.ac.ulg.montefiore.run.jahmm:jahmm:0.6.2'
-    // https://mvnrepository.com/artifact/dk.ange/javaoctave
-    implementation 'dk.ange:javaoctave:0.6.4'
+//    // https://mvnrepository.com/artifact/dk.ange/javaoctave
+//    implementation 'dk.ange:javaoctave:0.6.4'
 
 
 

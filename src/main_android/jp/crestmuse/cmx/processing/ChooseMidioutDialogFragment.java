@@ -18,8 +18,8 @@ import jp.kshoji.javax.sound.midi.MidiDevice;
 import jp.kshoji.javax.sound.midi.MidiUnavailableException;
 
 public class ChooseMidioutDialogFragment extends DialogFragment {
-    CMXController cmx;
-    int layout = 0;
+    protected CMXController cmx;
+    protected int layout = 0;
 
     public ChooseMidioutDialogFragment setCMXController(CMXController cmx) {
         this.cmx = cmx;

@@ -94,9 +94,11 @@ public class MusicPlaySynchronizer implements Runnable {
       try {
         Thread.sleep(sleeptime);
       } catch (InterruptedException e) {
+        e.printStackTrace();
         break;
       }
     }
+    System.out.println("isNowPlaying(): " + isNowPlaying() + ", isStoppedByUser(): " + isStoppedByUser());
     for (MusicListener l : listeners)
       l.musicStopped(this);
     for (MusicPlaySynchronized sync : synclist)
