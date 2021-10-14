@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-    id("maven-publish") apply false
+    id "maven-publish"
 }
 
 subprojects {
