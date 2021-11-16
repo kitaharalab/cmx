@@ -82,8 +82,9 @@ publishing {
         }
     }
     publications {
-        cmxJre(MavenPublication) {
+        jre(MavenPublication) {
             from components.java
+            groupId 'jp.kthrlab.cmx'
         }
     }
 }

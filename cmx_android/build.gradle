@@ -113,3 +113,27 @@ dependencies {
 //    api project(path: ':MIDIDriver')
 }
 
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/kitaharalab/cmx"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        release(MavenPublication) {
+            from components.release
+            groupId 'jp.kthrlab.cmx'
+        }
+        debug(MavenPublication) {
+            from components.debug
+            groupId 'jp.kthrlab.cmx'
+        }
+
+    }
+}
+
