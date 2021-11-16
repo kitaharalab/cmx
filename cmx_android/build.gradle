@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
 }
 
 repositories {
@@ -133,7 +134,6 @@ publishing {
             from components.debug
             groupId 'jp.kthrlab.cmx'
         }
-
     }
 }
 
