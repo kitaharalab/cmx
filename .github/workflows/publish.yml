@@ -19,8 +19,11 @@ jobs:
       - run: chmod +x gradlew
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-      - name: Publish package
+      - name: Publish cmx_jre package
         run: ./gradlew -p cmx_jre publish
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish cmx_android package
         run: ./gradlew -p cmx_android publish
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
