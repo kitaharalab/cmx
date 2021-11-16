@@ -82,7 +82,7 @@ publishing {
         }
     }
     publications {
-        gpr(MavenPublication) {
+        cmxJre(MavenPublication) {
             from components.java
         }
     }
