@@ -84,7 +84,7 @@ publishing {
     publications {
         jre(MavenPublication) {
             from components.java
-            groupId 'jp.kthrlab.cmx'
+            // groupId 'jp.kthrlab.cmx'
         }
     }
 }
