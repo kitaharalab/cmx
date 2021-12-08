@@ -5,17 +5,17 @@ plugins {
 
 repositories {
     maven {
-        url "http://maven.imagej.net/content/groups/public/"
+        url "https://maven.scijava.org/content/groups/public/"
     }
     flatDir {dirs 'libs'}
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 27
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName "0.0.1"
 
@@ -77,7 +77,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'org.apache.commons:commons-math3:3.6.1'
     // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy
-    implementation 'org.codehaus.groovy:groovy:2.5.6'
+    implementation 'org.codehaus.groovy:groovy:3.0.9'
     // https://mvnrepository.com/artifact/javazoom/jlayer
     implementation 'javazoom:jlayer:1.0.1'
     // https://mvnrepository.com/artifact/xml-resolver/xml-resolver
@@ -102,7 +102,8 @@ dependencies {
 
 
 ////    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    testImplementation 'junit:junit:4.13-beta-3'
+    testImplementation 'junit:junit:4.13.2'
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
