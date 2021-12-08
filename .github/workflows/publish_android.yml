@@ -1,4 +1,4 @@
-name: Publish package to the GitHub Packages
+name: Publish cmx_android package to the GitHub Packages
 on:
   workflow_dispatch:
   release:
