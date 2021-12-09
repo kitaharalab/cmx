@@ -133,11 +133,11 @@ afterEvaluate {
                 artifact "build/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
             }
-            debug(MavenPublication) {
-                from components.debug
-                artifact "build/outputs/aar/cmx_android-debug.aar"
-                // groupId 'jp.kthrlab.cmx'
-            }
+            // debug(MavenPublication) {
+            //     from components.debug
+            //     artifact "build/outputs/aar/cmx_android-debug.aar"
+            //     // groupId 'jp.kthrlab.cmx'
+            // }
         }
     }
 }
