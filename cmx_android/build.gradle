@@ -130,12 +130,12 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                artifact "cmx_android/build/outputs/aar/cmx_android-release.aar"
+                artifact "build/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
             }
             debug(MavenPublication) {
                 from components.debug
-                artifact "cmx_android/build/outputs/aar/cmx_android-debug.aar"
+                artifact "build/outputs/aar/cmx_android-debug.aar"
                 // groupId 'jp.kthrlab.cmx'
             }
         }
