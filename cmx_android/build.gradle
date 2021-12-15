@@ -130,9 +130,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                artifact("$buildDir/outputs/aar/cmx_android-release.aar")
-                artifact(sourceSets)
-                // artifact "build/outputs/aar/cmx_android-release.aar"
+                artifact "$buildDir/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
             }
             // debug(MavenPublication) {
