@@ -120,7 +120,7 @@ afterEvaluate {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/kitaharalab/cmx"
+                url = "https://maven.pkg.github.com/kitaharalab/cmx/android"
                 credentials {
                     username = System.getenv("GITHUB_ACTOR")
                     password = System.getenv("GITHUB_TOKEN")
@@ -131,7 +131,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 artifact("$buildDir/outputs/aar/cmx_android-release.aar")
-                artifact(sourceJar)
+                artifact(sourceSets)
                 // artifact "build/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
             }
