@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-version = "0.0.1"
+version = '1.0.0'
 
 repositories {
     maven {
@@ -132,14 +132,14 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                // groupId 'jp.kthrlab.cmx'
                 artifactId = "${artifactId}-release"
-            }
-            // debug(MavenPublication) {
-            //     from components.debug
-            //     artifactId = "${artifactId}-debug"
                 // groupId 'jp.kthrlab.cmx'
-            // }
+            }
+            debug(MavenPublication) {
+                from components.debug
+                artifactId = "${artifactId}-debug"
+                // groupId 'jp.kthrlab.cmx'
+            }
         }
     }
 }
