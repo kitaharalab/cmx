@@ -3,6 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
+version = "0.0.1"
+
 repositories {
     maven {
         url "https://maven.scijava.org/content/groups/public/"
@@ -17,7 +19,7 @@ android {
         minSdkVersion 27
         targetSdkVersion 30
         versionCode 1
-        versionName "0.0.1"
+        versionName version //"0.0.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 //        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -132,8 +134,7 @@ afterEvaluate {
                 from components.release
                 // artifact "$buildDir/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
-                artifactId = "${android.artifactId}-release"
-                version = android.versionName
+                // artifactId = "${android.artifactId}-release"
             }
             // debug(MavenPublication) {
             //     from components.debug
