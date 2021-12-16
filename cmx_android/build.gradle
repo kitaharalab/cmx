@@ -133,11 +133,11 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 // groupId 'jp.kthrlab.cmx'
-                artifactId = "${Project.getName()}-release"
+                artifactId = "${artifactId}-release"
             }
             // debug(MavenPublication) {
             //     from components.debug
-            //     artifactId = "${Project.getName()}-debug"
+            //     artifactId = "${artifactId}-debug"
                 // groupId 'jp.kthrlab.cmx'
             // }
         }
