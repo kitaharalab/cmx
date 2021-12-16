@@ -132,12 +132,12 @@ afterEvaluate {
                 from components.release
                 // artifact "$buildDir/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
-                // artifactId = "${getArtificatId()}-release"
-                version = getVersionName()
+                artifactId = "${android.artifactId}-release"
+                version = android.versionName
             }
             // debug(MavenPublication) {
             //     from components.debug
-            //     artifactId = "${getArtificatId()}-debug"
+            //     artifactId = "${android.artifactId}-debug"
             //     version = getVersionName()
             //     artifact "build/outputs/aar/cmx_android-debug.aar"
             //     // groupId 'jp.kthrlab.cmx'
