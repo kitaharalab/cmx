@@ -120,7 +120,7 @@ afterEvaluate {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/kitaharalab/cmx/android"
+                url = "https://maven.pkg.github.com/kitaharalab/cmx"
                 credentials {
                     username = System.getenv("GITHUB_ACTOR")
                     password = System.getenv("GITHUB_TOKEN")
@@ -132,12 +132,16 @@ afterEvaluate {
                 from components.release
                 // artifact "$buildDir/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
+                artifactId = "cmx_android-release"
+                version = $versionName
             }
-            // debug(MavenPublication) {
-            //     from components.debug
+            debug(MavenPublication) {
+                from components.debug
+                artifactId = "cmx_android-debug"
+                version = $versionName
             //     artifact "build/outputs/aar/cmx_android-debug.aar"
             //     // groupId 'jp.kthrlab.cmx'
-            // }
+            }
         }
     }
 }
