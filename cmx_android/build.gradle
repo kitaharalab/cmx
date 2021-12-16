@@ -132,16 +132,13 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                // artifact "$buildDir/outputs/aar/cmx_android-release.aar"
                 // groupId 'jp.kthrlab.cmx'
-                // artifactId = "${android.artifactId}-release"
+                artifactId = "${Project.getName()}-release"
             }
             // debug(MavenPublication) {
             //     from components.debug
-            //     artifactId = "${android.artifactId}-debug"
-            //     version = getVersionName()
-            //     artifact "build/outputs/aar/cmx_android-debug.aar"
-            //     // groupId 'jp.kthrlab.cmx'
+            //     artifactId = "${Project.getName()}-debug"
+                // groupId 'jp.kthrlab.cmx'
             // }
         }
     }
