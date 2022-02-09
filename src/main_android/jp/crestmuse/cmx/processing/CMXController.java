@@ -1,10 +1,13 @@
 package jp.crestmuse.cmx.processing;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
+//import android.support.v4.app.FragmentManager;
+//import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
+
+import androidx.fragment.app.FragmentManager;
 
 import org.xml.sax.SAXException;
 

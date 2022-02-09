@@ -4,12 +4,15 @@ package jp.crestmuse.cmx.processing;
 //import android.app.Dialog;
 //import android.app.DialogFragment;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+//import android.support.v4.app.DialogFragment;
+//import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
+
+import androidx.fragment.app.DialogFragment;
 
 import java.util.List;
 

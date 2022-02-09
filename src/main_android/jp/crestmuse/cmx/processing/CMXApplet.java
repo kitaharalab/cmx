@@ -3,7 +3,9 @@ package jp.crestmuse.cmx.processing;
 //import java.awt.Button;
 //import java.awt.Component;
 
-import android.support.v4.app.FragmentManager;
+//import android.support.v4.app.FragmentManager;
+
+import androidx.fragment.app.FragmentManager;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -372,7 +374,6 @@ public class CMXApplet extends PApplet implements MusicListener, TickTimer, MIDI
 	}
 
 	/**
-	 * @see CMXController#showMidiOutChooser(int, android.support.v4.app.FragmentManager fragmentManager)
 	 */
 	public void showMidiOutChooser(int i, FragmentManager fragmentManager, int resource) {
 		ctrl.showMidiOutChooser(i, fragmentManager, resource);
