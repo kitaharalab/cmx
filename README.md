@@ -6,22 +6,31 @@ CrestMuse Toolkit (CMX) is an open-source programming library for developing mus
 
 ### Using a published [GitHub Packages](https://github.com/orgs/kitaharalab/packages)
 
+#### In a Gradle project
+
 build.gradle
 
 ```
 repositories {
     mavenCentral()
-    jcenter()
+
     maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/kitaharalab/cmx")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
-            }
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/kitaharalab/cmx")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
         }
+    }
 }
+
+dependencies {
+    implementation 'cmx:cmx_jre-release:1.1.0'
+}
+
 ```
+
+Need more instructions? See [cmx-examples](https://github.com/kitaharalab/cmx-examples)
 
 ### Download Release Artifacts from [GitHub Releases](https://github.com/kitaharalab/cmx/releases)
 

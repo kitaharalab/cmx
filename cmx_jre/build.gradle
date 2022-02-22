@@ -8,9 +8,6 @@ version = '1.0.0'
 mainClassName = 'jp.crestmuse.cmx.commands.SMF2SCC'
 
 repositories {
-    maven {
-        url "https://maven.scijava.org/content/groups/public/"
-    }
 //    flatDir {dirs 'libs'}
 }
 
@@ -41,8 +38,8 @@ dependencies {
     implementation 'xalan:xalan:2.7.2'
     // https://mvnrepository.com/artifact/xalan/serializer
     implementation 'xalan:serializer:2.7.2'
-    // https://mvnrepository.com/artifact/apache-xerces/xercesImpl
-    implementation 'apache-xerces:xercesImpl:2.9.1'
+// https://mvnrepository.com/artifact/xerces/xercesImpl
+    implementation 'xerces:xercesImpl:2.12.2'
     // https://mvnrepository.com/artifact/be.ac.ulg.montefiore.run.jahmm/jahmm
     implementation 'be.ac.ulg.montefiore.run.jahmm:jahmm:0.6.2'
 //    // https://mvnrepository.com/artifact/dk.ange/javaoctave

@@ -18,6 +18,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
+            // jahmm
             url "https://maven.scijava.org/content/groups/public/"
         }
     }
