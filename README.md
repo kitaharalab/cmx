@@ -32,6 +32,8 @@ dependencies {
 
 Need more instructions? See [cmx-examples](https://github.com/kitaharalab/cmx-examples)
 
+### Download Release Artifacts from [GitHub Packages](https://github.com/orgs/kitaharalab/packages?repo_name=cmx)
+
 ### Download Release Artifacts from [GitHub Releases](https://github.com/kitaharalab/cmx/releases)
 
 ### Download Snapshot Artifacts from [GitHub Actions](https://github.com/kitaharalab/cmx/actions)
