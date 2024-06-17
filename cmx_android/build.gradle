@@ -85,10 +85,10 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
 //    api fileTree(dir: 'lib', include: '*.jar')
 
-    api 'org.processing.android:processing-core:4.6.0'
-
     api fileTree(dir: '../libs', include: ['*.jar'])
-    api fileTree(dir: 'libs', include: ['*.jar'])
+    // api fileTree(dir: 'libs', include: ['*.jar'])
+    
+    implementation 'org.processing.android:processing-core:4.6.0'
 
     implementation 'javax.sound.midi-for-Android:javax.sound.midi-release:0.2.0-kitaharalab'
     implementation 'USB-MIDI-Driver:mididriver-release:0.2.0-kitaharalab'
