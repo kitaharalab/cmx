@@ -118,6 +118,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     implementation 'com.google.guava:guava:31.0.1-jre'
+
+    implementation 'org.processing.android:processing-core:4.6.0'
 }
 
 afterEvaluate {
