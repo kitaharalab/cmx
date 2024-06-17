@@ -119,7 +119,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.0.1-jre'
 
-    implementation 'org.processing.android:processing-core:4.5'
+    implementation 'org.processing.android:processing-core:4.6.0'
 }
 
 afterEvaluate {
