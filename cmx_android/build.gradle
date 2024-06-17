@@ -85,6 +85,8 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
 //    api fileTree(dir: 'lib', include: '*.jar')
 
+    api 'org.processing.android:processing-core:4.6.0'
+
     api fileTree(dir: '../libs', include: ['*.jar'])
     api fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -119,7 +121,6 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.0.1-jre'
 
-    api 'org.processing.android:processing-core:4.6.0'
 }
 
 afterEvaluate {
