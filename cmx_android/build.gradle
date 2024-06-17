@@ -25,6 +25,11 @@ repositories {
         }
     }
 
+    maven {
+        name = "processing-android"
+        url = uri("https://raw.github.com/processing/processing-android/repository/")
+    }
+
 }
 
 android {
