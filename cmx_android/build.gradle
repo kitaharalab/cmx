@@ -3,14 +3,14 @@ plugins {
     id 'maven-publish'
 }
 
-version = '1.1.1'
+version = '1.1.2'
 
 repositories {
 
-    maven {
-        name = "processing-android"
-        url = uri("https://raw.github.com/processing/processing-android/repository/")
-    }
+    // maven {
+    //     name = "processing-android"
+    //     url = uri("https://raw.github.com/processing/processing-android/repository/")
+    // }
 
     maven {
         name = "GitHubPackages"
