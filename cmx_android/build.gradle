@@ -86,10 +86,8 @@ dependencies {
 //    api fileTree(dir: 'lib', include: '*.jar')
 
     api fileTree(dir: '../libs', include: ['*.jar'])
-    // api fileTree(dir: 'libs', include: ['*.jar'])
+    api fileTree(dir: 'libs', include: ['*.jar'])
     
-    implementation 'org.processing.android:processing-core:4.6.0'
-
     implementation 'javax.sound.midi-for-Android:javax.sound.midi-release:0.2.0-kitaharalab'
     implementation 'USB-MIDI-Driver:mididriver-release:0.2.0-kitaharalab'
 
